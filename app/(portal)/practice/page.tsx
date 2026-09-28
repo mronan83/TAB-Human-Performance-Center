@@ -25,7 +25,7 @@ export default async function PracticeHome({ searchParams }: { searchParams: Pro
       <nav aria-label="Filter clients" className="mb-4 flex flex-wrap gap-2">
         {filters.map(([v, l]) => (
           <Link key={l} href={v ? `/practice?status=${v}` : "/practice"} aria-current={(status ?? "") === v ? "page" : undefined}
-            className={(status ?? "") === v ? "rounded-full bg-olive px-4 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-border bg-white px-4 py-1.5 text-sm font-semibold"}>{l}</Link>
+            className={(status ?? "") === v ? "rounded-full bg-olive px-4 py-1.5 text-sm font-semibold text-white" : "rounded-full border border-border-input bg-white px-4 py-1.5 text-sm font-semibold"}>{l}</Link>
         ))}
       </nav>
       <div className="overflow-x-auto rounded-[20px] border border-border bg-white">

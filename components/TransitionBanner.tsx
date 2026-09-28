@@ -5,7 +5,7 @@ import { transitionNoticeActive } from "@/lib/links";
 export function TransitionBanner() {
   if (!transitionNoticeActive()) return null;
   return (
-    <div className="bg-olive text-white">
+    <div className="on-dark bg-olive text-white">
       <p className="container-page py-2 text-center text-sm">{siteConfig.brand.transitionNotice.text}</p>
     </div>
   );

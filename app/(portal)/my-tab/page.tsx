@@ -15,7 +15,7 @@ function InterimMyTab() {
   const login = clientLoginHref();
   return (
     <>
-      <PageHero eyebrow="My TAB" title="Your client home is coming soon." lead="For now, manage appointments, packages, and payment details through our booking system.">
+      <PageHero eyebrow="Client Login" title="Manage your appointments." lead="Book, reschedule, and manage packages and payment details through our online booking system.">
         <SmartLink href={login.href} external={login.external} className="btn btn-primary">Client login</SmartLink>
         <Link href="/book" className="btn btn-outline">Book</Link>
       </PageHero>
@@ -40,7 +40,7 @@ export default async function MyTabHome() {
       </div>
 
       {d.checkInDue && (
-        <div className="flex flex-col items-start justify-between gap-4 rounded-[20px] bg-olive p-6 text-white md:flex-row md:items-center">
+        <div className="flex flex-col items-start justify-between gap-4 on-dark rounded-[20px] bg-olive p-6 text-white md:flex-row md:items-center">
           <div><p className="text-h4">Your weekly check-in is ready</p><p className="text-white/85">Two minutes to reflect on energy, sleep, stress, and wins.</p></div>
           <Link href="/my-tab/progress#check-in" className="btn bg-white text-olive hover:bg-cream">Check in</Link>
         </div>

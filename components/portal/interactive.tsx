@@ -29,7 +29,7 @@ function Scale({ name, label, low, high, defaultValue }: { name: string; label: 
         {[1, 2, 3, 4, 5].map((n) => (
           <label key={n} className="flex-1">
             <input type="radio" name={name} value={n} defaultChecked={defaultValue === n} className="peer sr-only" />
-            <span className="flex h-12 items-center justify-center rounded-xl border border-border font-semibold peer-checked:border-olive peer-checked:bg-olive peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-focus)]">{n}</span>
+            <span className="flex h-12 items-center justify-center rounded-xl border border-border-input font-semibold peer-checked:border-olive peer-checked:bg-olive peer-checked:text-white peer-focus-visible:outline peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-focus)]">{n}</span>
           </label>
         ))}
       </div>
@@ -68,7 +68,7 @@ function FieldInput({ f, value, onChange }: { f: FormField; value: unknown; onCh
       <div className="flex gap-2" role="radiogroup" aria-labelledby={`${f.id}-label`}>
         {Array.from({ length: f.max - f.min + 1 }, (_, i) => f.min + i).map((n) => (
           <button type="button" key={n} role="radio" aria-checked={value === n} onClick={() => onChange(n)}
-            className={clsx("h-12 flex-1 rounded-xl border font-semibold", value === n ? "border-olive bg-olive text-white" : "border-border bg-white")}>{n}</button>
+            className={clsx("h-12 flex-1 rounded-xl border font-semibold", value === n ? "border-olive bg-olive text-white" : "border-border-input bg-white")}>{n}</button>
         ))}
       </div>
     );
@@ -80,7 +80,7 @@ function FieldInput({ f, value, onChange }: { f: FormField; value: unknown; onCh
         const on = multi ? arr.includes(o) : value === o;
         return (
           <button type="button" key={o} aria-pressed={on} onClick={() => onChange(multi ? (on ? arr.filter((x) => x !== o) : [...arr, o]) : o)}
-            className={clsx("rounded-full border px-4 py-2 font-medium", on ? "border-olive bg-olive text-white" : "border-border bg-white")}>{o}</button>
+            className={clsx("rounded-full border px-4 py-2 font-medium", on ? "border-olive bg-olive text-white" : "border-border-input bg-white")}>{o}</button>
         );
       })}
     </div>
@@ -142,7 +142,7 @@ export function ConsentToggle({ consent }: { consent: Consent }) {
       </div>
       <button type="button" role="switch" aria-checked={on} aria-label={consent.label} disabled={consent.required}
         onClick={() => start(async () => { setOn(!on); await setConsentAction(consent.type, !on); })}
-        className={clsx("relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-60", on ? "bg-olive" : "bg-border-strong")}>
+        className={clsx("relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-60", on ? "bg-olive" : "bg-border-input")}>
         <span className={clsx("absolute top-1 h-5 w-5 rounded-full bg-white transition-transform", on ? "translate-x-6" : "translate-x-1")} />
       </button>
     </div>

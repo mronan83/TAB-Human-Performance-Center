@@ -21,7 +21,7 @@ export const inquirySchema = z.object({
   referral: z.string().trim().max(200).optional().or(z.literal("")),
   consentContact: z.literal(true, { errorMap: () => ({ message: "Please confirm we can contact you about your inquiry." }) }),
   marketingOptIn: z.boolean().optional(),
-  company: z.string().max(0).optional(), // honeypot: must stay empty
+  company: z.string().max(200).optional(), // honeypot: humans leave it empty; the route drops filled submissions quietly
 });
 
 export type Inquiry = z.infer<typeof inquirySchema>;

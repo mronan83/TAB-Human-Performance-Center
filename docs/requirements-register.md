@@ -29,6 +29,7 @@ struck through, not deleted.
 | TOK | [Design tokens (JSON)](source/batch-2/TAB_Wellness_Collective_Design_Tokens.json) | Design system | 2 | "canonical", v1.0.0 |
 | TOKCSS | [Design tokens (CSS)](source/batch-2/tab-wellness-tokens.css) | Design system | 2 | Companion to TOK (see CON-009) |
 | LEG | [tabmassage.com inventory](legacy/tabmassage-inventory.md) | Legacy site | — | Collected by Claude from public sources |
+| REV | [Codebase review 2026-09-28](reviews/2026-09-28-codebase-review.md) | Security, requirements and accessibility review of CODE | — | Findings, fixes, Phase 2 gate, Phase 1 backlog |
 | MDR | [Master Decision, Risk & Architecture Record](source/batch-3/TAB_Wellness_Collective_Master_Decision_Risk_Architecture_Record.md) | D-001–D-055, R-001–R-028, X-01–X-13, A-01–A-06 | 3 | **System of record for decisions** (as of 2026-09-27) |
 | ARCH | [Technical Architecture v1.0](source/batch-3/ARCHITECTURE.pdf) ([text](source/batch-3/ARCHITECTURE.txt)) | Build architecture | 3 | "Governs the build"; Step 16 stays the strategy source |
 | CODE | Existing codebase `tab-wellness-collective` (zip handoff) | Phase 1 site + Phase 2 foundation | 3 | Builds per MDR; not deployed; imported into this repo |
@@ -188,6 +189,15 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | SEC-010 | Consent records: purpose, version, accepted date, sharing flags, withdrawal. | S14 §14.3, S16 App. A | P2 |
 | SEC-011 | Dependency patching, vulnerability scanning, incident-response contact and playbook. | S16 §16.6 | P1 |
 | SEC-012 | Owner/admin access to sensitive data is role-limited and audited, not automatically universal. | S16 §16.5 | P2 |
+| SEC-013 | Public forms have bot protection and a shared rate limit (Turnstile, Vercel BotID or WAF); a nonce-based Content-Security-Policy with `frame-ancestors 'none'` is in place. | Review 2026-09-28 | P1 launch |
+| SEC-014 | No public self-signup: accounts are created by owner invite, and a client record links only after the email is confirmed. | Review 2026-09-28 §2 | P2 gate |
+| SEC-015 | Staff MFA enforced (`aal2`) in RLS staff branches and `requireStaff`; users cannot clear their own MFA requirement. | Review 2026-09-28 §2, D-042 | P2 gate |
+| SEC-016 | Client writes limited to explicitly allowed columns; consents insert-only and server-stamped; submissions only against assigned forms; same-client foreign keys enforced. | Review 2026-09-28 §2 | P2 gate |
+| SEC-017 | Program content and cohort meeting links readable only when published and entitled (staff, enrolment or entitlement). | Review 2026-09-28 §2, D-044 | P2 gate |
+| SEC-018 | Practitioner access confined to the care team; identity/billing links owner-only; authorship pinned to the signed-in user; deactivated practitioners lose access. | Review 2026-09-28 §2, D-045 | P2 gate |
+| SEC-019 | Internal notes in a non-exposed schema behind audited functions; audit coverage for roles, all client tables and storage; audit table append-only and drained off-platform. | Review 2026-09-28 §2, A-05 | P2 gate |
+| SEC-020 | `httpOnly`/`secure` time-boxed session cookies; Stripe webhook is transactional, fails loudly and handles payment status, past-due and partial refunds. | Review 2026-09-28 §2, D-052 | P2 gate |
+| SEC-021 | Supabase-native test suite (`supabase start` + pgTAP) in CI covering JWT/AAL/signup/grants; no PUBLIC execute on helpers; storage size/MIME limits. | Review 2026-09-28 §2, R-026 | P2 gate |
 
 ### 2.8 Accessibility, SEO, analytics (NFR)
 

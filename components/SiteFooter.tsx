@@ -9,7 +9,7 @@ export function SiteFooter() {
   const addressParts = [contact.address.street, contact.address.city, contact.address.region, contact.address.postalCode].filter(Boolean);
   const socials = Object.entries(social).filter(([, url]) => !!url) as [string, string][];
   return (
-    <footer className="mt-24 bg-charcoal text-white">
+    <footer className="on-dark mt-24 bg-charcoal text-white">
       <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <div className="inline-block rounded-[20px] bg-cream p-4"><Logo className="h-12 w-auto" /></div>

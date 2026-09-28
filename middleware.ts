@@ -13,14 +13,18 @@ const LEGACY_HOSTS = ["tabmassage.com", "www.tabmassage.com"];
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
   const host = req.headers.get("host")?.toLowerCase() ?? "";
+  // Protocol-relative or backslash paths could resolve to another host when rebuilt into a URL.
+  if (url.pathname.startsWith("//") || url.pathname.includes("\\")) return new NextResponse(null, { status: 400 });
   let path = url.pathname;
   if (path.length > 1 && path.endsWith("/")) path = path.replace(/\/+$/, "");
 
   const mapped = legacyRedirects[path] ?? legacyPrefixRedirects.find((r) => path.startsWith(r.prefix))?.to;
   const fromLegacyHost = LEGACY_HOSTS.includes(host);
   if (mapped || fromLegacyHost || path !== url.pathname) {
-    const target = new URL(mapped ?? path, fromLegacyHost ? siteUrl : url.origin);
-    if (!mapped) target.search = url.search;
+    // Set only the path on a known origin so the redirect can never change host.
+    const target = fromLegacyHost ? new URL(siteUrl) : url.clone();
+    target.pathname = mapped ?? path;
+    target.search = mapped ? "" : url.search;
     return NextResponse.redirect(target, 308);
   }
 

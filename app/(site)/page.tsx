@@ -61,7 +61,7 @@ export default function HomePage() {
         <div className="container-page">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div className="max-w-2xl">
-              <p className="text-label text-secondary">The TAB Method</p>
+              <p className="text-label text-primary">The TAB Method</p>
               <h2 className="text-h1 mt-3">{home.method.headline}</h2>
               <p className="text-body-lg mt-4 text-text-secondary">{home.method.body}</p>
             </div>
@@ -141,7 +141,7 @@ export default function HomePage() {
       )}
 
       {/* 9. Closing CTA */}
-      <section className="section bg-charcoal text-white">
+      <section className="on-dark section bg-charcoal text-white">
         <div className="container-prose text-center">
           <h2 className="text-display-lg">{home.closing.headline}</h2>
           <p className="text-body-lg mt-5 text-white/80">{home.closing.body}</p>

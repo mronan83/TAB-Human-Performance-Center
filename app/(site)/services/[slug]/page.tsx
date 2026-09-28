@@ -79,9 +79,9 @@ export default async function ServicePage({ params }: Props) {
       </section>
 
       {/* TAB Method applied */}
-      <section className="section bg-olive text-white">
+      <section className="on-dark section bg-olive text-white">
         <div className="container-page">
-          <p className="text-label text-white/70">The TAB Method, applied</p>
+          <p className="text-label text-white/90">The TAB Method, applied</p>
           <div className="mt-8 grid gap-8 md:grid-cols-3">
             {(["transform", "align", "become"] as const).map((k) => (
               <div key={k} className="border-t border-white/30 pt-6">
@@ -136,7 +136,7 @@ export default async function ServicePage({ params }: Props) {
         </div>
       </section>
 
-      <section className="section bg-charcoal text-white">
+      <section className="on-dark section bg-charcoal text-white">
         <div className="container-prose text-center">
           <h2 className="text-display-lg">Start where you are.</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">

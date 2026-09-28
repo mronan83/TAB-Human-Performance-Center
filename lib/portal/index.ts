@@ -1,19 +1,28 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { siteConfig } from "@/config/site";
+import { isProductionDeployment, siteConfig } from "@/config/site";
 import type { PortalRepository, Viewer } from "./types";
 import { DEMO_CLIENT_ID, DEMO_PRACTITIONER_ID, mockRepository } from "./mock-repository";
 
 export const isMock = () => siteConfig.portal.dataSource === "mock";
 
+/** Demo data is shared by every visitor and never allowed on a production deployment. */
+function assertDemoAllowed() {
+  if (isProductionDeployment) throw new Error("My TAB demo data is disabled on production deployments.");
+}
+
 export async function getRepository(): Promise<PortalRepository> {
-  if (isMock()) return mockRepository;
+  if (isMock()) {
+    assertDemoAllowed();
+    return mockRepository;
+  }
   return (await import("./supabase-repository")).supabaseRepository;
 }
 
 /** The signed-in viewer. In mock mode a cookie switches between the demo client and demo practitioner. */
 export async function getViewer(): Promise<Viewer | null> {
   if (isMock()) {
+    assertDemoAllowed();
     const role = (await cookies()).get("tab_demo_role")?.value === "owner" ? "owner" : "client";
     return role === "owner"
       ? { userId: "demo-owner", role: "owner", name: "Your TAB practitioner", practitionerId: DEMO_PRACTITIONER_ID }

@@ -21,14 +21,17 @@ npm run dev                  # http://localhost:3000
 - Website: `/`
 - Client portal demo: `/my-tab` (fictional client "Dana"; switch to the practitioner view from the dark banner)
 - Practitioner workspace demo: `/practice`
-- Launch readiness: `/launch-checklist` (lists every open placeholder; not indexed)
+- Launch readiness: `/launch-checklist` on previews (lists every open placeholder). Setting `NEXT_PUBLIC_ALLOW_INDEXING=true` is the launch switch; the build fails while required items are open.
+- The demo portal runs only on previews and locally; production shows Client Login → Timely until Phase 2.
 
 ## Checks
 
 ```bash
-npm run typecheck   # TypeScript
-npm run build       # production build
-npm run test:rls    # 16 row-level security tests against the database migration (in-process Postgres)
+npm run check          # everything below, as CI runs it on every PR
+npm run typecheck      # TypeScript
+npm run test:rls       # row-level security suite (in-process Postgres); also lists open Phase 2 security gaps
+npm run test:contrast  # WCAG 2.2 AA contrast for every permitted design-token pairing
+npm run build          # production build
 ```
 
 ## Where things live

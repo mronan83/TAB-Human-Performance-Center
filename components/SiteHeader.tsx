@@ -6,9 +6,19 @@ import { useEffect, useRef, useState } from "react";
 import { primaryNav } from "@/config/navigation";
 import { HomeLogoLink } from "./Logo";
 import { Cta } from "./Cta";
+import { SmartLink } from "./SmartLink";
+import { siteConfig } from "@/config/site";
+import { clientLoginHref } from "@/lib/links";
 import clsx from "clsx";
 
-/** Header: primary nav + persistent actions Start Where You Are, Book, My TAB (Step 16.2). */
+/**
+ * Header: primary nav + persistent actions Start Where You Are, Book, My TAB (Step 16.2).
+ * Until the portal is live, the account action is "Client Login" straight into Timely (Step 19.14, WEB-020).
+ */
+const account = siteConfig.portal.enabled
+  ? { href: "/my-tab", external: false, label: "My TAB" }
+  : { ...clientLoginHref(), label: "Client Login" };
+
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -73,7 +83,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <Link href="/my-tab" className="px-3 py-2 text-[0.9375rem] font-medium hover:text-primary">My TAB</Link>
+          <SmartLink href={account.href} external={account.external} className="px-3 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>
           <Cta kind="book" label="Book" variant="outline" size="sm" />
           <Cta kind="start" label="Start Where You Are" size="sm" />
         </div>
@@ -98,7 +108,7 @@ export function SiteHeader() {
                 )}
               </li>
             ))}
-            <li className="py-2"><Link href="/my-tab" className="block py-2 text-lg font-semibold">My TAB</Link></li>
+            <li className="py-2"><SmartLink href={account.href} external={account.external} className="block py-2 text-lg font-semibold">{account.label}</SmartLink></li>
             <li className="flex flex-col gap-3 pt-4">
               <Cta kind="start" label="Start Where You Are" />
               <Cta kind="book" label="Book" variant="outline" />

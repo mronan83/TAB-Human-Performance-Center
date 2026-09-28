@@ -3,11 +3,16 @@ import { Resend } from "resend";
 import { inquirySchema, interestOptions } from "@/lib/inquiry";
 import { siteConfig } from "@/config/site";
 
-// Minimal in-memory rate limit (per server instance). Replace with a shared store if abuse appears.
+// Best-effort in-memory rate limit (per server instance only). A shared limiter or bot check (Turnstile /
+// BotID / Vercel WAF) is a launch requirement; see docs/requirements-register.md SEC-013.
+const WINDOW_MS = 10 * 60_000;
 const hits = new Map<string, number[]>();
 function limited(ip: string) {
   const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < 10 * 60_000);
+  if (hits.size > 5_000) {
+    for (const [key, times] of hits) if (times.every((t) => now - t >= WINDOW_MS)) hits.delete(key);
+  }
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
   recent.push(now);
   hits.set(ip, recent);
   return recent.length > 5;
@@ -23,7 +28,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ ok: false, errors: parsed.error.flatten().fieldErrors }, { status: 422 });
   }
-  const d = parsed.data;
+  const d = { ...parsed.data, name: parsed.data.name.replace(/[\r\n]+/g, " ").trim() };
   if (d.company) return NextResponse.json({ ok: true }); // bot: pretend success
 
   const interests = (d.interests ?? []).map((v) => interestOptions.find((o) => o.value === v)?.label ?? v);
@@ -38,9 +43,11 @@ export async function POST(req: Request) {
     ["How they heard about TAB", d.referral || "—"],
     ["Marketing opt-in", d.marketingOptIn ? "Yes" : "No"],
   ];
-  const subject = d.kind === "start" ? `Start Where You Are: ${d.name}` : `Website message: ${d.name}`;
+  // Subjects carry no personal details (D-054, R-027); the reference only helps thread replies.
+  const ref = Date.now().toString(36).toUpperCase();
+  const subject = d.kind === "start" ? `Start Where You Are: new submission (${ref})` : `Website message: new submission (${ref})`;
   const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2><table cellpadding="6" style="font-family:Arial,sans-serif;font-size:14px">${rows
-    .map(([k, v]) => `<tr><td style="color:#5E625A;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
+    .map(([k, v]) => `<tr><td style="color:#575B53;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
     .join("")}</table><h3 style="font-family:Arial,sans-serif">Message</h3><p style="font-family:Arial,sans-serif;white-space:pre-wrap">${esc(d.message)}</p>`;
   const to = d.kind === "start" ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
 

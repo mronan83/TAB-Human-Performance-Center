@@ -25,6 +25,7 @@ const pairings = [
   ]),
   // Text on tinted accent fields
   ["text-primary", "accent-soft", TEXT],
+  ["secondary-hover", "accent-soft", TEXT], // accent badge
   // White/cream text on filled controls and dark fields
   ...["primary", "primary-hover", "primary-active", "secondary", "secondary-hover", "surface-brand", "charcoal"].map(
     (bg) => ["white", bg, TEXT],

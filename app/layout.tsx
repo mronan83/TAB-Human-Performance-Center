@@ -2,7 +2,10 @@ import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
 import "./globals.css";
 import { indexingAllowed, siteConfig, siteUrl } from "@/config/site";
-import { Analytics } from "@/components/Analytics";
+import { assertLaunchReady } from "@/lib/placeholders";
+
+// The indexing switch is the launch switch: refuse to build a launch while required items are open.
+if (indexingAllowed) assertLaunchReady();
 
 const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["500", "600"], style: ["normal", "italic"], variable: "--font-cormorant", display: "swap" });
 const manrope = Manrope({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-manrope", display: "swap" });
@@ -25,7 +28,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${cormorant.variable} ${manrope.variable}`}>
       <body>
         {children}
-        <Analytics />
       </body>
     </html>
   );

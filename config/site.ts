@@ -11,6 +11,13 @@
 export const PLACEHOLDER = "__PLACEHOLDER__" as const;
 type Maybe<T> = T | null;
 
+/** Vercel deployment environment ("production" | "preview" | "development"); undefined when run locally. */
+const deploymentEnv = process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_ENV;
+export const isProductionDeployment = deploymentEnv === "production";
+
+/** Where My TAB reads data. Stays "mock" until the D-042 go-live gates in docs/PHASE2.md are met. */
+const portalDataSource = "mock" as "mock" | "supabase";
+
 export const siteConfig = {
   brand: {
     name: "TAB Wellness Collective", // D-020, D-038: always the full name in metadata and listings
@@ -93,13 +100,15 @@ export const siteConfig = {
   /**
    * My TAB client portal (Phase 2, D-034).
    * - enabled=false: /my-tab shows an interim page linking to Timely Client Login (Step 19.14).
-   * - enabled=true + dataSource="mock": full portal UI with demo data, no login (for review).
+   * - enabled=true + dataSource="mock": full portal UI with demo data, no login (preview review only).
    * - enabled=true + dataSource="supabase": authenticated portal backed by Supabase.
    *   Do not store client health data until the D-042 infrastructure (HIPAA tier, BAAs) is live.
+   * Demo mode has no login and one in-memory store shared by every visitor, so it is never enabled on a
+   * production deployment (security review 2026-09-28); production shows the Timely Client Login page instead.
    */
   portal: {
-    enabled: true,
-    dataSource: "mock" as "mock" | "supabase",
+    enabled: portalDataSource === "supabase" || !isProductionDeployment,
+    dataSource: portalDataSource,
     showPracticeWorkspace: true,
   },
 } as const;
