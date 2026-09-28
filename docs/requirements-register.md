@@ -89,7 +89,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 
 | ID | Requirement | Source | Phase |
 |---|---|---|---|
-| WEB-001 | Primary nav: Home, Services, The TAB Method, About, Resources. Persistent actions: Start Where You Are (primary), Book, My TAB. | S16 §16.2 | P1 |
+| WEB-001 | Primary nav: Home, Services, The TAB Method, About, Resources. Persistent actions: Start Where You Are (primary), Book, My TAB. *(2026-09-28: Home item and an "All services" link added; Escape returns focus, menus close on focus-out; full nav from 1280px, Menu button below)* | S16 §16.2 | P1 |
 | WEB-002 | Sitemap and URLs as specified (19 routes: `/`, `/services` + 4 service pages, `/tab-method`, `/about`, `/about/our-story`, `/about/team`, `/resources`, `/resources/articles`, `/resources/guides`, `/events`, `/faq`, `/start`, `/book`, `/contact`, `/my-tab`). | S16 §16.2 | P1 |
 | WEB-003 | Homepage follows the approved nine-section sequence: Hero → Core idea → Four pillars → TAB Method → Personalization → Guided conversion → Proof/trust → Resources → Closing invitation. | S16 §16.3 | P1 |
 | WEB-004 | Services landing page headed "Support for how you feel, move, live, and grow." presenting pillars as independently valuable and optionally connected. | S16 §16.2 | P1 |
@@ -100,7 +100,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | WEB-009 | About (core narrative, structure Belief → Client → Method → Differentiation → Ownership → Invitation), Our Story (kept separate), Team. | S15 §15.5, S16 §16.2 | P1 |
 | WEB-010 | Resources hub: articles, guides, events/workshops, FAQ. | S16 §16.2, §16.7 | P1 |
 | WEB-011 | `/book` offers two paths: "I know what I want" → Timely booking; "Help me find my starting point" → `/start`. | S16 §16.2 | P1 |
-| WEB-012 | Footer: Explore, Services, Get Started, TAB links, legal/accessibility (Privacy, Terms, Accessibility, client policies, cancellation policy, service disclaimers), location, hours, contact, social. | S16 §16.2 | P1 |
+| WEB-012 | Footer: Explore, Services, Get Started, TAB links, legal/accessibility (Privacy, Terms, Accessibility, client policies, cancellation policy, service disclaimers), location, hours, contact, social. *(2026-09-28: hours, service area, cancellation-policy and service-disclaimer links added; policies page has #cancellation and #scope sections; account link matches the header)* | S16 §16.2 | P1 |
 | WEB-013 | Trust content: testimonials with consent metadata, practitioner credentials, years serving the community, partnerships, reviews only when strong and current, no dramatic before/after claims. | S16 §16.3 | P1 |
 | WEB-014 | All public copy follows S15 voice rules and avoid-lists (hype, fitness culture, wellness guilt, "woo", clinical). | S15 §15.8 | P1 |
 | WEB-015 | Temporary site-wide announcement bar ("TAB Massage & Fitness is now TAB Wellness Collective…"), editable in the CMS with a start and end date so it cannot linger. | S19 App. B, §19.17 | P1 |
@@ -198,8 +198,8 @@ submission, stamped with who and when; it goes live when submission storage swit
 | SEC-010 | Consent records: purpose, version, accepted date, sharing flags, withdrawal. | S14 §14.3, S16 App. A | P2 |
 | SEC-011 | Dependency patching, vulnerability scanning, incident-response contact and playbook. | S16 §16.6 | P1 |
 | SEC-012 | Owner/admin access to sensitive data is role-limited and audited, not automatically universal. | S16 §16.5 | P2 |
-| SEC-013 | Public forms have bot protection and a shared rate limit (Turnstile, Vercel BotID or WAF); a nonce-based Content-Security-Policy with `frame-ancestors 'none'` is in place. *(2026-09-28, owner request to harden the forms: built in `lib/spam.ts`: same-origin check, body cap, per-IP and per-address limits, off-screen honeypot, minimum fill time, duplicate suppression, link screening on the contact message (markup dropped, plain links flagged, no submitter copy), and Cloudflare Turnstile (free, invisible for most people; *proposed register entry* for the vendor). Open: Turnstile keys (owner, free account); a shared edge rate limit (Vercel Firewall rule, owner approval); the CSP.)* | Review 2026-09-28 | P1 launch |
-| SEC-014 | No public self-signup: accounts are created by owner invite, and a client record links only after the email is confirmed. *(2026-09-28: confirm-time linking built and tested. The live project still allows public sign-up (`disable_signup = false`); the owner approved switching it off, which is done in the Supabase dashboard.)* | Review 2026-09-28 §2 | P2 gate |
+| SEC-013 | Public forms have bot protection and a shared rate limit (Turnstile, Vercel BotID or WAF); a nonce-based Content-Security-Policy with `frame-ancestors 'none'` is in place. *(2026-09-28, owner request to harden the forms: built in `lib/spam.ts`: same-origin check, body cap, per-IP and per-address limits, off-screen honeypot, minimum fill time, duplicate suppression, link screening on the contact message (markup dropped, plain links flagged, no submitter copy), and Cloudflare Turnstile (free, invisible for most people; *proposed register entry* for the vendor). Open: Turnstile keys (owner, free account); the CSP. A shared edge rate limit (Vercel Firewall) was declined by the owner for now, 2026-09-28; it stays optional on the launch checklist.)* | Review 2026-09-28 | P1 launch |
+| SEC-014 | No public self-signup: accounts are created by owner invite, and a client record links only after the email is confirmed. *(2026-09-28: confirm-time linking built and tested; public sign-up switched off by the owner and verified through the Management API (`disable_signup = true`). The invite flow itself is not built yet: GAP-023.)* | Review 2026-09-28 §2 | P2 gate |
 | SEC-015 | Staff MFA enforced (`aal2`) in RLS staff branches and `requireStaff`; users cannot clear their own MFA requirement. | Review 2026-09-28 §2, D-042 | P2 gate |
 | SEC-016 | Client writes limited to explicitly allowed columns; consents insert-only and server-stamped; submissions only against assigned forms; same-client foreign keys enforced. | Review 2026-09-28 §2 | P2 gate |
 | SEC-017 | Program content and cohort meeting links readable only when published and entitled (staff, enrolment or entitlement). | Review 2026-09-28 §2, D-044 | P2 gate |
@@ -212,9 +212,9 @@ submission, stamped with who and when; it goes live when submission storage swit
 
 | ID | Requirement | Source | Phase |
 |---|---|---|---|
-| NFR-001 | WCAG 2.2 AA: keyboard access, visible focus, contrast, no colour-only state, semantic landmarks, labelled forms with error recovery, alt text, captions, touch targets, zoom/reflow, reduced motion, accessible downloads. | S16 §16.8 | P1 |
-| NFR-002 | Technical SEO: XML sitemap, robots.txt, canonicals, Core Web Vitals, image optimisation, HTTPS, clean 404, redirect monitoring. | S16 §16.8 | P1 |
-| NFR-003 | Page metadata pattern: title `[Service] in [Location] \| TAB Wellness Collective`, human meta descriptions, outcome-led H1; Organization / LocalBusiness / Service structured data; FAQ markup only where visible. | S16 §16.4, §16.8 | P1 |
+| NFR-001 | WCAG 2.2 AA: keyboard access, visible focus, contrast, no colour-only state, semantic landmarks, labelled forms with error recovery, alt text, captions, touch targets, zoom/reflow, reduced motion, accessible downloads. *(2026-09-28: heading order fixed on /services, /tab-method and service pages; decorative artwork and photo placeholders hidden from screen readers; stats read once; portal skip link; accessibility page links the email address)* | S16 §16.8 | P1 |
+| NFR-002 | Technical SEO: XML sitemap, robots.txt, canonicals, Core Web Vitals, image optimisation, HTTPS, clean 404, redirect monitoring. *(2026-09-28: canonical URL and Open Graph/Twitter tags on every public page; branded 404 for any unknown URL, with header and footer)* | S16 §16.8 | P1 |
+| NFR-003 | Page metadata pattern: title `[Service] in [Location] \| TAB Wellness Collective`, human meta descriptions, outcome-led H1; Organization / LocalBusiness / Service structured data; FAQ markup only where visible. *(2026-09-28: titles follow "[Service] in Brighton & Howell, MI | TAB Wellness Collective" (ASM-006); hand-written meta descriptions; Service and BreadcrumbList JSON-LD; FAQ markup only for non-draft answers)* | S16 §16.4, §16.8 | P1 |
 | NFR-004 | Redirect map from legacy tabmassage.com URLs completed before launch. | S16 §16.8, §16.9 | P0/P1 |
 | NFR-005 | Privacy-aware public analytics; portal analytics kept separate; no sensitive data in event names or properties. | S16 §16.8 | P1 |
 | NFR-006 | Public events: `start_where_you_are_open/submit`, `service_view`, `book_click`, `timely_booking_outbound`, `my_tab_login_click`, `method_view`, `resource_view/download`, `contact_submit/consultation_request`. *(DIV-04, owner ruling 2026-09-28: `/start` is counted in Plausible as page view → `Start Form: Started` (first interaction) → `Start Form: Submitted` (accepted by the server), with no event properties; `/contact` stays untracked.)* | S16 §16.8 | P1 |
@@ -280,6 +280,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 | GAP-020 | Gift cards: the legacy site sells them. Will they continue, and through what (Timely vouchers, Stripe, other)? S16 lists "Gift Cards if offered". | P1 | Owner |
 | GAP-021 | URLs for the legal pages are not defined in S16. Proposed: `/privacy`, `/terms`, `/accessibility`, `/policies/cancellation`. | P1 | Engineering proposal |
 | GAP-022 | When paid ads start (D-015), a Meta pixel loaded on a public page stays resident after client-side navigation to `/start` or `/contact`, where its automatic events and automatic advanced matching could read form fields. | Before the pixel is switched on: force a full page load into pixel-free paths (or disable `autoConfig` and automatic advanced matching) and verify with a browser test. Blocks D-015 activation, not launch. |
+| GAP-023 | My TAB accounts are invite-only (SEC-014), but no invite path is built: no "Invite to My TAB" action in TAB Practice, and no automatic invite when someone buys a program, cohort or membership (D-052), which online growth needs (D-043). Supabase's Site URL is still `http://localhost:3000`, the redirect allow list is empty, and the default invite email needs a token-hash confirm route to work with server-side sign-in. | Build the invite action and confirm route with My TAB (Phase 2); the Stripe webhook sends the invite automatically; set the Site URL and redirect list when the domain is live. |
 
 ## 5. Assumptions (ASM)
 
@@ -290,6 +291,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 | ASM-003 | English only at launch. | G1 |
 | ASM-004 | Single physical location in Michigan (state confirmed by S17; site count unconfirmed, see GAP-003). | G1 |
 | ASM-005 | Until vector logos exist (DS-006), high-resolution raster exports of the S18 artwork can serve development and previews, but not the production launch. | G1 |
+| ASM-006 | Titles and structured data use the service area "Brighton & Howell, MI" (business context), since the studio address is not set yet. `config/site.ts → location`. | Owner to confirm the primary city once the address is set |
 
 ## 6. Engineering risks and recommendations (RSK)
 

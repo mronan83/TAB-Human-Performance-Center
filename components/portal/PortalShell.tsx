@@ -28,6 +28,9 @@ export function PortalShell({ viewer, area, children }: { viewer: Viewer; area: 
   const nav = area === "client" ? clientNav : practiceNav;
   return (
     <div className="min-h-dvh bg-cream">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2">
+        Skip to content
+      </a>
       {isMock() && <DemoBanner role={viewer.role} />}
       <div className="lg:grid lg:grid-cols-[260px_1fr]">
         <aside className="hidden border-r border-border bg-white lg:flex lg:min-h-[calc(100dvh-40px)] lg:flex-col">

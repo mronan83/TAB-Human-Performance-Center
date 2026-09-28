@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { hoursText } from "@/lib/links";
+import { pageMetadata } from "@/lib/seo";
 import { siteConfig } from "@/config/site";
 import { PageHero } from "@/components/PageHero";
 import { InquiryForm } from "@/components/InquiryForm";
 
-export const metadata: Metadata = { title: "Contact", description: "Contact TAB Wellness Collective." };
+export const metadata: Metadata = pageMetadata({ title: "Contact", description: "Questions about booking, services or gift cards? Contact TAB Wellness Collective in Brighton and Howell, MI.", path: "/contact" });
 
 export default function ContactPage() {
   const { contact } = siteConfig;
@@ -22,7 +24,7 @@ export default function ContactPage() {
               <dl className="mt-2 space-y-1">
                 {contact.hours.map((h) => (
                   <div key={h.days} className="flex justify-between gap-6 border-b border-border py-2">
-                    <dt>{h.days}</dt><dd className="text-text-secondary">{h.closed ? "Closed" : h.open === "PLACEHOLDER" ? "By appointment" : `${h.open} – ${h.close}`}</dd>
+                    <dt>{h.days}</dt><dd className="text-text-secondary">{hoursText(h)}</dd>
                   </div>
                 ))}
               </dl>

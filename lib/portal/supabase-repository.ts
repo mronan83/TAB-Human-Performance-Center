@@ -150,7 +150,7 @@ export const supabaseRepository: PortalRepository = {
   async listResources(clientId) {
     const sb = await db();
     const rows = must(await sb.from("resource_assignments").select("*").eq("client_id", clientId).order("assigned_at", { ascending: false })) as Row[];
-    return rows.map((r): ResourceAssignment => ({ id: r.id, title: r.title, kind: r.kind ?? undefined, note: r.note ?? undefined, href: `/resources/${r.resource_ref}`, assignedAt: r.assigned_at, viewedAt: r.viewed_at ?? undefined }));
+    return rows.map((r): ResourceAssignment => ({ id: r.id, title: r.title, kind: r.kind ?? undefined, note: r.note ?? undefined, href: "/resources" /* no per-resource pages yet (WEB-010) */, assignedAt: r.assigned_at, viewedAt: r.viewed_at ?? undefined }));
   },
   async listForms(clientId) {
     const sb = await db();

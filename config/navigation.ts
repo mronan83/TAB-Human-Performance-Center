@@ -4,10 +4,12 @@ export type NavItem = { label: string; href: string; children?: NavItem[] };
 
 /** D-033 / Step 16.2: primary navigation follows visitor intent. */
 export const primaryNav: NavItem[] = [
+  { label: "Home", href: "/" }, // WEB-001
   {
     label: "Services",
     href: "/services",
     children: [
+      { label: "All services", href: "/services" },
       { label: "Massage & Bodywork", href: "/services/massage-bodywork" },
       { label: "Personal Strength Training", href: "/services/personal-strength-training" },
       { label: "Women’s Wellness Coaching", href: "/services/womens-wellness-coaching" },
@@ -38,7 +40,6 @@ export const footerNav = {
   getStarted: [
     { label: "Start Where You Are", href: "/start" },
     { label: "Book", href: "/book" },
-    { label: "My TAB", href: "/my-tab" },
     { label: "Contact", href: "/contact" },
   ],
   tab: [
@@ -52,5 +53,7 @@ export const footerNav = {
     { label: "Terms", href: "/terms" },
     { label: "Accessibility", href: "/accessibility" },
     { label: "Client policies", href: "/policies" },
+    { label: "Cancellation policy", href: "/policies#cancellation" },
+    { label: "Service disclaimers", href: "/policies#scope" },
   ],
 };

@@ -2,78 +2,95 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FocusEvent } from "react";
 import { primaryNav } from "@/config/navigation";
 import { HomeLogoLink } from "./Logo";
 import { Cta } from "./Cta";
 import { SmartLink } from "./SmartLink";
-import { siteConfig } from "@/config/site";
-import { clientLoginHref } from "@/lib/links";
+import { accountLink } from "@/lib/links";
 import clsx from "clsx";
 
 /**
- * Header: primary nav + persistent actions Start Where You Are, Book, My TAB (Step 16.2).
+ * Header: primary nav + persistent actions Start Where You Are, Book, My TAB (Step 16.2, WEB-001).
  * Until the portal is live, the account action is "Client Login" straight into Timely (Step 19.14, WEB-020).
+ * The full nav needs about 1200px, so below the xl breakpoint the Menu button is used.
+ * Keyboard (NFR-001): Escape closes an open menu and returns focus to the button that opened it; a menu closes
+ * when focus moves out of it. Closed menus stay in the DOM as `hidden` so `aria-controls` always resolves.
  */
-const account = siteConfig.portal.enabled
-  ? { href: "/my-tab", external: false, label: "My TAB" }
-  : { ...clientLoginHref(), label: "Client Login" };
+const account = accountLink();
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const navRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const triggers = useRef<Record<string, HTMLButtonElement | null>>({});
+  const state = useRef({ open, openMenu });
+  state.current = { open, openMenu };
 
   useEffect(() => { setOpen(false); setOpenMenu(null); }, [pathname]);
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") { setOpenMenu(null); setOpen(false); } };
-    const onClick = (e: MouseEvent) => { if (navRef.current && !navRef.current.contains(e.target as Node)) setOpenMenu(null); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      const { open: mobileOpen, openMenu: menu } = state.current;
+      if (menu) triggers.current[menu]?.focus();
+      else if (mobileOpen) menuButton.current?.focus();
+      setOpenMenu(null);
+      setOpen(false);
+    };
+    const onClick = (e: MouseEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) { setOpenMenu(null); setOpen(false); }
+    };
     document.addEventListener("keydown", onKey);
     document.addEventListener("click", onClick);
     return () => { document.removeEventListener("keydown", onKey); document.removeEventListener("click", onClick); };
   }, []);
 
+  /** Close a menu once focus has left it (tabbing past the last item, or into the page). */
+  const closeWhenFocusLeaves = (close: () => void) => (e: FocusEvent<HTMLElement>) => {
+    if (!e.currentTarget.contains(e.relatedTarget as Node | null)) close();
+  };
+
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur">
+    <header ref={headerRef} onBlur={closeWhenFocusLeaves(() => setOpen(false))} className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2">
         Skip to content
       </a>
       <div className="container-page flex h-20 items-center justify-between gap-6">
         <HomeLogoLink />
 
-        <nav ref={navRef} aria-label="Primary" className="hidden lg:block">
+        <nav aria-label="Primary" className="hidden xl:block">
           <ul className="flex items-center gap-1">
             {primaryNav.map((item) =>
               item.children ? (
-                <li key={item.href} className="relative">
+                <li key={item.href} className="relative" onBlur={closeWhenFocusLeaves(() => setOpenMenu((m) => (m === item.href ? null : m)))}>
                   <button
                     type="button"
+                    ref={(el) => { triggers.current[item.href] = el; }}
                     aria-expanded={openMenu === item.href}
                     aria-controls={`menu-${item.label}`}
                     onClick={() => setOpenMenu(openMenu === item.href ? null : item.href)}
-                    className={clsx("rounded-full px-4 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")}
+                    className={clsx("whitespace-nowrap rounded-full px-4 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")}
                   >
                     {item.label}
                     <span aria-hidden className="ml-1 inline-block text-xs">▾</span>
                   </button>
-                  {openMenu === item.href && (
-                    <ul id={`menu-${item.label}`} className="absolute left-0 top-full mt-2 w-72 rounded-[20px] border border-border bg-white p-2 shadow-[var(--shadow-md)]">
-                      {item.children.map((c) => (
-                        <li key={c.href}>
-                          <Link href={c.href} className="block rounded-xl px-4 py-3 text-[0.9375rem] hover:bg-sand" aria-current={pathname === c.href ? "page" : undefined}>
-                            {c.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                  <ul id={`menu-${item.label}`} hidden={openMenu !== item.href} className="absolute left-0 top-full mt-2 w-72 rounded-[20px] border border-border bg-white p-2 shadow-[var(--shadow-md)]">
+                    {item.children.map((c) => (
+                      <li key={c.label}>
+                        <Link href={c.href} className="block rounded-xl px-4 py-3 text-[0.9375rem] hover:bg-sand" aria-current={pathname === c.href ? "page" : undefined}>
+                          {c.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </li>
               ) : (
                 <li key={item.href}>
-                  <Link href={item.href} className={clsx("rounded-full px-4 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")} aria-current={isActive(item.href) ? "page" : undefined}>
+                  <Link href={item.href} className={clsx("whitespace-nowrap rounded-full px-4 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")} aria-current={isActive(item.href) ? "page" : undefined}>
                     {item.label}
                   </Link>
                 </li>
@@ -82,19 +99,18 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
-          <SmartLink href={account.href} external={account.external} className="px-3 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>
+        <div className="hidden items-center gap-2 xl:flex">
+          <SmartLink href={account.href} external={account.external} className="whitespace-nowrap px-3 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>
           <Cta kind="book" label="Book" variant="outline" size="sm" />
           <Cta kind="start" label="Start Where You Are" size="sm" />
         </div>
 
-        <button type="button" className="btn btn-outline btn-sm lg:hidden" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
+        <button ref={menuButton} type="button" className="btn btn-outline btn-sm xl:hidden" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
           {open ? "Close" : "Menu"}
         </button>
       </div>
 
-      {open && (
-        <nav id="mobile-nav" aria-label="Primary" className="border-t border-border bg-cream lg:hidden">
+      <nav id="mobile-nav" hidden={!open} aria-label="Primary" className="border-t border-border bg-cream xl:hidden">
           <ul className="container-page flex flex-col py-4">
             {primaryNav.map((item) => (
               <li key={item.href} className="border-b border-border/60 py-2">
@@ -115,7 +131,6 @@ export function SiteHeader() {
             </li>
           </ul>
         </nav>
-      )}
     </header>
   );
 }

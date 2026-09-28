@@ -19,6 +19,7 @@ export type Service = {
   headline: string;
   summary: string; // one-line summary for cards (Step 13 at a glance)
   description: string; // client-facing description (Step 13)
+  metaDescription: string; // search snippet, under ~155 characters (S16 §16.4)
   whoItsFor: string[];
   gains: string[];
   approachLead: string;
@@ -38,6 +39,7 @@ export const services: Service[] = [
   {
     slug: "massage-bodywork",
     name: "Massage & Bodywork",
+    metaDescription: "Personalized massage and bodywork in Brighton and Howell, MI: relaxation, recovery, prenatal and lymphatic care, adapted to how your body feels.",
     shortName: "Massage",
     headline: "Care for how your body feels, moves, and recovers.",
     summary:
@@ -102,6 +104,7 @@ export const services: Service[] = [
   {
     slug: "personal-strength-training",
     name: "Personal Strength Training",
+    metaDescription: "Individualized strength training in Brighton and Howell, MI, or virtually, built around your abilities, goals and everyday life.",
     shortName: "Strength",
     headline: "Build strength for the way you want to live.",
     summary:
@@ -162,6 +165,7 @@ export const services: Service[] = [
   {
     slug: "womens-wellness-coaching",
     name: "Women’s Wellness Coaching",
+    metaDescription: "Women’s wellness coaching in Brighton and Howell, MI, or virtually: practical support for your health, habits, stress and life’s transitions.",
     shortName: "Women’s Wellness",
     headline: "Wellness that adapts to your life.",
     summary:
@@ -223,6 +227,7 @@ export const services: Service[] = [
   {
     slug: "holistic-life-coaching",
     name: "Holistic Life Coaching",
+    metaDescription: "Holistic life coaching in Brighton and Howell, MI, or virtually, to bring more clarity, balance and practical next steps to the life you want.",
     shortName: "Life Coaching",
     headline: "Bring the way you live closer to what matters most.",
     summary:

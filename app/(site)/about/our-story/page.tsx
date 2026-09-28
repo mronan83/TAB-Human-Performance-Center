@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { about } from "@/content/pages";
 import { PageHero } from "@/components/PageHero";
 import { DraftFlag } from "@/components/DraftFlag";
 
-export const metadata: Metadata = { title: "Our Story", description: "From TAB Massage & Fitness to TAB Wellness Collective." };
+export const metadata: Metadata = pageMetadata({ title: "Our Story", description: "How TAB Massage & Fitness, serving Brighton and Howell since 2008, grew into TAB Wellness Collective.", path: "/about/our-story" });
 
 export default function StoryPage() {
   return (
