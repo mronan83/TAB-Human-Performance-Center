@@ -8,18 +8,18 @@
 - **Payments**: Stripe Checkout, customer portal, and webhook that grants and revokes entitlements (no Stripe account connected yet).
 - **Supabase project** `vpaaeblqndcenftrfrms` (allowed org, us-east-1): public sign-up off; **no schema applied yet**. Applying the migrations there is a production migration (G3).
 
-The portal runs on demo data (`portal.dataSource = "mock"`) on preview deployments only; production shows the Timely Client Login page instead (D-042).
+The portal runs on demo data (`portal.dataSource = "mock"`) on preview deployments only; production shows the Timely Client Login page instead (D-042, `CLAUDE.md` guardrail 4).
 
 ## Build before go-live (needs no real data)
-Owner ruling on GAP-008, 2026-09-28: build now; the Supabase upgrade comes later; D-042 is unchanged.
+Owner rulings, 2026-09-28: GAP-008 closed, **HIPAA does not apply** (proposed D-060 amends D-042: no HIPAA tier or BAA); build now; the Supabase upgrade comes later.
 1. **Security hardening** (SEC-015 to SEC-020): close the 5 known gaps.
 2. **Admin tools in TAB Practice**: invite to My TAB (GAP-023), write and edit the plan, record progress reviews, assign resources and forms, publish shared session summaries. Without these, clients sign in to empty screens (RSK-002).
 3. **Sign-in plumbing**: invite confirmation route (token hash), Site URL and redirect allow list, custom SMTP through Resend (Supabase's built-in email is for testing only), staff MFA enrolment screen.
 4. **Supabase-native tests in CI** (SEC-021): JWT, AAL, sign-up and grants against a real Supabase stack.
 
 ## Go-live gates (in order)
-1. **Legal determination** of health-data obligations (GAP-008). Its outcome decides the hosting tier.
-2. **Hosting**: Supabase Team + HIPAA add-on with a BAA, and a Vercel BAA if server functions process health data (R-025, about $1,300/month), if required; otherwise Supabase Pro (daily backups) and Vercel Pro.
+1. **Portal security gate**: the build list above is done; `npm run test:rls` shows 0 known gaps; staff MFA enforced.
+2. **Hosting**: Supabase Pro (daily backups) and Vercel Pro, about $45/month. No HIPAA tier or BAA (owner ruling: HIPAA does not apply). Privacy policy updated to cover My TAB.
 3. **Domain and Resend**, so sign-in and invite emails can be sent.
 4. **G3**: apply the migrations and `seed.sql` to the project, set env vars, switch `portal.dataSource` to `"supabase"`.
 5. Create the owner account, set `profiles.role = 'owner'`, enable MFA for staff; **test a backup restore** (SEC-009).

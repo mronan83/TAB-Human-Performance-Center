@@ -101,7 +101,7 @@ export async function setDemoRoleAction(role: "client" | "owner") {
 const signInPerIp = limiter(5, 10 * 60_000);
 const signInPerEmail = limiter(3, 60 * 60_000);
 
-/** Passwordless sign-in (email link). MFA enrollment is enforced for staff per D-042 infrastructure plan. */
+/** Passwordless sign-in (email link). Staff MFA enforcement is part of the portal security gate (SEC-015). */
 export async function sendMagicLinkAction(_prev: unknown, fd: FormData) {
   const email = String(fd.get("email") ?? "").trim().toLowerCase();
   if (email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) return { ok: false, error: "Enter a valid email address." };

@@ -94,7 +94,7 @@ export const siteConfig = {
     /**
      * Owner ruling 2026-09-28 (DIV-05, proposed D-058): the whole form is saved in the database, kept
      * indefinitely, and linked to the client record. It is written only while the portal runs on Supabase,
-     * i.e. once the D-042 infrastructure and the Phase 2 security gate are in place; until then it's email only.
+     * i.e. once the D-042 go-live gate (CLAUDE.md guardrail 4) is met; until then it's email only.
      */
     storeSubmissions: portalDataSource === "supabase",
     /** The submitter also receives a copy of what they sent (owner ruling 2026-09-28). */
@@ -120,7 +120,7 @@ export const siteConfig = {
    * - enabled=false: /my-tab shows an interim page linking to Timely Client Login (Step 19.14).
    * - enabled=true + dataSource="mock": full portal UI with demo data, no login (preview review only).
    * - enabled=true + dataSource="supabase": authenticated portal backed by Supabase.
-   *   Do not store client health data until the D-042 infrastructure (HIPAA tier, BAAs) is live.
+   *   Real client data only once the D-042 gate is met (CLAUDE.md guardrail 4; HIPAA does not apply, proposed D-060).
    * Demo mode has no login and one in-memory store shared by every visitor, so it is never enabled on a
    * production deployment (security review 2026-09-28); production shows the Timely Client Login page instead.
    */

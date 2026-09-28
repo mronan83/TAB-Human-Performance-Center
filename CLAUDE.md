@@ -70,10 +70,11 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
    owner-approved contrast fixes (proposed D-056; see `docs/requirements-register.md` CON-011). Don't
    invent colors. White text only on Olive, Deep Terracotta or Charcoal. Terracotta `#C0784C` and
    Sage `#97A07C` are decorative only: never text, never behind white text.
-4. **Health data (D-042):** My TAB is a sensitive-data system. Do not connect production client data
-   until the Supabase project is on HIPAA-eligible infrastructure with a signed BAA *and* the legal
-   review is complete (A-01, R-025). Until then the portal runs on demo data
-   (`portal.dataSource = "mock"`).
+4. **Health data (D-042, amended by the owner's ruling of 2026-09-28 that HIPAA does not apply; proposed D-060):**
+   My TAB is still a sensitive-data system. Do not connect production client data until the portal security gate
+   is met (SEC-015–SEC-021: 0 known gaps in `npm run test:rls`, staff MFA enforced), Supabase is on a paid plan with
+   backups and a tested restore (SEC-009), and the privacy policy covers My TAB. No HIPAA tier or BAA is required.
+   Until then the portal runs on demo data (`portal.dataSource = "mock"`).
 5. **No health details by email (D-054, R-027).** The Start form collects no free text: apart from name, email
    and phone (character-restricted), every answer is a predefined option (proposed D-059). The contact form keeps
    a message box with a "no medical details" note, and the submitter's copy never repeats the message. Email
