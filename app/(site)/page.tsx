@@ -9,7 +9,7 @@ import { MethodSteps } from "@/components/MethodSteps";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: `${siteConfig.brand.name} | Massage, Strength & Coaching in ${siteConfig.location.label}`,
+  title: `${siteConfig.brand.name} | Massage, Strength & Coaching`,
   absoluteTitle: true,
   description: "Massage, strength training and coaching in Brighton and Howell, MI, brought together in one personalized, whole-person approach.",
   path: "/",

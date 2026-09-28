@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { siteConfig } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
 import { services } from "@/content/services";
 import { PageHero } from "@/components/PageHero";
@@ -7,7 +6,7 @@ import { ServiceCard } from "@/components/ServiceCard";
 import { Cta } from "@/components/Cta";
 
 export const metadata: Metadata = pageMetadata({
-  title: `Services in ${siteConfig.location.label}`,
+  title: "Services",
   description: "Massage & Bodywork, Personal Strength Training, Women’s Wellness Coaching, and Holistic Life Coaching: four connected areas of support.",
   path: "/services",
 });

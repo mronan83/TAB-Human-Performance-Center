@@ -111,7 +111,8 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
   only assigned clients.
 
 ## Checks before every push
-`npm run typecheck`, `npm run build`, `npm run test:rls`. CI runs the same on every PR.
+`npm run typecheck`, `npm run build`, `npm run test:rls`, then `npm run test:e2e` (Playwright smoke, redirect-map,
+link-crawl, SEO and WCAG 2.2 AA scans against the production build; no retries). CI runs the same on every PR.
 
 ## Secrets
 Never commit `.env*` files, keys, tokens or database passwords. Local values go in `.env.local`

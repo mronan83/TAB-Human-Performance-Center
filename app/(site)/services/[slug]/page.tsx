@@ -5,7 +5,6 @@ import { notFound } from "next/navigation";
 import { getService, services } from "@/content/services";
 import { Cta } from "@/components/Cta";
 import { FaqList } from "@/components/FaqList";
-import { siteConfig } from "@/config/site";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonld";
 import { pageMetadata } from "@/lib/seo";
 
@@ -18,7 +17,8 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const s = getService((await params).slug);
   if (!s) return {};
-  return pageMetadata({ title: `${s.name} in ${siteConfig.location.label}`, description: s.metaDescription, path: `/services/${s.slug}` });
+  // Owner ruling 2026-09-28: no location in titles; it stays in descriptions and structured data (ASM-006).
+  return pageMetadata({ title: s.name, description: s.metaDescription, path: `/services/${s.slug}` });
 }
 
 /** Service-page template (Step 16.4): hero, who it's for, how we help, TAB Method, what to expect, scope, FAQ, related, CTA. */

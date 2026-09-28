@@ -14,9 +14,9 @@ concurrency:
 
 jobs:
   check:
-    name: Typecheck, RLS, contrast, build
+    name: Typecheck, RLS, contrast, build, e2e
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
@@ -40,6 +40,21 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+      # S19 §19.15 smoke tests, redirect map, link crawl, SEO and WCAG 2.2 AA scans against the build (NFR-007/008)
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end launch checks
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
 
       - name: Dependency audit (runtime dependencies)
         run: npm audit --omit=dev --audit-level=high
