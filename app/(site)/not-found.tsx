@@ -1,15 +1,5 @@
-import Link from "next/link";
-import { Cta } from "@/components/Cta";
+import { NotFoundContent } from "@/components/NotFoundContent";
 
 export default function NotFound() {
-  return (
-    <section className="section">
-      <div className="container-prose text-center">
-        <p className="text-label text-secondary">Page not found</p>
-        <h1 className="text-h1 mt-3">This page has moved or no longer exists.</h1>
-        <p className="text-body-lg mt-4 text-text-secondary">TAB Massage & Fitness is now TAB Wellness Collective, and our site has a new structure.</p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3"><Cta kind="start" label="Start Where You Are" /><Link href="/services" className="btn btn-outline">Explore Services</Link></div>
-      </div>
-    </section>
-  );
+  return <NotFoundContent />;
 }

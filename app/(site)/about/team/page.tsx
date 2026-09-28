@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import Link from "next/link";
 import { about } from "@/content/pages";
@@ -6,7 +7,7 @@ import { getService } from "@/content/services";
 import { PageHero } from "@/components/PageHero";
 import { DraftFlag } from "@/components/DraftFlag";
 
-export const metadata: Metadata = { title: "Our Team", description: "The people behind TAB Wellness Collective." };
+export const metadata: Metadata = pageMetadata({ title: "Our Team", description: "Meet the people behind TAB Wellness Collective.", path: "/about/team" });
 
 export default function TeamPage() {
   return (
@@ -17,7 +18,7 @@ export default function TeamPage() {
           {about.team.members.map((m) => (
             <article key={m.name} className="card grid gap-6 p-6 sm:grid-cols-[160px_1fr]">
               <div className="flex aspect-square items-center justify-center overflow-hidden rounded-[20px] bg-sand">
-                {m.photo ? <Image src={m.photo} alt={m.name} width={320} height={320} className="h-full w-full object-cover" /> : <span className="text-sm text-text-secondary">Photo coming soon</span>}
+                {m.photo ? <Image src={m.photo} alt={m.name} width={320} height={320} className="h-full w-full object-cover" /> : <span aria-hidden="true" className="text-sm text-text-secondary">Photo coming soon</span>}
               </div>
               <div>
                 <DraftFlag show={about.team.draft} />

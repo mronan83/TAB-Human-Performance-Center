@@ -51,6 +51,7 @@ export const start = {
   headline: "Start where you are.",
   intro:
     "You don’t need to know exactly which TAB service is right for you. Tell us a little about what brings you here, what you’d like to change, and how we can best connect with you.",
+  metaDescription: "You don’t need to know which TAB service is right for you. Tell us where you are and we’ll suggest the right starting point.",
   // GS-006: discovery is never a mandatory gate.
   bookDirect: { prompt: "Already know what you’d like?", label: "Book directly" },
 };
@@ -203,6 +204,7 @@ export const legal = {
   policies: {
     title: "Client policies",
     draft: true,
+    sections: { cancellation: "Cancellations, late arrivals and illness", scope: "Scope of our services" },
     body: [
       "[PLACEHOLDER: cancellation, late arrival, illness, and scope-of-practice policies. Carry over the current TAB cancellation policy, updated for the new name.]",
     ],

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/PageHero";
 import { InquiryForm } from "@/components/InquiryForm";
 import { Cta } from "@/components/Cta";
 import { start } from "@/content/pages";
 
-export const metadata: Metadata = { title: "Start Where You Are", description: start.intro };
+export const metadata: Metadata = pageMetadata({ title: "Start Where You Are", description: start.metaDescription, path: "/start" });
 
 export default function StartPage() {
   return (

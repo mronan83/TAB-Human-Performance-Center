@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { method } from "@/content/pages";
 import { PageHero } from "@/components/PageHero";
 import { MethodSteps } from "@/components/MethodSteps";
 import { Cta } from "@/components/Cta";
 
-export const metadata: Metadata = { title: "The TAB Method", description: "Start where you are. Transform. Align. Become. How TAB personalizes whole-person wellness." };
+export const metadata: Metadata = pageMetadata({ title: "The TAB Method", description: "Start where you are. Transform. Align. Become. How TAB personalizes whole-person wellness.", path: "/tab-method" });
 
 export default function MethodPage() {
   return (
@@ -12,7 +13,7 @@ export default function MethodPage() {
       <PageHero eyebrow="The TAB Method" title="Start where you are. Transform. Align. Become." lead={method.intro}>
         <Cta kind="start" label="Start Where You Are" />
       </PageHero>
-      <section className="section"><div className="container-page"><MethodSteps /></div></section>
+      <section className="section"><div className="container-page"><MethodSteps headingLevel={2} /></div></section>
       <section className="section bg-sand">
         <div className="container-page">
           <h2 className="text-h1 max-w-2xl">How we work with you</h2>

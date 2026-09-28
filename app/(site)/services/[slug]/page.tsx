@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { getService, services } from "@/content/services";
 import { Cta } from "@/components/Cta";
 import { FaqList } from "@/components/FaqList";
+import { siteConfig } from "@/config/site";
+import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonld";
+import { pageMetadata } from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -15,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const s = getService((await params).slug);
   if (!s) return {};
-  return { title: s.name, description: s.description.slice(0, 158), alternates: { canonical: `/services/${s.slug}` } };
+  return pageMetadata({ title: `${s.name} in ${siteConfig.location.label}`, description: s.metaDescription, path: `/services/${s.slug}` });
 }
 
 /** Service-page template (Step 16.4): hero, who it's for, how we help, TAB Method, what to expect, scope, FAQ, related, CTA. */
@@ -23,11 +26,12 @@ export default async function ServicePage({ params }: Props) {
   const s = getService((await params).slug);
   if (!s) notFound();
   const related = services.filter((x) => x.slug !== s.slug);
-  const faqJsonLd = { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: s.faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) };
+  // Structured data (NFR-003, S16 §16.4): Service + breadcrumb; FAQ markup only for reviewed, visible answers.
+  const jsonLd = [serviceJsonLd(s), breadcrumbJsonLd([{ name: "Services", path: "/services" }, { name: s.name, path: `/services/${s.slug}` }]), faqJsonLd(s.faqs)].filter(Boolean);
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <nav aria-label="Breadcrumb" className="container-page pt-6 text-sm text-text-secondary">
         <Link href="/services" className="hover:text-primary">Services</Link> <span aria-hidden>/</span> <span aria-current="page">{s.name}</span>
       </nav>
@@ -81,7 +85,7 @@ export default async function ServicePage({ params }: Props) {
       {/* TAB Method applied */}
       <section className="on-dark section bg-olive text-white">
         <div className="container-page">
-          <p className="text-label text-white/90">The TAB Method, applied</p>
+          <h2 className="text-label text-white/90">The TAB Method, applied</h2>
           <div className="mt-8 grid gap-8 md:grid-cols-3">
             {(["transform", "align", "become"] as const).map((k) => (
               <div key={k} className="border-t border-white/30 pt-6">

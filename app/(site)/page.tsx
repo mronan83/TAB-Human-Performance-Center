@@ -6,6 +6,14 @@ import { siteConfig } from "@/config/site";
 import { Cta } from "@/components/Cta";
 import { ServiceCard } from "@/components/ServiceCard";
 import { MethodSteps } from "@/components/MethodSteps";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata({
+  title: `${siteConfig.brand.name} | Massage, Strength & Coaching in ${siteConfig.location.label}`,
+  absoluteTitle: true,
+  description: "Massage, strength training and coaching in Brighton and Howell, MI, brought together in one personalized, whole-person approach.",
+  path: "/",
+});
 
 export default function HomePage() {
   return (
@@ -22,14 +30,14 @@ export default function HomePage() {
               <Cta kind="link" href="/services" label="Explore Services" variant="outline" />
             </div>
           </div>
-          <div className="relative mx-auto w-full max-w-md">
+          <div aria-hidden="true" className="relative mx-auto w-full max-w-md">
             <div className="aspect-[4/5] rounded-t-full bg-sand p-10 pt-16">
               <div className="flex h-full flex-col items-center justify-center rounded-t-full border border-linen bg-cream/70">
                 <Image src="/brand/symbol.svg" alt="" width={1130} height={958} className="w-3/5" priority unoptimized />
                 <p className="mt-6 font-[family-name:var(--font-display)] text-2xl italic text-olive">Start where you are.</p>
               </div>
             </div>
-            <p className="sr-only">Photography placeholder: replace with an authentic session photo when available.</p>
+            {/* PLACEHOLDER: replace with an authentic session photo when available. */}
           </div>
         </div>
       </section>
@@ -117,10 +125,9 @@ export default function HomePage() {
               ["Four", "Connected service pillars"],
               ["In person & virtual", "Support that fits your life"],
             ].map(([v, l]) => (
-              <div key={l} className="rounded-[20px] bg-white p-6">
-                <dt className="sr-only">{l}</dt>
-                <dd className="font-[family-name:var(--font-display)] text-3xl font-medium">{v}</dd>
-                <dd className="mt-1 text-sm text-text-secondary">{l}</dd>
+              <div key={l} className="flex flex-col rounded-[20px] bg-white p-6">
+                <dt className="mt-1 text-sm text-text-secondary">{l}</dt>
+                <dd className="order-first font-[family-name:var(--font-display)] text-3xl font-medium">{v}</dd>
               </div>
             ))}
           </dl>

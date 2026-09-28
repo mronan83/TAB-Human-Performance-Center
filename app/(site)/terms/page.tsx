@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import { legal } from "@/content/pages";
 import { PageHero } from "@/components/PageHero";
 import { DraftFlag } from "@/components/DraftFlag";
 
 const doc = legal.terms;
-export const metadata: Metadata = { title: doc.title };
+export const metadata: Metadata = pageMetadata({ title: doc.title, description: "Terms of use for the TAB Wellness Collective website.", path: "/terms" });
 
 export default function Page() {
   return (

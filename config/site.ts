@@ -34,6 +34,15 @@ export const siteConfig = {
     },
   },
 
+  /**
+   * Service area for titles and structured data (NFR-003: "[Service] in [Location]"). Business context: Brighton/Howell
+   * area, Michigan. Revisit once the studio address is set.
+   */
+  location: {
+    label: "Brighton & Howell, MI",
+    areaServed: ["Brighton, MI", "Howell, MI"],
+  },
+
   contact: {
     email: "info@tabwellnesscollective.com",
     phone: null as Maybe<string>, // PLACEHOLDER: e.g. "(517) 555-0100"

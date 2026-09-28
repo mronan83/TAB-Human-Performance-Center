@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 import { about } from "@/content/pages";
 import { PageHero } from "@/components/PageHero";
 import { Cta } from "@/components/Cta";
 
-export const metadata: Metadata = { title: "About", description: "Why TAB Wellness Collective exists and how we approach whole-person wellness." };
+export const metadata: Metadata = pageMetadata({ title: "About", description: "Why TAB Wellness Collective exists and how we approach whole-person wellness.", path: "/about" });
 
 export default function AboutPage() {
   return (

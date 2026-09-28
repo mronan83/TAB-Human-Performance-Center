@@ -89,7 +89,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 
 | ID | Requirement | Source | Phase |
 |---|---|---|---|
-| WEB-001 | Primary nav: Home, Services, The TAB Method, About, Resources. Persistent actions: Start Where You Are (primary), Book, My TAB. | S16 §16.2 | P1 |
+| WEB-001 | Primary nav: Home, Services, The TAB Method, About, Resources. Persistent actions: Start Where You Are (primary), Book, My TAB. *(2026-09-28: Home item and an "All services" link added; Escape returns focus, menus close on focus-out; full nav from 1280px, Menu button below)* | S16 §16.2 | P1 |
 | WEB-002 | Sitemap and URLs as specified (19 routes: `/`, `/services` + 4 service pages, `/tab-method`, `/about`, `/about/our-story`, `/about/team`, `/resources`, `/resources/articles`, `/resources/guides`, `/events`, `/faq`, `/start`, `/book`, `/contact`, `/my-tab`). | S16 §16.2 | P1 |
 | WEB-003 | Homepage follows the approved nine-section sequence: Hero → Core idea → Four pillars → TAB Method → Personalization → Guided conversion → Proof/trust → Resources → Closing invitation. | S16 §16.3 | P1 |
 | WEB-004 | Services landing page headed "Support for how you feel, move, live, and grow." presenting pillars as independently valuable and optionally connected. | S16 §16.2 | P1 |
@@ -100,7 +100,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | WEB-009 | About (core narrative, structure Belief → Client → Method → Differentiation → Ownership → Invitation), Our Story (kept separate), Team. | S15 §15.5, S16 §16.2 | P1 |
 | WEB-010 | Resources hub: articles, guides, events/workshops, FAQ. | S16 §16.2, §16.7 | P1 |
 | WEB-011 | `/book` offers two paths: "I know what I want" → Timely booking; "Help me find my starting point" → `/start`. | S16 §16.2 | P1 |
-| WEB-012 | Footer: Explore, Services, Get Started, TAB links, legal/accessibility (Privacy, Terms, Accessibility, client policies, cancellation policy, service disclaimers), location, hours, contact, social. | S16 §16.2 | P1 |
+| WEB-012 | Footer: Explore, Services, Get Started, TAB links, legal/accessibility (Privacy, Terms, Accessibility, client policies, cancellation policy, service disclaimers), location, hours, contact, social. *(2026-09-28: hours, service area, cancellation-policy and service-disclaimer links added; policies page has #cancellation and #scope sections; account link matches the header)* | S16 §16.2 | P1 |
 | WEB-013 | Trust content: testimonials with consent metadata, practitioner credentials, years serving the community, partnerships, reviews only when strong and current, no dramatic before/after claims. | S16 §16.3 | P1 |
 | WEB-014 | All public copy follows S15 voice rules and avoid-lists (hype, fitness culture, wellness guilt, "woo", clinical). | S15 §15.8 | P1 |
 | WEB-015 | Temporary site-wide announcement bar ("TAB Massage & Fitness is now TAB Wellness Collective…"), editable in the CMS with a start and end date so it cannot linger. | S19 App. B, §19.17 | P1 |
@@ -212,9 +212,9 @@ submission, stamped with who and when; it goes live when submission storage swit
 
 | ID | Requirement | Source | Phase |
 |---|---|---|---|
-| NFR-001 | WCAG 2.2 AA: keyboard access, visible focus, contrast, no colour-only state, semantic landmarks, labelled forms with error recovery, alt text, captions, touch targets, zoom/reflow, reduced motion, accessible downloads. | S16 §16.8 | P1 |
-| NFR-002 | Technical SEO: XML sitemap, robots.txt, canonicals, Core Web Vitals, image optimisation, HTTPS, clean 404, redirect monitoring. | S16 §16.8 | P1 |
-| NFR-003 | Page metadata pattern: title `[Service] in [Location] \| TAB Wellness Collective`, human meta descriptions, outcome-led H1; Organization / LocalBusiness / Service structured data; FAQ markup only where visible. | S16 §16.4, §16.8 | P1 |
+| NFR-001 | WCAG 2.2 AA: keyboard access, visible focus, contrast, no colour-only state, semantic landmarks, labelled forms with error recovery, alt text, captions, touch targets, zoom/reflow, reduced motion, accessible downloads. *(2026-09-28: heading order fixed on /services, /tab-method and service pages; decorative artwork and photo placeholders hidden from screen readers; stats read once; portal skip link; accessibility page links the email address)* | S16 §16.8 | P1 |
+| NFR-002 | Technical SEO: XML sitemap, robots.txt, canonicals, Core Web Vitals, image optimisation, HTTPS, clean 404, redirect monitoring. *(2026-09-28: canonical URL and Open Graph/Twitter tags on every public page; branded 404 for any unknown URL, with header and footer)* | S16 §16.8 | P1 |
+| NFR-003 | Page metadata pattern: title `[Service] in [Location] \| TAB Wellness Collective`, human meta descriptions, outcome-led H1; Organization / LocalBusiness / Service structured data; FAQ markup only where visible. *(2026-09-28: titles follow "[Service] in Brighton & Howell, MI | TAB Wellness Collective" (ASM-006); hand-written meta descriptions; Service and BreadcrumbList JSON-LD; FAQ markup only for non-draft answers)* | S16 §16.4, §16.8 | P1 |
 | NFR-004 | Redirect map from legacy tabmassage.com URLs completed before launch. | S16 §16.8, §16.9 | P0/P1 |
 | NFR-005 | Privacy-aware public analytics; portal analytics kept separate; no sensitive data in event names or properties. | S16 §16.8 | P1 |
 | NFR-006 | Public events: `start_where_you_are_open/submit`, `service_view`, `book_click`, `timely_booking_outbound`, `my_tab_login_click`, `method_view`, `resource_view/download`, `contact_submit/consultation_request`. *(DIV-04, owner ruling 2026-09-28: `/start` is counted in Plausible as page view → `Start Form: Started` (first interaction) → `Start Form: Submitted` (accepted by the server), with no event properties; `/contact` stays untracked.)* | S16 §16.8 | P1 |
@@ -291,6 +291,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 | ASM-003 | English only at launch. | G1 |
 | ASM-004 | Single physical location in Michigan (state confirmed by S17; site count unconfirmed, see GAP-003). | G1 |
 | ASM-005 | Until vector logos exist (DS-006), high-resolution raster exports of the S18 artwork can serve development and previews, but not the production launch. | G1 |
+| ASM-006 | Titles and structured data use the service area "Brighton & Howell, MI" (business context), since the studio address is not set yet. `config/site.ts → location`. | Owner to confirm the primary city once the address is set |
 
 ## 6. Engineering risks and recommendations (RSK)
 

@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 import { services } from "@/content/services";
 import { PageHero } from "@/components/PageHero";
 import { ServiceCard } from "@/components/ServiceCard";
 import { Cta } from "@/components/Cta";
 
-export const metadata: Metadata = {
-  title: "Services",
-  description: "Massage & Bodywork, Personal Strength Training, Women’s Wellness Coaching, and Holistic Life Coaching—four connected areas of support.",
-};
+export const metadata: Metadata = pageMetadata({
+  title: `Services in ${siteConfig.location.label}`,
+  description: "Massage & Bodywork, Personal Strength Training, Women’s Wellness Coaching, and Holistic Life Coaching: four connected areas of support.",
+  path: "/services",
+});
 
 export default function ServicesPage() {
   return (
@@ -17,7 +20,7 @@ export default function ServicesPage() {
       </PageHero>
       <section className="section">
         <div className="container-page grid gap-6 md:grid-cols-2">
-          {services.map((s) => (<ServiceCard key={s.slug} service={s} />))}
+          {services.map((s) => (<ServiceCard headingLevel={2} key={s.slug} service={s} />))}
         </div>
       </section>
     </>
