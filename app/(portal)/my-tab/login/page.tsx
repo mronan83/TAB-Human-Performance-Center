@@ -16,6 +16,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <h1 className="text-h2 mt-8 text-center">Sign in to My TAB</h1>
         <p className="mb-6 mt-2 text-center text-text-secondary">We’ll email you a secure sign-in link. No password needed.</p>
         {e === "unlinked" && <p role="alert" className="mb-4 rounded-xl bg-accent-soft p-3 text-sm">Your account isn’t linked to a client record yet. Contact us and we’ll set it up.</p>}
+        {e === "mfa" && <p role="alert" className="mb-4 rounded-xl bg-accent-soft p-3 text-sm">TAB Practice needs two-step verification, and it isn’t set up for your account yet.</p>}
         <LoginForm />
         <p className="mt-6 text-center text-sm text-text-secondary">New to TAB? <Link href="/start" className="text-primary underline">Start where you are</Link></p>
       </div>

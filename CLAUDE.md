@@ -58,6 +58,10 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
   the session ("approved", "ship it", or similar). Approval of one PR never carries to another, and a
   push after approval needs the approval re-confirmed unless it only fixes CI (owner ruling 2026-09-28).
   After a merge, restart the working branch from `main`.
+- **Backlog (owner request 2026-09-28):** `docs/BACKLOG.md` is the single list of remaining work, prioritized
+  (P0 now, P1 public launch, P2 My TAB go-live, P3 later) and categorized, with owner actions (A) and Claude's work (C).
+  Every PR updates it. After every approved merge, post the remaining items to the owner: concise, one line each,
+  P0 first.
 - G3 Release — owner approves every production promotion and every production migration.
 - Never push directly to `main` or run a production migration without G3 approval.
 
@@ -111,7 +115,10 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
   `/practice`). A new third-party script, frame, image, font or API host must be added there;
   `e2e/security.spec.ts` fails on any violation.
 - Row-level security is the access control. Any new client-data table needs RLS policies, an audit
-  trigger and a test in `supabase/tests/rls.test.mjs`.
+  trigger and a test in `supabase/tests/rls.test.mjs`. Reuse the security-gate helpers
+  (`supabase/migrations/20260929000000_portal_security_gate.sql`): `guard_client_columns` for what a client may
+  change, `stamp_author` for who wrote a row, `guard_same_client` for links between client records. Staff access
+  counts only in two-step-verified sessions (`current_app_role()`).
 - Model for a team, build for one (D-045): roles `owner | practitioner | client`; practitioners see
   only assigned clients.
 

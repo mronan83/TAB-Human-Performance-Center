@@ -4,10 +4,11 @@
 -- system), D-043 (programs and cohorts in Phase 2), D-044 (templates + products),
 -- D-045 (model for a team, build for one), D-052 (payment ownership).
 --
--- IMPORTANT (D-042, R-025): do not load real client health information into a
--- project until it runs on HIPAA-eligible infrastructure with a signed BAA and the
--- legal review is complete. Columns holding sensitive data are tagged
--- `-- SENSITIVE` and every change to them is written to audit_events.
+-- IMPORTANT (D-042 as amended, CLAUDE.md guardrail 4): do not load real client
+-- health information until the portal security gate is met, Supabase is on a paid
+-- plan with a tested restore, and the privacy policy covers My TAB. Columns holding
+-- sensitive data are tagged `-- SENSITIVE` and every change to them is written to
+-- audit_events.
 -- =============================================================================
 
 -- gen_random_uuid() is built into Postgres 13+ (Supabase), no extension required.

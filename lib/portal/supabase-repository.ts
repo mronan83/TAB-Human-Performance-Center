@@ -187,7 +187,8 @@ export const supabaseRepository: PortalRepository = {
   async setConsent(clientId, type, granted) {
     if (CONSENT_LABELS[type].required) return;
     const sb = await db();
-    must(await sb.from("consents").upsert({ client_id: clientId, type, version: CONSENT_VERSION, granted, granted_at: new Date().toISOString(), revoked_at: granted ? null : new Date().toISOString() }, { onConflict: "client_id,type,version" }));
+    // Consents are a history (SEC-016): each change is a new row, stamped by the database; the newest one counts.
+    must(await sb.from("consents").insert({ client_id: clientId, type, version: CONSENT_VERSION, granted }));
   },
   async updateContact(clientId, data) {
     const sb = await db();
