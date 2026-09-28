@@ -39,6 +39,25 @@ test("account link goes where the configuration says (WEB-020)", async ({ page }
   if (bookingHref().external) expect(clientLoginHref().external).toBe(true);
 });
 
+test("demo portal: sign in as client or practitioner, sign out (owner demo request 2026-09-28)", async ({ page }) => {
+  // Local builds are not production deployments, so the portal runs in demo mode here.
+  await page.goto("/");
+  await page.locator("footer").getByRole("link", { name: "Practitioner login" }).click();
+  await expect(page).toHaveURL(/\/my-tab\/login$/);
+  await page.getByRole("button", { name: "Practitioner: TAB Practice" }).click();
+  await expect(page).toHaveURL(/\/practice$/);
+
+  await page.goto("/my-tab/login");
+  await page.getByRole("button", { name: "Client: My TAB" }).click();
+  await expect(page).toHaveURL(/\/my-tab$/);
+  await expect(page.locator("main h1")).toContainText("Dana");
+
+  await page.getByRole("button", { name: "Sign out" }).first().click();
+  await expect(page).toHaveURL(/\/$/);
+  await page.goto("/my-tab");
+  await expect(page).toHaveURL(/\/my-tab\/login$/);
+});
+
 test("Start Where You Are: submits choices only (D-059)", async ({ page }) => {
   const sent = await inquiryOk(page);
   await page.goto("/start");
