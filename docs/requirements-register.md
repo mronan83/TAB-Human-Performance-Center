@@ -4,7 +4,15 @@ Living register. Every requirement has a stable ID and a source reference. Confl
 assumptions are logged here and never resolved silently. IDs are never reused; retired items are
 struck through, not deleted.
 
-**Last updated:** 2026-09-28 · **Intake status:** batch 2 of 3 received (10 of 13 documents)
+**Last updated:** 2026-09-28 · **Intake status:** complete (13 of 13 documents, 3 batches)
+
+> **Governance (D-041).** The owner's *Decision & Risk Register* (IDs `D-###`, `R-###`, `A-##`,
+> `X-##`, consolidated in [MDR](source/batch-3/TAB_Wellness_Collective_Master_Decision_Risk_Architecture_Record.md))
+> is the system of record for **decisions and risks**. This file is the **requirements and
+> traceability layer** beneath it. `DEC-###` rows restate decisions at requirement level and cite the
+> governing `D-###`. New decisions or risks raised here are marked *proposed register entry* until
+> the owner logs them. Where this file and the MDR disagree, the MDR governs, and the gap is listed in
+> §7 until reconciled (R-028, documentation drift).
 
 ## Sources
 
@@ -21,6 +29,9 @@ struck through, not deleted.
 | TOK | [Design tokens (JSON)](source/batch-2/TAB_Wellness_Collective_Design_Tokens.json) | Design system | 2 | "canonical", v1.0.0 |
 | TOKCSS | [Design tokens (CSS)](source/batch-2/tab-wellness-tokens.css) | Design system | 2 | Companion to TOK (see CON-009) |
 | LEG | [tabmassage.com inventory](legacy/tabmassage-inventory.md) | Legacy site | — | Collected by Claude from public sources |
+| MDR | [Master Decision, Risk & Architecture Record](source/batch-3/TAB_Wellness_Collective_Master_Decision_Risk_Architecture_Record.md) | D-001–D-055, R-001–R-028, X-01–X-13, A-01–A-06 | 3 | **System of record for decisions** (as of 2026-09-27) |
+| ARCH | [Technical Architecture v1.0](source/batch-3/ARCHITECTURE.pdf) ([text](source/batch-3/ARCHITECTURE.txt)) | Build architecture | 3 | "Governs the build"; Step 16 stays the strategy source |
+| CODE | Existing codebase `tab-wellness-collective` (zip handoff) | Phase 1 site + Phase 2 foundation | 3 | Builds per MDR; not deployed; imported into this repo |
 
 Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-N/`; images embedded
 in the Word files are extracted under `docs/source/batch-N/assets/`.
@@ -216,13 +227,12 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | CON-003 | Raw practitioner notes live in My TAB only "if moved there" (S16 §16.6). Where notes live today, and whether they move, is undecided. | **High**: this is the largest sensitive dataset and drives migration scope. | Decide at G1 with the owner. | Open |
 | CON-004 | The brand documents treat the name as settled, but S16 Phase 0 requires Step 17 naming validation before committing to domains and marks. | Medium | S17 now gives a *conditional* go (DEC-013) and says to secure the domain immediately. Build with the name as configuration; buy the domain now (RSK-007); hold Google Business Profile and signage until counsel clears it. | Partly resolved |
 | CON-005 | S14's core principle is "one connected TAB relationship", but the MVP needs two logins (My TAB plus Timely Client Login). | Medium (experience) | Accept for MVP and record it as known experience debt; revisit in P3. | Proposed |
-| CON-006 | The BF avoid-list names **lotus flowers, dumbbells and massage hands**, but three of the four S18 service icons are hands (Massage), a dumbbell (Strength; the S18 text says "barbell") and a lotus (Women's Wellness). BF also says creative work must "express the brand foundation—not redefine it." | Medium (brand coherence; icons are swappable assets, so the build is not blocked) | Owner decides: accept S18 as a deliberate override, or redraw three icons within BF guardrails during the vector production round. | Open |
-| CON-007 | S17 and S19 say trademark clearance must precede Step 18 and any irreversible spend, but S18 is already "locked". Clearance status is unknown. | Medium | Website work is reversible and can proceed. Domain purchase is cheap and S17 says do it now. Signage, Google Business Profile rename and trademark filing wait for counsel. | Open |
+| CON-006 | The BF avoid-list names **lotus flowers, dumbbells and massage hands**, but three of the four S18 service icons are hands (Massage), a dumbbell (Strength; the S18 text says "barbell") and a lotus (Women's Wellness). BF also says creative work must "express the brand foundation—not redefine it." | Medium (brand coherence; icons are swappable assets, so the build is not blocked) | Owner decides: accept S18 as a deliberate override, or redraw three icons within BF guardrails during the vector production round. | **Resolved**: D-047 amends the avoid list; owner 2026-09-28: "move forward with the logo and icons". |
+| CON-007 | S17 and S19 say trademark clearance must precede Step 18 and any irreversible spend, but S18 is already "locked". Clearance status is unknown. | Medium | Website work is reversible and can proceed. Domain purchase is cheap and S17 says do it now. Signage, Google Business Profile rename and trademark filing wait for counsel. | **Resolved**: D-048 (identity proceeds in parallel with clearance); owner 2026-09-28: build now, clearance tabled. |
 | CON-008 | Redirect examples in S17/S19 use paths that don't exist (`/massage-therapy`, `/personal-training`, `/massage`). The real legacy paths are `/massage_therapy/`, `/personal_training/`, `/about-us/`, `/contact-us/`, `/appointments/`. | Low | Build the map from the real inventory (LEG), not the examples. | Resolved by LEG |
 | CON-009 | TOK (JSON, "canonical") and TOKCSS disagree on heading styles: h1 line-height 1.15 vs 1.08; h2 1.15 / −0.02em vs 1.12 / −0.015em; h3 1.15 vs 1.2. TOKCSS adds responsive `clamp()` sizes that TOK lacks; TOK has h4/bodyLG/bodySM and breakpoints that TOKCSS lacks. | Low | TOK wins per its own metadata; adopt TOKCSS's `clamp()` responsive sizing as an addition. Design owner to confirm. | Proposed |
 | CON-010 | S18 says Sand and Linen are the main background fields; TOK sets page background = Cream and surfaces = White. | Low | Follow TOK (later and canonical); use Sand/Linen for section bands. | Proposed |
-| CON-011 | **The canonical palette breaks DEC-009 (WCAG 2.2 AA) in 12 of 33 pairings tested:** input borders 1.55–1.69:1 (need 3:1); `borderStrong` 2.45–2.66:1; terracotta text on cream 3.20:1; white on terracotta 3.48:1; white on sage 2.75:1; sage on cream 2.53:1; terracotta-deep links on cream 4.42:1; muted text on linen 4.07:1; warning text on cream 4.31:1; terracotta-deep focus ring on olive sections 1.36:1. Body text, primary/secondary buttons, error and success text all pass. | **High**: every form field fails today | Near-invisible adjustments: add `borderInput #8D8375` (3.4–3.7:1); keep terracotta and sage decorative (no text, no white-on); links in olive (6.04:1) or terracotta-deep nudged to `#A65E39` (4.51:1); `textSecondary → #575B53`; `warning → #96672E`; focus ring switches to cream on olive/dark sections (6.04:1). Brand owner approves because the tokens are canonical. | Open |
-
+| CON-011 | **The canonical palette breaks DEC-009 (WCAG 2.2 AA) in 12 of 33 pairings tested:** input borders 1.55–1.69:1 (need 3:1); `borderStrong` 2.45–2.66:1; terracotta text on cream 3.20:1; white on terracotta 3.48:1; white on sage 2.75:1; sage on cream 2.53:1; terracotta-deep links on cream 4.42:1; muted text on linen 4.07:1; warning text on cream 4.31:1; terracotta-deep focus ring on olive sections 1.36:1. Body text, primary/secondary buttons, error and success text all pass. | **High**: every form field fails today | Near-invisible adjustments: add `borderInput #8D8375` (3.4–3.7:1); keep terracotta and sage decorative (no text, no white-on); links in olive (6.04:1) or terracotta-deep nudged to `#A65E39` (4.51:1); `textSecondary → #575B53`; `warning → #96672E`; focus ring switches to cream on olive/dark sections (6.04:1). Brand owner approves because the tokens are canonical. | **Resolved**: owner approved the proposed fixes 2026-09-28 (proposed register entry D-056, amends D-053). |
 ## 4. Gaps and open questions (GAP)
 
 "Batch?" means a later document batch may answer it.
@@ -277,3 +287,59 @@ Raised by Claude as principal engineer; each is resolved at G1 or on the named t
 | RSK-008 | The legacy site runs WordPress 5.2 (2019) on PHP 7.4 (end-of-life since Nov 2022) with 2017-era slider plugins, and stays live until cutover. Unpatched WordPress is a common small-business breach path. | Outside this build's scope, but the owner should have the host update or lock it down now, or treat the cutover date as the fix. |
 | RSK-009 | The cutover DNS change could break email and verification. tabmassage.com mail is Google Workspace, DNS lives at the web host, and there's a Google verification TXT record. | Change only the web records (apex/`www`) to Vercel; copy MX, TXT (SPF/DKIM/verification) exactly if the zone moves; export the zone before any change. Step in the runbook. |
 | RSK-010 | The S18 logo artwork is raster with painterly texture. It won't reduce cleanly to 16px favicons or a crisp SVG header. | Commission the vector production round S18 §18.11 anticipates before the P1 launch; develop against raster placeholders (ASM-005). |
+
+---
+
+## 7. Reconciliation with the master record, and owner rulings (2026-09-28)
+
+### 7.1 Owner rulings on batch 1–2 findings
+
+| Item | Ruling | Effect |
+|---|---|---|
+| CON-011 token contrast fixes | Approved | Implement `borderInput #8D8375`; terracotta and sage decorative only; links olive or `#A65E39`; `textSecondary #575B53`; `warning #96672E`; cream focus ring on dark sections. *Proposed D-056 (amends D-053).* |
+| CON-006 service icons | Proceed with S18 logo and icons | Matches D-047. |
+| DS-006 / RSK-010 vector logos | Owner will supply SVG/vector files shortly | Build with current PNGs (ASM-005); swap when received. Matches D-027. |
+| RSK-008 legacy WordPress | Accepted; legacy site sunsets at go-live | Closed as out of scope. |
+| RSK-009 DNS / email cutover | A strategic cutover plan is required; email moves to the new domain with the old domain forwarding | Cutover runbook is a deliverable before launch (§7.4). |
+| CON-004 / CON-007 / GAP-002 trademark | Tabled; build the site; handles and business registration in progress | Name stays config-driven; no work blocked. |
+| GAP-018 legacy offerings | Tabled; focus on the new site | Draft redirects in LEG / `config/redirects.ts` stand as-is. |
+| GAP-017 launch date | Not yet set | Plan by readiness, not date. |
+
+### 7.2 Mapping of this register to the MDR
+
+| This register | MDR | Status after reconciliation |
+|---|---|---|
+| DEC-001, DEC-013 name | D-020, D-038 | Consistent |
+| DEC-002 pillars | D-021, D-028 | Consistent |
+| DEC-006 Timely / Stripe | D-001, D-003, D-004, **D-052** (split: Timely = appointments + packages; Stripe = digital products + subscriptions; one Stripe customer per client) | Consistent; D-052 adds detail |
+| DEC-008, DEC-009 | D-037 | Consistent |
+| DEC-010 sensitive data | **D-042** (HIPAA-eligible infrastructure; supersedes D-002) | Consistent |
+| DEC-016, DEC-017 identity and tokens | D-039, D-047, D-053 (pending entry) | Consistent; D-056 proposed to amend D-053 |
+| DEC-020 portal later | D-034 | Consistent |
+| REC-001–REC-003 stack | D-005, D-036 | **Decided** |
+| REC-004 analytics | **D-046**: Plausible on public pages; ad pixels only once ads start; never in My TAB or on health forms | **Decided**; GAP-015 closed |
+| REC-005 managed hosting | D-005, D-006, ARCH §1.6 | **Decided** |
+| REC-006 Timely Zapier | D-015 (baselined): Innovate + ads start together, after launch | Deferred |
+| GAP-006 Timely plan | ARCH §3: Timely **Elevate** today | Partly closed (booking URLs still needed) |
+| GAP-007 Stripe / Timely payments | D-052 | **Closed** |
+| GAP-009 staff roles | **D-045**: model for a team, build for one (owner-practitioner + client) | **Closed** for MVP |
+| GAP-013 transactional email | D-005: **Resend** | **Closed** |
+| GAP-003 location | Codebase context: Brighton/Howell area, Michigan; one owner-practitioner, 20+ years | Partly closed (address, hours, phone still placeholders) |
+| RSK-003 programs engine | D-044, R-009, R-024 (validate with the pilot cohort) | Consistent |
+| RSK-004 Payload + Supabase | A-02 (wire Payload **after** P1; same Postgres, separate schema or own DB) | Aligned; P1 needs no CMS |
+| RSK-005 paid tiers | D-006, **A-01**, **R-025** (≈$1,300/month HIPAA tier gated on legal review) | Consistent |
+| RSK-007 domain | MDR open item: "Register tabwellnesscollective.com once clearance passes" vs S17 §17.7 "secure immediately" | **Divergence**, see 7.3 |
+| RSK-001 Start form stores health free text | **D-054** (pending entry) + A-04: email to `info@` via Resend, not stored; form asks for no medical details; R-027 tracks the residual risk | **Divergence**, see 7.3 |
+
+### 7.3 Open divergences (need an owner ruling or a register entry)
+
+| ID | Divergence | Claude's recommendation |
+|---|---|---|
+| DIV-01 | **Start form handling.** D-054 emails submissions (via Resend, then the Google Workspace inbox); RSK-001 proposed storing them in Supabase. Both lack a BAA in Phase 1, but email copies free text to a third-party relay and an inbox with no retention or access control. | Keep D-054 for Phase 1: it's the owner's call and costs nothing. Harden it: no free text in subjects (already a rule); plain-text body; a "don't include medical details" hint beside *each* free-text field; an inbox retention rule. Revisit at A-04 when My TAB launches. |
+| DIV-02 | **Domain timing.** MDR: register after clearance. S17 §17.7 and RSK-007: register now. | Register now. It's reversible and costs about $20 a year; losing the exact-match domain can't be undone. |
+| DIV-03 | **Documentation drift in the handoff.** ARCH cites `supabase/migrations/0001_my_tab.sql` (18 tables) and `docs/ARCHITECTURE.md` / `docs/HANDOFF.md`. The codebase has `20260927000000_my_tab_core.sql`, `docs/PHASE2.md` says 30 tables, and ARCHITECTURE.md / HANDOFF.md aren't in the zip. | Treat the code as the truth and correct the docs in the repo (R-028). |
+
+### 7.4 Deliverables added by these rulings
+
+- **Cutover runbook** (from S19 §19.15 + RSK-009): new-domain email in Google Workspace; forward legacy `@tabmassage.com`; DNS change sequence that preserves MX/TXT; redirect verification; rollback. Due before the launch date is set.
+- **Token amendment** (D-056): implemented in code and CI contrast check (DS-005).
