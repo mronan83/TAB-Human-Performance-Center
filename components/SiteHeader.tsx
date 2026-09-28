@@ -13,7 +13,10 @@ import clsx from "clsx";
 /**
  * Header: primary nav + persistent actions Start Where You Are, Book, My TAB (Step 16.2, WEB-001).
  * Until the portal is live, the account action is "Client Login" straight into Timely (Step 19.14, WEB-020).
- * The full nav needs about 1200px, so below the xl breakpoint the Menu button is used.
+ * Fit: the full row (logo, nav, actions) needs about 68rem of the 72rem inside the 75rem container, leaving ~3rem of
+ * headroom for wider font rendering (Safari, Windows). The switch point and row width are in rem, so visitors who set
+ * larger default text get the Menu button instead of a crowded header, and header items never wrap. Adding a nav item
+ * eats that headroom: e2e/header.spec.ts fails if the row gets too tight.
  * Keyboard (NFR-001): Escape closes an open menu and returns focus to the button that opened it; a menu closes
  * when focus moves out of it. Closed menus stay in the DOM as `hidden` so `aria-controls` always resolves.
  */
@@ -59,10 +62,10 @@ export function SiteHeader() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2">
         Skip to content
       </a>
-      <div className="container-page flex h-20 items-center justify-between gap-6">
+      <div className="container-page flex h-20 max-w-[75rem] items-center justify-between gap-4">
         <HomeLogoLink />
 
-        <nav aria-label="Primary" className="hidden xl:block">
+        <nav aria-label="Primary" className="hidden min-[80rem]:block">
           <ul className="flex items-center gap-1">
             {primaryNav.map((item) =>
               item.children ? (
@@ -73,7 +76,7 @@ export function SiteHeader() {
                     aria-expanded={openMenu === item.href}
                     aria-controls={`menu-${item.label}`}
                     onClick={() => setOpenMenu(openMenu === item.href ? null : item.href)}
-                    className={clsx("whitespace-nowrap rounded-full px-4 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")}
+                    className={clsx("whitespace-nowrap rounded-full px-3 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")}
                   >
                     {item.label}
                     <span aria-hidden className="ml-1 inline-block text-xs">▾</span>
@@ -90,7 +93,7 @@ export function SiteHeader() {
                 </li>
               ) : (
                 <li key={item.href}>
-                  <Link href={item.href} className={clsx("whitespace-nowrap rounded-full px-4 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")} aria-current={isActive(item.href) ? "page" : undefined}>
+                  <Link href={item.href} className={clsx("whitespace-nowrap rounded-full px-3 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")} aria-current={isActive(item.href) ? "page" : undefined}>
                     {item.label}
                   </Link>
                 </li>
@@ -99,18 +102,18 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-2 xl:flex">
+        <div className="hidden items-center gap-2 min-[80rem]:flex">
           <SmartLink href={account.href} external={account.external} className="whitespace-nowrap px-3 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>
-          <Cta kind="book" label="Book" variant="outline" size="sm" />
-          <Cta kind="start" label="Start Where You Are" size="sm" />
+          <Cta kind="book" label="Book" variant="outline" size="sm" className="whitespace-nowrap" />
+          <Cta kind="start" label="Start Where You Are" size="sm" className="whitespace-nowrap" />
         </div>
 
-        <button ref={menuButton} type="button" className="btn btn-outline btn-sm xl:hidden" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
+        <button ref={menuButton} type="button" className="btn btn-outline btn-sm min-[80rem]:hidden" aria-expanded={open} aria-controls="mobile-nav" onClick={() => setOpen(!open)}>
           {open ? "Close" : "Menu"}
         </button>
       </div>
 
-      <nav id="mobile-nav" hidden={!open} aria-label="Primary" className="border-t border-border bg-cream xl:hidden">
+      <nav id="mobile-nav" hidden={!open} aria-label="Primary" className="border-t border-border bg-cream min-[80rem]:hidden">
           <ul className="container-page flex flex-col py-4">
             {primaryNav.map((item) => (
               <li key={item.href} className="border-b border-border/60 py-2">

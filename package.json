@@ -9,7 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test:rls": "node supabase/tests/rls.test.mjs supabase/migrations/*.sql",
     "test:contrast": "node scripts/check-contrast.mjs",
-    "check": "npm run typecheck && npm run test:rls && npm run test:contrast && npm run build"
+    "check": "npm run typecheck && npm run test:rls && npm run test:contrast && npm run build",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -23,7 +24,9 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
     "@electric-sql/pglite": "^0.5.8",
+    "@playwright/test": "1.56.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
@@ -33,7 +36,8 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "postcss": "^8.5.28"
+    "postcss": "^8.5.28",
+    "playwright-core": "1.56.1"
   },
   "engines": {
     "node": ">=22"

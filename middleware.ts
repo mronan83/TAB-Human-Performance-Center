@@ -21,8 +21,9 @@ export async function middleware(req: NextRequest) {
   const mapped = legacyRedirects[path] ?? legacyPrefixRedirects.find((r) => path.startsWith(r.prefix))?.to;
   const fromLegacyHost = LEGACY_HOSTS.includes(host);
   if (mapped || fromLegacyHost || path !== url.pathname) {
-    // Set only the path on a known origin so the redirect can never change host.
-    const target = fromLegacyHost ? new URL(siteUrl) : url.clone();
+    // Set only the path on a known origin so the redirect can never change host. A plain URL, not url.clone():
+    // NextURL remembers the request's trailing slash and adds it back, which made /about/ redirect to itself.
+    const target = new URL(fromLegacyHost ? siteUrl : url.origin);
     target.pathname = mapped ?? path;
     target.search = mapped ? "" : url.search;
     return NextResponse.redirect(target, 308);
