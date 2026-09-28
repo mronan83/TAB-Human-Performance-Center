@@ -90,7 +90,7 @@ export type Dashboard = {
   latestSharedReview?: Review;
 };
 
-/** A Start Where You Are or contact submission (supabase/migrations/*_inquiries.sql). */
+/** A Start Where You Are or contact submission (supabase/migrations/*_inquiries.sql). Answers are option values. */
 export type Inquiry = {
   id: string;
   reference: string;
@@ -100,14 +100,15 @@ export type Inquiry = {
   email: string;
   phone?: string;
   contactPreference?: string;
-  message: string;
+  journey?: string;
   help: string[];
   serviceInterest?: string;
-  improved?: string;
-  considerations?: string;
+  outcomes: string[];
+  considerations: string[];
   delivery?: string;
-  availability?: string;
+  availability: string[];
   foundVia?: string;
+  topic?: string;
   marketingOptIn: boolean;
   clientId?: string;
   clientName?: string;

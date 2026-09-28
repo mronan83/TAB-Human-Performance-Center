@@ -121,8 +121,10 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | GS-005 | Staff can review submissions and record the routing outcome. *(Derived from GS-004: needs a minimal staff view in P1.)* | Derived | P1 |
 | GS-006 | Discovery is never a mandatory gate; clients with straightforward needs can book immediately. | S14 §2, S16 §16.8 | P1 |
 
-**Implementation status (2026-09-28):** GS-001 met (every S14 §14.4.1 field, a "no medical details" hint on
-each free-text box). GS-002 met ("How did you find TAB?", S14 §14.2 channels). GS-003 met (practical details
+**Implementation status (2026-09-28):** GS-001 met, with every S14 §14.4.1 question answered from options we
+define (owner ruling, *proposed D-059*; see §7.1). The open questions ("What brings you to TAB?", "If things
+improved…", immediate considerations) become multi-select lists, and a "something health-related to discuss
+privately" flag keeps the safety screen without details. GS-002 met ("How did you find TAB?", S14 §14.2 channels). GS-003 met (practical details
 collapsed by default; the confirmation lists the five routing outcomes). GS-006 met ("Book directly" beside the
 form). GS-004 and GS-005 met in code (DIV-05): TAB Practice → Submissions records one next step per Start
 submission, stamped with who and when; it goes live when submission storage switches on (see DIV-05).
@@ -305,7 +307,7 @@ Raised by Claude as principal engineer; each is resolved at G1 or on the named t
 | RSK-008 | The legacy site runs WordPress 5.2 (2019) on PHP 7.4 (end-of-life since Nov 2022) with 2017-era slider plugins, and stays live until cutover. Unpatched WordPress is a common small-business breach path. | Outside this build's scope, but the owner should have the host update or lock it down now, or treat the cutover date as the fix. |
 | RSK-009 | The cutover DNS change could break email and verification. tabmassage.com mail is Google Workspace, DNS lives at the web host, and there's a Google verification TXT record. | Change only the web records (apex/`www`) to Vercel; copy MX, TXT (SPF/DKIM/verification) exactly if the zone moves; export the zone before any change. Step in the runbook. |
 | RSK-010 | The S18 logo artwork is raster with painterly texture. It won't reduce cleanly to 16px favicons or a crisp SVG header. | Commission the vector production round S18 §18.11 anticipates before the P1 launch; develop against raster placeholders (ASM-005). |
-| RSK-011 | Emailing the submitter a copy (DIV-05) means (a) a mistyped address sends someone's own words, possibly health details, to a stranger, and (b) anyone can make TAB email text they wrote to any address, which risks abuse and the sending domain's reputation. | In place: neutral subject, "if you didn't send this" line, at most three copies per address per day. Launch-blocking: SEC-013 bot protection (now on the launch checklist). Owner option: send the copy without the free-text answers, which removes (a) and most of (b). |
+| RSK-011 | Emailing the submitter a copy (DIV-05): a mistyped address sends the copy to a stranger, and anyone can make TAB email any address. | **Largely mitigated by the choices-only ruling (proposed D-059):** the copy holds only option labels plus the name, which must be letters only, so it can't carry links or messages, and it has no free text to leak. Also in place: neutral subject, "if you didn't send this" line, three copies per address per day. SEC-013 bot protection stays launch-blocking. |
 
 ---
 
@@ -331,6 +333,7 @@ Raised by Claude as principal engineer; each is resolved at G1 or on the named t
 | Vector logos (batch 4) | First vector package delivered 2026-09-28 | Installed (DS-006 partly met). Designer follow-ups: horizontal-lockup descriptor legibility (**launch-blocking**), service-icon vectors and trace cleanup for print (optional). |
 | DIV-04 Start funnel events | "Track both points, started and submitted, to understand how many complete the process" | Plausible runs on `/start` with two fixed, property-less events; the Meta pixel stays off `/start` and `/contact`. *Proposed D-057 amends D-046.* Events are dormant until the Plausible domain and its two goals are set up. |
 | DIV-05 Start submissions | "Record this information in the database; if they become a client, link the submission to the account they create, by email." Follow-up rulings: save the **entire form**; email it to **both the submitter and info@**; **never delete**; "just build" (A-01 legal review later) | Reverses the Phase 1 answer to A-04 and supersedes D-054 once storage is on (*proposed D-058*). Built: `inquiries` table (whole form, immutable answers, no deletes, audited), owner routing and client linking in TAB Practice, link to My TAB only after the email is confirmed (SEC-014), submitter copy. Storage is written only when the portal runs on Supabase (`forms.storeSubmissions`), so D-042 / guardrail 4 still decide when real submissions land in the database. Deletion for a legal request is possible only outside the app, by deliberately disabling the no-delete trigger. |
+| Choices-only forms | "Take out the free-form text fields and have it be all choices provided by us … replace with predefined options" | *Proposed D-059*: apart from name, email and phone (character-restricted), every answer on the Start and contact forms is a predefined option; no free text is emailed or stored. Closes most of R-027 (health details by email) and RSK-011. The S14 open questions keep their wording as option lists; the "health-related, discuss privately" flag keeps S14's safety screen. Trade-off: the person's own words are captured in the discovery conversation or My TAB intake instead (D-054 already puts detailed intake there). The contact form becomes a topic choice; anything else goes to email or phone. |
 
 ### 7.2 Mapping of this register to the MDR
 

@@ -8,22 +8,22 @@ import type { Inquiry } from "@/lib/inquiry";
 export async function storeInquiry(d: Inquiry, reference: string): Promise<void> {
   const { createSupabaseServiceClient } = await import("@/lib/supabase/server");
   const sb = await createSupabaseServiceClient();
-  const blank = (v?: string) => v || null;
   const { error } = await sb.from("inquiries").insert({
     reference,
     kind: d.kind,
     name: d.name,
     email: d.email,
-    phone: blank(d.phone),
+    phone: d.phone || null,
     contact_preference: d.contactPreference ?? null,
-    message: d.message,
+    journey: d.journey ?? null,
     help: d.help ?? [],
     service_interest: d.service ?? null,
-    improved: blank(d.improved),
-    considerations: blank(d.considerations),
+    outcomes: d.outcomes ?? [],
+    considerations: d.considerations ?? [],
     delivery: d.delivery ?? null,
-    availability: blank(d.availability),
+    availability: d.availability ?? [],
     found_via: d.foundVia ?? null,
+    topic: d.topic ?? null,
     consent_contact_at: new Date().toISOString(),
     marketing_opt_in: d.marketingOptIn ?? false,
   });

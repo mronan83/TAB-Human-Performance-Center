@@ -4,8 +4,9 @@
 -- records the routing outcome (S14 §14.4.1, GS-004/005) and links the submission to a client record, which links to
 -- the person's My TAB account by confirmed email (SEC-014).
 --
--- Storage is written only while the portal runs on Supabase (config/site.ts `forms.storeSubmissions`), i.e. after
--- the D-042 infrastructure and the Phase 2 security gate. Free-text answers are marked SENSITIVE.
+-- Every answer is a predefined option (owner ruling 2026-09-28, proposed D-059): apart from name, email and phone,
+-- nothing typed by a visitor is stored. Storage is written only while the portal runs on Supabase
+-- (config/site.ts `forms.storeSubmissions`), i.e. after the D-042 infrastructure and the Phase 2 security gate.
 
 create type inquiry_kind as enum ('start', 'contact');
 create type routing_outcome as enum ('book', 'discovery', 'intake', 'more_info', 'referral');
@@ -14,18 +15,21 @@ create table inquiries (
   id uuid primary key default gen_random_uuid(),
   reference text not null unique,          -- shown in email subjects; carries no personal details (D-054)
   kind inquiry_kind not null,
-  name text not null,
-  email text not null,
-  phone text,
+  name text not null check (char_length(name) <= 80),
+  email text not null check (char_length(email) <= 200),
+  phone text check (char_length(phone) <= 25),
   contact_preference text,
-  message text not null,                   -- SENSITIVE: "What brings you to TAB?" / contact message
+  -- Start Where You Are: option values from lib/inquiry.ts
+  journey text,
   help text[] not null default '{}',
   service_interest text,
-  improved text,                           -- SENSITIVE: "If things improved…"
-  considerations text,                     -- SENSITIVE: immediate considerations
+  outcomes text[] not null default '{}',
+  considerations text[] not null default '{}',  -- may include the 'health-private' flag; never details
   delivery text,
-  availability text,
+  availability text[] not null default '{}',
   found_via text,
+  -- Contact form
+  topic text,
   consent_contact_at timestamptz not null,
   marketing_opt_in boolean not null default false,
   -- Owner workflow

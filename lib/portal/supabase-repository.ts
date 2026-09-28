@@ -35,9 +35,9 @@ const mapClient = (r: Row): Client => ({
 
 const mapInquiry = (r: Row): Inquiry => ({
   id: r.id, reference: r.reference, kind: r.kind, receivedAt: r.created_at, name: r.name, email: r.email, phone: r.phone ?? undefined,
-  contactPreference: r.contact_preference ?? undefined, message: r.message, help: r.help ?? [], serviceInterest: r.service_interest ?? undefined,
-  improved: r.improved ?? undefined, considerations: r.considerations ?? undefined, delivery: r.delivery ?? undefined,
-  availability: r.availability ?? undefined, foundVia: r.found_via ?? undefined, marketingOptIn: r.marketing_opt_in,
+  contactPreference: r.contact_preference ?? undefined, journey: r.journey ?? undefined, help: r.help ?? [], serviceInterest: r.service_interest ?? undefined,
+  outcomes: r.outcomes ?? [], considerations: r.considerations ?? [], delivery: r.delivery ?? undefined,
+  availability: r.availability ?? [], foundVia: r.found_via ?? undefined, topic: r.topic ?? undefined, marketingOptIn: r.marketing_opt_in,
   clientId: r.client_id ?? undefined, clientName: r.clients?.full_name ?? undefined, routingOutcome: r.routing_outcome ?? undefined,
   routingNote: r.routing_note ?? undefined, routedAt: r.routed_at ?? undefined,
 });

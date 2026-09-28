@@ -1,12 +1,15 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { contactOptions, deliveryOptions, foundViaOptions, helpOptions, inquirySchema, labelFor, routingOptions, serviceOptions } from "@/lib/inquiry";
+import {
+  availabilityOptions, considerationOptions, contactOptions, deliveryOptions, foundViaOptions, helpOptions, inquirySchema, journeyOptions,
+  labelFor, labelsFor, outcomeOptions, routingOptions, serviceOptions, topicOptions,
+} from "@/lib/inquiry";
 import { storeInquiry } from "@/lib/inquiry-store";
 import { siteConfig } from "@/config/site";
 
 // Best-effort in-memory limits (per server instance only). A shared limiter and bot check (Turnstile / BotID /
-// Vercel WAF) is a launch requirement, and more so now that the site emails a copy to whatever address is
-// entered; see docs/requirements-register.md SEC-013.
+// Vercel WAF) is a launch requirement, since the site emails a copy to whatever address is entered;
+// see docs/requirements-register.md SEC-013.
 const WINDOW_MS = 10 * 60_000;
 const DAY_MS = 24 * 60 * 60_000;
 function limiter(max: number, windowMs: number) {
@@ -47,7 +50,7 @@ export async function POST(req: Request) {
   const ref = `${Date.now().toString(36)}${crypto.randomUUID().slice(0, 4)}`.toUpperCase();
 
   // DIV-05: the whole form is saved (once the D-042 gate is open), then emailed. If saving fails the email
-  // still carries everything, so the submission isn't lost.
+  // still carries every answer, so the submission isn't lost.
   let stored = false;
   if (siteConfig.forms.storeSubmissions) {
     try {
@@ -58,6 +61,8 @@ export async function POST(req: Request) {
     }
   }
 
+  // Every answer is a predefined option (proposed D-059), so the emails carry labels we wrote, plus name/email/phone.
+  const list = (opts: Parameters<typeof labelsFor>[0], v?: readonly string[]) => labelsFor(opts, v).join("; ") || "—";
   const rows: [string, string][] = [
     ["Name", d.name],
     ["Email", d.email],
@@ -66,51 +71,46 @@ export async function POST(req: Request) {
   ];
   if (isStart) {
     rows.push(
-      ["Would like help with", (d.help ?? []).map((v) => labelFor(helpOptions, v)).join("; ") || "—"],
+      ["Starting from", dash(labelFor(journeyOptions, d.journey))],
+      ["Would like help with", list(helpOptions, d.help)],
       ["Service interest", dash(labelFor(serviceOptions, d.service))],
+      ["If things improved", list(outcomeOptions, d.outcomes)],
+      ["Before we start", list(considerationOptions, d.considerations)],
       ["In person or virtual", dash(labelFor(deliveryOptions, d.delivery))],
-      ["Availability", dash(d.availability)],
+      ["Days or times", list(availabilityOptions, d.availability)],
       ["How they found TAB", dash(labelFor(foundViaOptions, d.foundVia))],
     );
+  } else {
+    rows.push(["Topic", dash(labelFor(topicOptions, d.topic))]);
   }
   rows.push(["News and events by email", d.marketingOptIn ? "Yes" : "No"]);
 
-  // Free-text answers, in the order the S14 §14.4.1 form asks them; unanswered optional questions are left out.
-  const answers = (
-    isStart
-      ? [
-          ["What brings you to TAB?", d.message],
-          ["If things improved, what would you like to feel, do, or experience differently?", d.improved],
-          ["Anything we should know before finding the right starting point?", d.considerations],
-        ]
-      : [["Message", d.message]]
-  ).filter((a): a is [string, string] => !!a[1]);
-
   const table = `<table cellpadding="6" style="${FONT};font-size:14px">${rows
     .map(([k, v]) => `<tr><td style="color:#575B53;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
-    .join("")}</table>${answers
-    .map(([q, a]) => `<h3 style="${FONT};font-size:15px">${esc(q)}</h3><p style="${FONT};white-space:pre-wrap">${esc(a)}</p>`)
-    .join("")}`;
-  const plain = [rows.map(([k, v]) => `${k}: ${v}`).join("\n"), ...answers.map(([q, a]) => `${q}\n${a}`)].join("\n\n");
+    .join("")}</table>`;
+  const plain = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
 
   // 1. TAB's copy. GS-004: every Start submission ends with exactly one next step, chosen by whoever replies.
   const subject = isStart ? `Start Where You Are: new submission (${ref})` : `Website message: new submission (${ref})`;
+  const healthFlag = d.considerations?.includes("health-private")
+    ? "They’d like to discuss something health-related privately: follow up before anything is booked."
+    : "";
   const routing = isStart ? `Next step (choose one): ${routingOptions.map((o) => o.label).join(" · ")}.` : "";
   const savedNote = stored ? `Saved in TAB Practice → Submissions (reference ${ref}).` : "";
-  const staffNotes = [routing, savedNote].filter(Boolean);
+  const staffNotes = [healthFlag, routing, savedNote].filter(Boolean);
   const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2>${table}${staffNotes
     .map((n) => `<p style="${FONT};font-size:13px;color:#575B53">${esc(n)}</p>`)
     .join("")}`;
   const text = [plain, ...staffNotes].join("\n\n");
   const to = isStart ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
 
-  // 2. The submitter's copy (owner ruling 2026-09-28). Same content; a neutral subject; replies go to TAB.
+  // 2. The submitter's copy (owner ruling 2026-09-28): their choices, a neutral subject; replies go to TAB.
   const sendCopy = siteConfig.forms.sendSubmitterCopy && !copyLimited(d.email.toLowerCase());
   const copySubject = `We’ve received your message – ${siteConfig.brand.name}`;
   const intro = `Hi ${d.name}, thank you for reaching out to ${siteConfig.brand.name}. Here’s a copy of what you sent. ${
-    isStart ? "We’ll read it and reply with a suggested starting point." : "We’ll get back to you soon."
+    isStart ? "We’ll reply with a suggested starting point." : "We’ll get back to you soon."
   }`;
-  const outro = `If you didn’t send this, you can ignore this email. To add anything, just reply.`;
+  const outro = "If you didn’t send this, you can ignore this email. We’ll ask about anything health-related privately, so please don’t reply with medical details.";
   const copyHtml = `<p style="${FONT};font-size:15px">${esc(intro)}</p>${table}<p style="${FONT};font-size:13px;color:#575B53">${esc(outro)}</p>`;
   const copyText = [intro, plain, outro].join("\n\n");
 

@@ -180,14 +180,13 @@ function seed(): Store {
     // Fictional Start and contact submissions for reviewing the owner workflow.
     inquiries: [
       { id: "inq-jordan", reference: "DEMO-3", kind: "start", receivedAt: at(-1, 19), name: "Jordan Price", email: "jordan.price@example.com", phone: "", contactPreference: "email",
-        message: "I sit at a desk all day and want to feel more capable again. I’m not sure whether to start with massage or training.",
-        help: ["feel-better", "stronger", "not-sure"], serviceInterest: "not-sure", improved: "Get through a full day without feeling worn out, and pick up running again.",
-        considerations: "Evenings work best.", delivery: "either", availability: "Weekday evenings", foundVia: "search", marketingOptIn: true },
+        journey: "exploring", help: ["feel-better", "stronger", "not-sure"], serviceInterest: "not-sure", outcomes: ["energy", "strength", "keep-up"],
+        considerations: ["talk-first", "schedule"], delivery: "either", availability: ["weekday-evenings"], foundVia: "search", marketingOptIn: true },
       { id: "inq-alex", reference: "DEMO-2", kind: "contact", receivedAt: at(-2, 13), name: "Alex Rivera", email: "alex.rivera@example.com", contactPreference: "phone",
-        message: "Do you still offer gift cards? I’d like one for my sister’s birthday.", help: [], marketingOptIn: false },
+        topic: "gift-cards", help: [], outcomes: [], considerations: [], availability: [], marketingOptIn: false },
       { id: "inq-tom", reference: "DEMO-1", kind: "start", receivedAt: at(-6, 10), name: "Tom Brennan", email: "tom.brennan@example.com", contactPreference: "phone",
-        message: "Recently retired and want to stay strong and independent.", help: ["stronger", "movement", "exercise"], serviceInterest: "personal-strength-training",
-        improved: "Keep up with my grandkids and keep gardening.", delivery: "in-person", foundVia: "friend", marketingOptIn: false,
+        journey: "ready", help: ["stronger", "movement", "exercise"], serviceInterest: "personal-strength-training", outcomes: ["independence", "keep-up"],
+        considerations: ["health-private"], delivery: "in-person", availability: ["weekday-mornings"], foundVia: "friend", marketingOptIn: false,
         clientId: "demo-client-tom", clientName: "Tom Brennan", routingOutcome: "discovery", routingNote: "Call booked for Thursday.", routedAt: at(-5, 9) },
     ],
   };

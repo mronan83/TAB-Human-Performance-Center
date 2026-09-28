@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/portal";
 import { fmtDate, fmtDateTime } from "@/lib/portal/format";
 import { PageTitle, Panel, Badge } from "@/components/portal/ui";
-import { contactOptions, deliveryOptions, foundViaOptions, helpOptions, labelFor, routingOptions, serviceOptions } from "@/lib/inquiry";
+import {
+  availabilityOptions, considerationOptions, contactOptions, deliveryOptions, foundViaOptions, helpOptions, journeyOptions, labelFor, labelsFor,
+  outcomeOptions, routingOptions, serviceOptions, topicOptions,
+} from "@/lib/inquiry";
 import { createClientFromInquiryAction, linkInquiryAction, routeInquiryAction } from "@/app/(portal)/actions";
 
 export default async function InquiryDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -15,21 +18,23 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
   const isOwner = viewer.role === "owner";
   const isStart = i.kind === "start";
 
-  const answers: [string, string | undefined][] = isStart
+  // Every answer is one of our options (proposed D-059), shown by its label.
+  const answers: [string, string[]][] = isStart
     ? [
-        ["What brings you to TAB?", i.message],
-        ["What would you most like help with?", i.help.map((v) => labelFor(helpOptions, v)).join("; ") || undefined],
-        ["Which service are you interested in?", i.serviceInterest && labelFor(serviceOptions, i.serviceInterest)],
-        ["If things improved, what would you like to feel, do, or experience differently?", i.improved],
-        ["Anything we should know before finding the right starting point?", i.considerations],
+        ["Where are you starting from?", labelsFor(journeyOptions, i.journey ? [i.journey] : [])],
+        ["What would you most like help with?", labelsFor(helpOptions, i.help)],
+        ["Which service are you interested in?", labelsFor(serviceOptions, i.serviceInterest ? [i.serviceInterest] : [])],
+        ["If things improved, what would you like to feel, do, or experience differently?", labelsFor(outcomeOptions, i.outcomes)],
+        ["Anything we should know before finding the right starting point?", labelsFor(considerationOptions, i.considerations)],
       ]
-    : [["Message", i.message]];
+    : [["What can we help with?", labelsFor(topicOptions, i.topic ? [i.topic] : [])]];
+  const healthFlag = i.considerations.includes("health-private");
   const practical: [string, string | undefined][] = [
     ["Email", i.email],
     ["Phone", i.phone],
     ["Best way to reach", i.contactPreference && labelFor(contactOptions, i.contactPreference)],
     ["In person or virtual", i.delivery && labelFor(deliveryOptions, i.delivery)],
-    ["Days or times", i.availability],
+    ["Days or times", labelsFor(availabilityOptions, i.availability).join("; ") || undefined],
     ["How they found TAB", i.foundVia && labelFor(foundViaOptions, i.foundVia)],
     ["News and events by email", i.marketingOptIn ? "Yes" : "No"],
   ];
@@ -45,11 +50,18 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="space-y-6">
           <Panel title="What they told us">
+            {healthFlag && (
+              <p className="mb-5 rounded-xl bg-accent-soft p-4 font-medium">
+                They’d like to discuss something health-related privately. Follow up before anything is booked.
+              </p>
+            )}
             <dl className="space-y-5">
               {answers.map(([q, a]) => (
                 <div key={q}>
                   <dt className="text-sm font-semibold text-text-secondary">{q}</dt>
-                  <dd className="mt-1 whitespace-pre-wrap">{a || "—"}</dd>
+                  <dd className="mt-1">
+                    {a.length === 0 ? "—" : a.length === 1 ? a[0] : <ul className="list-disc space-y-1 pl-5">{a.map((v) => <li key={v}>{v}</li>)}</ul>}
+                  </dd>
                 </div>
               ))}
             </dl>

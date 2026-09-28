@@ -1,10 +1,21 @@
 import { z } from "zod";
 
 /**
- * Start Where You Are (GS-001) follows the Step 14 §14.4.1 Get Started form; the general contact form is a
- * short subset. Submissions are emailed, never stored (D-054), so every free-text field carries the
- * "no medical details" guidance in the form (R-027).
+ * Start Where You Are (GS-001) asks the Step 14 §14.4.1 Get Started questions; the contact form is a short
+ * subset. Owner ruling 2026-09-28 (proposed D-059): every answer is a choice we define. Apart from name, email
+ * and phone (character-restricted), nothing a visitor types reaches our email, the submitter's copy or the
+ * database, so there is nowhere to put health details (R-027) or someone else's message (RSK-011).
  */
+
+type Option = { readonly value: string; readonly label: string };
+
+/** "Where are you starting from?" (S14 "Start where you are"; one choice). */
+export const journeyOptions = [
+  { value: "exploring", label: "New to TAB and exploring my options" },
+  { value: "ready", label: "Ready to get started soon" },
+  { value: "returning", label: "Returning after some time away" },
+  { value: "current-client", label: "A current client interested in another service" },
+] as const;
 
 /** "What would you most like help with?" (S14 §14.4.1, multiple selections). */
 export const helpOptions = [
@@ -21,7 +32,7 @@ export const helpOptions = [
   { value: "balance", label: "Creating more balance" },
   { value: "goals", label: "Clarifying goals or priorities" },
   { value: "not-sure", label: "I’m not sure yet" },
-  { value: "other", label: "Other" },
+  { value: "other", label: "Something else (we’ll ask when we talk)" },
 ] as const;
 
 /** "Which service are you interested in?" (S14 §14.4.1, one choice). */
@@ -31,6 +42,37 @@ export const serviceOptions = [
   { value: "womens-wellness-coaching", label: "Women’s Wellness Coaching" },
   { value: "holistic-life-coaching", label: "Holistic Life Coaching" },
   { value: "not-sure", label: "I’m not sure" },
+] as const;
+
+/**
+ * S14's IMPORTANT QUESTION: "If things improved, what would you like to be able to feel, do, or experience
+ * differently?" Outcomes, never conditions or treatment claims (scope of practice, S15 §15.8).
+ */
+export const outcomeOptions = [
+  { value: "ease", label: "Move with more ease and comfort" },
+  { value: "strength", label: "Feel stronger and more capable" },
+  { value: "energy", label: "Have more energy" },
+  { value: "rest", label: "Rest and recover better" },
+  { value: "calm", label: "Feel calmer and more balanced" },
+  { value: "keep-up", label: "Keep up with family, work or the activities I love" },
+  { value: "independence", label: "Stay independent and active as I get older" },
+  { value: "confidence", label: "Feel more confident in my body" },
+  { value: "habits", label: "Build habits that last" },
+  { value: "clarity", label: "Get clear on my goals or next chapter" },
+  { value: "talk", label: "Not sure yet; I’d like to talk it through" },
+] as const;
+
+/**
+ * S14 immediate consideration: "Is there anything we should know before helping you determine the right starting
+ * point?" The health option is a flag only, so a practitioner follows up privately before anything is booked.
+ */
+export const considerationOptions = [
+  { value: "health-private", label: "There’s something health-related I’d like to discuss privately first" },
+  { value: "talk-first", label: "I’d like a conversation before booking anything" },
+  { value: "access", label: "I have access needs we should plan for" },
+  { value: "schedule", label: "My schedule is limited or changes often" },
+  { value: "pricing", label: "I’d like to understand pricing first" },
+  { value: "none", label: "Nothing right now" },
 ] as const;
 
 export const contactOptions = [
@@ -45,6 +87,14 @@ export const deliveryOptions = [
   { value: "either", label: "Either" },
 ] as const;
 
+export const availabilityOptions = [
+  { value: "weekday-mornings", label: "Weekday mornings" },
+  { value: "weekday-afternoons", label: "Weekday afternoons" },
+  { value: "weekday-evenings", label: "Weekday evenings" },
+  { value: "weekends", label: "Weekends" },
+  { value: "flexible", label: "I’m flexible" },
+] as const;
+
 /** How they found TAB (S14 §14.3 Connect), using the S14 §14.2 Discover channels. */
 export const foundViaOptions = [
   { value: "search", label: "Google or another search" },
@@ -57,6 +107,17 @@ export const foundViaOptions = [
   { value: "other", label: "Other" },
 ] as const;
 
+/** Contact form: "What can we help with?" (one choice). */
+export const topicOptions = [
+  { value: "booking", label: "Booking or scheduling" },
+  { value: "services", label: "Services and pricing" },
+  { value: "gift-cards", label: "Gift cards" },
+  { value: "appointment", label: "An existing appointment" },
+  { value: "billing", label: "Billing or payments" },
+  { value: "partnerships", label: "Partnerships, press or community events" },
+  { value: "other", label: "Something else" },
+] as const;
+
 /** S14 §14.4.1 routing outcomes: every Start submission ends with exactly one next step (GS-004). */
 export const routingOptions = [
   { value: "book", label: "Direct booking" },
@@ -67,32 +128,53 @@ export const routingOptions = [
 ] as const;
 export type RoutingOutcome = (typeof routingOptions)[number]["value"];
 
-const values = <T extends readonly { value: string }[]>(opts: T) => opts.map((o) => o.value) as [T[number]["value"], ...T[number]["value"][]];
-const optionalText = (max: number) => z.string().trim().max(max).optional().or(z.literal(""));
+const values = <T extends readonly Option[]>(opts: T) => opts.map((o) => o.value) as [T[number]["value"], ...T[number]["value"][]];
+const choice = <T extends readonly Option[]>(opts: T) => z.enum(values(opts)).optional();
+const choices = <T extends readonly Option[]>(opts: T) => z.array(z.enum(values(opts))).max(opts.length).optional();
 
-export const inquirySchema = z.object({
-  kind: z.enum(["start", "contact"]),
-  name: z.string().trim().min(1, "Please tell us your name.").max(120),
-  email: z.string().trim().email("Please enter a valid email address.").max(200),
-  phone: optionalText(40),
-  contactPreference: z.enum(values(contactOptions)).optional(),
-  /** Start: "What brings you to TAB?" · Contact: "How can we help?" */
-  message: z.string().trim().min(1, "Please share a little about what brings you here.").max(3000),
-  help: z.array(z.enum(values(helpOptions))).max(helpOptions.length).optional(),
-  service: z.enum(values(serviceOptions)).optional(),
-  /** "If things improved, what would you like to be able to feel, do, or experience differently?" */
-  improved: optionalText(2000),
-  /** "Is there anything we should know before helping you determine the right starting point?" */
-  considerations: optionalText(2000),
-  delivery: z.enum(values(deliveryOptions)).optional(),
-  availability: optionalText(500),
-  foundVia: z.enum(values(foundViaOptions)).optional(),
-  consentContact: z.literal(true, { errorMap: () => ({ message: "Please confirm we can contact you about your inquiry." }) }),
-  marketingOptIn: z.boolean().optional(),
-  company: z.string().max(200).optional(), // honeypot: humans leave it empty; the route drops filled submissions quietly
-});
+export const inquirySchema = z
+  .object({
+    kind: z.enum(["start", "contact"]),
+    // The only typed fields. Restricted so they can't carry links or messages into the emails we send.
+    name: z
+      .string()
+      .trim()
+      .min(1, "Please tell us your name.")
+      .max(80, "Please shorten your name to 80 characters.")
+      .regex(/^[\p{L}\p{M}][\p{L}\p{M}'’ .-]*$/u, "Please use letters only for your name."),
+    email: z.string().trim().email("Please enter a valid email address.").max(200),
+    phone: z
+      .string()
+      .trim()
+      .regex(/^[0-9+().\-\s]{7,25}$/, "Please enter a phone number using digits only.")
+      .optional()
+      .or(z.literal("")),
+    contactPreference: choice(contactOptions),
+    // Start Where You Are
+    journey: choice(journeyOptions),
+    help: choices(helpOptions),
+    service: choice(serviceOptions),
+    outcomes: choices(outcomeOptions),
+    considerations: choices(considerationOptions),
+    delivery: choice(deliveryOptions),
+    availability: choices(availabilityOptions),
+    foundVia: choice(foundViaOptions),
+    // Contact
+    topic: choice(topicOptions),
+    consentContact: z.literal(true, { errorMap: () => ({ message: "Please confirm we can contact you about your inquiry." }) }),
+    marketingOptIn: z.boolean().optional(),
+    company: z.string().max(200).optional(), // honeypot: humans leave it empty; the route drops filled submissions quietly
+  })
+  .superRefine((d, ctx) => {
+    if (d.kind === "start" && !d.help?.length) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["help"], message: "Please choose at least one." });
+    }
+    if (d.kind === "contact" && !d.topic) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["topic"], message: "Please choose what we can help with." });
+    }
+  });
 
 export type Inquiry = z.infer<typeof inquirySchema>;
 
-export const labelFor = (opts: readonly { value: string; label: string }[], value?: string) =>
-  opts.find((o) => o.value === value)?.label ?? value ?? "";
+export const labelFor = (opts: readonly Option[], value?: string) => opts.find((o) => o.value === value)?.label ?? value ?? "";
+export const labelsFor = (opts: readonly Option[], list?: readonly string[]) => (list ?? []).map((v) => labelFor(opts, v));
