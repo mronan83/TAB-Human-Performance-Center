@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-// PreToolUse guard: keeps Claude from changing `main` directly.
+// PreToolUse guard: keeps Claude from changing `main` except by an approved PR merge.
 //
 // GitHub cannot enforce branch protection on this private repo on the current
 // (free) plan, so this hook is the enforced control for Claude sessions:
 //   - Bash: blocks `git push` that would update or delete `main`.
-//   - GitHub MCP: blocks merging PRs / enabling auto-merge (the owner's review
-//     gate) and file writes whose target branch is `main`.
+//   - GitHub MCP: blocks auto-merge and file writes whose target branch is `main`;
+//     allows a PR merge only as a squash merge. Owner ruling 2026-09-28: Claude
+//     merges a PR only after the owner approves that specific PR in the session
+//     (CLAUDE.md, G2). The hook enforces the method; the approval is procedural.
 // Everything else passes through untouched.
 
 import { execFileSync } from "node:child_process";
@@ -93,8 +95,11 @@ function checkGitPush(command, cwd) {
 
 function checkGitHubTool(toolName, input) {
   const action = toolName.split("__").pop();
-  if (action === "merge_pull_request" || action === "enable_pr_auto_merge") {
-    deny(`Blocked ${action}: merging is the owner's review gate (G2).`);
+  if (action === "enable_pr_auto_merge") {
+    deny("Blocked enable_pr_auto_merge: merges happen only after the owner approves the specific PR (G2).");
+  }
+  if (action === "merge_pull_request" && input?.merge_method !== "squash") {
+    deny("Blocked merge_pull_request: only squash merges keep main's history linear (G2).");
   }
   if (["create_or_update_file", "push_files", "delete_file"].includes(action)) {
     // A missing branch means the repo's default branch, which is main.

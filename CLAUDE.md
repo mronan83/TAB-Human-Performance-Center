@@ -50,10 +50,14 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
 - `main` is the default branch. Work happens on `claude/*` branches and lands via PR.
 - GitHub does not enforce branch protection on this private repo on the free plan. For Claude
   sessions the rule is enforced by the PreToolUse hook `.claude/hooks/guard-main.mjs`
-  (blocks pushes to `main`, PR merges and auto-merge). Do not disable or work around it.
-  Revisit GitHub-side protection when paid plans are bought for go-live.
+  (blocks pushes and file writes to `main`, auto-merge, and any merge that isn't a squash merge).
+  Do not disable or work around it. Revisit GitHub-side protection when paid plans are bought for go-live.
 - G1 Design — architecture, data model and plan approved before build.
-- G2 Pull request — owner reviews each PR on its Vercel preview URL; CI must be green.
+- G2 Pull request — owner reviews each PR on its Vercel preview URL; CI must be green. **Claude merges**
+  (squash only) once CI is green on the head commit **and** the owner has approved that specific PR in
+  the session ("approved", "ship it", or similar). Approval of one PR never carries to another, and a
+  push after approval needs the approval re-confirmed unless it only fixes CI (owner ruling 2026-09-28).
+  After a merge, restart the working branch from `main`.
 - G3 Release — owner approves every production promotion and every production migration.
 - Never push directly to `main` or run a production migration without G3 approval.
 
