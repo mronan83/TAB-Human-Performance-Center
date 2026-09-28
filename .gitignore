@@ -12,6 +12,7 @@ dist/
 build/
 coverage/
 *.tsbuildinfo
+next-env.d.ts
 
 # Platform local state
 .vercel/

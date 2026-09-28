@@ -1,0 +1,50 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { siteConfig } from "@/config/site";
+import type { PortalRepository, Viewer } from "./types";
+import { DEMO_CLIENT_ID, DEMO_PRACTITIONER_ID, mockRepository } from "./mock-repository";
+
+export const isMock = () => siteConfig.portal.dataSource === "mock";
+
+export async function getRepository(): Promise<PortalRepository> {
+  if (isMock()) return mockRepository;
+  return (await import("./supabase-repository")).supabaseRepository;
+}
+
+/** The signed-in viewer. In mock mode a cookie switches between the demo client and demo practitioner. */
+export async function getViewer(): Promise<Viewer | null> {
+  if (isMock()) {
+    const role = (await cookies()).get("tab_demo_role")?.value === "owner" ? "owner" : "client";
+    return role === "owner"
+      ? { userId: "demo-owner", role: "owner", name: "Your TAB practitioner", practitionerId: DEMO_PRACTITIONER_ID }
+      : { userId: "demo-user", role: "client", name: "Dana", clientId: DEMO_CLIENT_ID };
+  }
+  const { createSupabaseServerClient } = await import("@/lib/supabase/server");
+  const sb = await createSupabaseServerClient();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return null;
+  const { data: profile } = await sb.from("profiles").select("role, full_name, preferred_name").eq("id", user.id).maybeSingle();
+  const { data: client } = await sb.from("clients").select("id, preferred_name, full_name").eq("profile_id", user.id).maybeSingle();
+  const role = (profile?.role ?? "client") as Viewer["role"];
+  return {
+    userId: user.id, role,
+    name: client?.preferred_name ?? profile?.preferred_name ?? profile?.full_name ?? client?.full_name ?? "there",
+    clientId: client?.id, practitionerId: role === "client" ? undefined : user.id,
+  };
+}
+
+export async function requireClient(): Promise<{ viewer: Viewer; clientId: string; repo: PortalRepository }> {
+  if (!siteConfig.portal.enabled) redirect("/my-tab");
+  const viewer = await getViewer();
+  if (!viewer) redirect("/my-tab/login");
+  if (!viewer.clientId) redirect(viewer.role === "client" ? "/my-tab/login?e=unlinked" : "/practice");
+  return { viewer, clientId: viewer.clientId, repo: await getRepository() };
+}
+
+export async function requireStaff(): Promise<{ viewer: Viewer; repo: PortalRepository }> {
+  if (!siteConfig.portal.enabled || !siteConfig.portal.showPracticeWorkspace) redirect("/my-tab");
+  const viewer = await getViewer();
+  if (!viewer) redirect("/my-tab/login");
+  if (viewer.role === "client") redirect("/my-tab");
+  return { viewer, repo: await getRepository() };
+}

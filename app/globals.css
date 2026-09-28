@@ -1,0 +1,147 @@
+@import "tailwindcss";
+
+/* TAB Wellness Collective — Canonical Design Tokens v1.0 (D-053). Do not change values here
+   without updating the token document. Fonts are loaded in app/layout.tsx via next/font. */
+@theme {
+  /* Palette */
+  --color-sand: #EDE7DC;
+  --color-linen: #DCCFBD;
+  --color-sage: #97A07C;
+  --color-olive: #5A6046;
+  --color-terracotta: #C0784C;
+  --color-terracotta-deep: #A85F3A;
+  --color-charcoal: #252724;
+  --color-cream: #F8F5EF;
+  --color-white: #FFFFFF;
+
+  /* Semantic roles */
+  --color-background: #F8F5EF;
+  --color-surface: #FFFFFF;
+  --color-surface-muted: #EDE7DC;
+  --color-surface-warm: #DCCFBD;
+  --color-surface-brand: #5A6046;
+  --color-text-primary: #252724;
+  --color-text-secondary: #5E625A;
+  --color-border: #CFC6B8;
+  --color-border-strong: #A99D8C;
+  --color-primary: #5A6046;
+  --color-primary-hover: #484D38;
+  --color-primary-active: #3D4130;
+  --color-secondary: #A85F3A;
+  --color-secondary-hover: #8F5034;
+  --color-accent: #C0784C;
+  --color-accent-soft: #F1DED2;
+  --color-focus: #A85F3A;
+  --color-success: #4F6B4A;
+  --color-warning: #9A6A2F;
+  --color-danger: #9B403C;
+
+  /* Fonts */
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-manrope), "Manrope", "Helvetica Neue", Arial, sans-serif;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(37, 39, 36, 0.08);
+  --shadow-md: 0 8px 24px -8px rgba(37, 39, 36, 0.12);
+  --shadow-lg: 0 18px 48px -16px rgba(37, 39, 36, 0.14);
+
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1440px;
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 120ms;
+  --duration-standard: 200ms;
+  --duration-slow: 320ms;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    scroll-padding-top: 96px;
+  }
+  body {
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, .display {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  h3, h4 { font-family: var(--font-sans); font-weight: 600; text-wrap: balance; }
+  p { text-wrap: pretty; }
+  a { text-underline-offset: 3px; }
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+}
+
+@layer components {
+  .container-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: 24px; }
+  .container-prose { width: 100%; max-width: 760px; margin-inline: auto; padding-inline: 24px; }
+  .section { padding-block: 64px; }
+  @media (min-width: 1024px) { .section { padding-block: 96px; } }
+
+  .text-display-xl { font-family: var(--font-display); font-size: clamp(2.75rem, 6vw, 4.5rem); line-height: 1; font-weight: 500; letter-spacing: -0.02em; }
+  .text-display-lg { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 3.5rem); line-height: 1; font-weight: 500; letter-spacing: -0.02em; }
+  .text-h1 { font-family: var(--font-display); font-size: clamp(2.25rem, 4.5vw, 3rem); line-height: 1.08; font-weight: 500; }
+  .text-h2 { font-family: var(--font-display); font-size: clamp(1.875rem, 3.5vw, 2.25rem); line-height: 1.12; font-weight: 500; }
+  .text-h3 { font-size: 1.75rem; line-height: 1.2; font-weight: 600; }
+  .text-h4 { font-size: 1.375rem; line-height: 1.25; font-weight: 600; }
+  .text-body-lg { font-size: 1.125rem; line-height: 1.6; }
+  .text-label { font-size: 0.75rem; line-height: 1.35; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 48px; padding: 12px 24px; border-radius: var(--radius-pill);
+    font-weight: 600; font-size: 1rem; line-height: 1.2; text-decoration: none; cursor: pointer;
+    transition: background-color var(--duration-standard) var(--ease-standard), color var(--duration-standard) var(--ease-standard), border-color var(--duration-standard) var(--ease-standard);
+  }
+  .btn-primary { background: var(--color-primary); color: #fff; }
+  .btn-primary:hover { background: var(--color-primary-hover); }
+  .btn-primary:active { background: var(--color-primary-active); }
+  .btn-secondary { background: var(--color-secondary); color: #fff; }
+  .btn-secondary:hover { background: var(--color-secondary-hover); }
+  .btn-outline { background: transparent; color: var(--color-text-primary); border: 1px solid var(--color-border-strong); }
+  .btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  .btn-sm { min-height: 40px; padding: 8px 18px; font-size: 0.875rem; }
+
+  .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+  .card-muted { background: var(--color-surface-muted); border-radius: var(--radius-lg); }
+
+  .field-label { display: block; font-weight: 600; font-size: 0.9375rem; margin-bottom: 6px; }
+  .field-hint { font-size: 0.875rem; color: var(--color-text-secondary); margin-top: 4px; }
+  .field-input {
+    width: 100%; min-height: 48px; padding: 10px 14px; border-radius: var(--radius-md);
+    border: 1px solid var(--color-border-strong); background: var(--color-surface); color: var(--color-text-primary); font: inherit;
+  }
+  .field-input:focus { outline: 3px solid var(--color-focus); outline-offset: 1px; border-color: var(--color-focus); }
+  textarea.field-input { min-height: 120px; resize: vertical; }
+
+  .prose-tab p { margin-block: 0 1em; }
+  .draft-flag {
+    display: inline-block; font-size: 0.75rem; font-weight: 600; color: var(--color-warning);
+    background: #F6EBD9; border-radius: var(--radius-pill); padding: 2px 10px;
+  }
+}
