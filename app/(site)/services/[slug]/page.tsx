@@ -107,7 +107,7 @@ export default async function ServicePage({ params }: Props) {
               </li>
             ))}
           </ol>
-          <p className="mt-8 max-w-3xl rounded-[20px] bg-sand p-6 text-sm text-text-secondary"><strong className="text-text-primary">Scope of care. </strong>{s.scopeNote}</p>
+          <p className="mt-8 rounded-[20px] bg-sand p-6 text-sm text-text-secondary"><strong className="text-text-primary">Scope of care. </strong>{s.scopeNote}</p>
         </div>
       </section>
 
