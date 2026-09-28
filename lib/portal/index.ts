@@ -6,9 +6,9 @@ import { DEMO_CLIENT_ID, DEMO_PRACTITIONER_ID, mockRepository } from "./mock-rep
 
 export const isMock = () => siteConfig.portal.dataSource === "mock";
 
-/** Demo data is shared by every visitor and never allowed on a production deployment. */
+/** Demo data is shared by every visitor: allowed on production only while `portal.demoOnProduction` is set. */
 function assertDemoAllowed() {
-  if (isProductionDeployment) throw new Error("My TAB demo data is disabled on production deployments.");
+  if (isProductionDeployment && !siteConfig.portal.demoOnProduction) throw new Error("My TAB demo data is disabled on production deployments.");
 }
 
 export async function getRepository(): Promise<PortalRepository> {

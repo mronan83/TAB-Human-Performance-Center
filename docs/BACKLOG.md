@@ -6,7 +6,7 @@ Register IDs in brackets link to `docs/requirements-register.md`.
 
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 
-_Last updated: 2026-09-28, demo sign-in._
+_Last updated: 2026-09-28, demo on production._
 
 ## P0 · Now
 
@@ -14,8 +14,7 @@ _Last updated: 2026-09-28, demo sign-in._
 |---|---|---|---|---|
 | A1 | Register `tabwellnesscollective.com` and `.net` once the name is officially approved (owner, 2026-09-28). Still unregistered at the registry on 2026-09-28 [RSK-007] | Accounts | Owner | A2, A3, C1, C5, launch |
 
-| A23 | Decide where the My TAB / TAB Practice demo runs. Production keeps the portal off because demo mode has no real login and one shared store (security review 2026-09-28); the demo runs on preview URLs. Options: a stable demo preview URL (recommended), or accept demo-on-production while production is private | Decision | Owner | Demo on the production URL |
-| C0 | **On `claude/zealous-davinci-64dima`.** Demo sign-in page (client or practitioner), "Practitioner login" in the footer, sign-out, signed-out state; `/employee-login` goes straight to sign-in. Fonts self-hosted (`app/fonts`), so builds no longer fetch from Google Fonts, which broke CI on 2026-09-28 | Portal | Claude | Owner demos |
+| C0 | **On `claude/zealous-davinci-64dima`.** Demo portal on the production URL (owner ruling 2026-09-28), guarded by the launch gate | Portal | Claude | Owner demos |
 
 ## P1 · Public-site launch
 
@@ -33,7 +32,7 @@ _Last updated: 2026-09-28, demo sign-in._
 | A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | |
 | A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | |
 | A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | A2 |
-| C1 | Switch-over runbook: DNS order that keeps Google Workspace email, legacy email forwarding, redirect checks on the live domain, rollback [§7.4, RSK-009] | Launch | Claude | A1, A10 |
+| C1 | Switch-over runbook (first step: set `portalDemoOnProduction` to false before the custom domain is attached): DNS order that keeps Google Workspace email, legacy email forwarding, redirect checks on the live domain, rollback [§7.4, RSK-009] | Launch | Claude | A1, A10 |
 | A22 | Decide how G3 applies to Vercel: it deploys `main` to production on every merge. Either PR approval counts as G3, or turn off automatic production deploys and promote by hand (recommended before launch) | Decision | Owner | |
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | A1–A11 |
 
@@ -66,6 +65,7 @@ _Last updated: 2026-09-28, demo sign-in._
 
 ## Recently done
 
+- **#18** (2026-09-28): Demo sign-in (client or practitioner), Practitioner login link, sign-out; fonts self-hosted (Google Fonts broke CI).
 - **#16** (2026-09-28): Vercel builds fixed (a blank `NEXT_PUBLIC_SITE_URL` broke every deploy); first production deploy ready; `CLAUDE.md` Vercel rules corrected to the owner's personal team. After merge: `NEXT_PUBLIC_SHOW_DRAFTS=true` on Preview; Claude authorized to manage Vercel env vars. A20 (revoke the Vercel token pasted in chat) declined by the owner.
 - **#13** (2026-09-28): Portal security hardening, part 1: SEC-015 to SEC-018, the 5 known gaps closed (71 checks, 0 gaps); audit log read-only.
 - **#12** (2026-09-28): Client Login fix and Timely booking link; Content Security Policy; sign-in spam protection; banner expiry; rulings recorded (GAP-008 closed, HIPAA does not apply).
