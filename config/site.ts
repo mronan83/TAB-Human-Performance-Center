@@ -64,8 +64,9 @@ export const siteConfig = {
 
   /** D-003: Timely stays the scheduling system of record; the site links out. */
   booking: {
-    timelyBookingUrl: null as Maybe<string>, // PLACEHOLDER: Timely online booking link
-    timelyClientLoginUrl: null as Maybe<string>, // PLACEHOLDER: Timely Client Login link
+    // The live Timely account (tabmassageandfitness), taken from the legacy site's booking embed on 2026-09-28.
+    timelyBookingUrl: "https://bookings.gettimely.com/tabmassageandfitness/book" as Maybe<string>,
+    timelyClientLoginUrl: null as Maybe<string>, // PLACEHOLDER: Timely Client Login link (until set, Client Login opens the booking page)
     /** Optional per-service booking deep links (Timely service/category URLs). */
     serviceBookingUrls: {
       "massage-bodywork": null as Maybe<string>,

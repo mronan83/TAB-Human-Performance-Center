@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { accountLink, bookingHref } from "../lib/links";
+import { accountLink, bookingHref, clientLoginHref } from "../lib/links";
 
 /** S19 §19.15 critical smoke tests that can run without live third-party services (NFR-007). */
 
@@ -34,6 +34,9 @@ test("account link goes where the configuration says (WEB-020)", async ({ page }
   await page.goto("/");
   const account = accountLink();
   await expect(page.locator("header").getByRole("link", { name: account.label }).first()).toHaveAttribute("href", account.href);
+  // Production shows "Client Login" until My TAB is live: it must open Timely, never the contact form.
+  expect(clientLoginHref().href).not.toBe("/contact");
+  if (bookingHref().external) expect(clientLoginHref().external).toBe(true);
 });
 
 test("Start Where You Are: submits choices only (D-059)", async ({ page }) => {

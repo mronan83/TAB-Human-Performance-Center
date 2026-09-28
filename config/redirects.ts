@@ -7,6 +7,8 @@
  */
 export const legacyRedirects: Record<string, string> = {
   // Pages
+  // The legacy staff portal. /my-tab is the one sign-in entry for clients and staff (staff continue to TAB
+  // Practice after signing in); /practice would add a hop, since it always sends signed-out visitors to sign in.
   "/employee-login": "/my-tab",
   "/newsletter-archives": "/resources",
   "/sitemap": "/",

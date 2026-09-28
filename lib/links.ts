@@ -8,9 +8,14 @@ export function bookingHref(slug?: ServiceSlug): { href: string; external: boole
   return url ? { href: url, external: true } : { href: "/book", external: false };
 }
 
+/**
+ * "Client Login" goes to Timely (WEB-020, Step 19.14). Until the dedicated Client Login link is configured it opens the
+ * Timely booking page, where clients manage bookings too. It never falls back to /contact: a login button that opens a
+ * contact form reads as broken (owner feedback 2026-09-28).
+ */
 export function clientLoginHref(): { href: string; external: boolean } {
-  const url = siteConfig.booking.timelyClientLoginUrl;
-  return url ? { href: url, external: true } : { href: "/contact", external: false };
+  const url = siteConfig.booking.timelyClientLoginUrl ?? siteConfig.booking.timelyBookingUrl;
+  return url ? { href: url, external: true } : { href: "/book", external: false };
 }
 
 /** The header and footer account link: "My TAB" once the portal is live, else "Client Login" into Timely (WEB-020). */

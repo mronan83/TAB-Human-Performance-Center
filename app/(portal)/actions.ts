@@ -1,6 +1,6 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireClient, requireStaff, isMock } from "@/lib/portal";
@@ -8,6 +8,7 @@ import { siteUrl } from "@/config/site";
 import type { Consent } from "@/lib/portal/types";
 import type { ServiceSlug } from "@/content/services";
 import { routingOptions, type RoutingOutcome } from "@/lib/inquiry";
+import { limiter, verifyHuman } from "@/lib/spam";
 
 export async function toggleActivityAction(programId: string, activityId: string, done: boolean) {
   const { clientId, repo } = await requireClient();
@@ -91,10 +92,28 @@ export async function setDemoRoleAction(role: "client" | "owner") {
   redirect(role === "owner" ? "/practice" : "/my-tab");
 }
 
+/**
+ * The sign-in form sends email, so it gets the public-form defenses (SEC-013), cheapest first: honeypot, per-IP limit,
+ * Turnstile, then a per-address limit. The address limit comes after the human check so a bot can't use up a real
+ * client's sign-in allowance. Limits are per server instance, like the inquiry API's. None of the answers reveal
+ * whether an address belongs to a client.
+ */
+const signInPerIp = limiter(5, 10 * 60_000);
+const signInPerEmail = limiter(3, 60 * 60_000);
+
 /** Passwordless sign-in (email link). MFA enrollment is enforced for staff per D-042 infrastructure plan. */
 export async function sendMagicLinkAction(_prev: unknown, fd: FormData) {
-  const email = String(fd.get("email") ?? "").trim();
-  if (!/^\S+@\S+\.\S+$/.test(email)) return { ok: false, error: "Enter a valid email address." };
+  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  if (email.length > 254 || !/^\S+@\S+\.\S+$/.test(email)) return { ok: false, error: "Enter a valid email address." };
+  if (String(fd.get("website") ?? "")) return { ok: true }; // honeypot: the usual answer, nothing sent
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const tooMany = { ok: false, error: "Too many sign-in requests. Please wait a few minutes, then try again." };
+  if (signInPerIp(ip)) return tooMany;
+  const token = String(fd.get("turnstileToken") ?? "") || undefined;
+  const human = await verifyHuman(token, { ip, action: "login", host: h.get("x-forwarded-host") ?? h.get("host") });
+  if (human === "fail") return { ok: false, error: "We couldn’t confirm this is a real browser. Please try again." };
+  if (signInPerEmail(email)) return tooMany;
   const { createSupabaseServerClient } = await import("@/lib/supabase/server");
   const sb = await createSupabaseServerClient();
   const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${siteUrl}/my-tab/auth/callback` } });
