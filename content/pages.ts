@@ -45,6 +45,16 @@ export const home = {
   closing: { headline: "Start where you are.", body: "Wherever you’re starting, we begin by listening." },
 };
 
+/** Start Where You Are (GS-001): the S14 §14.4.1 client-facing introduction. */
+export const start = {
+  eyebrow: "Get started",
+  headline: "Start where you are.",
+  intro:
+    "You don’t need to know exactly which TAB service is right for you. Tell us a little about what brings you here, what you’d like to change, and how we can best connect with you.",
+  // GS-006: discovery is never a mandatory gate.
+  bookDirect: { prompt: "Already know what you’d like?", label: "Book directly" },
+};
+
 export const method = {
   intro:
     "The TAB Method is a personalized, whole-person approach that helps you understand where you are, create meaningful change, bring the different parts of your wellbeing into better alignment, and build the confidence and consistency to carry that progress forward.",

@@ -1,14 +1,24 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/PageHero";
 import { InquiryForm } from "@/components/InquiryForm";
+import { Cta } from "@/components/Cta";
+import { start } from "@/content/pages";
 
-export const metadata: Metadata = { title: "Start Where You Are", description: "Tell us where you are and what you want to change. We’ll help you find the right starting point." };
+export const metadata: Metadata = { title: "Start Where You Are", description: start.intro };
 
 export default function StartPage() {
   return (
     <>
-      <PageHero eyebrow="Start Where You Are" title="You don’t need to know exactly where to start." lead="Tell us what you’re experiencing, what you want to change, or what you hope to be able to do. We’ll reply with a suggested starting point—no pressure, no sales pitch." />
-      <section className="section"><div className="container-prose"><InquiryForm kind="start" /></div></section>
+      <PageHero eyebrow={start.eyebrow} title={start.headline} lead={start.intro} />
+      <section className="section">
+        <div className="container-prose space-y-6">
+          <p className="flex flex-wrap items-center gap-3 text-text-secondary">
+            {start.bookDirect.prompt}
+            <Cta kind="book" label={start.bookDirect.label} variant="outline" size="sm" />
+          </p>
+          <InquiryForm kind="start" />
+        </div>
+      </section>
     </>
   );
 }
