@@ -58,6 +58,10 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
   the session ("approved", "ship it", or similar). Approval of one PR never carries to another, and a
   push after approval needs the approval re-confirmed unless it only fixes CI (owner ruling 2026-09-28).
   After a merge, restart the working branch from `main`.
+- **Backlog (owner request 2026-09-28):** `docs/BACKLOG.md` is the single list of remaining work, prioritized
+  (P0 now, P1 public launch, P2 My TAB go-live, P3 later) and categorized, with owner actions (A) and Claude's work (C).
+  Every PR updates it. After every approved merge, post the remaining items to the owner: concise, one line each,
+  P0 first.
 - G3 Release — owner approves every production promotion and every production migration.
 - Never push directly to `main` or run a production migration without G3 approval.
 
