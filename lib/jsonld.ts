@@ -11,7 +11,7 @@ export function organizationJsonLd() {
     name: brand.name,
     alternateName: brand.legacyName, // helps search engines connect the old and new names
     url: siteUrl,
-    logo: `${siteUrl}/brand/logo-primary-stacked.png`,
+    logo: `${siteUrl}/brand/logo-stacked-600.png`,
     email: contact.email,
     ...(contact.phone ? { telephone: contact.phone } : {}),
     ...(hasAddress

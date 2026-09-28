@@ -12,7 +12,7 @@ export function SiteFooter() {
     <footer className="on-dark mt-24 bg-charcoal text-white">
       <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
-          <div className="inline-block rounded-[20px] bg-cream p-4"><Logo className="h-12 w-auto" /></div>
+          <Logo variant="horizontal" tone="white" className="h-16 w-auto" />
           <p className="mt-6 max-w-xs text-sm text-white/80">{brand.tagline}</p>
           <address className="mt-6 space-y-1 text-sm not-italic text-white/80">
             {addressParts.length > 1 && <p>{addressParts.join(", ")}</p>}

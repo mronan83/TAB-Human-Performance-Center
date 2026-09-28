@@ -60,7 +60,7 @@ export default async function MyTabHome() {
           <Panel title="Next appointment" action={<TextLink href="/my-tab/appointments">All</TextLink>}>
             {d.nextAppointment ? (
               <div className="flex items-center gap-4">
-                <Image src={getService(d.nextAppointment.service)?.icon ?? "/brand/symbol-512.png"} alt="" width={56} height={56} />
+                <Image src={getService(d.nextAppointment.service)?.icon ?? "/brand/symbol.svg"} alt="" width={56} height={56} />
                 <div>
                   <p className="font-semibold">{serviceName(d.nextAppointment.service)}</p>
                   <p className="text-sm text-text-secondary">{fmtDateTime(d.nextAppointment.startsAt)} · {d.nextAppointment.location}</p>
