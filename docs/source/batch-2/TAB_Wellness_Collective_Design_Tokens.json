@@ -1,0 +1,188 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "meta": {
+    "brand": "TAB Wellness Collective",
+    "version": "1.0.0",
+    "status": "canonical",
+    "notes": "Production design tokens for website, My TAB portal, digital collateral, and UI. The TAB logo/wordmark is custom artwork and must not be recreated from the typography tokens."
+  },
+  "color": {
+    "brand": {
+      "sand": { "$type": "color", "$value": "#EDE7DC" },
+      "linen": { "$type": "color", "$value": "#DCCFBD" },
+      "sage": { "$type": "color", "$value": "#97A07C" },
+      "olive": { "$type": "color", "$value": "#5A6046" },
+      "terracotta": { "$type": "color", "$value": "#C0784C" },
+      "terracottaDeep": { "$type": "color", "$value": "#A85F3A" },
+      "charcoal": { "$type": "color", "$value": "#252724" },
+      "cream": { "$type": "color", "$value": "#F8F5EF" },
+      "white": { "$type": "color", "$value": "#FFFFFF" }
+    },
+    "semantic": {
+      "background": { "$type": "color", "$value": "{color.brand.cream}" },
+      "surface": { "$type": "color", "$value": "{color.brand.white}" },
+      "surfaceMuted": { "$type": "color", "$value": "{color.brand.sand}" },
+      "surfaceWarm": { "$type": "color", "$value": "{color.brand.linen}" },
+      "surfaceBrand": { "$type": "color", "$value": "{color.brand.olive}" },
+      "textPrimary": { "$type": "color", "$value": "{color.brand.charcoal}" },
+      "textSecondary": { "$type": "color", "$value": "#5E625A" },
+      "textInverse": { "$type": "color", "$value": "{color.brand.white}" },
+      "border": { "$type": "color", "$value": "#CFC6B8" },
+      "borderStrong": { "$type": "color", "$value": "#A99D8C" },
+      "primary": { "$type": "color", "$value": "{color.brand.olive}" },
+      "primaryHover": { "$type": "color", "$value": "#484D38" },
+      "primaryActive": { "$type": "color", "$value": "#3D4130" },
+      "secondary": { "$type": "color", "$value": "{color.brand.terracottaDeep}" },
+      "secondaryHover": { "$type": "color", "$value": "#8F5034" },
+      "accent": { "$type": "color", "$value": "{color.brand.terracotta}" },
+      "accentSoft": { "$type": "color", "$value": "#F1DED2" },
+      "success": { "$type": "color", "$value": "#4F6B4A" },
+      "warning": { "$type": "color", "$value": "#9A6A2F" },
+      "danger": { "$type": "color", "$value": "#9B403C" },
+      "focus": { "$type": "color", "$value": "#A85F3A" }
+    }
+  },
+  "font": {
+    "family": {
+      "display": { "$type": "fontFamily", "$value": "Cormorant Garamond, Georgia, Times New Roman, serif" },
+      "sans": { "$type": "fontFamily", "$value": "Manrope, Helvetica Neue, Arial, sans-serif" }
+    },
+    "weight": {
+      "regular": { "$type": "fontWeight", "$value": 400 },
+      "medium": { "$type": "fontWeight", "$value": 500 },
+      "semibold": { "$type": "fontWeight", "$value": 600 },
+      "bold": { "$type": "fontWeight", "$value": 700 }
+    },
+    "size": {
+      "displayXL": { "$type": "dimension", "$value": "4.5rem" },
+      "displayLG": { "$type": "dimension", "$value": "3.5rem" },
+      "h1": { "$type": "dimension", "$value": "3rem" },
+      "h2": { "$type": "dimension", "$value": "2.25rem" },
+      "h3": { "$type": "dimension", "$value": "1.75rem" },
+      "h4": { "$type": "dimension", "$value": "1.375rem" },
+      "bodyLG": { "$type": "dimension", "$value": "1.125rem" },
+      "body": { "$type": "dimension", "$value": "1rem" },
+      "bodySM": { "$type": "dimension", "$value": "0.875rem" },
+      "caption": { "$type": "dimension", "$value": "0.75rem" }
+    },
+    "lineHeight": {
+      "display": { "$type": "number", "$value": 1.0 },
+      "heading": { "$type": "number", "$value": 1.15 },
+      "body": { "$type": "number", "$value": 1.6 },
+      "compact": { "$type": "number", "$value": 1.35 }
+    },
+    "letterSpacing": {
+      "tight": { "$type": "dimension", "$value": "-0.02em" },
+      "normal": { "$type": "dimension", "$value": "0em" },
+      "label": { "$type": "dimension", "$value": "0.12em" },
+      "wide": { "$type": "dimension", "$value": "0.18em" }
+    }
+  },
+  "typography": {
+    "displayXL": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "{font.size.displayXL}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.lineHeight.display}",
+        "letterSpacing": "{font.letterSpacing.tight}"
+      }
+    },
+    "h1": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "{font.size.h1}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.lineHeight.heading}",
+        "letterSpacing": "{font.letterSpacing.tight}"
+      }
+    },
+    "h2": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.display}",
+        "fontSize": "{font.size.h2}",
+        "fontWeight": "{font.weight.medium}",
+        "lineHeight": "{font.lineHeight.heading}",
+        "letterSpacing": "{font.letterSpacing.tight}"
+      }
+    },
+    "h3": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.h3}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.lineHeight.heading}",
+        "letterSpacing": "{font.letterSpacing.normal}"
+      }
+    },
+    "body": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.body}",
+        "fontWeight": "{font.weight.regular}",
+        "lineHeight": "{font.lineHeight.body}",
+        "letterSpacing": "{font.letterSpacing.normal}"
+      }
+    },
+    "label": {
+      "$type": "typography",
+      "$value": {
+        "fontFamily": "{font.family.sans}",
+        "fontSize": "{font.size.caption}",
+        "fontWeight": "{font.weight.semibold}",
+        "lineHeight": "{font.lineHeight.compact}",
+        "letterSpacing": "{font.letterSpacing.label}"
+      }
+    }
+  },
+  "spacing": {
+    "0": { "$type": "dimension", "$value": "0px" },
+    "1": { "$type": "dimension", "$value": "4px" },
+    "2": { "$type": "dimension", "$value": "8px" },
+    "3": { "$type": "dimension", "$value": "12px" },
+    "4": { "$type": "dimension", "$value": "16px" },
+    "6": { "$type": "dimension", "$value": "24px" },
+    "8": { "$type": "dimension", "$value": "32px" },
+    "12": { "$type": "dimension", "$value": "48px" },
+    "16": { "$type": "dimension", "$value": "64px" },
+    "20": { "$type": "dimension", "$value": "80px" },
+    "24": { "$type": "dimension", "$value": "96px" },
+    "32": { "$type": "dimension", "$value": "128px" }
+  },
+  "radius": {
+    "sm": { "$type": "dimension", "$value": "8px" },
+    "md": { "$type": "dimension", "$value": "12px" },
+    "lg": { "$type": "dimension", "$value": "20px" },
+    "pill": { "$type": "dimension", "$value": "999px" }
+  },
+  "shadow": {
+    "sm": { "$type": "shadow", "$value": { "color": "#25272414", "offsetX": "0px", "offsetY": "1px", "blur": "3px", "spread": "0px" } },
+    "md": { "$type": "shadow", "$value": { "color": "#2527241F", "offsetX": "0px", "offsetY": "8px", "blur": "24px", "spread": "-8px" } },
+    "lg": { "$type": "shadow", "$value": { "color": "#25272424", "offsetX": "0px", "offsetY": "18px", "blur": "48px", "spread": "-16px" } }
+  },
+  "layout": {
+    "containerMax": { "$type": "dimension", "$value": "1200px" },
+    "contentMax": { "$type": "dimension", "$value": "760px" },
+    "headerHeight": { "$type": "dimension", "$value": "80px" },
+    "sectionSpaceDesktop": { "$type": "dimension", "$value": "96px" },
+    "sectionSpaceMobile": { "$type": "dimension", "$value": "64px" }
+  },
+  "breakpoint": {
+    "sm": { "$type": "dimension", "$value": "640px" },
+    "md": { "$type": "dimension", "$value": "768px" },
+    "lg": { "$type": "dimension", "$value": "1024px" },
+    "xl": { "$type": "dimension", "$value": "1280px" },
+    "xxl": { "$type": "dimension", "$value": "1440px" }
+  },
+  "motion": {
+    "fast": { "$type": "duration", "$value": "120ms" },
+    "base": { "$type": "duration", "$value": "200ms" },
+    "slow": { "$type": "duration", "$value": "320ms" },
+    "easing": { "$type": "cubicBezier", "$value": [0.2, 0, 0, 1] }
+  }
+}

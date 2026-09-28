@@ -1,0 +1,217 @@
+/**
+ * Supabase-backed repository (portal.dataSource = "supabase").
+ * Every query runs as the signed-in user, so row-level security in the migration is the access control.
+ * Status: implemented against the schema; verify against a live project before launch.
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type {
+  Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, MetricDefinition,
+  Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, Viewer,
+} from "./types";
+
+type Row = Record<string, any>;
+const db = () => createSupabaseServerClient();
+const must = <T>(r: { data: T | null; error: { message: string } | null }): T => { if (r.error) throw new Error(r.error.message); return r.data as T; };
+const today = () => new Date().toISOString().slice(0, 10);
+const weekStart = () => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d.toISOString().slice(0, 10); };
+
+const CONSENT_LABELS: Record<Consent["type"], { label: string; required: boolean }> = {
+  terms: { label: "Terms of service", required: true },
+  privacy: { label: "Privacy policy", required: true },
+  health_info_collection: { label: "Collect health information for safe care", required: true },
+  care_coordination: { label: "Share updates with my healthcare providers when I ask", required: false },
+  marketing_email: { label: "News, guides, and events by email", required: false },
+  marketing_sms: { label: "Occasional text messages", required: false },
+  photo_testimonial: { label: "Use my photo or story with permission", required: false },
+};
+const CONSENT_VERSION = "2026-10";
+
+const mapClient = (r: Row): Client => ({
+  id: r.id, fullName: r.full_name, preferredName: r.preferred_name ?? undefined, email: r.email ?? undefined, phone: r.phone ?? undefined,
+  status: r.status, methodStage: r.method_stage, services: (r.practitioner_assignments ?? []).map((a: Row) => a.service).filter(Boolean),
+  primaryPractitioner: r.practitioners?.display_name, lastCheckIn: r.check_ins?.[0]?.week_of,
+});
+
+const mapTemplate = (t: Row): ProgramTemplate => ({
+  id: t.id, slug: t.slug, title: t.title, summary: t.summary ?? undefined, service: t.service, durationWeeks: t.duration_weeks ?? undefined, status: t.status,
+  modules: (t.program_modules ?? []).sort((a: Row, b: Row) => a.week - b.week || a.sort - b.sort).map((m: Row) => ({
+    id: m.id, week: m.week, title: m.title, body: m.body_md ?? undefined,
+    activities: (m.program_activities ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((a: Row) => ({ id: a.id, kind: a.kind, title: a.title, instructions: a.instructions ?? undefined, prescription: a.prescription })),
+  })),
+});
+
+const TEMPLATE_SELECT = "*, program_modules(*, program_activities(*))";
+
+async function mapClientProgram(r: Row, sb: Awaited<ReturnType<typeof db>>): Promise<ClientProgram> {
+  const logs = must(await sb.from("activity_logs").select("activity_id").eq("client_program_id", r.id).eq("completed", true)) as Row[];
+  const weeks = Math.floor((Date.now() - new Date(r.started_at).getTime()) / (7 * 86400000)) + 1;
+  const template = mapTemplate(r.program_templates);
+  return {
+    id: r.id, clientId: r.client_id, template, source: r.source, status: r.status, startedAt: r.started_at,
+    currentWeek: Math.min(Math.max(weeks, 1), template.durationWeeks ?? weeks), completedActivityIds: logs.map((l) => l.activity_id),
+  };
+}
+
+const mapForm = (t: Row): FormTemplate => ({ id: t.id, slug: t.slug, title: t.title, description: t.description ?? undefined, sensitivity: t.sensitivity, sections: t.schema?.sections ?? [] });
+
+export const supabaseRepository: PortalRepository = {
+  async getDashboard(clientId) {
+    const [client, plan, programs, appointments, resources, forms, reviews, checkIns] = await Promise.all([
+      this.getClient(clientId), this.getPlan(clientId), this.listClientPrograms(clientId), this.listAppointments(clientId),
+      this.listResources(clientId), this.listForms(clientId), this.listSharedReviews(clientId), this.listCheckIns(clientId),
+    ]);
+    if (!client) throw new Error("Client not found");
+    const active = programs.filter((p) => p.status === "active");
+    return {
+      client, plan: plan ?? undefined, programs: active,
+      nextAppointment: appointments.find((a) => a.startsAt > new Date().toISOString()),
+      todaysActivities: active.flatMap((p) => {
+        const mod = p.template.modules.find((m) => m.week === p.currentWeek) ?? p.template.modules.at(-1);
+        return (mod?.activities ?? []).filter((a) => a.kind !== "check_in").slice(0, 4).map((activity) => ({ program: p, activity, done: p.completedActivityIds.includes(activity.id) }));
+      }),
+      checkInDue: !checkIns.some((c) => c.weekOf === weekStart()),
+      resources: resources.slice(0, 3),
+      pendingForms: forms.filter((f) => f.status === "not_started" || f.status === "draft"),
+      latestSharedReview: reviews[0],
+    } satisfies Dashboard;
+  },
+  async getClient(id) {
+    const sb = await db();
+    const r = must(await sb.from("clients").select("*, practitioners(display_name), practitioner_assignments(service), check_ins(week_of)").eq("id", id).order("week_of", { referencedTable: "check_ins", ascending: false }).limit(1, { referencedTable: "check_ins" }).maybeSingle()) as Row | null;
+    return r ? mapClient(r) : null;
+  },
+  async getPlan(clientId) {
+    const sb = await db();
+    const r = must(await sb.from("wellness_plans").select("*, plan_goals(*), profiles:created_by(full_name)").eq("client_id", clientId).eq("status", "active").order("created_at", { ascending: false }).limit(1).maybeSingle()) as Row | null;
+    if (!r) return null;
+    return {
+      id: r.id, clientId: r.client_id, title: r.title, focus: r.focus ?? undefined, services: r.services, status: r.status, startDate: r.start_date ?? undefined,
+      reviewDate: r.review_date ?? undefined, practitionerName: r.profiles?.full_name,
+      goals: (r.plan_goals ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((g: Row) => ({ id: g.id, title: g.title, whyItMatters: g.why_it_matters ?? undefined, measure: g.measure ?? undefined, metricKey: g.metric_key ?? undefined, target: g.target ?? undefined, status: g.status })),
+    } satisfies Plan;
+  },
+  async listClientPrograms(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("client_programs").select(`*, program_templates(${TEMPLATE_SELECT})`).eq("client_id", clientId).order("started_at", { ascending: false })) as Row[];
+    return Promise.all(rows.map((r) => mapClientProgram(r, sb)));
+  },
+  async getClientProgram(clientId, id) {
+    const sb = await db();
+    const r = must(await sb.from("client_programs").select(`*, program_templates(${TEMPLATE_SELECT})`).eq("client_id", clientId).eq("id", id).maybeSingle()) as Row | null;
+    return r ? mapClientProgram(r, sb) : null;
+  },
+  async toggleActivity(clientId, programId, activityId, done) {
+    const sb = await db();
+    if (done) must(await sb.from("activity_logs").insert({ client_id: clientId, client_program_id: programId, activity_id: activityId, completed: true }));
+    else must(await sb.from("activity_logs").delete().eq("client_id", clientId).eq("client_program_id", programId).eq("activity_id", activityId));
+  },
+  async listMetrics() {
+    const sb = await db();
+    const rows = must(await sb.from("metric_definitions").select("*").eq("active", true)) as Row[];
+    return rows.map((m): MetricDefinition => ({ key: m.key, label: m.label, unit: m.unit ?? undefined, category: m.category, sensitive: m.sensitive, higherIsBetter: m.higher_is_better ?? undefined, min: m.scale_min ?? undefined, max: m.scale_max ?? undefined }));
+  },
+  async listProgress(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("progress_entries").select("metric_key, value, recorded_on, source").eq("client_id", clientId).order("recorded_on")) as Row[];
+    return rows.map((r): ProgressEntry => ({ metricKey: r.metric_key, value: Number(r.value), recordedOn: r.recorded_on, source: r.source }));
+  },
+  async addProgress(clientId, e) {
+    const sb = await db();
+    must(await sb.from("progress_entries").insert({ client_id: clientId, metric_key: e.metricKey, value: e.value, recorded_on: e.recordedOn, source: "client" }));
+  },
+  async listCheckIns(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("check_ins").select("*").eq("client_id", clientId).order("week_of", { ascending: false }).limit(12)) as Row[];
+    return rows.map((r): CheckIn => ({ weekOf: r.week_of, energy: r.energy ?? undefined, sleepQuality: r.sleep_quality ?? undefined, stress: r.stress ?? undefined, wins: r.wins ?? undefined, challenges: r.challenges ?? undefined, supportNeeded: r.support_needed ?? undefined }));
+  },
+  async saveCheckIn(clientId, c) {
+    const sb = await db();
+    must(await sb.from("check_ins").upsert({ client_id: clientId, week_of: c.weekOf, energy: c.energy, sleep_quality: c.sleepQuality, stress: c.stress, wins: c.wins, challenges: c.challenges, support_needed: c.supportNeeded }, { onConflict: "client_id,week_of" }));
+    const entries = [["energy", c.energy], ["stress", c.stress]].filter(([, v]) => v != null).map(([k, v]) => ({ client_id: clientId, metric_key: k, value: v, recorded_on: c.weekOf, source: "client" }));
+    if (entries.length) must(await sb.from("progress_entries").insert(entries));
+  },
+  async listAppointments(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("appointment_refs").select("*").eq("client_id", clientId).gte("starts_at", new Date(Date.now() - 86400000).toISOString()).order("starts_at")) as Row[];
+    return rows.map((r): Appointment => ({ id: r.id, service: r.service, startsAt: r.starts_at, location: r.location ?? "", status: r.status }));
+  },
+  async listResources(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("resource_assignments").select("*").eq("client_id", clientId).order("assigned_at", { ascending: false })) as Row[];
+    return rows.map((r): ResourceAssignment => ({ id: r.id, title: r.title, kind: r.kind ?? undefined, note: r.note ?? undefined, href: `/resources/${r.resource_ref}`, assignedAt: r.assigned_at, viewedAt: r.viewed_at ?? undefined }));
+  },
+  async listForms(clientId) {
+    const sb = await db();
+    const assignments = must(await sb.from("form_assignments").select("*, form_templates(*)").eq("client_id", clientId)) as Row[];
+    const subs = must(await sb.from("form_submissions").select("*").eq("client_id", clientId)) as Row[];
+    return assignments.map((a): FormAssignment => {
+      const s = subs.find((x) => x.template_id === a.template_id);
+      return { template: mapForm(a.form_templates), dueOn: a.due_on ?? undefined, status: s ? s.status : "not_started", submittedAt: s?.submitted_at ?? undefined, answers: s?.answers };
+    });
+  },
+  async getForm(clientId, slug) { return (await this.listForms(clientId)).find((f) => f.template.slug === slug) ?? null; },
+  async submitForm(clientId, slug, answers, final) {
+    const form = await this.getForm(clientId, slug);
+    if (!form) throw new Error("Form not assigned");
+    const sb = await db();
+    const existing = must(await sb.from("form_submissions").select("id").eq("client_id", clientId).eq("template_id", form.template.id).maybeSingle()) as Row | null;
+    const payload = { client_id: clientId, template_id: form.template.id, answers, status: final ? "submitted" : "draft", submitted_at: final ? new Date().toISOString() : null };
+    if (existing) must(await sb.from("form_submissions").update(payload).eq("id", existing.id));
+    else must(await sb.from("form_submissions").insert(payload));
+  },
+  async listSharedReviews(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("progress_reviews").select("*").eq("client_id", clientId).eq("shared", true).order("review_date", { ascending: false })) as Row[];
+    return rows.map((r): Review => ({ id: r.id, date: r.review_date, summary: r.summary_for_client ?? "", nextSteps: r.next_steps ?? undefined, stage: r.method_stage ?? undefined }));
+  },
+  async listConsents(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("consents").select("*").eq("client_id", clientId).order("granted_at", { ascending: false })) as Row[];
+    return (Object.keys(CONSENT_LABELS) as Consent["type"][]).map((type) => {
+      const r = rows.find((x) => x.type === type);
+      return { type, ...CONSENT_LABELS[type], granted: !!r?.granted && !r?.revoked_at, updatedAt: r?.granted_at };
+    });
+  },
+  async setConsent(clientId, type, granted) {
+    if (CONSENT_LABELS[type].required) return;
+    const sb = await db();
+    must(await sb.from("consents").upsert({ client_id: clientId, type, version: CONSENT_VERSION, granted, granted_at: new Date().toISOString(), revoked_at: granted ? null : new Date().toISOString() }, { onConflict: "client_id,type,version" }));
+  },
+  async updateContact(clientId, data) {
+    const sb = await db();
+    must(await sb.from("clients").update({ preferred_name: data.preferredName, phone: data.phone }).eq("id", clientId));
+  },
+  async listProducts() {
+    const sb = await db();
+    const rows = must(await sb.from("products").select("*").eq("active", true)) as Row[];
+    return rows.map((p): Product => ({ id: p.id, slug: p.slug, title: p.title, description: p.description ?? undefined, kind: p.kind, service: p.service ?? undefined, priceCents: p.price_cents ?? undefined, active: p.active }));
+  },
+  async listEntitlements(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("entitlements").select("*, products(*)").eq("client_id", clientId)) as Row[];
+    return rows.map((e): Entitlement => ({ id: e.id, status: e.status, startsAt: e.starts_at, endsAt: e.ends_at ?? undefined, product: { id: e.products.id, slug: e.products.slug, title: e.products.title, kind: e.products.kind, active: e.products.active, priceCents: e.products.price_cents ?? undefined } }));
+  },
+  async listClients(_viewer: Viewer) {
+    const sb = await db();
+    const rows = must(await sb.from("clients").select("*, practitioners(display_name), practitioner_assignments(service), check_ins(week_of)").order("full_name")) as Row[];
+    return rows.map((r) => ({ ...mapClient(r), lastCheckIn: (r.check_ins ?? []).map((c: Row) => c.week_of).sort().at(-1) }));
+  },
+  async listNotes(clientId, includeInternal) {
+    const sb = await db();
+    let q = sb.from("session_notes").select("*, practitioners(display_name)").eq("client_id", clientId).order("session_date", { ascending: false });
+    if (!includeInternal) q = q.eq("visibility", "shared");
+    const rows = must(await q) as Row[];
+    return rows.map((n): SessionNote => ({ id: n.id, date: n.session_date, service: n.service ?? undefined, visibility: n.visibility, body: n.body, author: n.practitioners?.display_name ?? "TAB" }));
+  },
+  async addNote(clientId, viewer, note) {
+    if (!viewer.practitionerId) throw new Error("Only practitioners can add notes");
+    const sb = await db();
+    must(await sb.from("session_notes").insert({ client_id: clientId, practitioner_id: viewer.practitionerId, body: note.body, visibility: note.visibility, service: note.service, session_date: today() }));
+  },
+  async listProgramTemplates() {
+    const sb = await db();
+    const rows = must(await sb.from("program_templates").select(TEMPLATE_SELECT).order("title")) as Row[];
+    return rows.map(mapTemplate);
+  },
+};
