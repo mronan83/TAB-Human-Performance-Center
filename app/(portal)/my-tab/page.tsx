@@ -12,12 +12,12 @@ import { getService } from "@/content/services";
 
 /** Step 19.14 interim page when the portal is not enabled: My TAB links to Timely Client Login. */
 function InterimMyTab() {
-  const login = clientLoginHref();
+  const login = clientLoginHref(), book = bookingHref();
   return (
     <>
       <PageHero eyebrow="Client Login" title="Manage your appointments." lead="Book, reschedule, and manage packages and payment details through our online booking system.">
         <SmartLink href={login.href} external={login.external} className="btn btn-primary">Client login</SmartLink>
-        <Link href="/book" className="btn btn-outline">Book</Link>
+        <SmartLink href={book.href} external={book.external} className="btn btn-outline">Book</SmartLink>
       </PageHero>
     </>
   );

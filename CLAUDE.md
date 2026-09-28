@@ -70,10 +70,11 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
    owner-approved contrast fixes (proposed D-056; see `docs/requirements-register.md` CON-011). Don't
    invent colors. White text only on Olive, Deep Terracotta or Charcoal. Terracotta `#C0784C` and
    Sage `#97A07C` are decorative only: never text, never behind white text.
-4. **Health data (D-042):** My TAB is a sensitive-data system. Do not connect production client data
-   until the Supabase project is on HIPAA-eligible infrastructure with a signed BAA *and* the legal
-   review is complete (A-01, R-025). Until then the portal runs on demo data
-   (`portal.dataSource = "mock"`).
+4. **Health data (D-042, amended by the owner's ruling of 2026-09-28 that HIPAA does not apply; proposed D-060):**
+   My TAB is still a sensitive-data system. Do not connect production client data until the portal security gate
+   is met (SEC-015–SEC-021: 0 known gaps in `npm run test:rls`, staff MFA enforced), Supabase is on a paid plan with
+   backups and a tested restore (SEC-009), and the privacy policy covers My TAB. No HIPAA tier or BAA is required.
+   Until then the portal runs on demo data (`portal.dataSource = "mock"`).
 5. **No health details by email (D-054, R-027).** The Start form collects no free text: apart from name, email
    and phone (character-restricted), every answer is a predefined option (proposed D-059). The contact form keeps
    a message box with a "no medical details" note, and the submitter's copy never repeats the message. Email
@@ -104,7 +105,11 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
 - Mutations are server actions in `app/(portal)/actions.ts`; each calls `requireClient()` or
   `requireStaff()`.
 - Public forms post to `/api/inquiry`, which applies the spam layers in `lib/spam.ts` (SEC-013). New public
-  forms use the same route and layers.
+  forms use the same route and layers; the My TAB sign-in action applies them too. Turnstile goes through
+  `useTurnstile` (`components/Turnstile.tsx`).
+- The Content-Security-Policy lives in `lib/csp.ts` and is set by `middleware.ts` (per-request nonce on `/my-tab` and
+  `/practice`). A new third-party script, frame, image, font or API host must be added there;
+  `e2e/security.spec.ts` fails on any violation.
 - Row-level security is the access control. Any new client-data table needs RLS policies, an audit
   trigger and a test in `supabase/tests/rls.test.mjs`.
 - Model for a team, build for one (D-045): roles `owner | practitioner | client`; practitioners see
@@ -112,7 +117,7 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
 
 ## Checks before every push
 `npm run typecheck`, `npm run build`, `npm run test:rls`, then `npm run test:e2e` (Playwright smoke, redirect-map,
-link-crawl, SEO and WCAG 2.2 AA scans against the production build; no retries). CI runs the same on every PR.
+link-crawl, SEO, header-fit, CSP and WCAG 2.2 AA scans against the production build; no retries). CI runs the same on every PR.
 
 ## Secrets
 Never commit `.env*` files, keys, tokens or database passwords. Local values go in `.env.local`

@@ -1,10 +1,12 @@
 "use client";
 
-import { useActionState, useOptimistic, useState, useTransition } from "react";
+import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import clsx from "clsx";
 import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction } from "@/app/(portal)/actions";
 import type { Consent, FormField, FormTemplate } from "@/lib/portal/types";
 import { services } from "@/content/services";
+import { siteConfig } from "@/config/site";
+import { useTurnstile } from "@/components/Turnstile";
 
 export function ActivityCheck({ programId, activityId, title, detail, done }: { programId: string; activityId: string; title: string; detail?: string; done: boolean }) {
   const [optimistic, setOptimistic] = useOptimistic(done);
@@ -186,13 +188,36 @@ export function NoteForm({ clientId }: { clientId: string }) {
   );
 }
 
+/** My TAB sign-in: honeypot and Turnstile like the public forms (SEC-013); limits are enforced in sendMagicLinkAction. */
 export function LoginForm() {
   const [state, action, pending] = useActionState(sendMagicLinkAction, null);
+  const turnstile = useTurnstile("login");
+  const [waitMessage, setWaitMessage] = useState("");
+  const { reset } = turnstile;
+  useEffect(() => { if (state) reset(); }, [state, reset]); // tokens are single-use
   if (state?.ok) return <p role="status" className="rounded-[20px] bg-[#E4EBDD] p-5 font-medium text-success">If that email belongs to a TAB client, a sign-in link is on its way. It expires in one hour.</p>;
+  const error = waitMessage || state?.error;
   return (
-    <form action={action} className="space-y-4">
+    <form
+      action={action}
+      className="space-y-4"
+      onSubmit={(e) => {
+        if (!turnstile.enabled || turnstile.token) return setWaitMessage("");
+        e.preventDefault();
+        setWaitMessage(turnstile.blocked
+          ? `Our spam check couldn’t load (a browser extension may be blocking it). Please email ${siteConfig.contact.email} and we’ll help you sign in.`
+          : "Just a moment: we’re checking this is a real browser. Please try again in a few seconds.");
+      }}
+    >
       <div><label htmlFor="email" className="field-label">Email</label><input id="email" name="email" type="email" className="field-input" autoComplete="email" required /></div>
-      {state?.error && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
+      {/* Honeypot: off-screen, hidden from assistive technology and skipped by keyboard. */}
+      <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+        <label htmlFor="website">Leave this field empty</label>
+        <input id="website" type="text" name="website" tabIndex={-1} autoComplete="off" />
+      </div>
+      <input type="hidden" name="turnstileToken" value={turnstile.token} />
+      {turnstile.widget}
+      {error && <p role="alert" className="text-sm font-semibold text-danger">{error}</p>}
       <button className="btn btn-primary w-full" disabled={pending}>{pending ? "Sending…" : "Email me a sign-in link"}</button>
     </form>
   );

@@ -2,13 +2,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { legacyRedirects, legacyPrefixRedirects } from "@/config/redirects";
 import { siteConfig, siteUrl } from "@/config/site";
+import { contentSecurityPolicy } from "@/lib/csp";
 
 const LEGACY_HOSTS = ["tabmassage.com", "www.tabmassage.com"];
 
 /**
  * 1. Legacy domain and paths → new site in one 308 hop (Step 19.3).
  * 2. Trailing-slash normalization.
- * 3. My TAB session refresh (Supabase) and portal-disabled guard.
+ * 3. Content-Security-Policy on every page (SEC-013; see lib/csp.ts), with a per-request nonce on the portal.
+ * 4. My TAB session refresh (Supabase) and portal-disabled guard.
  */
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -30,19 +32,34 @@ export async function middleware(req: NextRequest) {
   }
 
   const isPortal = path.startsWith("/my-tab") || path.startsWith("/practice");
-  if (!isPortal) return NextResponse.next();
+  if (!isPortal) {
+    const res = NextResponse.next();
+    res.headers.set("Content-Security-Policy", contentSecurityPolicy());
+    return res;
+  }
 
   if (!siteConfig.portal.enabled && path !== "/my-tab") return NextResponse.redirect(new URL("/my-tab", url.origin), 307);
-  if (siteConfig.portal.dataSource !== "supabase") return NextResponse.next();
+
+  // Next.js stamps this nonce on the scripts it renders. The policy goes on the request (as the Next.js docs describe)
+  // and on the response the browser enforces; e2e/security.spec.ts checks the page scripts carry the enforced nonce.
+  const csp = contentSecurityPolicy(btoa(crypto.randomUUID()));
+  const next = () => {
+    const headers = new Headers(req.headers);
+    headers.set("Content-Security-Policy", csp);
+    const res = NextResponse.next({ request: { headers } });
+    res.headers.set("Content-Security-Policy", csp);
+    return res;
+  };
+  if (siteConfig.portal.dataSource !== "supabase") return next();
 
   // Refresh the Supabase session cookie on portal requests.
-  let res = NextResponse.next({ request: req });
+  let res = next();
   const sb = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     cookies: {
       getAll: () => req.cookies.getAll(),
       setAll: (list) => {
         list.forEach(({ name, value }) => req.cookies.set(name, value));
-        res = NextResponse.next({ request: req });
+        res = next();
         list.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
       },
     },

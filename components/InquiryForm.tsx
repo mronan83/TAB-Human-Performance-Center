@@ -1,22 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Script from "next/script";
 import {
   availabilityOptions, considerationOptions, contactOptions, deliveryOptions, foundViaOptions, helpOptions, journeyOptions,
   outcomeOptions, serviceOptions, topicOptions,
 } from "@/lib/inquiry";
 import { siteConfig } from "@/config/site";
 import { trackEvent } from "@/lib/analytics";
+import { useTurnstile } from "@/components/Turnstile";
 
 type Errors = Record<string, string[] | undefined>;
-type Turnstile = {
-  render: (el: HTMLElement, opts: Record<string, unknown>) => string;
-  reset: (id: string) => void;
-  remove: (id: string) => void;
-};
-/** Cloudflare Turnstile site key (SEC-013). Without it the human check is off; the other spam layers still apply. */
-const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 /** Field order for moving focus to the first problem after a failed submit. */
 const FIELD_ORDER = ["name", "email", "phone", "topic", "message", "journey", "help", "service", "outcomes", "considerations", "delivery", "availability", "foundVia", "consentContact"];
@@ -39,41 +32,12 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
   const doneRef = useRef<HTMLHeadingElement>(null);
   const startedRef = useRef(false);
   const mountedAt = useRef(0);
-  const turnstileBox = useRef<HTMLDivElement>(null);
-  const turnstileId = useRef<string | null>(null);
-  const [turnstileToken, setTurnstileToken] = useState("");
-  const [turnstileBlocked, setTurnstileBlocked] = useState(false);
+  const turnstile = useTurnstile(kind);
   const isStart = kind === "start";
 
   useEffect(() => {
     mountedAt.current = Date.now();
-    return () => {
-      const ts = (window as unknown as { turnstile?: Turnstile }).turnstile;
-      if (ts && turnstileId.current) ts.remove(turnstileId.current);
-    };
   }, []);
-
-  /** Invisible for most people; shows a one-click check only when Cloudflare needs one. */
-  function renderTurnstile() {
-    const ts = (window as unknown as { turnstile?: Turnstile }).turnstile;
-    if (!ts || !turnstileBox.current || turnstileId.current) return;
-    turnstileId.current = ts.render(turnstileBox.current, {
-      sitekey: TURNSTILE_SITE_KEY,
-      action: kind,
-      appearance: "interaction-only",
-      callback: (token: string) => setTurnstileToken(token),
-      "expired-callback": () => setTurnstileToken(""),
-      "error-callback": () => {
-        setTurnstileToken("");
-        setTurnstileBlocked(true);
-      },
-    });
-  }
-  function resetTurnstile() {
-    const ts = (window as unknown as { turnstile?: Turnstile }).turnstile;
-    if (ts && turnstileId.current) ts.reset(turnstileId.current);
-    setTurnstileToken("");
-  }
 
   // DIV-04 funnel: "started" is the first interaction with any field, once per visit to the page.
   function onFirstFocus() {
@@ -88,10 +52,10 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+    if (turnstile.enabled && !turnstile.token) {
       setStatus("error");
       setFormError(
-        turnstileBlocked
+        turnstile.blocked
           ? `Our spam check couldn’t load (a browser extension may be blocking it). Please email us at ${siteConfig.contact.email} instead.`
           : "Just a moment: we’re checking this is a real browser. Please try again in a few seconds.",
       );
@@ -123,7 +87,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
       marketingOptIn: fd.get("marketingOptIn") === "on",
       website: one("website") ?? "",
       elapsedMs: Math.min(Date.now() - mountedAt.current, 86_400_000),
-      turnstileToken: turnstileToken || undefined,
+      turnstileToken: turnstile.token || undefined,
     };
     setStatus("sending");
     setErrors({});
@@ -137,7 +101,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
       return;
     }
     const fieldErrors: Errors = data.errors ?? {};
-    resetTurnstile(); // tokens are single-use
+    turnstile.reset(); // tokens are single-use
     setStatus("error");
     setErrors(fieldErrors);
     setFormError(data.error ?? "Please check the highlighted fields and try again.");
@@ -272,12 +236,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
         <input id="website" type="text" name="website" tabIndex={-1} autoComplete="off" />
       </div>
 
-      {TURNSTILE_SITE_KEY && (
-        <>
-          <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" strategy="afterInteractive" onReady={renderTurnstile} onError={() => setTurnstileBlocked(true)} />
-          <div ref={turnstileBox} />
-        </>
-      )}
+      {turnstile.widget}
 
       <div className="space-y-3">
         <label className="flex items-start gap-3">
