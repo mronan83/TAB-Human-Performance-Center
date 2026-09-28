@@ -5,11 +5,14 @@
  * Applied as permanent (308) redirects in middleware.ts in a single hop (no chains).
  * Point both tabmassage.com and www.tabmassage.com at this deployment at cutover.
  */
+import { siteConfig } from "./site";
+
 export const legacyRedirects: Record<string, string> = {
   // Pages
-  // The legacy staff portal. /my-tab is the one sign-in entry for clients and staff (staff continue to TAB
-  // Practice after signing in); /practice would add a hop, since it always sends signed-out visitors to sign in.
-  "/employee-login": "/my-tab",
+  // The legacy staff portal. The My TAB sign-in page is the one entry for clients and staff (staff continue to TAB
+  // Practice after signing in); /my-tab and /practice would add a hop, since they send signed-out visitors there.
+  // While the portal is off, /my-tab is the page itself (Timely Client Login).
+  "/employee-login": siteConfig.portal.enabled ? "/my-tab/login" : "/my-tab",
   "/newsletter-archives": "/resources",
   "/sitemap": "/",
   "/terms-and-conditions": "/terms",

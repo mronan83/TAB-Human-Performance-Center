@@ -123,7 +123,8 @@ export async function sendMagicLinkAction(_prev: unknown, fd: FormData) {
 }
 
 export async function signOutAction() {
-  if (!isMock()) {
+  if (isMock()) (await cookies()).delete("tab_demo_role");
+  else {
     const { createSupabaseServerClient } = await import("@/lib/supabase/server");
     await (await createSupabaseServerClient()).auth.signOut();
   }

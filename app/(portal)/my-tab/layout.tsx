@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { siteConfig } from "@/config/site";
 import { getViewer } from "@/lib/portal";
 import { PortalShell } from "@/components/portal/PortalShell";
@@ -12,6 +13,7 @@ export default async function MyTabLayout({ children }: { children: React.ReactN
     return (<><SiteHeader /><main id="main">{children}</main><SiteFooter /></>);
   }
   const viewer = await getViewer();
-  if (!viewer || !viewer.clientId) return <main id="main" className="min-h-dvh bg-sand">{children}</main>;
+  const onSignIn = (await headers()).get("x-tab-path") === "/my-tab/login";
+  if (!viewer || !viewer.clientId || onSignIn) return <main id="main" className="min-h-dvh bg-sand">{children}</main>;
   return <PortalShell viewer={viewer} area="client">{children}</PortalShell>;
 }

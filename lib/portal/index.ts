@@ -19,11 +19,12 @@ export async function getRepository(): Promise<PortalRepository> {
   return (await import("./supabase-repository")).supabaseRepository;
 }
 
-/** The signed-in viewer. In mock mode a cookie switches between the demo client and demo practitioner. */
+/** The signed-in viewer. In mock mode the demo sign-in sets a cookie: demo client, demo practitioner, or signed out. */
 export async function getViewer(): Promise<Viewer | null> {
   if (isMock()) {
     assertDemoAllowed();
-    const role = (await cookies()).get("tab_demo_role")?.value === "owner" ? "owner" : "client";
+    const role = (await cookies()).get("tab_demo_role")?.value;
+    if (role !== "owner" && role !== "client") return null;
     return role === "owner"
       ? { userId: "demo-owner", role: "owner", name: "Your TAB practitioner", practitionerId: DEMO_PRACTITIONER_ID }
       : { userId: "demo-user", role: "client", name: "Dana", clientId: DEMO_CLIENT_ID };
@@ -60,7 +61,8 @@ export async function requireStaff(): Promise<{ viewer: Viewer; repo: PortalRepo
   if (!siteConfig.portal.enabled || !siteConfig.portal.showPracticeWorkspace) redirect("/my-tab");
   const viewer = await getViewer();
   if (!viewer) redirect("/my-tab/login");
-  if (viewer.role === "client") redirect("/my-tab");
+  // Demo: a client who follows "Practitioner login" lands on the sign-in page, one click from the practitioner view.
+  if (viewer.role === "client") redirect(isMock() ? "/my-tab/login" : "/my-tab");
   if (viewer.staffVerified === false) redirect("/my-tab/login?e=mfa");
   return { viewer, repo: await getRepository() };
 }

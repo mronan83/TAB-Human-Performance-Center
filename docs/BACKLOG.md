@@ -6,13 +6,16 @@ Register IDs in brackets link to `docs/requirements-register.md`.
 
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 
-_Last updated: 2026-09-28, after #16 merged._
+_Last updated: 2026-09-28, demo sign-in._
 
 ## P0 · Now
 
 | ID | Item | Category | Owner | Unblocks |
 |---|---|---|---|---|
 | A1 | Register `tabwellnesscollective.com` and `.net` once the name is officially approved (owner, 2026-09-28). Still unregistered at the registry on 2026-09-28 [RSK-007] | Accounts | Owner | A2, A3, C1, C5, launch |
+
+| A23 | Decide where the My TAB / TAB Practice demo runs. Production keeps the portal off because demo mode has no real login and one shared store (security review 2026-09-28); the demo runs on preview URLs. Options: a stable demo preview URL (recommended), or accept demo-on-production while production is private | Decision | Owner | Demo on the production URL |
+| C0 | **On `claude/zealous-davinci-64dima`.** Demo sign-in page (client or practitioner), "Practitioner login" in the footer, sign-out, signed-out state; `/employee-login` goes straight to sign-in | Portal | Claude | Owner demos |
 
 ## P1 · Public-site launch
 

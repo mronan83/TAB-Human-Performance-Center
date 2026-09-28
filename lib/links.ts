@@ -23,6 +23,11 @@ export function accountLink(): { href: string; external: boolean; label: string 
   return siteConfig.portal.enabled ? { href: "/my-tab", external: false, label: "My TAB" } : { ...clientLoginHref(), label: "Client Login" };
 }
 
+/** The footer entry to TAB Practice for practitioners; none while the portal is off. */
+export function practitionerLink(): { href: string; label: string } | null {
+  return siteConfig.portal.enabled && siteConfig.portal.showPracticeWorkspace ? { href: "/practice", label: "Practitioner login" } : null;
+}
+
 /** Opening hours as shown on the site; unset (PLACEHOLDER) hours read "By appointment". */
 export function hoursText(h: { open: string; close: string; closed: boolean }): string {
   return h.closed ? "Closed" : h.open === "PLACEHOLDER" ? "By appointment" : `${h.open} – ${h.close}`;

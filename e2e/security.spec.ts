@@ -49,6 +49,7 @@ test("portal pages: fresh nonce per request, scripts carry it, no violations", a
   expect(html).toContain(`nonce="${na}"`);
 
   const seen = await watchViolations(page);
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
   for (const path of clientPages) {
     await page.goto(path);
     await clientStarted(page);
