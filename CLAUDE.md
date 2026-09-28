@@ -72,6 +72,11 @@ Never print, log or commit token values.
   Every PR updates it. After every approved merge, post the remaining items to the owner: concise, one line each,
   P0 first.
 - G3 Release — owner approves every production promotion and every production migration.
+  Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
+  builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",
+  Claude promotes that exact deployment (no rebuild) and confirms. Rollback is promoting the previous one.
+- Vercel login (SSO) protects every deployment URL, including `tab-wellness-collective.vercel.app` (set to "all"
+  2026-09-28, after the default left that address public). Keep it on while the demo portal runs on production.
 - Never push directly to `main` or run a production migration without G3 approval.
 
 ## Non-negotiable product guardrails
