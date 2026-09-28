@@ -25,7 +25,7 @@ export default function HomePage() {
           <div className="relative mx-auto w-full max-w-md">
             <div className="aspect-[4/5] rounded-t-full bg-sand p-10 pt-16">
               <div className="flex h-full flex-col items-center justify-center rounded-t-full border border-linen bg-cream/70">
-                <Image src="/brand/symbol-512.png" alt="" width={512} height={512} className="w-3/5 mix-blend-multiply" priority />
+                <Image src="/brand/symbol.svg" alt="" width={1130} height={958} className="w-3/5" priority unoptimized />
                 <p className="mt-6 font-[family-name:var(--font-display)] text-2xl italic text-olive">Start where you are.</p>
               </div>
             </div>

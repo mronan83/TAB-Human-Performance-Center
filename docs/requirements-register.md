@@ -4,7 +4,7 @@ Living register. Every requirement has a stable ID and a source reference. Confl
 assumptions are logged here and never resolved silently. IDs are never reused; retired items are
 struck through, not deleted.
 
-**Last updated:** 2026-09-28 · **Intake status:** complete (13 of 13 documents, 3 batches)
+**Last updated:** 2026-09-28 · **Intake status:** complete (13 of 13 documents, 3 batches) + vector logo package (batch 4)
 
 > **Governance (D-041).** The owner's *Decision & Risk Register* (IDs `D-###`, `R-###`, `A-##`,
 > `X-##`, consolidated in [MDR](source/batch-3/TAB_Wellness_Collective_Master_Decision_Risk_Architecture_Record.md))
@@ -29,6 +29,7 @@ struck through, not deleted.
 | TOK | [Design tokens (JSON)](source/batch-2/TAB_Wellness_Collective_Design_Tokens.json) | Design system | 2 | "canonical", v1.0.0 |
 | TOKCSS | [Design tokens (CSS)](source/batch-2/tab-wellness-tokens.css) | Design system | 2 | Companion to TOK (see CON-009) |
 | LEG | [tabmassage.com inventory](legacy/tabmassage-inventory.md) | Legacy site | — | Collected by Claude from public sources |
+| LOGO | [Vector logo package v1](source/batch-4/vector-logo-package/README.txt) | Logo family SVGs (colour, white, charcoal) | 4 | Installed in `public/brand/`; designer refinements pending |
 | REV | [Codebase review 2026-09-28](reviews/2026-09-28-codebase-review.md) | Security, requirements and accessibility review of CODE | — | Findings, fixes, Phase 2 gate, Phase 1 backlog |
 | MDR | [Master Decision, Risk & Architecture Record](source/batch-3/TAB_Wellness_Collective_Master_Decision_Risk_Architecture_Record.md) | D-001–D-055, R-001–R-028, X-01–X-13, A-01–A-06 | 3 | **System of record for decisions** (as of 2026-09-27) |
 | ARCH | [Technical Architecture v1.0](source/batch-3/ARCHITECTURE.pdf) ([text](source/batch-3/ARCHITECTURE.txt)) | Build architecture | 3 | "Governs the build"; Step 16 stays the strategy source |
@@ -314,6 +315,12 @@ Raised by Claude as principal engineer; each is resolved at G1 or on the named t
 | CON-004 / CON-007 / GAP-002 trademark | Tabled; build the site; handles and business registration in progress | Name stays config-driven; no work blocked. |
 | GAP-018 legacy offerings | Tabled; focus on the new site | Draft redirects in LEG / `config/redirects.ts` stand as-is. |
 | GAP-017 launch date | Not yet set | Plan by readiness, not date. |
+| Merge authority (G2) | Claude merges on the owner's per-PR approval; squash only; auto-merge stays blocked | `CLAUDE.md` G2 and the guard hook updated. PR #1 merged under this rule. |
+| DIV-01 Start form scope | "Leave everything in scope": all S14 §14.4.1 fields, including "immediate considerations"; submissions stay email-only per D-054 | GS-001 implemented in full with per-field "no medical details" guidance; residual risk stays with R-027 (owner-accepted). |
+| DIV-02 domain | Owner will register `tabwellnesscollective.com` in the near future | RSK-007 stays open until registered. |
+| Homepage trust stats | "20+ years" and "In person & virtual" confirmed accurate | WEB-013: stats verified. |
+| Dependency majors | Routine Dependabot PRs cover minor/patch only; majors are planned upgrades | Backlog: **UPG-01** Next 16, **UPG-02** zod 4 (Dependabot PR #5 closed), **UPG-03** TypeScript 7 (PR #4 closed). Each gets its own PR with full checks. |
+| Vector logos (batch 4) | First vector package delivered 2026-09-28 | Installed (DS-006 partly met). Designer follow-ups: horizontal-lockup descriptor legibility (**launch-blocking**), service-icon vectors and trace cleanup for print (optional). |
 
 ### 7.2 Mapping of this register to the MDR
 

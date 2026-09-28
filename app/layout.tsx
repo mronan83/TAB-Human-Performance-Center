@@ -16,8 +16,20 @@ export const metadata: Metadata = {
   description:
     "TAB Wellness Collective brings massage, personal strength training, women’s wellness coaching, and holistic life coaching together in one personalized, whole-person approach.",
   applicationName: siteConfig.brand.name,
-  openGraph: { siteName: siteConfig.brand.name, type: "website", locale: "en_US", images: ["/brand/logo-primary-stacked.png"] },
-  icons: { icon: [{ url: "/favicon.ico" }, { url: "/favicon-32.png", type: "image/png" }], apple: "/apple-touch-icon.png" },
+  openGraph: {
+    siteName: siteConfig.brand.name,
+    type: "website",
+    locale: "en_US",
+    images: [{ url: "/brand/og-default.png", width: 1200, height: 630, alt: siteConfig.brand.name }],
+  },
+  // Icon set rendered from the vector symbol (WEB-019); the web manifest is app/manifest.ts.
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "16x16 32x32 48x48" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   ...(indexingAllowed ? {} : { robots: { index: false, follow: false } }),
 };
 
