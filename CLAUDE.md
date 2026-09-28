@@ -77,8 +77,10 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
 5. **No health details by email (D-054, R-027).** Public forms tell visitors not to include medical
    information, and email subjects never carry personal details. Detailed health intake belongs in
    My TAB only.
-6. **Analytics (D-046):** Plausible on public pages only. Ad pixels only when paid ads start, and never
-   on `/my-tab`, `/practice`, `/start` or `/contact`.
+6. **Analytics (D-046, amended by the owner's DIV-04 ruling, proposed D-057):** Plausible on public pages only,
+   including `/start`, where it counts the funnel with fixed, property-less events (`lib/analytics.ts`); never
+   on `/my-tab`, `/practice` or `/contact`. Ad pixels only when paid ads start, and never on `/my-tab`,
+   `/practice`, `/start` or `/contact`.
 7. **Scheduling stays in Timely (D-003).** Timely has no public API; link out. Payments: Timely for
    appointments and packages; Stripe for digital programs, cohorts and memberships; one Stripe
    customer per client (D-052).
