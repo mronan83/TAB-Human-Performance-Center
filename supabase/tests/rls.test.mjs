@@ -1,5 +1,5 @@
 // Row-level security test suite. Runs the migration in PGlite (in-process Postgres) with stub auth/storage schemas.
-// Usage: npm run test:rls   (exits non-zero on any failure, so CI fails)
+// Usage: npm run test:rls   (applies every migration in order; exits non-zero on any failure, so CI fails)
 //
 // Two kinds of test:
 //   check / expectDenied  enforced behaviour; any FAIL fails the run.
@@ -15,7 +15,7 @@ import fs from "fs";
 const db = new PGlite();
 const stub = `
 create schema auth; create schema storage;
-create table auth.users (id uuid primary key, email text, raw_user_meta_data jsonb default '{}');
+create table auth.users (id uuid primary key, email text, email_confirmed_at timestamptz, raw_user_meta_data jsonb default '{}');
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true),'')::uuid $$;
 create table storage.buckets (id text primary key, name text, public boolean);
 create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
@@ -24,14 +24,14 @@ create function storage.foldername(name text) returns text[] language sql as $$ 
 create role authenticated;
 `;
 await db.exec(stub);
-await db.exec(fs.readFileSync(process.argv[2], "utf8"));
+for (const file of process.argv.slice(2)) await db.exec(fs.readFileSync(file, "utf8"));
 await db.exec(`grant usage on schema public, auth to authenticated; grant all on all tables in schema public to authenticated; grant all on all sequences in schema public to authenticated;`);
 // Seed: owner, practitioner, two clients (one assigned)
 const O='00000000-0000-0000-0000-00000000000a', P='00000000-0000-0000-0000-00000000000b', C1='00000000-0000-0000-0000-00000000000c', C2='00000000-0000-0000-0000-00000000000d';
 const DANA='11111111-1111-1111-1111-111111111111', SAM='22222222-2222-2222-2222-222222222222';
 await db.exec(`
 insert into clients (id, full_name, email) values ('${DANA}','Dana','dana@example.com'),('${SAM}','Sam','sam@example.com');
-insert into auth.users (id,email) values ('${O}','owner@x.com'),('${P}','prac@x.com'),('${C1}','dana@example.com'),('${C2}','sam@example.com');
+insert into auth.users (id,email,email_confirmed_at) values ('${O}','owner@x.com',now()),('${P}','prac@x.com',now()),('${C1}','dana@example.com',now()),('${C2}','sam@example.com',now());
 update profiles set role='owner' where id='${O}'; update profiles set role='practitioner' where id='${P}';
 insert into practitioners (id, display_name) values ('${P}','Pat');
 insert into practitioner_assignments (client_id, practitioner_id) values ('${DANA}','${P}');
@@ -52,7 +52,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|permission denied|Only the owner can change roles|Clients may only update their own contact details/i;
+const DENIED = /row-level security|permission denied|Only the owner can change roles|Clients may only update their own contact details|Submitted answers cannot be changed|kept indefinitely/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -87,6 +87,36 @@ check("client cannot update another client's contact", (await superuser(`select 
 check('audit captured events', (await superuser(`select count(*)::int n from audit_events`))[0].n > 5, true);
 check('client cannot read audit log', (await as(C1,'select count(*)::int n from audit_events'))[0].n, 0);
 check('owner reads audit log', (await as(O,'select count(*)::int n from audit_events'))[0].n > 5, true);
+
+// Start and contact submissions (DIV-05): owner-only until linked; answers immutable; never deleted
+const I_DANA='44444444-4444-4444-4444-444444444444', I_NEW='55555555-5555-5555-5555-555555555555', I_SAM='66666666-6666-6666-6666-666666666666';
+await superuser(`insert into inquiries (id, reference, kind, name, email, message, consent_contact_at, client_id) values
+ ('${I_DANA}','R1','start','Dana','dana@example.com','dana message',now(),'${DANA}'),
+ ('${I_NEW}','R2','start','Casey','casey@example.com','unlinked message',now(),null),
+ ('${I_SAM}','R3','contact','Sam','sam@example.com','sam message',now(),'${SAM}')`);
+check('owner reads every submission', (await as(O,'select reference from inquiries order by reference')).map(r=>r.reference), ['R1','R2','R3']);
+check('practitioner reads only submissions linked to assigned clients', (await as(P,'select message from inquiries')).map(r=>r.message), ['dana message']);
+check('client cannot read submissions, even their own', (await as(C1,'select message from inquiries')).map(r=>r.message), []);
+await expectDenied('signed-in client cannot insert a submission', () => as(C1, `insert into inquiries (reference, kind, name, email, message, consent_contact_at) values ('X1','start','x','x@x.com','x',now())`));
+await expectDenied('owner cannot insert a submission (server only)', () => as(O, `insert into inquiries (reference, kind, name, email, message, consent_contact_at) values ('X2','start','x','x@x.com','x',now())`));
+await as(O, `update inquiries set routing_outcome='discovery', routing_note='call first' where id='${I_NEW}'`);
+check('owner records routing, stamped with who and when', (await superuser(`select routing_outcome, routed_by, routed_at is not null as stamped from inquiries where id='${I_NEW}'`))[0], { routing_outcome: 'discovery', routed_by: O, stamped: true });
+await expectDenied('owner cannot alter submitted answers', () => as(O, `update inquiries set message='edited' where id='${I_NEW}'`));
+await as(O, `update inquiries set routed_by='${P}', routed_at='2000-01-01' where id='${I_NEW}'`);
+check('routing stamp cannot be forged', (await superuser(`select routed_by, routed_at > '2001-01-01' as recent from inquiries where id='${I_NEW}'`))[0], { routed_by: O, recent: true });
+await as(P, `update inquiries set routing_outcome='referral' where id='${I_DANA}'`);
+check('practitioner cannot route', (await superuser(`select routing_outcome from inquiries where id='${I_DANA}'`))[0].routing_outcome, null);
+await as(O, `delete from inquiries where id='${I_NEW}'`);
+check('owner delete removes nothing', (await superuser(`select count(*)::int n from inquiries`))[0].n, 3);
+await expectDenied('even the service role cannot delete a submission', () => superuser(`delete from inquiries where id='${I_NEW}'`));
+check('submission changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='inquiries'`))[0].n >= 4, true);
+// SEC-014: an account links to a client record only after the email is confirmed
+const X='00000000-0000-0000-0000-0000000000e1';
+await superuser(`insert into clients (full_name, email) values ('Casey','casey@example.com')`);
+await superuser(`insert into auth.users (id,email) values ('${X}','CASEY@example.com')`);
+check('unconfirmed account does not claim a client record', (await superuser(`select count(*)::int n from clients where profile_id='${X}'`))[0].n, 0);
+await superuser(`update auth.users set email_confirmed_at=now() where id='${X}'`);
+check('confirming the email links the client record', (await superuser(`select full_name from clients where profile_id='${X}'`)).map(r=>r.full_name), ['Casey']);
 
 // Known gaps from the 2026-09-28 security review (Phase 2 hardening closes these; see SEC-014..SEC-020)
 await knownGap('staff can switch off their own MFA requirement (SEC-015)', async () => {

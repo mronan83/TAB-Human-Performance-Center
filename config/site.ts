@@ -81,6 +81,14 @@ export const siteConfig = {
     contactRecipient: "info@tabwellnesscollective.com",
     /** Must be a verified sender domain in Resend. */
     fromAddress: "TAB Wellness Collective <no-reply@tabwellnesscollective.com>",
+    /**
+     * Owner ruling 2026-09-28 (DIV-05, proposed D-058): the whole form is saved in the database, kept
+     * indefinitely, and linked to the client record. It is written only while the portal runs on Supabase,
+     * i.e. once the D-042 infrastructure and the Phase 2 security gate are in place; until then it's email only.
+     */
+    storeSubmissions: portalDataSource === "supabase",
+    /** The submitter also receives a copy of what they sent (owner ruling 2026-09-28). */
+    sendSubmitterCopy: true,
   },
 
   /** D-046: Plausible on public pages; ad pixels only when paid ads start, never in My TAB. */

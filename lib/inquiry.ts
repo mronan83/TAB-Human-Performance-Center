@@ -57,6 +57,16 @@ export const foundViaOptions = [
   { value: "other", label: "Other" },
 ] as const;
 
+/** S14 §14.4.1 routing outcomes: every Start submission ends with exactly one next step (GS-004). */
+export const routingOptions = [
+  { value: "book", label: "Direct booking" },
+  { value: "discovery", label: "Brief discovery conversation" },
+  { value: "intake", label: "Service-specific intake" },
+  { value: "more_info", label: "More information needed" },
+  { value: "referral", label: "Outside referral / TAB may not be the right fit" },
+] as const;
+export type RoutingOutcome = (typeof routingOptions)[number]["value"];
+
 const values = <T extends readonly { value: string }[]>(opts: T) => opts.map((o) => o.value) as [T[number]["value"], ...T[number]["value"][]];
 const optionalText = (max: number) => z.string().trim().max(max).optional().or(z.literal(""));
 

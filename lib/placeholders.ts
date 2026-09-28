@@ -23,6 +23,8 @@ export function launchChecklist(): ChecklistItem[] {
     { area: "Brand", item: "Designer: clean up traced edges before print, vinyl or signage", where: "docs/source/batch-4/vector-logo-package", done: false, optional: true },
     { area: "Brand", item: "Social accounts renamed; URLs updated", where: "config/site.ts → social", done: !c.social.instagram?.includes("tab.massage"), optional: true },
     { area: "Forms", item: "Resend API key and verified sending domain", where: "Vercel env → RESEND_API_KEY", done: !!process.env.RESEND_API_KEY },
+    // SEC-013: required now that the forms email a copy to whatever address is entered (DIV-05). Set done once built.
+    { area: "Forms", item: "Bot protection and a shared rate limit on public forms (Turnstile, BotID or WAF)", where: "app/api/inquiry/route.ts (SEC-013)", done: false },
     { area: "Analytics", item: "Plausible domain, plus goals for the Start Form: Started / Submitted events", where: "config/site.ts → analytics.plausibleDomain", done: !!c.analytics.plausibleDomain, optional: true },
     { area: "Content", item: "Our Story written with owner", where: "content/pages.ts → about.story", done: !about.story.draft },
     { area: "Content", item: "Team bios, credentials, photos", where: "content/pages.ts → about.team", done: !about.team.draft },

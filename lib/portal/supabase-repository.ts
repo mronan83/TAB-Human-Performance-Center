@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
-  Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, MetricDefinition,
+  Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
   Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, Viewer,
 } from "./types";
 
@@ -32,6 +32,17 @@ const mapClient = (r: Row): Client => ({
   status: r.status, methodStage: r.method_stage, services: (r.practitioner_assignments ?? []).map((a: Row) => a.service).filter(Boolean),
   primaryPractitioner: r.practitioners?.display_name, lastCheckIn: r.check_ins?.[0]?.week_of,
 });
+
+const mapInquiry = (r: Row): Inquiry => ({
+  id: r.id, reference: r.reference, kind: r.kind, receivedAt: r.created_at, name: r.name, email: r.email, phone: r.phone ?? undefined,
+  contactPreference: r.contact_preference ?? undefined, message: r.message, help: r.help ?? [], serviceInterest: r.service_interest ?? undefined,
+  improved: r.improved ?? undefined, considerations: r.considerations ?? undefined, delivery: r.delivery ?? undefined,
+  availability: r.availability ?? undefined, foundVia: r.found_via ?? undefined, marketingOptIn: r.marketing_opt_in,
+  clientId: r.client_id ?? undefined, clientName: r.clients?.full_name ?? undefined, routingOutcome: r.routing_outcome ?? undefined,
+  routingNote: r.routing_note ?? undefined, routedAt: r.routed_at ?? undefined,
+});
+/** Case-insensitive exact match on an email address (escapes LIKE wildcards). */
+const likeExact = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 const mapTemplate = (t: Row): ProgramTemplate => ({
   id: t.id, slug: t.slug, title: t.title, summary: t.summary ?? undefined, service: t.service, durationWeeks: t.duration_weeks ?? undefined, status: t.status,
@@ -213,5 +224,45 @@ export const supabaseRepository: PortalRepository = {
     const sb = await db();
     const rows = must(await sb.from("program_templates").select(TEMPLATE_SELECT).order("title")) as Row[];
     return rows.map(mapTemplate);
+  },
+  async listInquiries() {
+    const sb = await db();
+    const rows = must(await sb.from("inquiries").select("*, clients(full_name)").order("created_at", { ascending: false })) as Row[];
+    return rows.map(mapInquiry);
+  },
+  async getInquiry(id) {
+    const sb = await db();
+    const row = must(await sb.from("inquiries").select("*, clients(full_name)").eq("id", id).maybeSingle()) as Row | null;
+    if (!row) return null;
+    const inquiry = mapInquiry(row);
+    const email = likeExact(inquiry.email);
+    const [clients, related] = await Promise.all([
+      sb.from("clients").select("*").ilike("email", email),
+      sb.from("inquiries").select("*, clients(full_name)").ilike("email", email).neq("id", id).order("created_at", { ascending: false }),
+    ]);
+    return {
+      inquiry,
+      matches: (must(clients) as Row[]).filter((c) => c.id !== inquiry.clientId).map(mapClient),
+      related: (must(related) as Row[]).map(mapInquiry),
+    };
+  },
+  async routeInquiry(id, outcome, note) {
+    const sb = await db();
+    // The database stamps who routed it and when (guard_inquiry_update).
+    must(await sb.from("inquiries").update({ routing_outcome: outcome, routing_note: note ?? null }).eq("id", id));
+  },
+  async linkInquiries(id, clientId) {
+    const sb = await db();
+    const row = must(await sb.from("inquiries").update({ client_id: clientId }).eq("id", id).select("email").maybeSingle()) as Row | null;
+    if (!row) return 0;
+    const others = must(await sb.from("inquiries").update({ client_id: clientId }).is("client_id", null).ilike("email", likeExact(row.email)).select("id")) as Row[];
+    return 1 + others.length;
+  },
+  async createClientFromInquiry(id) {
+    const sb = await db();
+    const i = must(await sb.from("inquiries").select("*").eq("id", id).single()) as Row;
+    const client = must(await sb.from("clients").insert({ full_name: i.name, email: i.email, phone: i.phone, status: "prospect", source: `${i.kind}-form` }).select("id").single()) as Row;
+    await this.linkInquiries(id, client.id);
+    return client.id as string;
   },
 };

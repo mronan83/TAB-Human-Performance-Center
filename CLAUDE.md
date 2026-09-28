@@ -76,7 +76,8 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
    (`portal.dataSource = "mock"`).
 5. **No health details by email (D-054, R-027).** Public forms tell visitors not to include medical
    information, and email subjects never carry personal details. Detailed health intake belongs in
-   My TAB only.
+   My TAB only. Start and contact submissions are emailed to TAB and to the submitter, and saved in the
+   `inquiries` table (whole form, never deleted) only once guardrail 4's conditions are met (proposed D-058).
 6. **Analytics (D-046, amended by the owner's DIV-04 ruling, proposed D-057):** Plausible on public pages only,
    including `/start`, where it counts the funnel with fixed, property-less events (`lib/analytics.ts`); never
    on `/my-tab`, `/practice` or `/contact`. Ad pixels only when paid ads start, and never on `/my-tab`,

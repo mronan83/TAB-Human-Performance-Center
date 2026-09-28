@@ -188,7 +188,7 @@ export const legal = {
     title: "Privacy",
     draft: true,
     body: [
-      "[PLACEHOLDER: privacy policy pending legal review. It must cover website analytics (Plausible, including anonymous counts of Start form starts and submissions), form submissions sent by email, and, when My TAB launches, the handling of sensitive and health-related client information.]",
+      "[PLACEHOLDER: privacy policy pending legal review. It must cover website analytics (Plausible, including anonymous counts of Start form starts and submissions); form submissions, which are emailed to TAB and to the submitter and, once My TAB launches, stored indefinitely and linked to the client record; and, when My TAB launches, the handling of sensitive and health-related client information.]",
     ],
   },
   terms: { title: "Terms", draft: true, body: ["[PLACEHOLDER: website terms of use pending legal review.]"] },

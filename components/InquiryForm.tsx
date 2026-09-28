@@ -22,6 +22,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
   const [errors, setErrors] = useState<Errors>({});
   const [formError, setFormError] = useState("");
   const [practicalOpen, setPracticalOpen] = useState(false);
+  const [copySent, setCopySent] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const doneRef = useRef<HTMLHeadingElement>(null);
   const startedRef = useRef(false);
@@ -67,6 +68,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
     const data = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok && data.ok) {
       if (isStart) trackEvent("Start Form: Submitted");
+      setCopySent(data.copy === true);
       setStatus("sent");
       return;
     }
@@ -92,6 +94,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
             ? "We’ll read what you shared and reply with a suggested starting point: booking directly, a short conversation, the right intake, or another resource if TAB isn’t the best fit."
             : "We’ll read your message and get back to you soon."}
         </p>
+        {copySent && <p className="mt-3 text-text-secondary">We’ve also emailed you a copy of what you sent.</p>}
       </div>
     );
   }
