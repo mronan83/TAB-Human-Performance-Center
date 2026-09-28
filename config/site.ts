@@ -108,3 +108,10 @@ export type SiteConfig = typeof siteConfig;
 
 export const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://www.tabwellnesscollective.com";
+
+/**
+ * Search indexing is off until launch (NFR-009, Step 19.3). Set NEXT_PUBLIC_ALLOW_INDEXING=true only on
+ * the production domain at cutover; every other deployment, including the *.vercel.app production
+ * alias, stays noindex.
+ */
+export const indexingAllowed = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";

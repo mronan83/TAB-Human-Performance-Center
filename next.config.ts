@@ -14,8 +14,10 @@ const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
   poweredByHeader: false,
   async headers() {
+    // Pre-launch deployments are never indexable (NFR-009); see indexingAllowed in config/site.ts.
+    const noindex = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true" ? [] : [{ key: "X-Robots-Tag", value: "noindex, nofollow" }];
     return [
-      { source: "/:path*", headers: securityHeaders },
+      { source: "/:path*", headers: [...securityHeaders, ...noindex] },
       { source: "/(my-tab|practice)/:path*", headers: [{ key: "Cache-Control", value: "no-store" }, { key: "X-Robots-Tag", value: "noindex, nofollow" }] },
     ];
   },
