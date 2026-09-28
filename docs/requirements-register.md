@@ -89,7 +89,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 
 | ID | Requirement | Source | Phase |
 |---|---|---|---|
-| WEB-001 | Primary nav: Home, Services, The TAB Method, About, Resources. Persistent actions: Start Where You Are (primary), Book, My TAB. *(2026-09-28: Home item and an "All services" link added; Escape returns focus, menus close on focus-out; full nav from 1280px, Menu button below)* | S16 §16.2 | P1 |
+| WEB-001 | Primary nav: Home, Services, The TAB Method, About, Resources. Persistent actions: Start Where You Are (primary), Book, My TAB. *(2026-09-28: Home item and an "All services" link added; Escape returns focus, menus close on focus-out; full nav from 80rem (1280px at default text size), Menu button below. Header items never wrap; the row keeps ~57px headroom at default text for Safari/Windows rendering, and larger default text switches to the Menu button. `e2e/header.spec.ts` checks 16/20/24px defaults and fails CI if a new nav item eats the headroom)* | S16 §16.2 | P1 |
 | WEB-002 | Sitemap and URLs as specified (19 routes: `/`, `/services` + 4 service pages, `/tab-method`, `/about`, `/about/our-story`, `/about/team`, `/resources`, `/resources/articles`, `/resources/guides`, `/events`, `/faq`, `/start`, `/book`, `/contact`, `/my-tab`). | S16 §16.2 | P1 |
 | WEB-003 | Homepage follows the approved nine-section sequence: Hero → Core idea → Four pillars → TAB Method → Personalization → Guided conversion → Proof/trust → Resources → Closing invitation. | S16 §16.3 | P1 |
 | WEB-004 | Services landing page headed "Support for how you feel, move, live, and grow." presenting pillars as independently valuable and optionally connected. | S16 §16.2 | P1 |
