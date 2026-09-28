@@ -46,6 +46,10 @@ Never create, modify, deploy to or read data from these:
 
 **Vercel:** use the claude.ai Vercel MCP connector (it is signed in to the owner's account above) or the REST API.
 The `VERCEL_TOKEN` environment variable was removed by the owner; if it returns, it must be scoped to the same team.
+**Vercel environment variables:** the owner has authorized Claude to create and edit this project's environment
+variables as the work needs them (owner ruling 2026-09-28); report each change. `NEXT_PUBLIC_*` values ship to the
+browser, so create them as plain (Config); server secrets are Sensitive and never carry the `NEXT_PUBLIC_` prefix.
+A Sensitive variable's type can't be changed: narrow its target (or have it deleted) and add a new one.
 **Supabase:** the claude.ai Supabase MCP connector is signed in to the forbidden org. Do not use it. Use the REST API
 or CLI with `SUPABASE_ACCESS_TOKEN` (allowed org) and always pass the project ref explicitly.
 Never print, log or commit token values.
