@@ -29,21 +29,26 @@ Only these accounts may be used for this project:
 
 | Service  | Allowed                                                                 |
 |----------|-------------------------------------------------------------------------|
-| Vercel   | Team `tab-wellness-collective` (`team_5I53XjJhXpJmwzAyhKU7I7Fi`)        |
+| Vercel   | Team `mronan83's projects` (`team_A8TfHlLyTc2toipq0WsMVKvK`), **only** project `tab-wellness-collective` (`prj_djrXZfNVt5JmpqUK7w4CjegZSwmf`) |
 | Supabase | Org `TAB Wellness Collective` (`zkzjplwevlkpufogkdmh`)                  |
 |          | Project `vpaaeblqndcenftrfrms` ("TAB Wellness Collective Website", us-east-1) |
 
-Never create, modify, deploy to or read data from these (the owner's other accounts):
+Owner correction 2026-09-28: the project lives in the owner's personal Vercel team. An earlier version of this
+file named a separate `tab-wellness-collective` team (`team_5I53XjJhXpJmwzAyhKU7I7Fi`) and treated the personal
+team as forbidden; that team is not reachable from the owner's login and the ID was wrong or obsolete (R-028).
 
-- Vercel team `team_A8TfHlLyTc2toipq0WsMVKvK` ("mronan83's projects"), including its
-  unrelated project also named `tab-wellness-collective` (`prj_SqUFclQhmnpWyxLzG2wjAx2wgtz6`).
+Never create, modify, deploy to or read data from these:
+
+- Any other project in the Vercel personal team `team_A8TfHlLyTc2toipq0WsMVKvK`. Always pass the team ID and
+  project ID explicitly; never act on a project found by name alone.
 - Supabase org `ezvgbzioftldoydozvfd` ("MOO") and its projects `fxaixvudbwlgocqpyhqz`,
   `mhlacualaabkvdelsfmr` (WayPoint).
 
-The claude.ai **Vercel and Supabase MCP connectors are signed in to the forbidden accounts**.
-Do not use them for this project. Use the REST APIs or CLIs with the environment variables
-`VERCEL_TOKEN` and `SUPABASE_ACCESS_TOKEN`, which belong to the allowed accounts, and always
-pass the team ID / project ref explicitly. Never print, log or commit token values.
+**Vercel:** use the claude.ai Vercel MCP connector (it is signed in to the owner's account above) or the REST API.
+The `VERCEL_TOKEN` environment variable was removed by the owner; if it returns, it must be scoped to the same team.
+**Supabase:** the claude.ai Supabase MCP connector is signed in to the forbidden org. Do not use it. Use the REST API
+or CLI with `SUPABASE_ACCESS_TOKEN` (allowed org) and always pass the project ref explicitly.
+Never print, log or commit token values.
 
 ## Branches and review gates
 

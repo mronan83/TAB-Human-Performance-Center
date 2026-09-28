@@ -133,8 +133,9 @@ export const siteConfig = {
 
 export type SiteConfig = typeof siteConfig;
 
+// `||`, not `??`: a variable defined but left blank in Vercel must fall back too, or `new URL("")` breaks the build.
 export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://www.tabwellnesscollective.com";
+  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") || "https://www.tabwellnesscollective.com";
 
 /**
  * Search indexing is off until launch (NFR-009, Step 19.3). Set NEXT_PUBLIC_ALLOW_INDEXING=true only on

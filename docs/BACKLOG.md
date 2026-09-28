@@ -6,13 +6,16 @@ Register IDs in brackets link to `docs/requirements-register.md`.
 
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 
-_Last updated: 2026-09-28, after #12 merged._
+_Last updated: 2026-09-28, Vercel build fix._
 
 ## P0 · Now
 
 | ID | Item | Category | Owner | Unblocks |
 |---|---|---|---|---|
 | A1 | Register `tabwellnesscollective.com` and `.net`. Still unregistered at the registry on 2026-09-28 [RSK-007] | Accounts | Owner | A2, A3, C1, C5, launch |
+| A20 | Revoke the Vercel token pasted into the 2026-09-28 session chat (Vercel → Account Settings → Tokens) | Security | Owner | |
+| A21 | Vercel project `prj_djrX…`: the 11 env vars were created blank. Delete the blank ones or fill them; set `NEXT_PUBLIC_SHOW_DRAFTS=true` on Preview so reviewers see draft flags and `/launch-checklist` | Accounts | Owner | G2 previews |
+| C0 | **On `claude/zealous-davinci-64dima`.** Build fix: a blank `NEXT_PUBLIC_SITE_URL` broke every Vercel build (`new URL("")`); `CLAUDE.md` Vercel account rules corrected | Platform | Claude | Vercel deploys |
 
 ## P1 · Public-site launch
 
