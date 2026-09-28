@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { inquirySchema, interestOptions } from "@/lib/inquiry";
+import { contactOptions, deliveryOptions, foundViaOptions, helpOptions, inquirySchema, labelFor, serviceOptions } from "@/lib/inquiry";
 import { siteConfig } from "@/config/site";
 
 // Best-effort in-memory rate limit (per server instance only). A shared limiter or bot check (Turnstile /
@@ -19,6 +19,8 @@ function limited(ip: string) {
 }
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+const dash = (v?: string) => v || "—";
+const FONT = "font-family:Arial,sans-serif";
 
 export async function POST(req: Request) {
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
@@ -30,31 +32,55 @@ export async function POST(req: Request) {
   }
   const d = { ...parsed.data, name: parsed.data.name.replace(/[\r\n]+/g, " ").trim() };
   if (d.company) return NextResponse.json({ ok: true }); // bot: pretend success
+  const isStart = d.kind === "start";
 
-  const interests = (d.interests ?? []).map((v) => interestOptions.find((o) => o.value === v)?.label ?? v);
   const rows: [string, string][] = [
     ["Name", d.name],
     ["Email", d.email],
-    ["Phone", d.phone || "—"],
-    ["Preferred contact", d.contactPreference ?? "—"],
-    ["Interested in", interests.join("; ") || "—"],
-    ["In person or virtual", d.delivery ?? "—"],
-    ["Availability", d.availability || "—"],
-    ["How they heard about TAB", d.referral || "—"],
-    ["Marketing opt-in", d.marketingOptIn ? "Yes" : "No"],
+    ["Phone", dash(d.phone)],
+    ["Preferred contact", dash(labelFor(contactOptions, d.contactPreference))],
   ];
+  if (isStart) {
+    rows.push(
+      ["Would like help with", (d.help ?? []).map((v) => labelFor(helpOptions, v)).join("; ") || "—"],
+      ["Service interest", dash(labelFor(serviceOptions, d.service))],
+      ["In person or virtual", dash(labelFor(deliveryOptions, d.delivery))],
+      ["Availability", dash(d.availability)],
+      ["How they found TAB", dash(labelFor(foundViaOptions, d.foundVia))],
+    );
+  }
+  rows.push(["Marketing opt-in", d.marketingOptIn ? "Yes" : "No"]);
+
+  // Free-text answers, in the order the S14 §14.4.1 form asks them; unanswered optional questions are left out.
+  const answers = (
+    isStart
+      ? [
+          ["What brings you to TAB?", d.message],
+          ["If things improved, what would they like to feel, do, or experience differently?", d.improved],
+          ["Anything to know before finding the right starting point?", d.considerations],
+        ]
+      : [["Message", d.message]]
+  ).filter((a): a is [string, string] => !!a[1]);
+
   // Subjects carry no personal details (D-054, R-027); the reference only helps thread replies.
   const ref = Date.now().toString(36).toUpperCase();
-  const subject = d.kind === "start" ? `Start Where You Are: new submission (${ref})` : `Website message: new submission (${ref})`;
-  const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2><table cellpadding="6" style="font-family:Arial,sans-serif;font-size:14px">${rows
+  const subject = isStart ? `Start Where You Are: new submission (${ref})` : `Website message: new submission (${ref})`;
+  // GS-004: every Start submission ends with exactly one next step, chosen by whoever replies.
+  const routing = isStart
+    ? "Next step (choose one): direct booking, a brief discovery conversation, a service-specific intake, more information needed, or an outside referral."
+    : "";
+  const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2><table cellpadding="6" style="${FONT};font-size:14px">${rows
     .map(([k, v]) => `<tr><td style="color:#575B53;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
-    .join("")}</table><h3 style="font-family:Arial,sans-serif">Message</h3><p style="font-family:Arial,sans-serif;white-space:pre-wrap">${esc(d.message)}</p>`;
-  const to = d.kind === "start" ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
+    .join("")}</table>${answers
+    .map(([q, a]) => `<h3 style="${FONT};font-size:15px">${esc(q)}</h3><p style="${FONT};white-space:pre-wrap">${esc(a)}</p>`)
+    .join("")}${routing && `<p style="${FONT};font-size:13px;color:#575B53">${esc(routing)}</p>`}`;
+  const text = [rows.map(([k, v]) => `${k}: ${v}`).join("\n"), ...answers.map(([q, a]) => `${q}\n${a}`), routing].filter(Boolean).join("\n\n");
+  const to = isStart ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
 
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     if (process.env.NODE_ENV !== "production") {
-      console.info("[inquiry] RESEND_API_KEY not set; would send to", to, { subject, rows });
+      console.info("[inquiry] RESEND_API_KEY not set; would send to", to, `\n${subject}\n\n${text}`);
       return NextResponse.json({ ok: true, dev: true });
     }
     return NextResponse.json({ ok: false, error: `We couldn’t send your message. Please email ${siteConfig.contact.email}.` }, { status: 503 });
@@ -62,7 +88,7 @@ export async function POST(req: Request) {
 
   try {
     const resend = new Resend(key);
-    const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to, replyTo: d.email, subject, html });
+    const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to, replyTo: d.email, subject, html, text });
     if (error) throw new Error(error.message);
     return NextResponse.json({ ok: true });
   } catch (e) {

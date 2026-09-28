@@ -121,6 +121,12 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | GS-005 | Staff can review submissions and record the routing outcome. *(Derived from GS-004: needs a minimal staff view in P1.)* | Derived | P1 |
 | GS-006 | Discovery is never a mandatory gate; clients with straightforward needs can book immediately. | S14 §2, S16 §16.8 | P1 |
 
+**Implementation status (2026-09-28):** GS-001 met (every S14 §14.4.1 field, a "no medical details" hint on
+each free-text box). GS-002 met ("How did you find TAB?", S14 §14.2 channels). GS-003 met (practical details
+collapsed by default; the confirmation lists the five routing outcomes). GS-006 met ("Book directly" beside the
+form). GS-004 partly met: the notification email ends with the five next steps, and the reply is the routing
+record. GS-005 is not built: see DIV-05.
+
 ### 2.3 My TAB client portal (PORTAL)
 
 | ID | Requirement | Source | Phase |
@@ -209,7 +215,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | NFR-003 | Page metadata pattern: title `[Service] in [Location] \| TAB Wellness Collective`, human meta descriptions, outcome-led H1; Organization / LocalBusiness / Service structured data; FAQ markup only where visible. | S16 §16.4, §16.8 | P1 |
 | NFR-004 | Redirect map from legacy tabmassage.com URLs completed before launch. | S16 §16.8, §16.9 | P0/P1 |
 | NFR-005 | Privacy-aware public analytics; portal analytics kept separate; no sensitive data in event names or properties. | S16 §16.8 | P1 |
-| NFR-006 | Public events: `start_where_you_are_open/submit`, `service_view`, `book_click`, `timely_booking_outbound`, `my_tab_login_click`, `method_view`, `resource_view/download`, `contact_submit/consultation_request`. | S16 §16.8 | P1 |
+| NFR-006 | Public events: `start_where_you_are_open/submit`, `service_view`, `book_click`, `timely_booking_outbound`, `my_tab_login_click`, `method_view`, `resource_view/download`, `contact_submit/consultation_request`. *(DIV-04: no tracking runs on `/start` or `/contact` (D-046), so "open" is the CTA click on public pages and submissions are counted from the inbox.)* | S16 §16.8 | P1 |
 | NFR-007 | The S19 §19.15 critical smoke tests are automated as end-to-end tests and run against every preview and against production after cutover. | S19 §19.15 | P1 |
 | NFR-008 | Redirects are server-side 301/308, per URL, with no chains or loops; the full map is tested automatically before launch and monitored afterwards. | S19 §19.3 | P1 |
 | NFR-009 | Pre-production and preview deployments are `noindex` and not publicly discoverable; noindex is removed only on the production domain at launch. | S19 §19.3 | P1 |
@@ -355,6 +361,8 @@ Raised by Claude as principal engineer; each is resolved at G1 or on the named t
 | DIV-01 | **Start form handling.** D-054 emails submissions (via Resend, then the Google Workspace inbox); RSK-001 proposed storing them in Supabase. Both lack a BAA in Phase 1, but email copies free text to a third-party relay and an inbox with no retention or access control. | Keep D-054 for Phase 1: it's the owner's call and costs nothing. Harden it: no free text in subjects (already a rule); plain-text body; a "don't include medical details" hint beside *each* free-text field; an inbox retention rule. Revisit at A-04 when My TAB launches. |
 | DIV-02 | **Domain timing.** MDR: register after clearance. S17 §17.7 and RSK-007: register now. | Register now. It's reversible and costs about $20 a year; losing the exact-match domain can't be undone. |
 | DIV-03 | **Documentation drift in the handoff.** ARCH cites `supabase/migrations/0001_my_tab.sql` (18 tables) and `docs/ARCHITECTURE.md` / `docs/HANDOFF.md`. The codebase has `20260927000000_my_tab_core.sql`, `docs/PHASE2.md` says 30 tables, and ARCHITECTURE.md / HANDOFF.md aren't in the zip. | Treat the code as the truth and correct the docs in the repo (R-028). |
+| DIV-04 | **Start funnel events vs. analytics exclusions.** NFR-006 (S16 §16.8) asks for `start_where_you_are_open/submit` and `contact_submit`; D-046 keeps analytics off `/start` and `/contact`. | D-046 governs. Measure the funnel without tracking the form pages: count `start_where_you_are_open` as the CTA click on public pages, and take submissions from the inbox (or from the Phase 2 intake records). NFR-006 carries this note; *proposed register entry*. |
+| DIV-05 | **Staff routing record vs. email-only intake.** GS-005 (derived from GS-004) calls for a minimal staff view of submissions in Phase 1; D-054 keeps submissions out of any database until My TAB is on HIPAA-eligible infrastructure (D-042). | Keep D-054: in Phase 1 the reply email **is** the routing record, and a Gmail label per outcome (Book / Discovery / Intake / More info / Referral) gives the owner a free, countable log. Build GS-005 with My TAB intake (A-04). Owner to confirm; *proposed register entry*. |
 
 ### 7.4 Deliverables added by these rulings
 
