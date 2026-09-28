@@ -4,7 +4,7 @@ Living register. Every requirement has a stable ID and a source reference. Confl
 assumptions are logged here and never resolved silently. IDs are never reused; retired items are
 struck through, not deleted.
 
-**Last updated:** 2026-09-28 · **Intake status:** batch 1 of 3 received (5 of 13 documents)
+**Last updated:** 2026-09-28 · **Intake status:** batch 2 of 3 received (10 of 13 documents)
 
 ## Sources
 
@@ -15,8 +15,15 @@ struck through, not deleted.
 | S14 | [The TAB Method & Customer Journey](source/batch-1/TAB_Wellness_Collective_TAB_Method_Customer_Journey_Step_14.md) | Step 14 | 1 | Approved |
 | S15 | [Messaging Architecture](source/batch-1/TAB_Wellness_Collective_Messaging_Architecture_Step_15.md) | Step 15 | 1 | Approved |
 | S16 | [Website & Digital Experience](source/batch-1/TAB_Wellness_Collective_Website_Digital_Experience_Step_16.md) | Step 16 | 1 | **Recommended** — technology choices need G1 approval |
+| S17 | [Naming Validation v2](source/batch-2/TAB_Wellness_Collective_Step_17_Naming_Validation_v2.md) | Step 17 | 2 | **Conditional** — pending trademark counsel and Michigan filing |
+| S18 | [Visual Identity](source/batch-2/TAB_Wellness_Collective_Visual_Identity_Step_18.md) | Step 18 | 2 | Approved ("locked"); vector production round still to come |
+| S19 | [Rebrand Transition & Launch Plan v2](source/batch-2/TAB_Step19_Rebrand_Transition_Plan_v2.md) | Step 19 | 2 | Approved plan |
+| TOK | [Design tokens (JSON)](source/batch-2/TAB_Wellness_Collective_Design_Tokens.json) | Design system | 2 | "canonical", v1.0.0 |
+| TOKCSS | [Design tokens (CSS)](source/batch-2/tab-wellness-tokens.css) | Design system | 2 | Companion to TOK (see CON-009) |
+| LEG | [tabmassage.com inventory](legacy/tabmassage-inventory.md) | Legacy site | — | Collected by Claude from public sources |
 
-Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/`.
+Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-N/`; images embedded
+in the Word files are extracted under `docs/source/batch-N/assets/`.
 
 **Phase codes** (from S16 §16.9): **P0** validate before build · **P1** public website MVP ·
 **P2** My TAB MVP · **P3** integration maturity · **P4** experience expansion.
@@ -27,7 +34,7 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 
 | ID | Decision | Source |
 |---|---|---|
-| DEC-001 | Brand name **TAB Wellness Collective**; philosophy **Transform. Align. Become.** (see CON-004 on naming validation) | BF |
+| DEC-001 | Brand name **TAB Wellness Collective**; philosophy **Transform. Align. Become.** (conditional, see DEC-013) | BF, S17 |
 | DEC-002 | Four service pillars with fixed descriptive names: Massage & Bodywork; Personal Strength Training; Women's Wellness Coaching; Holistic Life Coaching. No branded program names yet. | BF §10, S13 |
 | DEC-003 | Master brand is gender-neutral; Women's Wellness Coaching is a specialised pillar with targeted messaging. | BF §01 |
 | DEC-004 | Homepage H1 "Whole-person wellness, built around you."; primary CTA **Start Where You Are**. | S15 §15.2, §15.7 |
@@ -39,6 +46,16 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 | DEC-010 | The platform is designed as a sensitive-data application from day one. | S16 §16.1 |
 | DEC-011 | Delivery is phased: public rebrand site first, portal second, without a later replatform. | S16 §16.9 |
 | DEC-012 | Journey governance / KPI layer is not required for launch. | S14 §14.0, §14.5 |
+| DEC-013 | Proceed with **TAB Wellness Collective** as the working, preferred name — status *conditional* until trademark counsel and the Michigan entity/assumed-name filing are complete. | S17 §17.11 |
+| DEC-014 | Naming architecture: official **TAB Wellness Collective**; shorthand **TAB**; **My TAB**, **The TAB Method**, **TAB Wellness Plan**, **TAB Resources**. Never use "TAB Wellness" as public shorthand. Full name in all titles, structured data and listings. | S17 §17.6, §17.9 |
+| DEC-015 | Canonical domain `tabwellnesscollective.com`; `tabmassage.com` retained indefinitely with per-URL 301/308 redirects (no blanket homepage redirect); My TAB stays under the primary domain (`/my-tab` or `my.` subdomain). | S17 §17.7, S19 §19.3 |
+| DEC-016 | Visual identity locked: Concept 2 rooted-growth symbol + Concept 3 TAB wordmark; logo family = stacked, horizontal, wordmark-only, symbol badge, reversed. Full lockup at first impression; reduced marks only once the brand is established. | S18 §18.1–18.2 |
+| DEC-017 | Design tokens v1.0.0 are canonical: palette, Cormorant Garamond (display) + Manrope (sans), type scale, 4px spacing, radii, shadows, layout, breakpoints, motion. The logo is custom artwork and must not be recreated from the fonts. | TOK |
+| DEC-018 | Site header uses the horizontal lockup with Start Where You Are as the primary action; My TAB uses the symbol + simplified lockup with sans-serif-led UI. | S18 §18.10 |
+| DEC-019 | Transition phrase "formerly TAB Massage & Fitness" for ~90–180 days where it reduces confusion; never inside the logo or the official business-name field. | S19 §19.1, §19.4 |
+| DEC-020 | My TAB need not launch with the rebrand; until it does, use a plain "Client Login" path into Timely. No lingering "coming soon". | S19 §19.14 |
+| DEC-021 | Launch runbook and critical smoke tests as specified (Google → site, service → booking, forms, Timely booking and login, Stripe payment link, email confirmation, legacy URL → new URL, social → site, QR codes). | S19 §19.15 |
+| DEC-022 | Stripe statement descriptor: `TABWELLNESSCOLL` (not "TAB Wellness"). | S19 §19.6 |
 
 ### Recommendations awaiting G1 approval (REC)
 
@@ -73,6 +90,12 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 | WEB-012 | Footer: Explore, Services, Get Started, TAB links, legal/accessibility (Privacy, Terms, Accessibility, client policies, cancellation policy, service disclaimers), location, hours, contact, social. | S16 §16.2 | P1 |
 | WEB-013 | Trust content: testimonials with consent metadata, practitioner credentials, years serving the community, partnerships, reviews only when strong and current, no dramatic before/after claims. | S16 §16.3 | P1 |
 | WEB-014 | All public copy follows S15 voice rules and avoid-lists (hype, fitness culture, wellness guilt, "woo", clinical). | S15 §15.8 | P1 |
+| WEB-015 | Temporary site-wide announcement bar ("TAB Massage & Fitness is now TAB Wellness Collective…"), editable in the CMS with a start and end date so it cannot linger. | S19 App. B, §19.17 | P1 |
+| WEB-016 | Organization structured data uses "TAB Wellness Collective" as the name and "TAB Massage & Fitness" as a former/alternate name during the transition. *(Derived.)* | S17 §17.9, S19 §19.1 | P1 |
+| WEB-017 | Our Story tells the evolution from TAB Massage & Fitness (launched December 2008) to TAB Wellness Collective. | S15 §15.5, S17 §17.12 | P1 |
+| WEB-018 | Service icons act as light navigational differentiators on service cards and pages (artwork subject to CON-006). | S18 §18.7 | P1 |
+| WEB-019 | Icon set from the symbol: favicon 16/32, Apple touch icon, PWA icons (192/512 + maskable), social avatar 1080, OG/share images. Light and dark variants. | S18 §18.8, DEC-008 | P1 |
+| WEB-020 | "Client Login" in the header routes to Timely Client Login until My TAB launches; it becomes "My TAB" at P2. | S19 §19.14 | P1 |
 
 ### 2.2 Start Where You Are / Get Started (GS)
 
@@ -165,6 +188,22 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 | NFR-004 | Redirect map from legacy tabmassage.com URLs completed before launch. | S16 §16.8, §16.9 | P0/P1 |
 | NFR-005 | Privacy-aware public analytics; portal analytics kept separate; no sensitive data in event names or properties. | S16 §16.8 | P1 |
 | NFR-006 | Public events: `start_where_you_are_open/submit`, `service_view`, `book_click`, `timely_booking_outbound`, `my_tab_login_click`, `method_view`, `resource_view/download`, `contact_submit/consultation_request`. | S16 §16.8 | P1 |
+| NFR-007 | The S19 §19.15 critical smoke tests are automated as end-to-end tests and run against every preview and against production after cutover. | S19 §19.15 | P1 |
+| NFR-008 | Redirects are server-side 301/308, per URL, with no chains or loops; the full map is tested automatically before launch and monitored afterwards. | S19 §19.3 | P1 |
+| NFR-009 | Pre-production and preview deployments are `noindex` and not publicly discoverable; noindex is removed only on the production domain at launch. | S19 §19.3 | P1 |
+| NFR-010 | 30-day post-launch monitoring: 404s and redirect failures, form submissions, booking-link behaviour, with alerts. | S19 §19.16 | P1 |
+
+### 2.9 Design system (DS)
+
+| ID | Requirement | Source | Phase |
+|---|---|---|---|
+| DS-001 | TOK JSON is the single source of truth; CSS variables and the styling theme are generated from it, never hand-copied. | TOK, CON-009 | P1 |
+| DS-002 | Cormorant Garamond for display/headlines only; Manrope for body, navigation, UI, forms and portal text. Both self-hosted (no third-party font requests). | TOK, S18 §18.5 | P1 |
+| DS-003 | Letterspaced uppercase `label` style used sparingly for eyebrows, navigation labels and section markers. | TOK, S18 §18.5 | P1 |
+| DS-004 | Primary button = olive pill; secondary button = terracotta-deep pill; terracotta used as an accent, "never everywhere". | TOKCSS, S18 §18.4 | P1 |
+| DS-005 | Every text/background and UI-boundary pairing in use meets WCAG 2.2 AA (see CON-011); an automated contrast check runs in CI against the token set. | DEC-009 | P1 |
+| DS-006 | Production logo files (SVG) for every lockup, in light and reversed versions, plus a simplified small-size symbol for 16–32px. | S18 §18.11 | P1 |
+| DS-007 | Imagery: real people and environments, natural light, warm tones; no before/after, hyper-posed fitness or sterile clinical imagery. | S18 §18.6 | P1 |
 
 ---
 
@@ -175,8 +214,14 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 | CON-001 | Sitemap nests Events and FAQ under Resources, but the URL table puts them at `/events` and `/faq`. | Low | Keep short top-level URLs; show them under Resources in navigation. | Proposed |
 | CON-002 | S16 keeps Timely Consult for "booking-coupled" forms, while S14 defines all four service intakes (health history, medications, contraindications) as TAB artifacts and the My TAB MVP includes intakes. It is unclear where the massage intake lives. | **High**: this decides where health data is stored. | Decide at G1 with the owner. | Open |
 | CON-003 | Raw practitioner notes live in My TAB only "if moved there" (S16 §16.6). Where notes live today, and whether they move, is undecided. | **High**: this is the largest sensitive dataset and drives migration scope. | Decide at G1 with the owner. | Open |
-| CON-004 | The brand documents treat the name as settled, but S16 Phase 0 requires Step 17 naming validation before committing to domains and marks. | Medium | Build with the name as configuration; do not buy domains until Step 17 closes. | Open |
+| CON-004 | The brand documents treat the name as settled, but S16 Phase 0 requires Step 17 naming validation before committing to domains and marks. | Medium | S17 now gives a *conditional* go (DEC-013) and says to secure the domain immediately. Build with the name as configuration; buy the domain now (RSK-007); hold Google Business Profile and signage until counsel clears it. | Partly resolved |
 | CON-005 | S14's core principle is "one connected TAB relationship", but the MVP needs two logins (My TAB plus Timely Client Login). | Medium (experience) | Accept for MVP and record it as known experience debt; revisit in P3. | Proposed |
+| CON-006 | The BF avoid-list names **lotus flowers, dumbbells and massage hands**, but three of the four S18 service icons are hands (Massage), a dumbbell (Strength; the S18 text says "barbell") and a lotus (Women's Wellness). BF also says creative work must "express the brand foundation—not redefine it." | Medium (brand coherence; icons are swappable assets, so the build is not blocked) | Owner decides: accept S18 as a deliberate override, or redraw three icons within BF guardrails during the vector production round. | Open |
+| CON-007 | S17 and S19 say trademark clearance must precede Step 18 and any irreversible spend, but S18 is already "locked". Clearance status is unknown. | Medium | Website work is reversible and can proceed. Domain purchase is cheap and S17 says do it now. Signage, Google Business Profile rename and trademark filing wait for counsel. | Open |
+| CON-008 | Redirect examples in S17/S19 use paths that don't exist (`/massage-therapy`, `/personal-training`, `/massage`). The real legacy paths are `/massage_therapy/`, `/personal_training/`, `/about-us/`, `/contact-us/`, `/appointments/`. | Low | Build the map from the real inventory (LEG), not the examples. | Resolved by LEG |
+| CON-009 | TOK (JSON, "canonical") and TOKCSS disagree on heading styles: h1 line-height 1.15 vs 1.08; h2 1.15 / −0.02em vs 1.12 / −0.015em; h3 1.15 vs 1.2. TOKCSS adds responsive `clamp()` sizes that TOK lacks; TOK has h4/bodyLG/bodySM and breakpoints that TOKCSS lacks. | Low | TOK wins per its own metadata; adopt TOKCSS's `clamp()` responsive sizing as an addition. Design owner to confirm. | Proposed |
+| CON-010 | S18 says Sand and Linen are the main background fields; TOK sets page background = Cream and surfaces = White. | Low | Follow TOK (later and canonical); use Sand/Linen for section bands. | Proposed |
+| CON-011 | **The canonical palette breaks DEC-009 (WCAG 2.2 AA) in 12 of 33 pairings tested:** input borders 1.55–1.69:1 (need 3:1); `borderStrong` 2.45–2.66:1; terracotta text on cream 3.20:1; white on terracotta 3.48:1; white on sage 2.75:1; sage on cream 2.53:1; terracotta-deep links on cream 4.42:1; muted text on linen 4.07:1; warning text on cream 4.31:1; terracotta-deep focus ring on olive sections 1.36:1. Body text, primary/secondary buttons, error and success text all pass. | **High**: every form field fails today | Near-invisible adjustments: add `borderInput #8D8375` (3.4–3.7:1); keep terracotta and sage decorative (no text, no white-on); links in olive (6.04:1) or terracotta-deep nudged to `#A65E39` (4.51:1); `textSecondary → #575B53`; `warning → #96672E`; focus ring switches to cream on olive/dark sections (6.04:1). Brand owner approves because the tokens are canonical. | Open |
 
 ## 4. Gaps and open questions (GAP)
 
@@ -184,11 +229,11 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 
 | ID | Gap | Needed by | Batch? |
 |---|---|---|---|
-| GAP-001 | Visual identity: logo, palette, typography (BF lists visual identity as the next phase). | P1 design | Likely |
-| GAP-002 | Step 17 naming validation outcome; final domain(s). | P1 launch | Likely |
-| GAP-003 | Location(s), address, hours, service area (for NAP, LocalBusiness, `[Service] in [Location]`). | P1 | Maybe |
+| GAP-001 | ~~Visual identity~~ → answered by S18 + TOK. **Remaining:** production SVG logo files for every lockup, a simplified small-size symbol, and vector service icons (DS-006). Current assets are painterly raster working files. | P1 launch | Owner / designer |
+| GAP-002 | ~~Step 17 outcome~~ → conditional go (DEC-013). **Remaining:** trademark counsel opinion, Michigan filing, domain registration, social handle reservation. | P1 launch | Owner + counsel |
+| GAP-003 | Location: Michigan (S17). **Remaining:** street address, city, hours, service area, single vs multiple locations. | P1 | Owner |
 | GAP-004 | Team roster: practitioners, services each provides, credentials, bios, photos. | P1 | Maybe |
-| GAP-005 | Legacy site inventory (tabmassage.com pages, rankings, backlinks, forms, Google Business Profile, analytics). Is the old Vercel project `tab-wellness-collective` the live tabmassage.com? | P1 launch | Owner |
+| GAP-005 | Legacy inventory: **public part done** (LEG: 36 pages, 28 posts, hosting, DNS, email). **Remaining:** Search Console, analytics, backlinks, category/tag archives. The live site is WordPress on shared hosting, so the old Vercel project `tab-wellness-collective` is *not* the live site — is anything in it worth reusing? | P1 launch | Owner |
 | GAP-006 | Timely plan (Innovate?), current booking URLs, whether Timely Consult forms are in use. | P1 | Owner |
 | GAP-007 | Stripe products in use (POS, Checkout, Billing, subscriptions, portal). Does Timely also take payments (double-charge risk)? | P2 | Owner |
 | GAP-008 | Legal determination of HIPAA / state health-privacy obligations, and which vendors (Timely, email/SMS, hosting) need signed agreements (BAAs). | P2 schema; P1 privacy policy | Owner + counsel |
@@ -200,6 +245,11 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 | GAP-014 | Named product owner and content owners (S16 §16.9 ownership table). | P1 | Owner |
 | GAP-015 | Analytics tool: Plausible vs Matomo vs GA4. | P1 | Engineering proposal |
 | GAP-016 | Where client records and session notes live today (Timely, paper, other) and what, if anything, migrates. | P2 | Owner |
+| GAP-017 | Target launch date. S19 plans relative to T-8 weeks but sets no date. | Planning | Owner |
+| GAP-018 | Legacy offerings outside the four pillars: yoga, nutrition, sports injury rehab, small-group training / LifeQuest, chair/corporate massage, cupping, youth programs, remote training. Which continue? This drives redirect destinations and service-page content. | P1 | Owner |
+| GAP-019 | Access for cutover: host DNS panel for tabmassage.com (nameservers at `SUPERCP.COM`), GoDaddy registrar, Google Workspace admin (to add the new domain and aliases), Search Console. | P1 launch | Owner |
+| GAP-020 | Gift cards: the legacy site sells them. Will they continue, and through what (Timely vouchers, Stripe, other)? S16 lists "Gift Cards if offered". | P1 | Owner |
+| GAP-021 | URLs for the legal pages are not defined in S16. Proposed: `/privacy`, `/terms`, `/accessibility`, `/policies/cancellation`. | P1 | Engineering proposal |
 
 ## 5. Assumptions (ASM)
 
@@ -208,7 +258,8 @@ Originals (`.docx`) sit beside each Markdown conversion in `docs/source/batch-1/
 | ASM-001 | One brand site on one domain; name held in configuration until Step 17 closes. | G1 |
 | ASM-002 | Vercel (app) and Supabase (data) are the managed platforms, consistent with S16's managed-hosting recommendation. | G1 |
 | ASM-003 | English only at launch. | G1 |
-| ASM-004 | Single physical location (unconfirmed, see GAP-003). | G1 |
+| ASM-004 | Single physical location in Michigan (state confirmed by S17; site count unconfirmed, see GAP-003). | G1 |
+| ASM-005 | Until vector logos exist (DS-006), high-resolution raster exports of the S18 artwork can serve development and previews, but not the production launch. | G1 |
 
 ## 6. Engineering risks and recommendations (RSK)
 
@@ -222,3 +273,7 @@ Raised by Claude as principal engineer; each is resolved at G1 or on the named t
 | RSK-004 | Payload + Supabase means two auth systems and a privileged database connection that bypasses RLS. | One Supabase Postgres. Payload in its own schema, with a DB role that has no grants on client-data tables. Payload auth for content editors only; clients and practitioners on Supabase Auth with MFA. |
 | RSK-005 | Current plans (Supabase Free, Vercel Hobby) cannot hold real client data: Free has no backups (breaks SEC-009) and Hobby is non-commercial. | Upgrade both before the first real submission reaches production (a G3 prerequisite). |
 | RSK-006 | The legal determination (GAP-008) changes vendor choices and data design. | P1 can proceed on the RSK-001 controls; the P2 schema is gated on GAP-008. |
+| RSK-007 | `tabwellnesscollective.com` (and `.net`) were **unregistered** on 2026-09-28. Anyone can take them, and losing the exact-match domain is irreversible. | Register now (roughly $10–25 a year); S17 §17.7 already calls for this. Registering doesn't commit to the name legally. Turn on auto-renew and registrar lock. |
+| RSK-008 | The legacy site runs WordPress 5.2 (2019) on PHP 7.4 (end-of-life since Nov 2022) with 2017-era slider plugins, and stays live until cutover. Unpatched WordPress is a common small-business breach path. | Outside this build's scope, but the owner should have the host update or lock it down now, or treat the cutover date as the fix. |
+| RSK-009 | The cutover DNS change could break email and verification. tabmassage.com mail is Google Workspace, DNS lives at the web host, and there's a Google verification TXT record. | Change only the web records (apex/`www`) to Vercel; copy MX, TXT (SPF/DKIM/verification) exactly if the zone moves; export the zone before any change. Step in the runbook. |
+| RSK-010 | The S18 logo artwork is raster with painterly texture. It won't reduce cleanly to 16px favicons or a crisp SVG header. | Commission the vector production round S18 §18.11 anticipates before the P1 launch; develop against raster placeholders (ASM-005). |

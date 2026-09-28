@@ -1,0 +1,159 @@
+:root {
+  /* Brand primitives */
+  --tab-sand: #EDE7DC;
+  --tab-linen: #DCCFBD;
+  --tab-sage: #97A07C;
+  --tab-olive: #5A6046;
+  --tab-terracotta: #C0784C;
+  --tab-terracotta-deep: #A85F3A;
+  --tab-charcoal: #252724;
+  --tab-cream: #F8F5EF;
+  --tab-white: #FFFFFF;
+
+  /* Semantic colors */
+  --color-bg: var(--tab-cream);
+  --color-surface: var(--tab-white);
+  --color-surface-muted: var(--tab-sand);
+  --color-surface-warm: var(--tab-linen);
+  --color-surface-brand: var(--tab-olive);
+  --color-text: var(--tab-charcoal);
+  --color-text-muted: #5E625A;
+  --color-text-inverse: var(--tab-white);
+  --color-border: #CFC6B8;
+  --color-border-strong: #A99D8C;
+  --color-primary: var(--tab-olive);
+  --color-primary-hover: #484D38;
+  --color-primary-active: #3D4130;
+  --color-secondary: var(--tab-terracotta-deep);
+  --color-secondary-hover: #8F5034;
+  --color-accent: var(--tab-terracotta);
+  --color-accent-soft: #F1DED2;
+  --color-focus: #A85F3A;
+  --color-success: #4F6B4A;
+  --color-warning: #9A6A2F;
+  --color-danger: #9B403C;
+
+  /* Fonts */
+  --font-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: "Manrope", "Helvetica Neue", Arial, sans-serif;
+
+  /* Type sizes */
+  --text-display-xl: 4.5rem;  /* 72px */
+  --text-display-lg: 3.5rem;  /* 56px */
+  --text-h1: 3rem;            /* 48px */
+  --text-h2: 2.25rem;         /* 36px */
+  --text-h3: 1.75rem;         /* 28px */
+  --text-h4: 1.375rem;        /* 22px */
+  --text-body-lg: 1.125rem;   /* 18px */
+  --text-body: 1rem;          /* 16px */
+  --text-body-sm: 0.875rem;   /* 14px */
+  --text-caption: 0.75rem;    /* 12px */
+
+  /* Spacing: 4px base */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(37, 39, 36, 0.08);
+  --shadow-md: 0 8px 24px -8px rgba(37, 39, 36, 0.12);
+  --shadow-lg: 0 18px 48px -16px rgba(37, 39, 36, 0.14);
+
+  /* Layout */
+  --container-max: 1200px;
+  --content-max: 760px;
+  --header-height: 80px;
+  --section-space-desktop: 96px;
+  --section-space-mobile: 64px;
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-standard: cubic-bezier(.2, 0, 0, 1);
+}
+
+/* Canonical typography utilities */
+.tab-display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 6vw, var(--text-display-xl));
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.tab-h1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 4.5vw, var(--text-h1));
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+.tab-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.5vw, var(--text-h2));
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+.tab-h3 {
+  font-family: var(--font-sans);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.tab-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.tab-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Button defaults */
+.tab-button-primary {
+  color: var(--tab-white);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-pill);
+}
+.tab-button-primary:hover { background: var(--color-primary-hover); }
+
+.tab-button-secondary {
+  color: var(--tab-white);
+  background: var(--color-secondary);
+  border: 1px solid var(--color-secondary);
+  border-radius: var(--radius-pill);
+}
+.tab-button-secondary:hover { background: var(--color-secondary-hover); }
+
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
