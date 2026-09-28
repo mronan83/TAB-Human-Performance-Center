@@ -24,6 +24,7 @@ export async function storeInquiry(d: Inquiry, reference: string): Promise<void>
     availability: d.availability ?? [],
     found_via: d.foundVia ?? null,
     topic: d.topic ?? null,
+    message: d.kind === "contact" ? d.message || null : null,
     consent_contact_at: new Date().toISOString(),
     marketing_opt_in: d.marketingOptIn ?? false,
   });

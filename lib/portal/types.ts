@@ -109,6 +109,8 @@ export type Inquiry = {
   availability: string[];
   foundVia?: string;
   topic?: string;
+  /** Contact form only. */
+  message?: string;
   marketingOptIn: boolean;
   clientId?: string;
   clientName?: string;

@@ -28,6 +28,7 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
         ["Anything we should know before finding the right starting point?", labelsFor(considerationOptions, i.considerations)],
       ]
     : [["What can we help with?", labelsFor(topicOptions, i.topic ? [i.topic] : [])]];
+  const message = i.kind === "contact" ? i.message : undefined;
   const healthFlag = i.considerations.includes("health-private");
   const practical: [string, string | undefined][] = [
     ["Email", i.email],
@@ -64,6 +65,12 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
                   </dd>
                 </div>
               ))}
+              {message && (
+                <div>
+                  <dt className="text-sm font-semibold text-text-secondary">Message</dt>
+                  <dd className="mt-1 whitespace-pre-wrap">{message}</dd>
+                </div>
+              )}
             </dl>
           </Panel>
           <Panel title="Contact and practical details">

@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // Every answer is a predefined option (proposed D-059), so the emails carry labels we wrote, plus name/email/phone.
+  // Start answers are all predefined options (proposed D-059); the contact form adds one message box.
   const list = (opts: Parameters<typeof labelsFor>[0], v?: readonly string[]) => labelsFor(opts, v).join("; ") || "—";
   const rows: [string, string][] = [
     ["Name", d.name],
@@ -89,6 +89,9 @@ export async function POST(req: Request) {
     .map(([k, v]) => `<tr><td style="color:#575B53;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
     .join("")}</table>`;
   const plain = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
+  // The contact message goes to TAB only; the submitter's copy never repeats it (RSK-011).
+  const message = !isStart && d.message ? d.message : "";
+  const messageHtml = message ? `<h3 style="${FONT};font-size:15px">Message</h3><p style="${FONT};white-space:pre-wrap">${esc(message)}</p>` : "";
 
   // 1. TAB's copy. GS-004: every Start submission ends with exactly one next step, chosen by whoever replies.
   const subject = isStart ? `Start Where You Are: new submission (${ref})` : `Website message: new submission (${ref})`;
@@ -98,17 +101,20 @@ export async function POST(req: Request) {
   const routing = isStart ? `Next step (choose one): ${routingOptions.map((o) => o.label).join(" · ")}.` : "";
   const savedNote = stored ? `Saved in TAB Practice → Submissions (reference ${ref}).` : "";
   const staffNotes = [healthFlag, routing, savedNote].filter(Boolean);
-  const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2>${table}${staffNotes
+  const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2>${table}${messageHtml}${staffNotes
     .map((n) => `<p style="${FONT};font-size:13px;color:#575B53">${esc(n)}</p>`)
     .join("")}`;
-  const text = [plain, ...staffNotes].join("\n\n");
+  const text = [plain, message && `Message:\n${message}`, ...staffNotes].filter(Boolean).join("\n\n");
   const to = isStart ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
 
-  // 2. The submitter's copy (owner ruling 2026-09-28): their choices, a neutral subject; replies go to TAB.
+  // 2. The submitter's copy (owner ruling 2026-09-28): their details and choices, a neutral subject; replies go to
+  //    TAB. It never repeats a typed message, so the form can't relay someone's text to another address.
   const sendCopy = siteConfig.forms.sendSubmitterCopy && !copyLimited(d.email.toLowerCase());
   const copySubject = `We’ve received your message – ${siteConfig.brand.name}`;
-  const intro = `Hi ${d.name}, thank you for reaching out to ${siteConfig.brand.name}. Here’s a copy of what you sent. ${
-    isStart ? "We’ll reply with a suggested starting point." : "We’ll get back to you soon."
+  const intro = `Hi ${d.name}, thank you for reaching out to ${siteConfig.brand.name}. ${
+    isStart
+      ? "Here’s a copy of what you sent. We’ll reply with a suggested starting point."
+      : "We’ve received your message and will get back to you soon. For your privacy, we don’t repeat your message in this email."
   }`;
   const outro = "If you didn’t send this, you can ignore this email. We’ll ask about anything health-related privately, so please don’t reply with medical details.";
   const copyHtml = `<p style="${FONT};font-size:15px">${esc(intro)}</p>${table}<p style="${FONT};font-size:13px;color:#575B53">${esc(outro)}</p>`;

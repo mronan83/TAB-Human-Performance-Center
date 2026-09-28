@@ -11,13 +11,15 @@ import { trackEvent } from "@/lib/analytics";
 type Errors = Record<string, string[] | undefined>;
 
 /** Field order for moving focus to the first problem after a failed submit. */
-const FIELD_ORDER = ["name", "email", "phone", "topic", "journey", "help", "service", "outcomes", "considerations", "delivery", "availability", "foundVia", "consentContact"];
+const FIELD_ORDER = ["name", "email", "phone", "topic", "message", "journey", "help", "service", "outcomes", "considerations", "delivery", "availability", "foundVia", "consentContact"];
 const PRACTICAL = ["delivery", "availability", "foundVia"];
+/** R-027: the contact message box is the only free text on the site's forms. */
+const NO_MEDICAL = "Please don’t include medical details. We’ll ask about anything health-related privately, when it’s needed.";
 
 /**
  * Start Where You Are (kind="start", GS-001: the S14 §14.4.1 Get Started questions) and general contact
- * (kind="contact") share one accessible form. Every answer is a choice we define (owner ruling 2026-09-28,
- * proposed D-059), so no health details can be typed in. Practical details are progressively disclosed (GS-003).
+ * (kind="contact") share one accessible form. Start answers are all choices we define; contact adds a message box
+ * (owner rulings 2026-09-28, proposed D-059). Practical details are progressively disclosed (GS-003).
  */
 export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -63,7 +65,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
             availability: many("availability"),
             foundVia: one("foundVia"),
           }
-        : { topic: one("topic") }),
+        : { topic: one("topic"), message: one("message") ?? "" }),
       consentContact: fd.get("consentContact") === "on",
       marketingOptIn: fd.get("marketingOptIn") === "on",
       company: one("company") ?? "",
@@ -133,8 +135,9 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
       </Section>
 
       {!isStart && (
-        <Section title="Your question">
+        <Section title="Your message">
           <Choices name="topic" type="radio" legend="What can we help with?" options={topicOptions} error={err("topic")} required />
+          <TextArea id="message" label="Your message" hint={NO_MEDICAL} error={err("message")} required maxLength={3000} />
         </Section>
       )}
 
@@ -228,7 +231,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
       </div>
 
       <button type="submit" className="btn btn-primary" disabled={status === "sending"}>
-        {status === "sending" ? "Sending…" : isStart ? "Send and find my starting point" : "Send"}
+        {status === "sending" ? "Sending…" : isStart ? "Send and find my starting point" : "Send message"}
       </button>
     </form>
   );
@@ -264,6 +267,25 @@ function Field({ id, label, type = "text", error, required, autoComplete, maxLen
         aria-invalid={!!error}
         aria-describedby={describedBy(error && `${id}-err`)}
       />
+      <ErrorText id={id} error={error} />
+    </div>
+  );
+}
+
+function TextArea({ id, label, hint, error, required, maxLength }: { id: string; label: string; hint: string; error?: string; required?: boolean; maxLength?: number }) {
+  return (
+    <div>
+      <label htmlFor={id} className="field-label">{label}</label>
+      <textarea
+        id={id}
+        name={id}
+        className="field-input min-h-36"
+        required={required}
+        maxLength={maxLength}
+        aria-invalid={!!error}
+        aria-describedby={describedBy(`${id}-hint`, error && `${id}-err`)}
+      />
+      <p id={`${id}-hint`} className="field-hint">{hint}</p>
       <ErrorText id={id} error={error} />
     </div>
   );

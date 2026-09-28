@@ -4,8 +4,8 @@
 -- records the routing outcome (S14 §14.4.1, GS-004/005) and links the submission to a client record, which links to
 -- the person's My TAB account by confirmed email (SEC-014).
 --
--- Every answer is a predefined option (owner ruling 2026-09-28, proposed D-059): apart from name, email and phone,
--- nothing typed by a visitor is stored. Storage is written only while the portal runs on Supabase
+-- Start answers are all predefined options (owner rulings 2026-09-28, proposed D-059); the only free text stored
+-- is the contact form's message, which the Start form can never carry (checked below). Storage is written only while the portal runs on Supabase
 -- (config/site.ts `forms.storeSubmissions`), i.e. after the D-042 infrastructure and the Phase 2 security gate.
 
 create type inquiry_kind as enum ('start', 'contact');
@@ -30,6 +30,7 @@ create table inquiries (
   found_via text,
   -- Contact form
   topic text,
+  message text check (char_length(message) <= 3000),  -- SENSITIVE: contact message (asks for no medical details)
   consent_contact_at timestamptz not null,
   marketing_opt_in boolean not null default false,
   -- Owner workflow
@@ -41,6 +42,7 @@ create table inquiries (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+alter table inquiries add constraint inquiries_start_has_no_free_text check (kind = 'contact' or message is null);
 create index on inquiries (lower(email));
 create index on inquiries (client_id);
 create index on inquiries (created_at desc);

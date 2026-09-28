@@ -1,10 +1,12 @@
 import { z } from "zod";
 
 /**
- * Start Where You Are (GS-001) asks the Step 14 §14.4.1 Get Started questions; the contact form is a short
- * subset. Owner ruling 2026-09-28 (proposed D-059): every answer is a choice we define. Apart from name, email
- * and phone (character-restricted), nothing a visitor types reaches our email, the submitter's copy or the
- * database, so there is nowhere to put health details (R-027) or someone else's message (RSK-011).
+ * Start Where You Are (GS-001) asks the Step 14 §14.4.1 Get Started questions; the contact form is a short,
+ * general-purpose form. Owner rulings 2026-09-28 (proposed D-059):
+ * - Start: every answer is a choice we define. Apart from name, email and phone (character-restricted), nothing
+ *   typed on it reaches our email, the submitter's copy or the database.
+ * - Contact: keeps its message box, with the "no medical details" note (R-027). The submitter's copy confirms
+ *   receipt without repeating the message, so the form can't relay someone's text to another address (RSK-011).
  */
 
 type Option = { readonly value: string; readonly label: string };
@@ -161,6 +163,7 @@ export const inquirySchema = z
     foundVia: choice(foundViaOptions),
     // Contact
     topic: choice(topicOptions),
+    message: z.string().trim().max(3000, "Please keep your message under 3,000 characters.").optional(),
     consentContact: z.literal(true, { errorMap: () => ({ message: "Please confirm we can contact you about your inquiry." }) }),
     marketingOptIn: z.boolean().optional(),
     company: z.string().max(200).optional(), // honeypot: humans leave it empty; the route drops filled submissions quietly
@@ -172,7 +175,12 @@ export const inquirySchema = z
     if (d.kind === "contact" && !d.topic) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["topic"], message: "Please choose what we can help with." });
     }
-  });
+    if (d.kind === "contact" && !d.message) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["message"], message: "Please write a short message." });
+    }
+  })
+  // The Start form has no free text: drop a message if one is sent anyway.
+  .transform((d) => (d.kind === "start" ? { ...d, message: undefined } : d));
 
 export type Inquiry = z.infer<typeof inquirySchema>;
 

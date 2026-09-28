@@ -74,9 +74,10 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
    until the Supabase project is on HIPAA-eligible infrastructure with a signed BAA *and* the legal
    review is complete (A-01, R-025). Until then the portal runs on demo data
    (`portal.dataSource = "mock"`).
-5. **No health details by email (D-054, R-027).** Public forms collect no free text: apart from name, email
-   and phone (character-restricted), every answer is a predefined option (proposed D-059). Email subjects never
-   carry personal details. Detailed health intake belongs in My TAB only. Start and contact submissions are
+5. **No health details by email (D-054, R-027).** The Start form collects no free text: apart from name, email
+   and phone (character-restricted), every answer is a predefined option (proposed D-059). The contact form keeps
+   a message box with a "no medical details" note, and the submitter's copy never repeats the message. Email
+   subjects never carry personal details. Detailed health intake belongs in My TAB only. Start and contact submissions are
    emailed to TAB and to the submitter, and saved in the `inquiries` table (whole form, never deleted) only once
    guardrail 4's conditions are met (proposed D-058).
 6. **Analytics (D-046, amended by the owner's DIV-04 ruling, proposed D-057):** Plausible on public pages only,

@@ -90,15 +90,16 @@ check('owner reads audit log', (await as(O,'select count(*)::int n from audit_ev
 
 // Start and contact submissions (DIV-05): owner-only until linked; answers immutable; never deleted
 const I_DANA='44444444-4444-4444-4444-444444444444', I_NEW='55555555-5555-5555-5555-555555555555', I_SAM='66666666-6666-6666-6666-666666666666';
-await superuser(`insert into inquiries (id, reference, kind, name, email, help, topic, consent_contact_at, client_id) values
- ('${I_DANA}','R1','start','Dana','dana@example.com','{stronger}',null,now(),'${DANA}'),
- ('${I_NEW}','R2','start','Casey','casey@example.com','{not-sure}',null,now(),null),
- ('${I_SAM}','R3','contact','Sam','sam@example.com','{}','gift-cards',now(),'${SAM}')`);
+await superuser(`insert into inquiries (id, reference, kind, name, email, help, topic, message, consent_contact_at, client_id) values
+ ('${I_DANA}','R1','start','Dana','dana@example.com','{stronger}',null,null,now(),'${DANA}'),
+ ('${I_NEW}','R2','start','Casey','casey@example.com','{not-sure}',null,null,now(),null),
+ ('${I_SAM}','R3','contact','Sam','sam@example.com','{}','gift-cards','gift card question',now(),'${SAM}')`);
 check('owner reads every submission', (await as(O,'select reference from inquiries order by reference')).map(r=>r.reference), ['R1','R2','R3']);
 check('practitioner reads only submissions linked to assigned clients', (await as(P,'select reference from inquiries')).map(r=>r.reference), ['R1']);
 check('client cannot read submissions, even their own', (await as(C1,'select reference from inquiries')).map(r=>r.reference), []);
 await expectDenied('signed-in client cannot insert a submission', () => as(C1, `insert into inquiries (reference, kind, name, email, consent_contact_at) values ('X1','start','x','x@x.com',now())`));
 await expectDenied('owner cannot insert a submission (server only)', () => as(O, `insert into inquiries (reference, kind, name, email, consent_contact_at) values ('X2','start','x','x@x.com',now())`));
+check('database rejects free text on a Start submission', await attempt(() => superuser(`insert into inquiries (reference, kind, name, email, message, consent_contact_at) values ('X4','start','x','x@x.com','typed text',now())`)), false);
 check('database rejects an over-long name', await attempt(() => superuser(`insert into inquiries (reference, kind, name, email, consent_contact_at) values ('X3','start','${'n'.repeat(81)}','x@x.com',now())`)), false);
 await as(O, `update inquiries set routing_outcome='discovery', routing_note='call first' where id='${I_NEW}'`);
 check('owner records routing, stamped with who and when', (await superuser(`select routing_outcome, routed_by, routed_at is not null as stamped from inquiries where id='${I_NEW}'`))[0], { routing_outcome: 'discovery', routed_by: O, stamped: true });
