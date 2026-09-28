@@ -7,6 +7,7 @@ import { requireClient, requireStaff, isMock } from "@/lib/portal";
 import { siteUrl } from "@/config/site";
 import type { Consent } from "@/lib/portal/types";
 import type { ServiceSlug } from "@/content/services";
+import { routingOptions, type RoutingOutcome } from "@/lib/inquiry";
 
 export async function toggleActivityAction(programId: string, activityId: string, done: boolean) {
   const { clientId, repo } = await requireClient();
@@ -50,6 +51,37 @@ export async function addNoteAction(clientId: string, _prev: unknown, fd: FormDa
   await repo.addNote(clientId, viewer, { body, visibility: fd.get("visibility") === "shared" ? "shared" : "internal", service: (fd.get("service") || undefined) as ServiceSlug | undefined });
   revalidatePath(`/practice/clients/${clientId}`);
   return { ok: true };
+}
+
+/** Start and contact submissions: only the owner records the next step and links client records (RLS enforces the same). */
+async function requireOwner() {
+  const staff = await requireStaff();
+  if (staff.viewer.role !== "owner") throw new Error("Only the owner can manage submissions.");
+  return staff;
+}
+const revalidateInquiry = (id: string) => { revalidatePath("/practice/inquiries"); revalidatePath(`/practice/inquiries/${id}`); };
+
+export async function routeInquiryAction(id: string, fd: FormData) {
+  const { repo } = await requireOwner();
+  const raw = String(fd.get("outcome") ?? "");
+  const outcome = routingOptions.some((o) => o.value === raw) ? (raw as RoutingOutcome) : null;
+  const note = String(fd.get("note") ?? "").trim().slice(0, 2000) || undefined;
+  await repo.routeInquiry(id, outcome, note);
+  revalidateInquiry(id);
+}
+
+export async function linkInquiryAction(id: string, clientId: string) {
+  const { repo } = await requireOwner();
+  await repo.linkInquiries(id, clientId);
+  revalidateInquiry(id);
+  revalidatePath("/practice");
+}
+
+export async function createClientFromInquiryAction(id: string) {
+  const { repo } = await requireOwner();
+  await repo.createClientFromInquiry(id);
+  revalidateInquiry(id);
+  revalidatePath("/practice");
 }
 
 /** Demo only: switch between the client and practitioner views. */

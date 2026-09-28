@@ -1,39 +1,87 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { contactOptions, deliveryOptions, foundViaOptions, helpOptions, inquirySchema, labelFor, serviceOptions } from "@/lib/inquiry";
+import {
+  availabilityOptions, considerationOptions, contactOptions, deliveryOptions, foundViaOptions, helpOptions, inquirySchema, journeyOptions,
+  labelFor, labelsFor, outcomeOptions, routingOptions, serviceOptions, topicOptions,
+} from "@/lib/inquiry";
+import { storeInquiry } from "@/lib/inquiry-store";
+import { MAX_BODY_BYTES, MIN_FILL_MS, duplicateGuard, flagLabels, limiter, sameOrigin, screenText, verifyHuman, type SpamFlag } from "@/lib/spam";
 import { siteConfig } from "@/config/site";
 
-// Best-effort in-memory rate limit (per server instance only). A shared limiter or bot check (Turnstile /
-// BotID / Vercel WAF) is a launch requirement; see docs/requirements-register.md SEC-013.
+// Spam defenses (SEC-013): see lib/spam.ts for the layers and why each exists. The limits below are per server
+// instance; a shared limit at the edge (Vercel Firewall) is the planned complement.
 const WINDOW_MS = 10 * 60_000;
-const hits = new Map<string, number[]>();
-function limited(ip: string) {
-  const now = Date.now();
-  if (hits.size > 5_000) {
-    for (const [key, times] of hits) if (times.every((t) => now - t >= WINDOW_MS)) hits.delete(key);
-  }
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  recent.push(now);
-  hits.set(ip, recent);
-  return recent.length > 5;
-}
+const DAY_MS = 24 * 60 * 60_000;
+const ipLimited = limiter(5, WINDOW_MS);
+/** At most five submissions a day from one email address. */
+const addressLimited = limiter(5, DAY_MS);
+/** At most three copies a day to any one address, so the form can't be used to flood someone's inbox. */
+const copyLimited = limiter(3, DAY_MS);
+/** The same submission twice within ten minutes (a double click or a replay) is sent once. */
+const duplicates = duplicateGuard(WINDOW_MS);
 
 const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 const dash = (v?: string) => v || "—";
 const FONT = "font-family:Arial,sans-serif";
+const json = (body: object, status = 200) => NextResponse.json(body, { status });
+const failed = (status: number) => json({ ok: false, error: `We couldn’t send your message. Please email ${siteConfig.contact.email}.` }, status);
+/** Dropped as spam: answer exactly like a success so bots learn nothing. */
+const quietlyDropped = (reason: string) => {
+  console.info("[inquiry] dropped:", reason);
+  return json({ ok: true });
+};
 
 export async function POST(req: Request) {
+  if (!sameOrigin(req)) return json({ ok: false, error: "Please send this from our website." }, 403);
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (limited(ip)) return NextResponse.json({ ok: false, error: "Too many submissions. Please try again later." }, { status: 429 });
+  if (ipLimited(ip)) return json({ ok: false, error: "Too many submissions. Please try again later." }, 429);
+  if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY_BYTES) return json({ ok: false, error: "That submission is too large." }, 413);
+  const raw = await req.text().catch(() => "");
+  if (raw.length > MAX_BODY_BYTES) return json({ ok: false, error: "That submission is too large." }, 413);
 
-  const parsed = inquirySchema.safeParse(await req.json().catch(() => ({})));
+  const parsed = inquirySchema.safeParse((() => { try { return JSON.parse(raw); } catch { return {}; } })());
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, errors: parsed.error.flatten().fieldErrors }, { status: 422 });
+    return json({ ok: false, errors: parsed.error.flatten().fieldErrors }, 422);
   }
-  const d = { ...parsed.data, name: parsed.data.name.replace(/[\r\n]+/g, " ").trim() };
-  if (d.company) return NextResponse.json({ ok: true }); // bot: pretend success
-  const isStart = d.kind === "start";
+  const { website, elapsedMs, turnstileToken, ...answers } = parsed.data;
+  const d = { ...answers, name: answers.name.replace(/[\r\n]+/g, " ").trim() };
+  if (website) return quietlyDropped("honeypot");
+  if ((elapsedMs ?? 0) < MIN_FILL_MS) return quietlyDropped("filled too fast");
 
+  const flags: SpamFlag[] = [];
+  const human = await verifyHuman(turnstileToken, { ip, action: d.kind, host: req.headers.get("x-forwarded-host") ?? req.headers.get("host") });
+  if (human === "fail") {
+    return json({ ok: false, error: `We couldn’t confirm this came from a person. Please refresh the page and try again, or email us at ${siteConfig.contact.email}.` }, 403);
+  }
+  if (human === "unavailable") flags.push("unverified");
+
+  const screen = screenText(d.kind === "contact" ? d.message : undefined);
+  if (screen === "markup") return quietlyDropped("link markup");
+  if (screen === "links") flags.push("links");
+
+  if (duplicates.seen(d)) return quietlyDropped("duplicate");
+  if (addressLimited(d.email.toLowerCase())) {
+    return json({ ok: false, error: "We’ve already received several messages from this address today. We’ll be in touch soon." }, 429);
+  }
+
+  const isStart = d.kind === "start";
+  // Subjects carry no personal details (D-054, R-027); the reference ties the emails to the stored record.
+  const ref = `${Date.now().toString(36)}${crypto.randomUUID().slice(0, 4)}`.toUpperCase();
+
+  // DIV-05: the whole form is saved (once the D-042 gate is open), then emailed. If saving fails the email
+  // still carries every answer, so the submission isn't lost.
+  let stored = false;
+  if (siteConfig.forms.storeSubmissions) {
+    try {
+      await storeInquiry(d, ref, flags);
+      stored = true;
+    } catch (e) {
+      console.error("[inquiry] store failed", ref, e);
+    }
+  }
+
+  // Start answers are all predefined options (proposed D-059); the contact form adds one message box.
+  const list = (opts: Parameters<typeof labelsFor>[0], v?: readonly string[]) => labelsFor(opts, v).join("; ") || "—";
   const rows: [string, string][] = [
     ["Name", d.name],
     ["Email", d.email],
@@ -42,57 +90,90 @@ export async function POST(req: Request) {
   ];
   if (isStart) {
     rows.push(
-      ["Would like help with", (d.help ?? []).map((v) => labelFor(helpOptions, v)).join("; ") || "—"],
+      ["Starting from", dash(labelFor(journeyOptions, d.journey))],
+      ["Would like help with", list(helpOptions, d.help)],
       ["Service interest", dash(labelFor(serviceOptions, d.service))],
+      ["If things improved", list(outcomeOptions, d.outcomes)],
+      ["Before we start", list(considerationOptions, d.considerations)],
       ["In person or virtual", dash(labelFor(deliveryOptions, d.delivery))],
-      ["Availability", dash(d.availability)],
+      ["Days or times", list(availabilityOptions, d.availability)],
       ["How they found TAB", dash(labelFor(foundViaOptions, d.foundVia))],
     );
+  } else {
+    rows.push(["Topic", dash(labelFor(topicOptions, d.topic))]);
   }
-  rows.push(["Marketing opt-in", d.marketingOptIn ? "Yes" : "No"]);
+  rows.push(["News and events by email", d.marketingOptIn ? "Yes" : "No"]);
 
-  // Free-text answers, in the order the S14 §14.4.1 form asks them; unanswered optional questions are left out.
-  const answers = (
-    isStart
-      ? [
-          ["What brings you to TAB?", d.message],
-          ["If things improved, what would they like to feel, do, or experience differently?", d.improved],
-          ["Anything to know before finding the right starting point?", d.considerations],
-        ]
-      : [["Message", d.message]]
-  ).filter((a): a is [string, string] => !!a[1]);
-
-  // Subjects carry no personal details (D-054, R-027); the reference only helps thread replies.
-  const ref = Date.now().toString(36).toUpperCase();
-  const subject = isStart ? `Start Where You Are: new submission (${ref})` : `Website message: new submission (${ref})`;
-  // GS-004: every Start submission ends with exactly one next step, chosen by whoever replies.
-  const routing = isStart
-    ? "Next step (choose one): direct booking, a brief discovery conversation, a service-specific intake, more information needed, or an outside referral."
-    : "";
-  const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2><table cellpadding="6" style="${FONT};font-size:14px">${rows
+  const table = `<table cellpadding="6" style="${FONT};font-size:14px">${rows
     .map(([k, v]) => `<tr><td style="color:#575B53;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
-    .join("")}</table>${answers
-    .map(([q, a]) => `<h3 style="${FONT};font-size:15px">${esc(q)}</h3><p style="${FONT};white-space:pre-wrap">${esc(a)}</p>`)
-    .join("")}${routing && `<p style="${FONT};font-size:13px;color:#575B53">${esc(routing)}</p>`}`;
-  const text = [rows.map(([k, v]) => `${k}: ${v}`).join("\n"), ...answers.map(([q, a]) => `${q}\n${a}`), routing].filter(Boolean).join("\n\n");
+    .join("")}</table>`;
+  const plain = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
+  // The contact message goes to TAB only; the submitter's copy never repeats it (RSK-011).
+  const message = !isStart && d.message ? d.message : "";
+  const messageHtml = message ? `<h3 style="${FONT};font-size:15px">Message</h3><p style="${FONT};white-space:pre-wrap">${esc(message)}</p>` : "";
+
+  // 1. TAB's copy. GS-004: every Start submission ends with exactly one next step, chosen by whoever replies.
+  const subject = `${flags.length ? "[Check] " : ""}${isStart ? "Start Where You Are" : "Website message"}: new submission (${ref})`;
+  const flagNote = flags.length ? `Possible spam: ${flags.map((f) => flagLabels[f]).join("; ")}. No copy was sent to the submitter.` : "";
+  const healthFlag = d.considerations?.includes("health-private")
+    ? "They’d like to discuss something health-related privately: follow up before anything is booked."
+    : "";
+  const routing = isStart ? `Next step (choose one): ${routingOptions.map((o) => o.label).join(" · ")}.` : "";
+  const savedNote = stored ? `Saved in TAB Practice → Submissions (reference ${ref}).` : "";
+  const staffNotes = [flagNote, healthFlag, routing, savedNote].filter(Boolean);
+  const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2>${table}${messageHtml}${staffNotes
+    .map((n) => `<p style="${FONT};font-size:13px;color:#575B53">${esc(n)}</p>`)
+    .join("")}`;
+  const text = [plain, message && `Message:\n${message}`, ...staffNotes].filter(Boolean).join("\n\n");
   const to = isStart ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
+
+  // 2. The submitter's copy (owner ruling 2026-09-28): their details and choices, a neutral subject; replies go to
+  //    TAB. It never repeats a typed message, so the form can't relay someone's text to another address.
+  // Flagged submissions never trigger a copy: a flagged form is the likeliest to carry someone else's address.
+  const sendCopy = siteConfig.forms.sendSubmitterCopy && flags.length === 0 && !copyLimited(d.email.toLowerCase());
+  const copySubject = `We’ve received your message – ${siteConfig.brand.name}`;
+  const intro = `Hi ${d.name}, thank you for reaching out to ${siteConfig.brand.name}. ${
+    isStart
+      ? "Here’s a copy of what you sent. We’ll reply with a suggested starting point."
+      : "We’ve received your message and will get back to you soon. For your privacy, we don’t repeat your message in this email."
+  }`;
+  const outro = "If you didn’t send this, you can ignore this email. We’ll ask about anything health-related privately, so please don’t reply with medical details.";
+  const copyHtml = `<p style="${FONT};font-size:15px">${esc(intro)}</p>${table}<p style="${FONT};font-size:13px;color:#575B53">${esc(outro)}</p>`;
+  const copyText = [intro, plain, outro].join("\n\n");
+
+  /** Delivered (stored or emailed to TAB): only now does a repeat count as a duplicate. */
+  const delivered = (body: object) => {
+    duplicates.remember(d);
+    return json({ ok: true, ...body });
+  };
 
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     if (process.env.NODE_ENV !== "production") {
       console.info("[inquiry] RESEND_API_KEY not set; would send to", to, `\n${subject}\n\n${text}`);
-      return NextResponse.json({ ok: true, dev: true });
+      if (sendCopy) console.info("[inquiry] and a copy to the submitter:", `\n${copySubject}\n\n${copyText}`);
+      return delivered({ dev: true, copy: sendCopy });
     }
-    return NextResponse.json({ ok: false, error: `We couldn’t send your message. Please email ${siteConfig.contact.email}.` }, { status: 503 });
+    return stored ? delivered({ copy: false }) : failed(503);
   }
 
+  const resend = new Resend(key);
   try {
-    const resend = new Resend(key);
     const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to, replyTo: d.email, subject, html, text });
     if (error) throw new Error(error.message);
-    return NextResponse.json({ ok: true });
   } catch (e) {
-    console.error("[inquiry] send failed", e);
-    return NextResponse.json({ ok: false, error: `We couldn’t send your message. Please email ${siteConfig.contact.email}.` }, { status: 502 });
+    console.error("[inquiry] send failed", ref, e);
+    if (!stored) return failed(502);
   }
+  let copied = false;
+  if (sendCopy) {
+    try {
+      const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to: d.email, replyTo: siteConfig.contact.email, subject: copySubject, html: copyHtml, text: copyText });
+      if (error) throw new Error(error.message);
+      copied = true;
+    } catch (e) {
+      console.error("[inquiry] submitter copy failed", ref, e); // TAB already has the submission; don't fail the request
+    }
+  }
+  return delivered({ copy: copied });
 }

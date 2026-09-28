@@ -20,6 +20,7 @@ export const clientNav: PortalNavItem[] = [
 
 export const practiceNav: PortalNavItem[] = [
   { href: "/practice", label: "Clients", icon: "clients" },
+  { href: "/practice/inquiries", label: "Submissions", icon: "inbox" },
   { href: "/practice/programs", label: "Program library", icon: "programs" },
 ];
 

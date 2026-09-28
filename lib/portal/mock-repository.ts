@@ -4,7 +4,7 @@
  */
 import type {
   Activity, Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate,
-  MetricDefinition, Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, Viewer,
+  Inquiry, MetricDefinition, Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, Viewer,
 } from "./types";
 
 const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
@@ -112,6 +112,7 @@ type Store = {
   reviews: Record<string, Review[]>;
   consents: Record<string, Consent[]>;
   entitlements: Record<string, Entitlement[]>;
+  inquiries: Inquiry[];
 };
 
 function seed(): Store {
@@ -120,7 +121,7 @@ function seed(): Store {
     { id: "demo-client-marcus", fullName: "Marcus Lee", status: "active", methodStage: "align", services: ["personal-strength-training"], delivery: "In person", lastCheckIn: weekStart(0) },
     { id: "demo-client-ruth", fullName: "Ruth Alvarez", status: "active", methodStage: "start", services: ["massage-bodywork"], delivery: "In person" },
     { id: "demo-client-keisha", fullName: "Keisha Morgan", status: "paused", methodStage: "become", services: ["holistic-life-coaching"], delivery: "Virtual", lastCheckIn: weekStart(-4) },
-    { id: "demo-client-tom", fullName: "Tom Brennan", status: "prospect", methodStage: "start", services: [], delivery: "Either" },
+    { id: "demo-client-tom", fullName: "Tom Brennan", email: "tom.brennan@example.com", status: "prospect", methodStage: "start", services: [], delivery: "Either" },
   ];
   const progress: ProgressEntry[] = [];
   const series: Record<string, number[]> = { strength_sessions: [1, 2, 2, 3, 2, 3], sleep_hours: [5.8, 6.0, 6.1, 6.4, 6.3, 6.7], energy: [2, 2, 3, 3, 3, 4], stress: [4, 4, 4, 3, 3, 3], comfort: [2, 3, 3, 3, 4, 4] };
@@ -176,6 +177,21 @@ function seed(): Store {
       { type: "marketing_sms", label: "Occasional text messages", granted: false, required: false },
     ]},
     entitlements: { [DEMO_CLIENT_ID]: [] },
+    // Fictional Start and contact submissions for reviewing the owner workflow.
+    inquiries: [
+      { id: "inq-jordan", reference: "DEMO-3", kind: "start", receivedAt: at(-1, 19), name: "Jordan Price", email: "jordan.price@example.com", phone: "", contactPreference: "email",
+        journey: "exploring", help: ["feel-better", "stronger", "not-sure"], serviceInterest: "not-sure", outcomes: ["energy", "strength", "keep-up"],
+        considerations: ["talk-first", "schedule"], delivery: "either", availability: ["weekday-evenings"], foundVia: "search", marketingOptIn: true, flags: [] },
+      { id: "inq-alex", reference: "DEMO-2", kind: "contact", receivedAt: at(-2, 13), name: "Alex Rivera", email: "alex.rivera@example.com", contactPreference: "phone",
+        topic: "gift-cards", message: "Do you still offer gift cards? I’d like one for my sister’s birthday next month.", help: [], outcomes: [], considerations: [], availability: [], marketingOptIn: false, flags: [] },
+      { id: "inq-flagged", reference: "DEMO-4", kind: "contact", receivedAt: at(-3, 3), name: "Pat Example", email: "pat.example@example.com", contactPreference: "email",
+        topic: "partnerships", message: "Hello, we help wellness studios grow. See our offer at https://example.com/offer", help: [], outcomes: [], considerations: [], availability: [],
+        marketingOptIn: false, flags: ["links"] },
+      { id: "inq-tom", reference: "DEMO-1", kind: "start", receivedAt: at(-6, 10), name: "Tom Brennan", email: "tom.brennan@example.com", contactPreference: "phone",
+        journey: "ready", help: ["stronger", "movement", "exercise"], serviceInterest: "personal-strength-training", outcomes: ["independence", "keep-up"],
+        considerations: ["health-private"], delivery: "in-person", availability: ["weekday-mornings"], foundVia: "friend", marketingOptIn: false, flags: [],
+        clientId: "demo-client-tom", clientName: "Tom Brennan", routingOutcome: "discovery", routingNote: "Call booked for Thursday.", routedAt: at(-5, 9) },
+    ],
   };
 }
 
@@ -246,4 +262,39 @@ export const mockRepository: PortalRepository = {
   async listNotes(clientId, includeInternal) { return clone((store.notes[clientId] ?? []).filter((n) => includeInternal || n.visibility === "shared")); },
   async addNote(clientId, viewer, note) { (store.notes[clientId] ??= []).unshift({ id: `n${Date.now()}`, date: day(0), author: viewer.name, ...note }); },
   async listProgramTemplates() { return clone([strengthTemplate, restTemplate]); },
+  async listInquiries() { return clone([...store.inquiries].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt))); },
+  async getInquiry(id) {
+    const inquiry = store.inquiries.find((i) => i.id === id);
+    if (!inquiry) return null;
+    const email = inquiry.email.toLowerCase();
+    return clone({
+      inquiry,
+      matches: store.clients.filter((c) => c.email?.toLowerCase() === email && c.id !== inquiry.clientId),
+      related: store.inquiries.filter((i) => i.id !== id && i.email.toLowerCase() === email),
+    });
+  },
+  async routeInquiry(id, outcome, note) {
+    const i = store.inquiries.find((x) => x.id === id);
+    if (!i) return;
+    if (i.routingOutcome !== (outcome ?? undefined)) i.routedAt = outcome ? new Date().toISOString() : undefined;
+    i.routingOutcome = outcome ?? undefined;
+    i.routingNote = note;
+  },
+  async linkInquiries(id, clientId) {
+    const inquiry = store.inquiries.find((x) => x.id === id);
+    const client = store.clients.find((c) => c.id === clientId);
+    if (!inquiry || !client) return 0;
+    const email = inquiry.email.toLowerCase();
+    const targets = store.inquiries.filter((i) => i.id === id || (!i.clientId && i.email.toLowerCase() === email));
+    targets.forEach((i) => { i.clientId = client.id; i.clientName = client.fullName; });
+    return targets.length;
+  },
+  async createClientFromInquiry(id) {
+    const inquiry = store.inquiries.find((x) => x.id === id);
+    if (!inquiry) throw new Error("Submission not found");
+    const client: Client = { id: `demo-client-${Date.now()}`, fullName: inquiry.name, email: inquiry.email, phone: inquiry.phone, status: "prospect", methodStage: "start", services: [] };
+    store.clients.push(client);
+    await this.linkInquiries(id, client.id);
+    return client.id;
+  },
 };

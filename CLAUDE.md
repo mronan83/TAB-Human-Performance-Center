@@ -74,9 +74,12 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
    until the Supabase project is on HIPAA-eligible infrastructure with a signed BAA *and* the legal
    review is complete (A-01, R-025). Until then the portal runs on demo data
    (`portal.dataSource = "mock"`).
-5. **No health details by email (D-054, R-027).** Public forms tell visitors not to include medical
-   information, and email subjects never carry personal details. Detailed health intake belongs in
-   My TAB only.
+5. **No health details by email (D-054, R-027).** The Start form collects no free text: apart from name, email
+   and phone (character-restricted), every answer is a predefined option (proposed D-059). The contact form keeps
+   a message box with a "no medical details" note, and the submitter's copy never repeats the message. Email
+   subjects never carry personal details. Detailed health intake belongs in My TAB only. Start and contact submissions are
+   emailed to TAB and to the submitter, and saved in the `inquiries` table (whole form, never deleted) only once
+   guardrail 4's conditions are met (proposed D-058).
 6. **Analytics (D-046, amended by the owner's DIV-04 ruling, proposed D-057):** Plausible on public pages only,
    including `/start`, where it counts the funnel with fixed, property-less events (`lib/analytics.ts`); never
    on `/my-tab`, `/practice` or `/contact`. Ad pixels only when paid ads start, and never on `/my-tab`,
@@ -100,6 +103,8 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
   interface, then implement it in **both** `mock-repository.ts` and `supabase-repository.ts`.
 - Mutations are server actions in `app/(portal)/actions.ts`; each calls `requireClient()` or
   `requireStaff()`.
+- Public forms post to `/api/inquiry`, which applies the spam layers in `lib/spam.ts` (SEC-013). New public
+  forms use the same route and layers.
 - Row-level security is the access control. Any new client-data table needs RLS policies, an audit
   trigger and a test in `supabase/tests/rls.test.mjs`.
 - Model for a team, build for one (D-045): roles `owner | practitioner | client`; practitioners see

@@ -1,5 +1,6 @@
 /** Domain types for My TAB. They mirror supabase/migrations/*_my_tab_core.sql. */
 import type { ServiceSlug } from "@/content/services";
+import type { RoutingOutcome } from "@/lib/inquiry";
 
 export type Role = "owner" | "practitioner" | "client";
 export type MethodStage = "start" | "transform" | "align" | "become" | "evolve";
@@ -89,6 +90,45 @@ export type Dashboard = {
   latestSharedReview?: Review;
 };
 
+/** A Start Where You Are or contact submission (supabase/migrations/*_inquiries.sql). Answers are option values. */
+export type Inquiry = {
+  id: string;
+  reference: string;
+  kind: "start" | "contact";
+  receivedAt: string;
+  name: string;
+  email: string;
+  phone?: string;
+  contactPreference?: string;
+  journey?: string;
+  help: string[];
+  serviceInterest?: string;
+  outcomes: string[];
+  considerations: string[];
+  delivery?: string;
+  availability: string[];
+  foundVia?: string;
+  topic?: string;
+  /** Contact form only. */
+  message?: string;
+  /** Spam signals recorded when it arrived (lib/spam.ts). */
+  flags: string[];
+  marketingOptIn: boolean;
+  clientId?: string;
+  clientName?: string;
+  routingOutcome?: RoutingOutcome;
+  routingNote?: string;
+  routedAt?: string;
+};
+
+export type InquiryDetail = {
+  inquiry: Inquiry;
+  /** Client records with the same email that this submission isn't linked to yet. */
+  matches: Client[];
+  /** Other submissions from the same email address. */
+  related: Inquiry[];
+};
+
 export interface PortalRepository {
   // Client-facing
   getDashboard(clientId: string): Promise<Dashboard>;
@@ -118,4 +158,12 @@ export interface PortalRepository {
   listNotes(clientId: string, includeInternal: boolean): Promise<SessionNote[]>;
   addNote(clientId: string, viewer: Viewer, note: { body: string; visibility: "internal" | "shared"; service?: ServiceSlug }): Promise<void>;
   listProgramTemplates(): Promise<ProgramTemplate[]>;
+  // Start and contact submissions (owner: all; practitioners: only those linked to assigned clients)
+  listInquiries(): Promise<Inquiry[]>;
+  getInquiry(id: string): Promise<InquiryDetail | null>;
+  routeInquiry(id: string, outcome: RoutingOutcome | null, note?: string): Promise<void>;
+  /** Links this submission, and every unlinked one from the same email, to the client. Returns how many were linked. */
+  linkInquiries(id: string, clientId: string): Promise<number>;
+  /** Creates a prospect client record from the submission, then links by email. Returns the new client id. */
+  createClientFromInquiry(id: string): Promise<string>;
 }
