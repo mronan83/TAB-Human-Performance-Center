@@ -37,12 +37,13 @@ _Last updated: 2026-09-28, after #12 merged._
 
 | ID | Item | Category | Owner | Depends on |
 |---|---|---|---|---|
-| C3 | **Next PR.** Portal security hardening: close the 5 known gaps [SEC-015 to SEC-020] | Security | Claude | |
+| C3 | **In PR #13.** Portal security hardening, part 1: SEC-015 to SEC-018 done, the 5 known gaps closed (71 checks, 0 gaps); audit log read-only [SEC-015 to SEC-019] | Security | Claude | |
+| C3b | Portal security hardening, part 2: internal notes in a private schema behind audited functions, audit drain [SEC-019]; secure session cookies, transactional Stripe webhook [SEC-020] | Security | Claude | |
 | C4 | Admin tools in TAB Practice: invite to My TAB, write and edit the plan, progress reviews, assign resources and forms, shared summaries [GAP-023, STAFF-005/006/010, PORTAL-011] | Portal | Claude | |
-| C5 | Sign-in plumbing: invite confirmation route, Site URL and redirects, sign-in email through Resend, staff MFA enrolment [SEC-014, SEC-015] | Portal | Claude | A1, A2 |
+| C5 | Sign-in plumbing: invite confirmation route, Site URL and redirects, sign-in email through Resend, staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | A1, A2 |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | |
 | A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | |
-| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | C3–C6, A7, A14 |
+| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | C3–C6, C3b, A7, A14 |
 | A16 | Pilot with 3–5 existing clients, then open My TAB to everyone | Operations | Owner | A15 |
 
 ## P3 · Later or optional

@@ -115,7 +115,10 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
   `/practice`). A new third-party script, frame, image, font or API host must be added there;
   `e2e/security.spec.ts` fails on any violation.
 - Row-level security is the access control. Any new client-data table needs RLS policies, an audit
-  trigger and a test in `supabase/tests/rls.test.mjs`.
+  trigger and a test in `supabase/tests/rls.test.mjs`. Reuse the security-gate helpers
+  (`supabase/migrations/20260929000000_portal_security_gate.sql`): `guard_client_columns` for what a client may
+  change, `stamp_author` for who wrote a row, `guard_same_client` for links between client records. Staff access
+  counts only in two-step-verified sessions (`current_app_role()`).
 - Model for a team, build for one (D-045): roles `owner | practitioner | client`; practitioners see
   only assigned clients.
 

@@ -8,8 +8,9 @@
 //                         GAP while still open. When it closes, the run fails until the test is moved into the
 //                         enforced checks, so a fix can't go unrecorded. Phase 2 go-live requires zero GAP lines.
 //
-// PGlite can't reproduce Supabase JWT claims, MFA assurance levels, signup or default grants; those need a
-// `supabase start` + pgTAP run before Phase 2 (SEC-021).
+// The stub mimics what the policies read from Supabase: auth.uid(), auth.jwt() (with the session's MFA level, `aal`)
+// and Supabase's default table grants (ALL, including TRUNCATE, to anon and authenticated). Real JWT verification,
+// signup and grants still need a `supabase start` + pgTAP run before Phase 2 (SEC-021).
 import { PGlite } from "@electric-sql/pglite";
 import fs from "fs";
 const db = new PGlite();
@@ -17,33 +18,54 @@ const stub = `
 create schema auth; create schema storage;
 create table auth.users (id uuid primary key, email text, email_confirmed_at timestamptz, raw_user_meta_data jsonb default '{}');
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true),'')::uuid $$;
+create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('test.jwt', true),''), '{}')::jsonb $$;
 create table storage.buckets (id text primary key, name text, public boolean);
 create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
 alter table storage.objects enable row level security;
 create function storage.foldername(name text) returns text[] language sql as $$ select string_to_array(name,'/') $$;
-create role authenticated;
+create role authenticated; create role anon;
+grant usage on schema public, auth to authenticated, anon;
+alter default privileges in schema public grant all on tables to authenticated, anon;
+alter default privileges in schema public grant all on sequences to authenticated, anon;
 `;
 await db.exec(stub);
 for (const file of process.argv.slice(2)) await db.exec(fs.readFileSync(file, "utf8"));
-await db.exec(`grant usage on schema public, auth to authenticated; grant all on all tables in schema public to authenticated; grant all on all sequences in schema public to authenticated;`);
 // Seed: owner, practitioner, two clients (one assigned)
 const O='00000000-0000-0000-0000-00000000000a', P='00000000-0000-0000-0000-00000000000b', C1='00000000-0000-0000-0000-00000000000c', C2='00000000-0000-0000-0000-00000000000d';
+const P2='00000000-0000-0000-0000-00000000000f';
 const DANA='11111111-1111-1111-1111-111111111111', SAM='22222222-2222-2222-2222-222222222222';
+const T_DRAFT='33333333-3333-3333-3333-333333333333', T_PUB='77777777-7777-7777-7777-777777777777';
+const F_ASSIGNED='88888888-8888-8888-8888-888888888881', F_OTHER='88888888-8888-8888-8888-888888888882';
+const CP_SAM='99999999-9999-9999-9999-999999999999', COHORT='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
 await db.exec(`
 insert into clients (id, full_name, email) values ('${DANA}','Dana','dana@example.com'),('${SAM}','Sam','sam@example.com');
-insert into auth.users (id,email,email_confirmed_at) values ('${O}','owner@x.com',now()),('${P}','prac@x.com',now()),('${C1}','dana@example.com',now()),('${C2}','sam@example.com',now());
-update profiles set role='owner' where id='${O}'; update profiles set role='practitioner' where id='${P}';
-insert into practitioners (id, display_name) values ('${P}','Pat');
+insert into auth.users (id,email,email_confirmed_at) values ('${O}','owner@x.com',now()),('${P}','prac@x.com',now()),('${C1}','dana@example.com',now()),('${C2}','sam@example.com',now()),('${P2}','prac2@x.com',now());
+update profiles set role='owner' where id='${O}'; update profiles set role='practitioner' where id in ('${P}','${P2}');
+insert into practitioners (id, display_name) values ('${P}','Pat'),('${P2}','Quinn');
 insert into practitioner_assignments (client_id, practitioner_id) values ('${DANA}','${P}');
 insert into session_notes (client_id, practitioner_id, body, visibility) values
  ('${DANA}','${P}','internal note','internal'),('${DANA}','${P}','shared summary','shared');
 insert into wellness_plans (client_id, title, visible_to_client) values ('${DANA}','Visible plan',true),('${DANA}','Draft plan',false);
 insert into resource_assignments (client_id, resource_ref, title) values ('${DANA}','free-guide','Free guide');
-insert into program_templates (id, slug, title, service, status) values ('33333333-3333-3333-3333-333333333333','draft-course','Draft course','personal-strength-training','draft');
-insert into program_modules (template_id, title, body_md) values ('33333333-3333-3333-3333-333333333333','Week 1','Paid content');
+insert into program_templates (id, slug, title, service, status) values ('${T_DRAFT}','draft-course','Draft course','personal-strength-training','draft'),
+ ('${T_PUB}','published-course','Published course','personal-strength-training','published');
+insert into program_modules (template_id, title, body_md) values ('${T_DRAFT}','Week 1','Paid content'),('${T_PUB}','Week 1 published','Program content');
+insert into client_programs (client_id, template_id) values ('${DANA}','${T_PUB}');
+insert into client_programs (id, client_id, template_id) values ('${CP_SAM}','${SAM}','${T_PUB}');
+insert into form_templates (id, slug, title, schema, status) values ('${F_ASSIGNED}','intake','Intake','{}','published'),('${F_OTHER}','other','Other','{}','published');
+insert into form_assignments (client_id, template_id) values ('${DANA}','${F_ASSIGNED}');
+insert into referrals (client_id, target, reason) values ('${DANA}','internal_service','Try strength training');
+insert into cohorts (id, title, program_template_id) values ('${COHORT}','Autumn cohort','${T_PUB}');
+insert into cohort_meetings (cohort_id, meeting_url) values ('${COHORT}','https://meet.example.com/secret');
+insert into cohort_members (cohort_id, client_id) values ('${COHORT}','${DANA}');
 `);
-const as = async (uid, sql) => { await db.exec(`set role authenticated; select set_config('test.uid','${uid}',false);`); try { return (await db.query(sql)).rows; } finally { await db.exec(`reset role;`); } };
-const superuser = async (sql) => (await db.query(sql)).rows;
+// A signed-in user. `aal` is the session's MFA level (Supabase JWT claim); staff access needs aal2 (SEC-015).
+const as = async (uid, sql, aal = 'aal2') => {
+  await db.exec(`set role authenticated; select set_config('test.uid','${uid}',false), set_config('test.jwt','{"aal":"${aal}"}',false);`);
+  try { return (await db.query(sql)).rows; } finally { await db.exec(`reset role;`); }
+};
+// The service role: no signed-in user, row-level security bypassed.
+const superuser = async (sql) => { await db.exec(`select set_config('test.uid','',false), set_config('test.jwt','',false);`); return (await db.query(sql)).rows; };
 
 let failures = 0;
 const check = (label, got, want) => {
@@ -52,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|permission denied|Only the owner can change roles|Clients may only update their own contact details|Submitted answers cannot be changed|kept indefinitely/i;
+const DENIED = /row-level security|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -120,21 +142,70 @@ check('unconfirmed account does not claim a client record', (await superuser(`se
 await superuser(`update auth.users set email_confirmed_at=now() where id='${X}'`);
 check('confirming the email links the client record', (await superuser(`select full_name from clients where profile_id='${X}'`)).map(r=>r.full_name), ['Casey']);
 
-// Known gaps from the 2026-09-28 security review (Phase 2 hardening closes these; see SEC-014..SEC-020)
-await knownGap('staff can switch off their own MFA requirement (SEC-015)', async () => {
-  await attempt(() => as(P, `update profiles set mfa_required=false where id='${P}'`));
-  return (await superuser(`select mfa_required from profiles where id='${P}'`))[0].mfa_required === false;
-});
-await knownGap('client can rewrite resource_ref on an assigned resource (SEC-016)', async () => {
-  await attempt(() => as(C1, `update resource_assignments set resource_ref='paid-course' where client_id='${DANA}'`));
-  return (await superuser(`select resource_ref from resource_assignments where client_id='${DANA}'`))[0].resource_ref === 'paid-course';
-});
-await knownGap('client can backdate a consent and set its source (SEC-016)', async () =>
-  attempt(() => as(C1, `insert into consents (client_id, type, version, granted, granted_at, source) values ('${DANA}','privacy','v1',true,'2000-01-01','staff')`)));
-await knownGap('any signed-in user can read draft program modules (SEC-017)', async () =>
-  (await as(C2, `select title from program_modules`)).length > 0);
-await knownGap("practitioner can read an unassigned client's profile email (SEC-018)", async () =>
-  (await as(P, `select email from profiles where id='${C2}'`)).length > 0);
+// Portal security gate, part 1 (SEC-015 to SEC-018; 2026-09-28 security review). The five former known gaps are
+// the first check in each group.
+
+// SEC-015: staff MFA
+await expectDenied('staff cannot switch off their own MFA requirement', () => as(P, `update profiles set mfa_required=false where id='${P}'`));
+check('MFA requirement unchanged', (await superuser(`select mfa_required from profiles where id='${P}'`))[0].mfa_required, true);
+check('practitioner without MFA sees no client records', (await as(P, 'select full_name from clients', 'aal1')).map(r=>r.full_name), []);
+check('owner without MFA sees no submissions', (await as(O, 'select reference from inquiries', 'aal1')).map(r=>r.reference), []);
+check('clients do not need MFA', (await as(C1, 'select full_name from clients', 'aal1')).map(r=>r.full_name), ['Dana']);
+await expectDenied('client cannot change their profile email', () => as(C1, `update profiles set email='x@evil.com' where id='${C1}'`));
+await as(C1, `update profiles set preferred_name='D' where id='${C1}'`);
+check('client can change their preferred name', (await superuser(`select preferred_name from profiles where id='${C1}'`))[0].preferred_name, 'D');
+
+// SEC-016: clients change only what is theirs to change
+await expectDenied('client cannot rewrite resource_ref on an assigned resource', () => as(C1, `update resource_assignments set resource_ref='paid-course' where client_id='${DANA}'`));
+check('resource_ref unchanged', (await superuser(`select resource_ref from resource_assignments where client_id='${DANA}'`))[0].resource_ref, 'free-guide');
+await as(C1, `update resource_assignments set viewed_at=now() where client_id='${DANA}'`);
+check('client can mark a resource viewed', (await superuser(`select viewed_at is not null v from resource_assignments where client_id='${DANA}'`))[0].v, true);
+await as(C1, `insert into consents (client_id, type, version, granted, granted_at, source) values ('${DANA}','privacy','v1',true,'2000-01-01','staff')`);
+check('consent is stamped by the server: no backdating, no forged source', (await superuser(`select granted_at > now() - interval '1 minute' as recent, source from consents where client_id='${DANA}' and type='privacy'`))[0], { recent: true, source: 'portal' });
+await as(C1, `insert into consents (client_id, type, version, granted) values ('${DANA}','privacy','v1',false)`);
+check('withdrawing consent adds a stamped row; history kept', (await superuser(`select granted, revoked_at is not null as revoked from consents where client_id='${DANA}' and type='privacy' order by granted desc`)), [{ granted: true, revoked: false }, { granted: false, revoked: true }]);
+await as(C1, `update consents set granted=true, granted_at='2000-01-01' where client_id='${DANA}'`);
+await as(O, `delete from consents where client_id='${DANA}'`);
+check('nobody edits or deletes a consent record', (await superuser(`select count(*)::int n, min(granted_at) > '2001-01-01' as untouched from consents where client_id='${DANA}'`))[0], { n: 2, untouched: true });
+await expectDenied('client cannot change their own email on the client record', () => as(C1, `update clients set email='x@evil.com' where id='${DANA}'`));
+await expectDenied('client cannot answer a form that was not assigned', () => as(C1, `insert into form_submissions (client_id, template_id, answers, status) values ('${DANA}','${F_OTHER}','{}','submitted')`));
+await as(C1, `insert into form_submissions (client_id, template_id, answers, status, submitted_at) values ('${DANA}','${F_ASSIGNED}','{"a":1}','submitted','2000-01-01')`);
+check('submit time is the server\'s', (await superuser(`select submitted_at > now() - interval '1 minute' as recent from form_submissions where client_id='${DANA}'`))[0].recent, true);
+await expectDenied('client cannot mark their own submission reviewed', () => as(C1, `insert into form_submissions (client_id, template_id, status) values ('${DANA}','${F_ASSIGNED}','reviewed')`));
+await as(P, `update form_submissions set status='reviewed', reviewed_by='${P2}', reviewed_at='2000-01-01' where client_id='${DANA}'`);
+check('a review is stamped with who and when', (await superuser(`select reviewed_by, reviewed_at > '2001-01-01' as recent from form_submissions where client_id='${DANA}'`))[0], { reviewed_by: P, recent: true });
+await as(C1, `update referrals set status='accepted' where client_id='${DANA}'`);
+check('client can accept a referral', (await superuser(`select status from referrals where client_id='${DANA}'`))[0].status, 'accepted');
+await expectDenied('client cannot rewrite a referral', () => as(C1, `update referrals set reason='something else' where client_id='${DANA}'`));
+await expectDenied('client cannot mark a referral completed', () => as(C1, `update referrals set status='completed' where client_id='${DANA}'`));
+await expectDenied("client cannot log activity against another client's program", () => as(C1, `insert into activity_logs (client_id, client_program_id) values ('${DANA}','${CP_SAM}')`));
+
+// SEC-017: program content and cohort links
+check('clients cannot read draft program modules', (await as(C2, `select title from program_modules where template_id='${T_DRAFT}'`)).map(r=>r.title), []);
+check('enrolled client reads their published program only', (await as(C1, 'select title from program_modules order by title')).map(r=>r.title), ['Week 1 published']);
+await superuser(`delete from client_programs where id='${CP_SAM}'`);
+check('client not enrolled or entitled reads no program content', (await as(C2, 'select title from program_modules')).map(r=>r.title), []);
+check('staff read all program content', (await as(P, 'select title from program_modules order by title')).map(r=>r.title), ['Week 1', 'Week 1 published']);
+check('cohort member reads the meeting link', (await as(C1, 'select meeting_url from cohort_meetings')).length, 1);
+check('non-member cannot read the meeting link', (await as(C2, 'select meeting_url from cohort_meetings')).length, 0);
+
+// SEC-018: practitioners stay within their care team
+check("practitioner cannot read an unassigned client's profile", (await as(P, `select email from profiles where id='${C2}'`)).length, 0);
+check("practitioner reads their own client's profile", (await as(P, `select email from profiles where id='${C1}'`)).length, 1);
+await expectDenied("practitioner cannot change a client's account link", () => as(P, `update clients set profile_id=null where id='${DANA}'`));
+await expectDenied("practitioner cannot change a client's billing link", () => as(P, `update clients set stripe_customer_id='cus_x' where id='${DANA}'`));
+await as(P, `insert into session_notes (client_id, practitioner_id, body) values ('${DANA}','${P2}','note claiming another author')`);
+check('note author is the signed-in practitioner', (await superuser(`select practitioner_id from session_notes where body='note claiming another author'`))[0].practitioner_id, P);
+await expectDenied('practitioner cannot add an unassigned client to a cohort', () => as(P, `insert into cohort_members (cohort_id, client_id) values ('${COHORT}','${SAM}')`));
+await superuser(`update practitioners set active=false where id='${P}'`);
+check('deactivated practitioner loses access', (await as(P, 'select full_name from clients')).map(r=>r.full_name), []);
+await superuser(`update practitioners set active=true where id='${P}'`);
+
+// SEC-019 (part): the audit log is read-only for signed-in users, and role changes are recorded
+await expectDenied('signed-in users cannot truncate the audit log', () => as(O, 'truncate audit_events'));
+await expectDenied('signed-in users cannot delete audit rows', () => as(O, 'delete from audit_events'));
+await as(O, `update profiles set role='practitioner' where id='${P2}'`);
+check('profile changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='profiles'`))[0].n > 0, true);
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);
