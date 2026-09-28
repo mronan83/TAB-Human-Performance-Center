@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { contactOptions, deliveryOptions, foundViaOptions, helpOptions, serviceOptions } from "@/lib/inquiry";
 import { siteConfig } from "@/config/site";
+import { trackEvent } from "@/lib/analytics";
 
 type Errors = Record<string, string[] | undefined>;
 
@@ -23,7 +24,15 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
   const [practicalOpen, setPracticalOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const doneRef = useRef<HTMLHeadingElement>(null);
+  const startedRef = useRef(false);
   const isStart = kind === "start";
+
+  // DIV-04 funnel: "started" is the first interaction with any field, once per visit to the page.
+  function onFirstFocus() {
+    if (!isStart || startedRef.current) return;
+    startedRef.current = true;
+    trackEvent("Start Form: Started");
+  }
 
   useEffect(() => {
     if (status === "sent") doneRef.current?.focus();
@@ -57,6 +66,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
     const res = await fetch("/api/inquiry", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }).catch(() => null);
     const data = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok && data.ok) {
+      if (isStart) trackEvent("Start Form: Submitted");
       setStatus("sent");
       return;
     }
@@ -89,7 +99,7 @@ export function InquiryForm({ kind }: { kind: "start" | "contact" }) {
   const err = (k: string) => errors[k]?.[0];
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate className="card space-y-10 p-6 md:p-10">
+    <form ref={formRef} onSubmit={onSubmit} onFocus={onFirstFocus} noValidate className="card space-y-10 p-6 md:p-10">
       {formError && (
         <p id="form-error" role="alert" tabIndex={-1} className="rounded-xl bg-accent-soft p-4 font-medium text-danger">
           {formError}
