@@ -18,6 +18,14 @@ export const isProductionDeployment = deploymentEnv === "production";
 /** Where My TAB reads data. Stays "mock" until the D-042 go-live gates in docs/PHASE2.md are met. */
 const portalDataSource = "mock" as "mock" | "supabase";
 
+/**
+ * Owner ruling 2026-09-28 ("Production URL"): demo My TAB and TAB Practice on the production deployment. Safe only
+ * while production is private (Vercel login on every *.vercel.app URL, no custom domain, indexing off): demo mode has
+ * no real login and one in-memory store shared by every visitor. Turn this off before a custom domain is attached;
+ * the launch gate (lib/placeholders.ts) refuses to build a launch while it is on.
+ */
+const portalDemoOnProduction = true;
+
 export const siteConfig = {
   brand: {
     name: "TAB Wellness Collective", // D-020, D-038: always the full name in metadata and listings
@@ -121,12 +129,13 @@ export const siteConfig = {
    * - enabled=true + dataSource="mock": full portal UI with demo data, no login (preview review only).
    * - enabled=true + dataSource="supabase": authenticated portal backed by Supabase.
    *   Real client data only once the D-042 gate is met (CLAUDE.md guardrail 4; HIPAA does not apply, proposed D-060).
-   * Demo mode has no login and one in-memory store shared by every visitor, so it is never enabled on a
-   * production deployment (security review 2026-09-28); production shows the Timely Client Login page instead.
+   * Demo mode has no real login and one in-memory store shared by every visitor, so production enables it only while
+   * `demoOnProduction` is set (see above); otherwise production shows the Timely Client Login page instead.
    */
   portal: {
-    enabled: portalDataSource === "supabase" || !isProductionDeployment,
+    enabled: portalDataSource === "supabase" || !isProductionDeployment || portalDemoOnProduction,
     dataSource: portalDataSource,
+    demoOnProduction: portalDemoOnProduction,
     showPracticeWorkspace: true,
   },
 } as const;

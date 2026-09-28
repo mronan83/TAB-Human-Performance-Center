@@ -36,6 +36,8 @@ export function launchChecklist(): ChecklistItem[] {
     { area: "Legal", item: "Terms of use", where: "content/pages.ts → legal.terms", done: !legal.terms.draft },
     { area: "Legal", item: "Client policies (cancellation, scope)", where: "content/pages.ts → legal.policies", done: !legal.policies.draft },
     { area: "Brand", item: "Trademark clearance for TAB Wellness Collective (Step 19 gate)", where: "Decision register R-020", done: false, optional: true },
+    // Demo mode has no real login and a store shared by every visitor: it must be off before the site is public.
+    { area: "Portal", item: "Demo portal switched off on production (before a custom domain is attached)", where: "config/site.ts → portalDemoOnProduction", done: !c.portal.demoOnProduction },
     { area: "Portal", item: "My TAB set to production mode (after the portal security gate, a paid Supabase plan with a tested restore, and a privacy policy covering My TAB)", where: "config/site.ts → portal", done: c.portal.enabled && c.portal.dataSource === "supabase", optional: true },
   ];
   return items;
