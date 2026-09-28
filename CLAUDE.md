@@ -27,7 +27,11 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
 
 ## Branches and review gates
 
-- `main` is the protected default branch. Work happens on `claude/*` branches and lands via PR.
+- `main` is the default branch. Work happens on `claude/*` branches and lands via PR.
+- GitHub does not enforce branch protection on this private repo on the free plan. For Claude
+  sessions the rule is enforced by the PreToolUse hook `.claude/hooks/guard-main.mjs`
+  (blocks pushes to `main`, PR merges and auto-merge). Do not disable or work around it.
+  Revisit GitHub-side protection when paid plans are bought for go-live.
 - G1 Design — architecture, data model and plan approved before build.
 - G2 Pull request — owner reviews each PR on its Vercel preview URL; CI must be green.
 - G3 Release — owner approves every production promotion and every production migration.
