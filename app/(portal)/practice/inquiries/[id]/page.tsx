@@ -8,6 +8,7 @@ import {
   outcomeOptions, routingOptions, serviceOptions, topicOptions,
 } from "@/lib/inquiry";
 import { createClientFromInquiryAction, linkInquiryAction, routeInquiryAction } from "@/app/(portal)/actions";
+import { flagLabels, type SpamFlag } from "@/lib/spam";
 
 export default async function InquiryDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -51,6 +52,11 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="space-y-6">
           <Panel title="What they told us">
+            {i.flags.length > 0 && (
+              <p className="mb-5 rounded-xl bg-sand p-4">
+                <span className="font-semibold">Possible spam:</span> {i.flags.map((f) => flagLabels[f as SpamFlag] ?? f).join("; ")}. No copy was emailed to this address.
+              </p>
+            )}
             {healthFlag && (
               <p className="mb-5 rounded-xl bg-accent-soft p-4 font-medium">
                 They’d like to discuss something health-related privately. Follow up before anything is booked.

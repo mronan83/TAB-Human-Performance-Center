@@ -181,12 +181,15 @@ function seed(): Store {
     inquiries: [
       { id: "inq-jordan", reference: "DEMO-3", kind: "start", receivedAt: at(-1, 19), name: "Jordan Price", email: "jordan.price@example.com", phone: "", contactPreference: "email",
         journey: "exploring", help: ["feel-better", "stronger", "not-sure"], serviceInterest: "not-sure", outcomes: ["energy", "strength", "keep-up"],
-        considerations: ["talk-first", "schedule"], delivery: "either", availability: ["weekday-evenings"], foundVia: "search", marketingOptIn: true },
+        considerations: ["talk-first", "schedule"], delivery: "either", availability: ["weekday-evenings"], foundVia: "search", marketingOptIn: true, flags: [] },
       { id: "inq-alex", reference: "DEMO-2", kind: "contact", receivedAt: at(-2, 13), name: "Alex Rivera", email: "alex.rivera@example.com", contactPreference: "phone",
-        topic: "gift-cards", message: "Do you still offer gift cards? I’d like one for my sister’s birthday next month.", help: [], outcomes: [], considerations: [], availability: [], marketingOptIn: false },
+        topic: "gift-cards", message: "Do you still offer gift cards? I’d like one for my sister’s birthday next month.", help: [], outcomes: [], considerations: [], availability: [], marketingOptIn: false, flags: [] },
+      { id: "inq-flagged", reference: "DEMO-4", kind: "contact", receivedAt: at(-3, 3), name: "Pat Example", email: "pat.example@example.com", contactPreference: "email",
+        topic: "partnerships", message: "Hello, we help wellness studios grow. See our offer at https://example.com/offer", help: [], outcomes: [], considerations: [], availability: [],
+        marketingOptIn: false, flags: ["links"] },
       { id: "inq-tom", reference: "DEMO-1", kind: "start", receivedAt: at(-6, 10), name: "Tom Brennan", email: "tom.brennan@example.com", contactPreference: "phone",
         journey: "ready", help: ["stronger", "movement", "exercise"], serviceInterest: "personal-strength-training", outcomes: ["independence", "keep-up"],
-        considerations: ["health-private"], delivery: "in-person", availability: ["weekday-mornings"], foundVia: "friend", marketingOptIn: false,
+        considerations: ["health-private"], delivery: "in-person", availability: ["weekday-mornings"], foundVia: "friend", marketingOptIn: false, flags: [],
         clientId: "demo-client-tom", clientName: "Tom Brennan", routingOutcome: "discovery", routingNote: "Call booked for Thursday.", routedAt: at(-5, 9) },
     ],
   };

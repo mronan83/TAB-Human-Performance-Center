@@ -33,6 +33,7 @@ create table inquiries (
   message text check (char_length(message) <= 3000),  -- SENSITIVE: contact message (asks for no medical details)
   consent_contact_at timestamptz not null,
   marketing_opt_in boolean not null default false,
+  flags text[] not null default '{}',     -- spam signals set by the website (lib/spam.ts); read-only afterwards
   -- Owner workflow
   client_id uuid references clients (id) on delete set null,
   routing_outcome routing_outcome,

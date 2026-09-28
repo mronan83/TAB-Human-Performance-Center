@@ -103,6 +103,8 @@ pass the team ID / project ref explicitly. Never print, log or commit token valu
   interface, then implement it in **both** `mock-repository.ts` and `supabase-repository.ts`.
 - Mutations are server actions in `app/(portal)/actions.ts`; each calls `requireClient()` or
   `requireStaff()`.
+- Public forms post to `/api/inquiry`, which applies the spam layers in `lib/spam.ts` (SEC-013). New public
+  forms use the same route and layers.
 - Row-level security is the access control. Any new client-data table needs RLS policies, an audit
   trigger and a test in `supabase/tests/rls.test.mjs`.
 - Model for a team, build for one (D-045): roles `owner | practitioner | client`; practitioners see

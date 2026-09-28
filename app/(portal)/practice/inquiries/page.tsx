@@ -35,6 +35,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
                   <td className="px-5 py-4">
                     <Link href={`/practice/inquiries/${i.id}`} className="font-semibold text-primary underline-offset-4 hover:underline">{i.name}</Link>
                     <p className="text-sm text-text-secondary">{i.kind === "start" ? "Start Where You Are" : "Contact message"}</p>
+                    {i.flags.length > 0 && <Badge tone="warning">Possible spam</Badge>}
                   </td>
                   <td className="px-5 py-4 text-sm">{fmtDate(i.receivedAt)}</td>
                   <td className="px-5 py-4 text-sm">{i.serviceInterest ? labelFor(serviceOptions, i.serviceInterest) : "—"}</td>

@@ -166,7 +166,10 @@ export const inquirySchema = z
     message: z.string().trim().max(3000, "Please keep your message under 3,000 characters.").optional(),
     consentContact: z.literal(true, { errorMap: () => ({ message: "Please confirm we can contact you about your inquiry." }) }),
     marketingOptIn: z.boolean().optional(),
-    company: z.string().max(200).optional(), // honeypot: humans leave it empty; the route drops filled submissions quietly
+    // Spam defenses (lib/spam.ts, SEC-013); never stored or emailed.
+    website: z.string().max(200).optional(), // honeypot: hidden from people; bots that fill it are dropped quietly
+    elapsedMs: z.number().int().nonnegative().max(86_400_000).optional(), // time from page load to submit
+    turnstileToken: z.string().max(4096).optional(),
   })
   .superRefine((d, ctx) => {
     if (d.kind === "start" && !d.help?.length) {

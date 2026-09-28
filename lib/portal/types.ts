@@ -111,6 +111,8 @@ export type Inquiry = {
   topic?: string;
   /** Contact form only. */
   message?: string;
+  /** Spam signals recorded when it arrived (lib/spam.ts). */
+  flags: string[];
   marketingOptIn: boolean;
   clientId?: string;
   clientName?: string;
