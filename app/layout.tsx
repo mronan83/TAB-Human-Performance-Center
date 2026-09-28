@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { indexingAllowed, siteConfig, siteUrl } from "@/config/site";
 import { assertLaunchReady } from "@/lib/placeholders";
@@ -7,8 +7,22 @@ import { assertLaunchReady } from "@/lib/placeholders";
 // The indexing switch is the launch switch: refuse to build a launch while required items are open.
 if (indexingAllowed) assertLaunchReady();
 
-const cormorant = Cormorant_Garamond({ subsets: ["latin"], weight: ["500", "600"], style: ["normal", "italic"], variable: "--font-cormorant", display: "swap" });
-const manrope = Manrope({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-manrope", display: "swap" });
+// Self-hosted (app/fonts, SIL Open Font License): the Google Fonts latin files, so builds never fetch from Google.
+// next/font/google broke CI on 2026-09-28 when Google served font URLs it couldn't parse. Both are variable fonts.
+const cormorant = localFont({
+  src: [
+    { path: "./fonts/cormorant-garamond-latin.woff2", weight: "500 600", style: "normal" },
+    { path: "./fonts/cormorant-garamond-italic-latin.woff2", weight: "500 600", style: "italic" },
+  ],
+  variable: "--font-cormorant",
+  display: "swap",
+  adjustFontFallback: "Times New Roman",
+});
+const manrope = localFont({
+  src: [{ path: "./fonts/manrope-latin.woff2", weight: "400 700", style: "normal" }],
+  variable: "--font-manrope",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
