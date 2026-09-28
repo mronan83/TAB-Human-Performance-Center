@@ -319,6 +319,7 @@ Raised by Claude as principal engineer; each is resolved at G1 or on the named t
 | DIV-01 Start form scope | "Leave everything in scope": all S14 §14.4.1 fields, including "immediate considerations"; submissions stay email-only per D-054 | GS-001 implemented in full with per-field "no medical details" guidance; residual risk stays with R-027 (owner-accepted). |
 | DIV-02 domain | Owner will register `tabwellnesscollective.com` in the near future | RSK-007 stays open until registered. |
 | Homepage trust stats | "20+ years" and "In person & virtual" confirmed accurate | WEB-013: stats verified. |
+| Dependency majors | Routine Dependabot PRs cover minor/patch only; majors are planned upgrades | Backlog: **UPG-01** Next 16, **UPG-02** zod 4 (Dependabot PR #5 closed), **UPG-03** TypeScript 7 (PR #4 closed). Each gets its own PR with full checks. |
 | Vector logos (batch 4) | First vector package delivered 2026-09-28 | Installed (DS-006 partly met). Designer follow-ups: horizontal-lockup descriptor legibility (**launch-blocking**), service-icon vectors and trace cleanup for print (optional). |
 
 ### 7.2 Mapping of this register to the MDR
