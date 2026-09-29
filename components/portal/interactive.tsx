@@ -269,7 +269,7 @@ export function PlanForm({ clientId, planType, plan }: { clientId: string; planT
           {priv.map((sec) => section(sec, plan?.privateDetails?.[sec.key]))}
         </fieldset>
       )}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3 [&>div]:min-w-0">
         <div><label htmlFor="status" className="field-label">Plan status</label>
           <select id="status" name="status" defaultValue={plan?.status ?? "draft"} className="field-input">
             <option value="draft">Draft</option><option value="active">Active</option><option value="completed">Completed</option><option value="archived">Archived</option>

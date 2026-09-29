@@ -145,6 +145,20 @@ test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner
   await expect(page.getByText("100 of 100 goals")).toBeVisible();
 });
 
+test("plan editor: status and date fields don't overlap at iPad width (owner bug report 2026-09-29)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  for (const width of [1024, 834]) { // iPad landscape (split portal layout) and iPad portrait
+    await page.setViewportSize({ width, height: 1200 });
+    await page.goto("/practice/clients/demo-client-dana/plans/plan-dana-massage");
+    const boxes = await Promise.all(["Plan status", "Start date", "Next review"].map(async (l) => (await page.getByLabel(l, { exact: true }).boundingBox())!));
+    for (let i = 1; i < boxes.length; i++) {
+      const [a, b] = [boxes[i - 1], boxes[i]];
+      const sameRow = Math.abs(a.y - b.y) < 4;
+      if (sameRow) expect(a.x + a.width, `${width}px: field ${i} ends before field ${i + 1} starts`).toBeLessThanOrEqual(b.x);
+    }
+  }
+});
+
 test("Start Where You Are: submits choices only (D-059)", async ({ page }) => {
   const sent = await inquiryOk(page);
   await page.goto("/start");

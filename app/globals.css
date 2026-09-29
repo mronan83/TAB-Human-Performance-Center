@@ -144,6 +144,11 @@
   }
   .field-input:focus { outline: 3px solid var(--color-focus); outline-offset: 1px; border-color: var(--color-focus); }
   textarea.field-input { min-height: 120px; resize: vertical; }
+  /* Safari (iPad/iPhone) gives native date inputs an intrinsic minimum width that ignores width:100%, so in a
+     multi-column row they spill into the next column. Let fields shrink to their column and drop the native chrome. */
+  .field-input { min-width: 0; }
+  input[type="date"].field-input { -webkit-appearance: none; appearance: none; display: block; }
+  input[type="date"].field-input::-webkit-date-and-time-value { text-align: left; }
 
   .prose-tab p { margin-block: 0 1em; }
   .draft-flag {
