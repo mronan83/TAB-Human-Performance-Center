@@ -72,7 +72,23 @@ export type FormTemplate = { id: string; slug: string; title: string; descriptio
 export type FormAssignment = { template: FormTemplate; dueOn?: string; status: "not_started" | "draft" | "submitted" | "reviewed"; submittedAt?: string; answers?: Record<string, unknown> };
 
 export type SessionNote = { id: string; date: string; service?: ServiceSlug; visibility: "internal" | "shared"; body: string; author: string };
-export type Review = { id: string; date: string; summary: string; nextSteps?: string; stage?: MethodStage };
+export type Review = { id: string; date: string; summary: string; nextSteps?: string; stage?: MethodStage; shared?: boolean; outcome?: ReviewOutcome; reflections?: ReviewReflections; author?: string };
+
+/** Step 14 §14.4.5: "Does the current approach still fit?" */
+export type ReviewOutcome = "continue" | "adjust" | "increase_support" | "reduce_frequency" | "maintenance";
+/** The Progress Review conversation, in the client's words (Step 14 §14.4.5). */
+export type ReviewReflections = { changed?: string; difficult?: string; learned?: string; circumstances?: string[] };
+export type ProgressReviewInput = {
+  outcome: ReviewOutcome;
+  reflections: ReviewReflections;
+  summaryForClient?: string;
+  nextSteps?: string;
+  share: boolean;
+  /** Set only when the practitioner confirms a stage change agreed with the client. */
+  newStage?: MethodStage;
+};
+/** One entry in a client's stage history. Written by the database whenever the stage changes. */
+export type StageChange = { id: string; from?: MethodStage; to: MethodStage; changedAt: string; changedBy?: string; reviewId?: string };
 
 export type Consent = { type: "terms" | "privacy" | "health_info_collection" | "care_coordination" | "marketing_email" | "marketing_sms" | "photo_testimonial"; label: string; granted: boolean; required: boolean; updatedAt?: string };
 
@@ -89,6 +105,8 @@ export type Dashboard = {
   resources: ResourceAssignment[];
   pendingForms: FormAssignment[];
   latestSharedReview?: Review;
+  /** The most recent stage change, for the "your stage was updated" notice. */
+  latestStageChange?: StageChange;
 };
 
 /** A Start Where You Are or contact submission (supabase/migrations/*_inquiries.sql). Answers are option values. */
@@ -159,6 +177,11 @@ export interface PortalRepository {
   listNotes(clientId: string, includeInternal: boolean): Promise<SessionNote[]>;
   addNote(clientId: string, viewer: Viewer, note: { body: string; visibility: "internal" | "shared"; service?: ServiceSlug }): Promise<void>;
   listProgramTemplates(): Promise<ProgramTemplate[]>;
+  /** Every review for the client, shared or not (staff only; RLS enforces it). */
+  listReviews(clientId: string): Promise<Review[]>;
+  /** Saves a Progress Review; when `newStage` differs, changes the stage in the same transaction. Returns whether it changed. */
+  recordProgressReview(clientId: string, viewer: Viewer, input: ProgressReviewInput): Promise<{ stageChanged: boolean }>;
+  listStageChanges(clientId: string): Promise<StageChange[]>;
   // Start and contact submissions (owner: all; practitioners: only those linked to assigned clients)
   listInquiries(): Promise<Inquiry[]>;
   getInquiry(id: string): Promise<InquiryDetail | null>;

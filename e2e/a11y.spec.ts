@@ -37,3 +37,12 @@ test("form error states meet WCAG 2.2 AA", async ({ page }) => {
     await scan(page, `${path} (errors shown)`);
   }
 });
+
+test("portal: demo sign-in and progress review meet WCAG 2.2 AA", async ({ page, context, baseURL }) => {
+  await page.goto("/my-tab/login");
+  await scan(page, "/my-tab/login (demo)");
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-ruth/review");
+  await page.getByLabel("TAB Method stage", { exact: true }).selectOption("transform"); // shows the stage-change confirmation
+  await scan(page, "/practice/clients/…/review (stage change)");
+});

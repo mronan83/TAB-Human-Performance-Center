@@ -4,7 +4,7 @@
  */
 import type {
   Activity, Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate,
-  Inquiry, MetricDefinition, Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, Viewer,
+  Inquiry, MetricDefinition, Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 
 const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
@@ -110,6 +110,7 @@ type Store = {
   forms: Record<string, FormAssignment[]>;
   notes: Record<string, SessionNote[]>;
   reviews: Record<string, Review[]>;
+  stageChanges: Record<string, StageChange[]>;
   consents: Record<string, Consent[]>;
   entitlements: Record<string, Entitlement[]>;
   inquiries: Inquiry[];
@@ -166,7 +167,12 @@ function seed(): Store {
       { id: "n3", date: day(-19), service: "massage-bodywork", visibility: "shared", body: "Focused on upper back and hips. Try the doorway stretch twice a day.", author: "Your TAB practitioner" },
     ]},
     reviews: { [DEMO_CLIENT_ID]: [
-      { id: "rv1", date: day(-10), summary: "Four weeks in, you’re training consistently and your comfort scores are climbing. Sleep is the next focus.", nextSteps: "Start Rest & Reset; keep three strength sessions.", stage: "transform" },
+      { id: "rv1", date: day(-10), summary: "Four weeks in, you’re training consistently and your comfort scores are climbing. Sleep is the next focus.", nextSteps: "Start Rest & Reset; keep three strength sessions.", stage: "transform",
+        shared: true, outcome: "adjust", author: "Your TAB practitioner",
+        reflections: { changed: "Training three times most weeks; carrying groceries feels easier.", difficult: "Sleep is still short on work nights.", learned: "Short sessions I can repeat beat long ones I skip.", circumstances: ["Schedule"] } },
+    ]},
+    stageChanges: { [DEMO_CLIENT_ID]: [
+      { id: "sc1", from: "start", to: "transform", changedAt: at(-10, 10), changedBy: "Your TAB practitioner", reviewId: "rv1" },
     ]},
     consents: { [DEMO_CLIENT_ID]: [
       { type: "terms", label: "Terms of service", granted: true, required: true, updatedAt: day(-40) },
@@ -198,6 +204,7 @@ function seed(): Store {
 // Persist across hot reloads in development.
 const g = globalThis as unknown as { __tabMockStore?: Store };
 const store = (g.__tabMockStore ??= seed());
+store.stageChanges ??= {}; // a store created before stage history existed (dev hot reload)
 
 const clone = <T>(v: T): T => structuredClone(v);
 
@@ -215,7 +222,8 @@ export const mockRepository: PortalRepository = {
     return clone({
       client, plan: (await this.getPlan(clientId)) ?? undefined, nextAppointment: appts[0], programs, todaysActivities,
       checkInDue: !checkIns.some((c) => c.weekOf === weekStart(0)), resources: (store.resources[clientId] ?? []).slice(0, 3), pendingForms: forms,
-      latestSharedReview: (store.reviews[clientId] ?? [])[0],
+      latestSharedReview: (store.reviews[clientId] ?? []).find((r) => r.shared),
+      latestStageChange: (store.stageChanges[clientId] ?? [])[0],
     } satisfies Dashboard);
   },
   async getClient(id) { return clone(store.clients.find((c) => c.id === id) ?? null); },
@@ -249,7 +257,7 @@ export const mockRepository: PortalRepository = {
     if (!f) return;
     f.answers = answers; f.status = final ? "submitted" : "draft"; if (final) f.submittedAt = day(0);
   },
-  async listSharedReviews(clientId) { return clone(store.reviews[clientId] ?? []); },
+  async listSharedReviews(clientId) { return clone((store.reviews[clientId] ?? []).filter((r) => r.shared)); },
   async listConsents(clientId) { return clone(store.consents[clientId] ?? []); },
   async setConsent(clientId, type, granted) {
     const c = (store.consents[clientId] ?? []).find((x) => x.type === type);
@@ -262,6 +270,22 @@ export const mockRepository: PortalRepository = {
   async listNotes(clientId, includeInternal) { return clone((store.notes[clientId] ?? []).filter((n) => includeInternal || n.visibility === "shared")); },
   async addNote(clientId, viewer, note) { (store.notes[clientId] ??= []).unshift({ id: `n${Date.now()}`, date: day(0), author: viewer.name, ...note }); },
   async listProgramTemplates() { return clone([strengthTemplate, restTemplate]); },
+  async listReviews(clientId) { return clone(store.reviews[clientId] ?? []); },
+  async recordProgressReview(clientId, viewer, input) {
+    const client = store.clients.find((c) => c.id === clientId);
+    if (!client) throw new Error("Client not found");
+    const id = `rv${Date.now()}`;
+    const newStage = input.newStage && input.newStage !== client.methodStage ? input.newStage : undefined;
+    (store.reviews[clientId] ??= []).unshift({
+      id, date: day(0), summary: input.summaryForClient ?? "", nextSteps: input.nextSteps, stage: newStage ?? client.methodStage,
+      shared: input.share, outcome: input.outcome, reflections: input.reflections, author: viewer.name,
+    });
+    if (!newStage) return { stageChanged: false };
+    (store.stageChanges[clientId] ??= []).unshift({ id: `sc${Date.now()}`, from: client.methodStage, to: newStage, changedAt: new Date().toISOString(), changedBy: viewer.name, reviewId: id });
+    client.methodStage = newStage;
+    return { stageChanged: true };
+  },
+  async listStageChanges(clientId) { return clone(store.stageChanges[clientId] ?? []); },
   async listInquiries() { return clone([...store.inquiries].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt))); },
   async getInquiry(id) {
     const inquiry = store.inquiries.find((i) => i.id === id);

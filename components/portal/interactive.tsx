@@ -2,8 +2,10 @@
 
 import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import clsx from "clsx";
-import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction } from "@/app/(portal)/actions";
-import type { Consent, FormField, FormTemplate } from "@/lib/portal/types";
+import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction } from "@/app/(portal)/actions";
+import type { Consent, FormField, FormTemplate, MethodStage } from "@/lib/portal/types";
+import { STAGES } from "@/lib/portal/format";
+import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { services } from "@/content/services";
 import { siteConfig } from "@/config/site";
 import { useTurnstile } from "@/components/Turnstile";
@@ -184,6 +186,57 @@ export function NoteForm({ clientId }: { clientId: string }) {
       </div>
       {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
       {state?.ok && <p role="status" className="text-sm font-semibold text-success">Note added.</p>}
+    </form>
+  );
+}
+
+/** Progress Review (Step 14 §14.4.5). The stage changes only when the practitioner picks a new one and confirms the conversation. */
+export function ProgressReviewForm({ clientId, clientName, currentStage }: { clientId: string; clientName: string; currentStage: MethodStage }) {
+  const [state, action, pending] = useActionState(recordProgressReviewAction.bind(null, clientId), null);
+  const [stage, setStage] = useState<MethodStage>(currentStage);
+  const [share, setShare] = useState(true);
+  const changing = stage !== currentStage;
+  const label = (k: MethodStage) => STAGES.find((s) => s.key === k)?.label ?? k;
+  return (
+    <form action={action} className="space-y-6">
+      <div><label htmlFor="changed" className="field-label">What has changed? What feels better or easier?</label><textarea id="changed" name="changed" className="field-input" /></div>
+      <div><label htmlFor="difficult" className="field-label">What remains difficult?</label><textarea id="difficult" name="difficult" className="field-input" /></div>
+      <div><label htmlFor="learned" className="field-label">What have you learned about your body, habits, priorities, or needs?</label><textarea id="learned" name="learned" className="field-input" /></div>
+      <fieldset>
+        <legend className="field-label">Has anything changed?</legend>
+        <div className="flex flex-wrap gap-2">
+          {circumstanceOptions.map((c) => (
+            <label key={c} className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm"><input type="checkbox" name="circumstances" value={c} className="accent-[var(--color-olive)]" /> {c}</label>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend className="field-label">Does the current approach still fit?</legend>
+        <div className="flex flex-wrap gap-2">
+          {reviewOutcomes.map((o) => (
+            <label key={o.value} className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm"><input type="radio" name="outcome" value={o.value} required className="accent-[var(--color-olive)]" /> {o.label}</label>
+          ))}
+        </div>
+      </fieldset>
+      <div>
+        <label htmlFor="stage" className="field-label">TAB Method stage</label>
+        <select id="stage" name="stage" className="field-input" value={stage} onChange={(e) => setStage(e.target.value as MethodStage)}>
+          {STAGES.map((s) => <option key={s.key} value={s.key}>{s.label}{s.key === currentStage ? " (current)" : ""}</option>)}
+        </select>
+        {changing && (
+          <div className="mt-3 rounded-xl border border-border-strong bg-cream p-4">
+            <p className="text-sm">This moves {clientName} from <strong>{label(currentStage)}</strong> to <strong>{label(stage)}</strong>. They&rsquo;ll see it on their My TAB dashboard and get an email that their stage has been updated.</p>
+            <label className="mt-3 flex items-start gap-2 text-sm font-semibold"><input type="checkbox" name="discussed" required className="mt-0.5 h-4 w-4 accent-[var(--color-olive)]" /> I&rsquo;ve discussed this stage change with {clientName}.</label>
+          </div>
+        )}
+      </div>
+      <div><label htmlFor="summary" className="field-label">Summary for {clientName}</label><textarea id="summary" name="summary" className="field-input" placeholder="What you noticed together, in words they'll recognise." /></div>
+      <div><label htmlFor="nextSteps" className="field-label">Next steps</label><textarea id="nextSteps" name="nextSteps" className="field-input" /></div>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="share" checked={share} onChange={(e) => setShare(e.target.checked)} className="h-4 w-4 accent-[var(--color-olive)]" /> Share the summary and next steps with {clientName} in My TAB</label>
+      <div className="flex flex-wrap items-center gap-4">
+        <button className="btn btn-primary" disabled={pending}>{pending ? "Saving…" : changing ? "Save review and update stage" : "Save review"}</button>
+      </div>
+      {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
     </form>
   );
 }
