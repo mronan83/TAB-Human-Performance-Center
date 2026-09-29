@@ -91,7 +91,7 @@ test("plans: a practitioner creates and shares a service plan; the client sees o
   await expect(page.locator("main h1")).toHaveText("New Life Coaching plan");
   await page.getByLabel("Title").fill("Make room for what matters");
   await page.getByLabel("Values").fill("Family time and steady energy.");
-  await page.getByLabel("Status").selectOption("active");
+  await page.getByLabel("Plan status").selectOption("active");
   await page.getByLabel(/Share this plan with the client/).check();
   await page.getByRole("button", { name: "Create plan" }).click();
   await expect(page.getByRole("status")).toContainText("Plan saved. It’s shared with the client");
@@ -111,6 +111,38 @@ test("plans: a practitioner creates and shares a service plan; the client sees o
   await expect(page.getByText("Prefers side-lying for hip work.")).toHaveCount(0);
   await expect(page.getByText("Guarding around the right shoulder")).toHaveCount(0);
   await expect(page.getByText("Strength block 2")).toHaveCount(0);
+});
+
+test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
+  test.setTimeout(60_000);
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-ruth/plans/new?type=wellness");
+  await expect(page.getByLabel(/^Goal \d+$/)).toHaveCount(1);
+  await page.getByLabel("Title").fill("Move with less tension");
+  await page.getByLabel("Goal 1", { exact: true }).fill("Turn my head fully when driving");
+  await page.getByRole("button", { name: "Add goal" }).click();
+  await expect(page.getByLabel("Goal 2", { exact: true })).toBeFocused();
+  await page.getByLabel("Goal 2", { exact: true }).fill("Temporary goal");
+  await page.getByRole("button", { name: "Add goal" }).click();
+  await page.getByLabel("Goal 3", { exact: true }).fill("Sleep through the night without hip ache");
+  await page.getByRole("button", { name: "Remove goal 2" }).click();
+  await expect(page.getByLabel(/^Goal \d+$/)).toHaveCount(2);
+  await page.getByLabel("Plan status").selectOption("active");
+  await page.getByRole("button", { name: "Create plan" }).click();
+  await expect(page.getByRole("status")).toContainText("Plan saved");
+
+  // Saved: two goals, in order, without the removed one.
+  const titles = page.getByLabel(/^Goal \d+$/);
+  await expect(titles).toHaveCount(2);
+  await expect(titles.nth(0)).toHaveValue("Turn my head fully when driving");
+  await expect(titles.nth(1)).toHaveValue("Sleep through the night without hip ache");
+
+  // The limit: 100 rows, then Add goal is disabled.
+  const add = page.getByRole("button", { name: "Add goal" });
+  for (let n = 2; n < 100; n++) await add.click();
+  await expect(titles).toHaveCount(100);
+  await expect(add).toBeDisabled();
+  await expect(page.getByText("100 of 100 goals")).toBeVisible();
 });
 
 test("Start Where You Are: submits choices only (D-059)", async ({ page }) => {
