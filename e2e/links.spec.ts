@@ -15,7 +15,9 @@ test("no broken internal links", async ({ page, request }) => {
   }
   const broken: string[] = [];
   for (const [href, foundOn] of links) {
-    const res = await request.get(href);
+    // The browser pass above can outlast the server's 5 s keep-alive, so the first reuse of the pooled connection may
+    // hit a socket the server already closed (ECONNRESET). maxRetries retries only that network error, never a status.
+    const res = await request.get(href, { maxRetries: 2 });
     if (res.status() >= 400) broken.push(`${href} (${res.status()}) linked from ${foundOn}`);
   }
   expect(broken, broken.join("\n")).toEqual([]);
