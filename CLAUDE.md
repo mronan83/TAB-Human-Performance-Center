@@ -75,6 +75,8 @@ Never print, log or commit token values.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",
   Claude promotes that exact deployment (no rebuild) and confirms. Rollback is promoting the previous one.
+  Vercel's automatic aliases (`…-mronan83s-projects.vercel.app`, `…-git-main-…`) always follow the newest build;
+  only `tab-wellness-collective.vercel.app` (and the custom domain at launch) is held until promotion.
 - Vercel login (SSO) protects every deployment URL, including `tab-wellness-collective.vercel.app` (set to "all"
   2026-09-28, after the default left that address public). Keep it on while the demo portal runs on production.
 - Never push directly to `main` or run a production migration without G3 approval.
