@@ -207,5 +207,30 @@ await expectDenied('signed-in users cannot delete audit rows', () => as(O, 'dele
 await as(O, `update profiles set role='practitioner' where id='${P2}'`);
 check('profile changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='profiles'`))[0].n > 0, true);
 
+// C4a: Progress Reviews and TAB Method stage changes (practitioner decides; history can't be skipped or edited)
+const stageOf = async () => (await superuser(`select method_stage from clients where id='${DANA}'`))[0].method_stage;
+const review = (stage) => `select record_progress_review('${DANA}','adjust','{"changed":"more energy"}','Summary','Next steps',true${stage ? `,'${stage}'` : ''}) as changed`;
+check('practitioner records a review without a stage change', (await as(P, review()))[0].changed, false);
+check('stage unchanged by that review', await stageOf(), 'start');
+check('practitioner records a review that changes the stage', (await as(P, review('transform')))[0].changed, true);
+check('client stage updated', await stageOf(), 'transform');
+check('stage history links the review and the practitioner',
+  await superuser(`select from_stage, to_stage, changed_by, review_id is not null as linked from stage_changes where client_id='${DANA}'`),
+  [{ from_stage: 'start', to_stage: 'transform', changed_by: P, linked: true }]);
+check('review author is the signed-in practitioner', (await superuser(`select distinct practitioner_id from progress_reviews where client_id='${DANA}'`)).map(r=>r.practitioner_id), [P]);
+check('client sees own stage history', (await as(C1, 'select to_stage from stage_changes')).map(r=>r.to_stage), ['transform']);
+check('other client sees no stage history', (await as(C2, 'select to_stage from stage_changes')).length, 0);
+await expectDenied('client cannot record a review or change their own stage', () => as(C1, review('evolve')));
+await expectDenied('unassigned practitioner cannot record a review', () => as(P2, review('align')));
+await expectDenied('staff without two-step verification cannot record a review', () => as(P, review('align'), 'aal1'));
+await expectDenied('nobody writes stage history directly', () => as(O, `insert into stage_changes (client_id, to_stage) values ('${DANA}','evolve')`));
+await expectDenied('stage history cannot be edited', () => as(O, `update stage_changes set to_stage='evolve'`));
+await expectDenied('stage history cannot be deleted', () => as(O, 'delete from stage_changes'));
+check('stage unchanged by denied attempts', await stageOf(), 'transform');
+await as(O, `update clients set method_stage='align' where id='${DANA}'`);
+check('a direct stage edit is still recorded', await superuser(`select from_stage, to_stage, review_id from stage_changes where client_id='${DANA}' order by created_at, to_stage desc`),
+  [{ from_stage: 'start', to_stage: 'transform', review_id: (await superuser(`select review_id from stage_changes where to_stage='transform'`))[0].review_id }, { from_stage: 'transform', to_stage: 'align', review_id: null }]);
+check('stage changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='stage_changes'`))[0].n, 2);
+
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

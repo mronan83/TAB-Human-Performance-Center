@@ -7,7 +7,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
-  Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, Viewer,
+  Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 
 type Row = Record<string, any>;
@@ -64,13 +64,19 @@ async function mapClientProgram(r: Row, sb: Awaited<ReturnType<typeof db>>): Pro
   };
 }
 
+const mapReview = (r: Row): Review => ({
+  id: r.id, date: r.review_date, summary: r.summary_for_client ?? "", nextSteps: r.next_steps ?? undefined, stage: r.method_stage ?? undefined,
+  shared: r.shared, outcome: r.outcome ?? undefined, reflections: r.reflections ?? undefined, author: r.practitioners?.display_name ?? undefined,
+});
+
 const mapForm = (t: Row): FormTemplate => ({ id: t.id, slug: t.slug, title: t.title, description: t.description ?? undefined, sensitivity: t.sensitivity, sections: t.schema?.sections ?? [] });
 
 export const supabaseRepository: PortalRepository = {
   async getDashboard(clientId) {
-    const [client, plan, programs, appointments, resources, forms, reviews, checkIns] = await Promise.all([
+    const [client, plan, programs, appointments, resources, forms, reviews, checkIns, stageChanges] = await Promise.all([
       this.getClient(clientId), this.getPlan(clientId), this.listClientPrograms(clientId), this.listAppointments(clientId),
       this.listResources(clientId), this.listForms(clientId), this.listSharedReviews(clientId), this.listCheckIns(clientId),
+      this.listStageChanges(clientId),
     ]);
     if (!client) throw new Error("Client not found");
     const active = programs.filter((p) => p.status === "active");
@@ -84,7 +90,7 @@ export const supabaseRepository: PortalRepository = {
       checkInDue: !checkIns.some((c) => c.weekOf === weekStart()),
       resources: resources.slice(0, 3),
       pendingForms: forms.filter((f) => f.status === "not_started" || f.status === "draft"),
-      latestSharedReview: reviews[0],
+      latestSharedReview: reviews[0], latestStageChange: stageChanges[0],
     } satisfies Dashboard;
   },
   async getClient(id) {
@@ -173,8 +179,8 @@ export const supabaseRepository: PortalRepository = {
   },
   async listSharedReviews(clientId) {
     const sb = await db();
-    const rows = must(await sb.from("progress_reviews").select("*").eq("client_id", clientId).eq("shared", true).order("review_date", { ascending: false })) as Row[];
-    return rows.map((r): Review => ({ id: r.id, date: r.review_date, summary: r.summary_for_client ?? "", nextSteps: r.next_steps ?? undefined, stage: r.method_stage ?? undefined }));
+    const rows = must(await sb.from("progress_reviews").select("*, practitioners(display_name)").eq("client_id", clientId).eq("shared", true).order("created_at", { ascending: false })) as Row[];
+    return rows.map(mapReview);
   },
   async listConsents(clientId) {
     const sb = await db();
@@ -220,6 +226,25 @@ export const supabaseRepository: PortalRepository = {
     if (!viewer.practitionerId) throw new Error("Only practitioners can add notes");
     const sb = await db();
     must(await sb.from("session_notes").insert({ client_id: clientId, practitioner_id: viewer.practitionerId, body: note.body, visibility: note.visibility, service: note.service, session_date: today() }));
+  },
+  async listReviews(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("progress_reviews").select("*, practitioners(display_name)").eq("client_id", clientId).order("created_at", { ascending: false })) as Row[];
+    return rows.map(mapReview);
+  },
+  async recordProgressReview(clientId, _viewer, input) {
+    const sb = await db();
+    // One transaction in the database; RLS and guard triggers decide who may do it (record_progress_review).
+    const changed = must(await sb.rpc("record_progress_review", {
+      p_client: clientId, p_outcome: input.outcome, p_reflections: input.reflections, p_summary: input.summaryForClient ?? null,
+      p_next_steps: input.nextSteps ?? null, p_shared: input.share, p_stage: input.newStage ?? null,
+    })) as boolean;
+    return { stageChanged: changed };
+  },
+  async listStageChanges(clientId) {
+    const sb = await db();
+    const rows = must(await sb.from("stage_changes").select("*, profiles:changed_by(full_name)").eq("client_id", clientId).order("created_at", { ascending: false })) as Row[];
+    return rows.map((r): StageChange => ({ id: r.id, from: r.from_stage ?? undefined, to: r.to_stage, changedAt: r.created_at, changedBy: r.profiles?.full_name ?? undefined, reviewId: r.review_id ?? undefined }));
   },
   async listProgramTemplates() {
     const sb = await db();

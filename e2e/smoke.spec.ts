@@ -58,6 +58,32 @@ test("demo portal: sign in as client or practitioner, sign out (owner demo reque
   await expect(page).toHaveURL(/\/my-tab\/login$/);
 });
 
+test("progress review: the practitioner confirms a stage change and the client sees it (design §5.2)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-dana");
+  await page.getByRole("link", { name: "Progress review" }).click();
+  await expect(page.locator("main h1")).toHaveText("Progress review");
+
+  await page.getByLabel("What has changed? What feels better or easier?").fill("Three sessions most weeks; stairs feel easier.");
+  await page.getByLabel("Adjust approach").check();
+  await page.getByLabel("TAB Method stage", { exact: true }).selectOption("align");
+  // Changing the stage needs the practitioner to confirm the conversation with the client.
+  await page.getByRole("button", { name: "Save review and update stage" }).click();
+  await expect(page).toHaveURL(/\/review$/);
+  await page.getByLabel(/I’ve discussed this stage change/).check();
+  await page.getByLabel("Summary for Dana").fill("You’re ready to bring strength, sleep and recovery together.");
+  await page.getByRole("button", { name: "Save review and update stage" }).click();
+
+  await expect(page).toHaveURL(/\/practice\/clients\/demo-client-dana\?review=saved/);
+  await expect(page.getByRole("status")).toContainText("Stage updated to Align");
+  await expect(page.getByText("You’re ready to bring strength, sleep and recovery together.")).toBeVisible();
+
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  await page.goto("/my-tab");
+  await expect(page.getByRole("status").filter({ hasText: "Your stage was updated to Align" })).toBeVisible();
+  await expect(page.locator('[aria-current="step"]')).toContainText("Align");
+});
+
 test("Start Where You Are: submits choices only (D-059)", async ({ page }) => {
   const sent = await inquiryOk(page);
   await page.goto("/start");

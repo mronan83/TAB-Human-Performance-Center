@@ -3,7 +3,7 @@ import Image from "next/image";
 import { siteConfig } from "@/config/site";
 import { requireClient } from "@/lib/portal";
 import { clientLoginHref, bookingHref } from "@/lib/links";
-import { fmtDate, fmtDateTime, serviceName, daysUntil } from "@/lib/portal/format";
+import { STAGES, fmtDate, fmtDateTime, serviceName, daysUntil } from "@/lib/portal/format";
 import { Panel, TextLink, StageTracker, ProgressBar, Badge } from "@/components/portal/ui";
 import { ActivityCheck } from "@/components/portal/interactive";
 import { SmartLink } from "@/components/SmartLink";
@@ -27,6 +27,8 @@ export default async function MyTabHome() {
   if (!siteConfig.portal.enabled) return <InterimMyTab />;
   const { viewer, clientId, repo } = await requireClient();
   const d = await repo.getDashboard(clientId);
+  // "Your stage was updated" shows for 30 days after the practitioner changes it (design §5.2).
+  const stageUpdate = d.latestStageChange && Date.now() - new Date(d.latestStageChange.changedAt).getTime() < 30 * 86400000 ? d.latestStageChange : undefined;
   const hour = new Date().toLocaleString("en-US", { hour: "numeric", hour12: false, timeZone: "America/Detroit" });
   const greeting = Number(hour) < 12 ? "Good morning" : Number(hour) < 17 ? "Good afternoon" : "Good evening";
   const open = d.todaysActivities.filter((a) => !a.done).length;
@@ -71,13 +73,17 @@ export default async function MyTabHome() {
             )}
           </Panel>
 
-          {d.plan && (
-            <Panel title="Your journey" action={<TextLink href="/my-tab/plan">My plan</TextLink>}>
-              <StageTracker stage={d.client.methodStage} />
-              <p className="mt-5 font-semibold">{d.plan.title}</p>
-              {d.plan.reviewDate && <p className="mt-1 text-sm text-text-secondary">Progress review {fmtDate(d.plan.reviewDate, { month: "long", day: "numeric" })} · in {daysUntil(d.plan.reviewDate)} days</p>}
-            </Panel>
-          )}
+          <Panel title="Your journey" action={d.plan ? <TextLink href="/my-tab/plan">My plan</TextLink> : undefined}>
+            {stageUpdate && (
+              <p role="status" className="mb-4 rounded-xl bg-[#E4EBDD] p-3 text-sm font-semibold text-success">
+                Your stage was updated to {STAGES.find((s) => s.key === stageUpdate.to)?.label} on {fmtDate(stageUpdate.changedAt, { month: "long", day: "numeric" })}.
+              </p>
+            )}
+            <StageTracker stage={d.client.methodStage} />
+            <p className="mt-3 text-sm text-text-secondary">{STAGES.find((s) => s.key === d.client.methodStage)?.blurb}</p>
+            {d.plan && <p className="mt-5 font-semibold">{d.plan.title}</p>}
+            {d.plan?.reviewDate && <p className="mt-1 text-sm text-text-secondary">Progress review {fmtDate(d.plan.reviewDate, { month: "long", day: "numeric" })} · in {daysUntil(d.plan.reviewDate)} days</p>}
+          </Panel>
         </div>
       </div>
 

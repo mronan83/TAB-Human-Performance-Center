@@ -7,7 +7,7 @@ import { extraPages, sitemapPaths } from "./helpers";
  */
 
 const clientPages = ["/my-tab", "/my-tab/plan", "/my-tab/programs", "/my-tab/progress", "/my-tab/appointments", "/my-tab/resources", "/my-tab/forms", "/my-tab/billing", "/my-tab/profile"];
-const staffPages = ["/practice", "/practice/programs", "/practice/inquiries"];
+const staffPages = ["/practice", "/practice/programs", "/practice/inquiries", "/practice/clients/demo-client-dana", "/practice/clients/demo-client-dana/review"];
 
 /** Records CSP violations from the moment each document is created. */
 const watchViolations = async (page: Page) => {

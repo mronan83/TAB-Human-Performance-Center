@@ -5,7 +5,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireClient, requireStaff, isMock } from "@/lib/portal";
 import { siteUrl } from "@/config/site";
-import type { Consent } from "@/lib/portal/types";
+import type { Consent, MethodStage, ReviewOutcome } from "@/lib/portal/types";
+import { STAGES } from "@/lib/portal/format";
+import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
+import { sendStageUpdatedEmail } from "@/lib/email";
 import type { ServiceSlug } from "@/content/services";
 import { routingOptions, type RoutingOutcome } from "@/lib/inquiry";
 import { limiter, verifyHuman } from "@/lib/spam";
@@ -52,6 +55,34 @@ export async function addNoteAction(clientId: string, _prev: unknown, fd: FormDa
   await repo.addNote(clientId, viewer, { body, visibility: fd.get("visibility") === "shared" ? "shared" : "internal", service: (fd.get("service") || undefined) as ServiceSlug | undefined });
   revalidatePath(`/practice/clients/${clientId}`);
   return { ok: true };
+}
+
+/**
+ * Progress Review (Step 14 §14.4.5). A stage change is the practitioner's decision, agreed with the client, so it needs
+ * the "discussed with the client" confirmation. When the stage changes the client is emailed (design §5.2).
+ */
+export async function recordProgressReviewAction(clientId: string, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const client = await repo.getClient(clientId);
+  if (!client) return { ok: false, error: "Client not found." };
+  const text = (k: string, max = 4000) => String(fd.get(k) ?? "").trim().slice(0, max) || undefined;
+  const outcome = reviewOutcomes.find((o) => o.value === fd.get("outcome"))?.value as ReviewOutcome | undefined;
+  if (!outcome) return { ok: false, error: "Choose whether the current approach still fits." };
+  const stage = STAGES.find((s) => s.key === fd.get("stage"))?.key as MethodStage | undefined;
+  const newStage = stage && stage !== client.methodStage ? stage : undefined;
+  if (newStage && fd.get("discussed") !== "on") return { ok: false, error: "Confirm you've discussed the stage change with the client." };
+  const share = fd.get("share") === "on";
+  const summaryForClient = text("summary");
+  if (share && !summaryForClient) return { ok: false, error: "Write a summary for the client, or don't share this review." };
+  const circumstances = fd.getAll("circumstances").map(String).filter((c) => (circumstanceOptions as readonly string[]).includes(c));
+  const { stageChanged } = await repo.recordProgressReview(clientId, viewer, {
+    outcome, share, newStage, summaryForClient, nextSteps: text("nextSteps"),
+    reflections: { changed: text("changed"), difficult: text("difficult"), learned: text("learned"), circumstances },
+  });
+  const email = stageChanged ? await sendStageUpdatedEmail(client.email, client.preferredName ?? client.fullName, { demo: isMock() }) : undefined;
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  redirect(`/practice/clients/${clientId}?review=saved${stageChanged ? `&email=${email}` : ""}`);
 }
 
 /** Start and contact submissions: only the owner records the next step and links client records (RLS enforces the same). */

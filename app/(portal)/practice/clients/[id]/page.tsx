@@ -1,25 +1,61 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/portal";
-import { fmtDate, fmtDateTime, serviceName } from "@/lib/portal/format";
+import { STAGES, fmtDate, fmtDateTime, serviceName } from "@/lib/portal/format";
+import { outcomeLabel } from "@/lib/portal/review";
 import { PageTitle, Panel, Badge, StageTracker, ProgressBar } from "@/components/portal/ui";
 import { TrendChart } from "@/components/portal/TrendChart";
 import { NoteForm } from "@/components/portal/interactive";
 
-export default async function ClientDetail({ params }: { params: Promise<{ id: string }> }) {
+const stageLabel = (k?: string) => STAGES.find((s) => s.key === k)?.label ?? k;
+const EMAIL_NOTE: Record<string, string> = { sent: "They’ve been emailed.", skipped: "No email was sent (demo mode or email not set up yet).", failed: "The email couldn’t be sent; let them know directly." };
+
+export default async function ClientDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ review?: string; email?: string }> }) {
   const { id } = await params;
+  const { review, email } = await searchParams;
   const { repo } = await requireStaff();
   const client = await repo.getClient(id);
   if (!client) notFound();
-  const [plan, programs, notes, checkIns, metrics, progress, appts, forms] = await Promise.all([
+  const [plan, programs, notes, checkIns, metrics, progress, appts, forms, reviews, stageChanges] = await Promise.all([
     repo.getPlan(id), repo.listClientPrograms(id), repo.listNotes(id, true), repo.listCheckIns(id), repo.listMetrics(), repo.listProgress(id), repo.listAppointments(id), repo.listForms(id),
+    repo.listReviews(id), repo.listStageChanges(id),
   ]);
   const tracked = metrics.filter((m) => progress.some((p) => p.metricKey === m.key)).slice(0, 3);
   return (
     <>
       <PageTitle eyebrow="Client" title={client.fullName} lead={[client.email, client.delivery].filter(Boolean).join(" · ")} action={<Badge tone={client.status === "active" ? "success" : "neutral"}>{client.status}</Badge>} />
+      {review === "saved" && (
+        <p role="status" className="mb-6 rounded-xl bg-[#E4EBDD] p-4 font-semibold text-success">
+          Progress review saved.{email ? ` Stage updated to ${stageLabel(client.methodStage)}. ${EMAIL_NOTE[email] ?? ""}` : ""}
+        </p>
+      )}
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="space-y-6">
-          <Panel title="TAB Method stage"><StageTracker stage={client.methodStage} /></Panel>
+          <Panel title="TAB Method stage" action={<Link href={`/practice/clients/${id}/review`} className="btn btn-primary btn-sm">Progress review</Link>}>
+            <StageTracker stage={client.methodStage} />
+            {stageChanges.length > 0 && (
+              <ul className="mt-5 space-y-1 text-sm text-text-secondary">
+                {stageChanges.map((c) => <li key={c.id}>{fmtDate(c.changedAt, { month: "short", day: "numeric", year: "numeric" })}: {c.from ? `${stageLabel(c.from)} → ` : ""}{stageLabel(c.to)}{c.changedBy ? ` · ${c.changedBy}` : ""}</li>)}
+              </ul>
+            )}
+          </Panel>
+          <Panel title="Progress reviews">
+            {reviews.length ? (
+              <ul className="space-y-3">
+                {reviews.map((r) => (
+                  <li key={r.id} className="rounded-xl border border-border p-4">
+                    <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
+                      <span>{fmtDate(r.date, { month: "short", day: "numeric", year: "numeric" })}</span>
+                      {r.outcome && <span>· {outcomeLabel(r.outcome)}</span>}
+                      <Badge tone={r.shared ? "success" : "neutral"}>{r.shared ? "Shared with client" : "Internal"}</Badge>
+                    </div>
+                    {r.summary && <p>{r.summary}</p>}
+                    {r.nextSteps && <p className="mt-1 text-sm"><span className="font-semibold">Next: </span>{r.nextSteps}</p>}
+                  </li>
+                ))}
+              </ul>
+            ) : <p className="text-text-secondary">No reviews yet.</p>}
+          </Panel>
           <Panel title={plan ? `Plan: ${plan.title}` : "Plan"}>
             {plan ? (
               <>
