@@ -4,7 +4,7 @@
  */
 import type {
   Activity, Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate,
-  Inquiry, MetricDefinition, Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
+  Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 
 const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
@@ -111,6 +111,7 @@ type Store = {
   notes: Record<string, SessionNote[]>;
   reviews: Record<string, Review[]>;
   stageChanges: Record<string, StageChange[]>;
+  planEntries: Record<string, PlanEntry[]>;
   consents: Record<string, Consent[]>;
   entitlements: Record<string, Entitlement[]>;
   inquiries: Inquiry[];
@@ -131,13 +132,22 @@ function seed(): Store {
   return {
     clients: [dana, ...others],
     plans: [{
-      id: "plan-dana", clientId: DEMO_CLIENT_ID, title: "Stronger, steadier, and back in routine", focus: "Build strength and energy through midlife with a routine that fits a busy week.",
+      id: "plan-dana", clientId: DEMO_CLIENT_ID, planType: "wellness", visibleToClient: true, details: {}, title: "Stronger, steadier, and back in routine", focus: "Build strength and energy through midlife with a routine that fits a busy week.",
       services: ["personal-strength-training", "womens-wellness-coaching", "massage-bodywork"], status: "active", startDate: day(-38), reviewDate: day(46), practitionerName: "Your TAB practitioner",
       goals: [
         { id: "g1", title: "Carry groceries and lift my grandson without back pain", whyItMatters: "I want to keep up with my family.", measure: "Comfort rating and how daily tasks feel", metricKey: "comfort", target: "4 of 5 most weeks", status: "active" },
         { id: "g2", title: "Strength train three times a week", measure: "Sessions logged per week", metricKey: "strength_sessions", target: "3 per week", status: "active" },
         { id: "g3", title: "Sleep closer to seven hours", measure: "Average hours per night", metricKey: "sleep_hours", target: "7 hours", status: "active" },
       ],
+    }, {
+      id: "plan-dana-massage", clientId: DEMO_CLIENT_ID, planType: "massage-bodywork", parentPlanId: "plan-dana", visibleToClient: true,
+      title: "Ease upper back and hip tension", services: ["massage-bodywork"], status: "active", startDate: day(-30), reviewDate: day(30), practitionerName: "Your TAB practitioner", goals: [],
+      details: { focus_areas: "Upper back, shoulders, and hips.", session_frequency: "Every three weeks.", techniques_pressure: "Medium pressure; slower work around the shoulders.", response_aftercare: "Doorway stretch twice a day; a short walk the evening after a session." },
+      privateDetails: { contraindication_notes: "Prefers side-lying for hip work." },
+    }, {
+      id: "plan-dana-strength", clientId: DEMO_CLIENT_ID, planType: "personal-strength-training", parentPlanId: "plan-dana", visibleToClient: false,
+      title: "Strength block 2 (draft)", services: ["personal-strength-training"], status: "draft", practitionerName: "Your TAB practitioner", goals: [],
+      details: { training_focus: "Hinge and single-leg strength.", weekly_structure: "Three 30-minute sessions: two at home, one with a coach." }, privateDetails: { movement_notes: "Keep step-ups on the low box until week 4." },
     }],
     programs: [
       { id: "cp-strength", clientId: DEMO_CLIENT_ID, template: strengthTemplate, source: "assigned", status: "active", startedAt: day(-15), currentWeek: 3, completedActivityIds: ["a1", "a2", "a3", "a4", "a5", "b1", "b2", "b4"] },
@@ -171,6 +181,12 @@ function seed(): Store {
         shared: true, outcome: "adjust", author: "Your TAB practitioner",
         reflections: { changed: "Training three times most weeks; carrying groceries feels easier.", difficult: "Sleep is still short on work nights.", learned: "Short sessions I can repeat beat long ones I skip.", circumstances: ["Schedule"] } },
     ]},
+    planEntries: {
+      "plan-dana-massage": [
+        { id: "pe2", planId: "plan-dana-massage", date: day(-19), body: "Upper back much looser than last visit. Keep the doorway stretch going.", visibility: "shared", author: "Your TAB practitioner" },
+        { id: "pe1", planId: "plan-dana-massage", date: day(-40), body: "Guarding around the right shoulder; lighter pressure there next time.", visibility: "internal", author: "Your TAB practitioner" },
+      ],
+    },
     stageChanges: { [DEMO_CLIENT_ID]: [
       { id: "sc1", from: "start", to: "transform", changedAt: at(-10, 10), changedBy: "Your TAB practitioner", reviewId: "rv1" },
     ]},
@@ -204,9 +220,12 @@ function seed(): Store {
 // Persist across hot reloads in development.
 const g = globalThis as unknown as { __tabMockStore?: Store };
 const store = (g.__tabMockStore ??= seed());
-store.stageChanges ??= {}; // a store created before stage history existed (dev hot reload)
+store.stageChanges ??= {};
+store.planEntries ??= {}; // a store created before stage history existed (dev hot reload)
 
 const clone = <T>(v: T): T => structuredClone(v);
+/** Practitioner-only sections are only ever returned to staff (plan_private_details in the database). */
+const stripPrivate = (p: Plan | null) => (p ? { ...p, privateDetails: undefined } : p);
 
 export const mockRepository: PortalRepository = {
   async getDashboard(clientId) {
@@ -227,7 +246,7 @@ export const mockRepository: PortalRepository = {
     } satisfies Dashboard);
   },
   async getClient(id) { return clone(store.clients.find((c) => c.id === id) ?? null); },
-  async getPlan(clientId) { return clone(store.plans.find((p) => p.clientId === clientId && p.status === "active") ?? null); },
+  async getPlan(clientId) { return clone(stripPrivate(store.plans.find((p) => p.clientId === clientId && p.planType === "wellness" && p.status === "active") ?? null)); },
   async listClientPrograms(clientId) { return clone(store.programs.filter((p) => p.clientId === clientId)); },
   async getClientProgram(clientId, id) { return clone(store.programs.find((p) => p.clientId === clientId && p.id === id) ?? null); },
   async toggleActivity(clientId, programId, activityId, done) {
@@ -286,6 +305,45 @@ export const mockRepository: PortalRepository = {
     return { stageChanged: true };
   },
   async listStageChanges(clientId) { return clone(store.stageChanges[clientId] ?? []); },
+  async listPlans(clientId, { staff }) {
+    const plans = store.plans.filter((p) => p.clientId === clientId && p.status !== "archived" && (staff || p.visibleToClient));
+    return clone(staff ? plans : plans.map((p) => stripPrivate(p)!));
+  },
+  async savePlan(clientId, viewer, input) {
+    const client = store.clients.find((c) => c.id === clientId);
+    if (!client) throw new Error("Client not found");
+    const existing = input.id ? store.plans.find((p) => p.id === input.id && p.clientId === clientId) : undefined;
+    if (input.id && !existing) throw new Error("Plan not found");
+    // The same rules the database enforces (typed_plans migration).
+    const nutrition = input.planType === "nutrition" || existing?.planType === "nutrition";
+    if (nutrition && !viewer.capabilities?.includes("nutrition")) throw new Error("Nutrition plans need the nutrition coaching credential.");
+    const anchor = store.plans.find((p) => p.clientId === clientId && p.planType === "wellness" && p.status === "active" && p.id !== input.id);
+    if (input.planType === "wellness" && input.status === "active" && anchor) throw new Error("This client already has an active Wellness Plan.");
+    if (input.planType !== "wellness" && !anchor && !existing?.parentPlanId) throw new Error("Create the Wellness Plan first.");
+    const plan: Plan = {
+      id: existing?.id ?? `plan-${Date.now()}`, clientId, planType: input.planType, parentPlanId: input.planType === "wellness" ? undefined : existing?.parentPlanId ?? anchor?.id,
+      visibleToClient: input.visibleToClient, details: input.details, privateDetails: input.privateDetails, title: input.title, focus: input.focus,
+      services: input.planType === "wellness" || input.planType === "nutrition" ? existing?.services ?? [] : [input.planType], status: input.status,
+      startDate: input.startDate ?? existing?.startDate, reviewDate: input.reviewDate, practitionerName: existing?.practitionerName ?? viewer.name,
+      goals: input.planType === "wellness" && input.goals
+        ? input.goals.map((g, i) => ({ id: g.id || `g${Date.now()}-${i}`, title: g.title, whyItMatters: g.whyItMatters, measure: g.measure, target: g.target, status: g.status ?? "active",
+            metricKey: existing?.goals.find((x) => x.id === g.id)?.metricKey }))
+        : existing?.goals ?? [],
+    };
+    if (existing) Object.assign(existing, plan); else store.plans.push(plan);
+    return plan.id;
+  },
+  async listPlanEntries(clientId, planId, includeInternal) {
+    const plan = store.plans.find((p) => p.id === planId && p.clientId === clientId);
+    if (!plan || (!includeInternal && !plan.visibleToClient)) return [];
+    return clone((store.planEntries[planId] ?? []).filter((e) => includeInternal || e.visibility === "shared"));
+  },
+  async addPlanEntry(clientId, planId, viewer, entry) {
+    const plan = store.plans.find((p) => p.id === planId && p.clientId === clientId);
+    if (!plan) throw new Error("Plan not found");
+    if (plan.planType === "nutrition" && !viewer.capabilities?.includes("nutrition")) throw new Error("Nutrition plans need the nutrition coaching credential.");
+    (store.planEntries[planId] ??= []).unshift({ id: `pe${Date.now()}`, planId, date: entry.date ?? day(0), body: entry.body, visibility: entry.visibility, author: viewer.name });
+  },
   async listInquiries() { return clone([...store.inquiries].sort((a, b) => b.receivedAt.localeCompare(a.receivedAt))); },
   async getInquiry(id) {
     const inquiry = store.inquiries.find((i) => i.id === id);

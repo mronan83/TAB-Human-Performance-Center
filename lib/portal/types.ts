@@ -6,7 +6,7 @@ export type Role = "owner" | "practitioner" | "client";
 export type MethodStage = "start" | "transform" | "align" | "become" | "evolve";
 
 /** `staffVerified` is false for a staff sign-in without two-step verification (SEC-015): the database then grants no staff access. */
-export type Viewer = { userId: string; role: Role; name: string; clientId?: string; practitionerId?: string; staffVerified?: boolean };
+export type Viewer = { userId: string; role: Role; name: string; clientId?: string; practitionerId?: string; staffVerified?: boolean; capabilities?: string[] };
 
 export type Client = {
   id: string;
@@ -24,9 +24,19 @@ export type Client = {
 
 export type Goal = { id: string; title: string; whyItMatters?: string; measure?: string; metricKey?: string; target?: string; status: "active" | "achieved" | "paused" | "dropped" };
 
+/** `wellness` is the anchor plan; the rest are service plans under it (design §2). */
+export type PlanType = "wellness" | "personal-strength-training" | "massage-bodywork" | "womens-wellness-coaching" | "holistic-life-coaching" | "nutrition";
+
 export type Plan = {
   id: string;
   clientId: string;
+  planType: PlanType;
+  parentPlanId?: string;
+  visibleToClient: boolean;
+  /** Type sections shared with the client when the plan is visible. */
+  details: Record<string, string>;
+  /** Practitioner-only sections. Only ever loaded for staff. */
+  privateDetails?: Record<string, string>;
   title: string;
   focus?: string;
   services: ServiceSlug[];
@@ -35,6 +45,23 @@ export type Plan = {
   reviewDate?: string;
   goals: Goal[];
   practitionerName?: string;
+};
+
+export type PlanEntry = { id: string; planId: string; date: string; body: string; visibility: "internal" | "shared"; author?: string };
+export type GoalInput = { id?: string; title: string; whyItMatters?: string; measure?: string; target?: string; status?: Goal["status"] };
+export type PlanInput = {
+  id?: string;
+  planType: PlanType;
+  title: string;
+  focus?: string;
+  status: Plan["status"];
+  visibleToClient: boolean;
+  startDate?: string;
+  reviewDate?: string;
+  details: Record<string, string>;
+  privateDetails: Record<string, string>;
+  /** Wellness Plan only: the full goal list (goals not listed are removed). */
+  goals?: GoalInput[];
 };
 
 export type Activity = { id: string; kind: "exercise" | "habit" | "reflection" | "reading" | "video" | "check_in"; title: string; instructions?: string; prescription?: Record<string, string | number> };
@@ -182,6 +209,12 @@ export interface PortalRepository {
   /** Saves a Progress Review; when `newStage` differs, changes the stage in the same transaction. Returns whether it changed. */
   recordProgressReview(clientId: string, viewer: Viewer, input: ProgressReviewInput): Promise<{ stageChanged: boolean }>;
   listStageChanges(clientId: string): Promise<StageChange[]>;
+  /** Every plan for the client: staff get drafts and practitioner-only sections; clients get what RLS shows them. */
+  listPlans(clientId: string, opts: { staff: boolean }): Promise<Plan[]>;
+  /** Creates or updates a plan. Service plans are attached to the client's Wellness Plan. Returns the plan id. */
+  savePlan(clientId: string, viewer: Viewer, input: PlanInput): Promise<string>;
+  listPlanEntries(clientId: string, planId: string, includeInternal: boolean): Promise<PlanEntry[]>;
+  addPlanEntry(clientId: string, planId: string, viewer: Viewer, entry: { body: string; visibility: "internal" | "shared"; date?: string }): Promise<void>;
   // Start and contact submissions (owner: all; practitioners: only those linked to assigned clients)
   listInquiries(): Promise<Inquiry[]>;
   getInquiry(id: string): Promise<InquiryDetail | null>;

@@ -74,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
+const DENIED = /row-level security|Nutrition plans need|A service plan must|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -231,6 +231,49 @@ await as(O, `update clients set method_stage='align' where id='${DANA}'`);
 check('a direct stage edit is still recorded', await superuser(`select from_stage, to_stage, review_id from stage_changes where client_id='${DANA}' order by created_at, to_stage desc`),
   [{ from_stage: 'start', to_stage: 'transform', review_id: (await superuser(`select review_id from stage_changes where to_stage='transform'`))[0].review_id }, { from_stage: 'transform', to_stage: 'align', review_id: null }]);
 check('stage changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='stage_changes'`))[0].n, 2);
+
+// C4b: typed plans. Practitioner-only sections and internal log entries never reach the client; nutrition is gated.
+const one = async (uid, sql) => (await as(uid, sql))[0];
+const ANCHOR = (await one(P, `insert into wellness_plans (client_id, title, status, visible_to_client) values ('${DANA}','Dana anchor','active',true) returning id`)).id;
+check('only one active Wellness Plan per client', await attempt(() => as(P, `insert into wellness_plans (client_id, title, status) values ('${DANA}','Second anchor','active')`)), false);
+const MASSAGE = (await one(P, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id, status, visible_to_client, details)
+  values ('${DANA}','Massage plan','massage-bodywork','${ANCHOR}','active',true,'{"focus_areas":"upper back"}') returning id`)).id;
+check('service plan owner defaults to the author', (await superuser(`select practitioner_id from wellness_plans where id='${MASSAGE}'`))[0].practitioner_id, P);
+await as(P, `insert into plan_private_details (plan_id, client_id, details) values ('${MASSAGE}','${DANA}','{"contraindications":"practitioner-only note"}')`);
+check('client reads shared plan sections', (await as(C1, `select details->>'focus_areas' f from wellness_plans where id='${MASSAGE}'`)).map(r=>r.f), ['upper back']);
+check('client cannot read practitioner-only sections', (await as(C1, 'select details from plan_private_details')).length, 0);
+check('care team reads practitioner-only sections', (await as(P, 'select details->>\'contraindications\' c from plan_private_details')).map(r=>r.c), ['practitioner-only note']);
+check('unassigned practitioner cannot read them', (await as(P2, 'select 1 from plan_private_details')).length, 0);
+check('other client sees none of it', (await as(C2, `select 1 from wellness_plans where id='${MASSAGE}'`)).length, 0);
+await expectDenied('client cannot write practitioner-only sections', () => as(C1, `insert into plan_private_details (plan_id, client_id) values ('${ANCHOR}','${DANA}')`));
+await expectDenied('client cannot create a plan', () => as(C1, `insert into wellness_plans (client_id, title) values ('${DANA}','Self-made plan')`));
+const SAM_ANCHOR = (await one(O, `insert into wellness_plans (client_id, title) values ('${SAM}','Sam anchor') returning id`)).id;
+await expectDenied("a service plan cannot sit under another client's plan", () => as(O, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id) values ('${DANA}','Crossed','personal-strength-training','${SAM_ANCHOR}')`));
+await expectDenied('a service plan cannot sit under another service plan', () => as(P, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id) values ('${DANA}','Nested','personal-strength-training','${MASSAGE}')`));
+// Plan log
+await as(P, `insert into plan_entries (plan_id, client_id, body, visibility, practitioner_id) values ('${MASSAGE}','${DANA}','Shared entry','shared','${P2}'),('${MASSAGE}','${DANA}','Internal entry','internal',null)`);
+check('client reads shared log entries only', (await as(C1, 'select body from plan_entries')).map(r=>r.body), ['Shared entry']);
+check('care team reads every log entry', (await as(P, 'select body from plan_entries order by body')).map(r=>r.body), ['Internal entry','Shared entry']);
+check('log entry author is the signed-in practitioner', (await superuser(`select distinct practitioner_id from plan_entries`)).map(r=>r.practitioner_id), [P]);
+const DRAFT_PLAN = (await one(P, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id) values ('${DANA}','Draft strength plan','personal-strength-training','${ANCHOR}') returning id`)).id;
+await as(P, `insert into plan_entries (plan_id, client_id, body, visibility) values ('${DRAFT_PLAN}','${DANA}','Shared but plan hidden','shared')`);
+check('shared entries on a hidden plan stay hidden', (await as(C1, `select 1 from plan_entries where plan_id='${DRAFT_PLAN}'`)).length, 0);
+await expectDenied('client cannot write log entries', () => as(C1, `insert into plan_entries (plan_id, client_id, body, visibility) values ('${MASSAGE}','${DANA}','x','shared')`));
+await expectDenied("a log entry cannot point at another client's plan", () => as(O, `insert into plan_entries (plan_id, client_id, body) values ('${SAM_ANCHOR}','${DANA}','x')`));
+// Nutrition gate
+await expectDenied('practitioner without the credential cannot create a nutrition plan', () => as(P, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id) values ('${DANA}','Nutrition','nutrition','${ANCHOR}')`));
+await expectDenied('owner without the credential cannot either', () => as(O, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id) values ('${DANA}','Nutrition','nutrition','${ANCHOR}')`));
+await expectDenied('a plan cannot be switched to nutrition without the credential', () => as(P, `update wellness_plans set plan_type='nutrition' where id='${MASSAGE}'`));
+await superuser(`update practitioners set capabilities='{nutrition}' where id='${P}'`);
+const NUTRITION = (await one(P, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id) values ('${DANA}','Nutrition coaching','nutrition','${ANCHOR}') returning id`)).id;
+await as(P, `insert into plan_entries (plan_id, client_id, body) values ('${NUTRITION}','${DANA}','Habit check-in')`);
+check('credentialed practitioner writes nutrition plans and entries', (await superuser(`select count(*)::int n from plan_entries where plan_id='${NUTRITION}'`))[0].n, 1);
+await superuser(`update practitioners set capabilities='{}' where id='${P}'`);
+await expectDenied('without the credential a nutrition plan cannot be edited', () => as(P, `update wellness_plans set title='Changed' where id='${NUTRITION}'`));
+await expectDenied('without the credential no nutrition log entries', () => as(P, `insert into plan_entries (plan_id, client_id, body) values ('${NUTRITION}','${DANA}','x')`));
+await expectDenied('nor practitioner-only nutrition sections', () => as(P, `insert into plan_private_details (plan_id, client_id) values ('${NUTRITION}','${DANA}')`));
+await expectDenied('practitioner-only sections cannot be truncated', () => as(O, 'truncate plan_private_details'));
+check('plan log and private sections are audited', (await superuser(`select count(distinct table_name)::int n from audit_events where table_name in ('plan_entries','plan_private_details')`))[0].n, 2);
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

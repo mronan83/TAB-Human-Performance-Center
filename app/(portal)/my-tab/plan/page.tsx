@@ -2,10 +2,15 @@ import { requireClient } from "@/lib/portal";
 import { fmtDate, serviceName, STAGES } from "@/lib/portal/format";
 import { PageTitle, Panel, Badge, StageTracker, EmptyState } from "@/components/portal/ui";
 import { TrendChart } from "@/components/portal/TrendChart";
+import { planTypes } from "@/lib/portal/plan-types";
 
 export default async function PlanPage() {
   const { clientId, repo } = await requireClient();
-  const [plan, client, metrics, progress, reviews, notes] = await Promise.all([repo.getPlan(clientId), repo.getClient(clientId), repo.listMetrics(), repo.listProgress(clientId), repo.listSharedReviews(clientId), repo.listNotes(clientId, false)]);
+  const [anchor, client, metrics, progress, reviews, notes, plans] = await Promise.all([repo.getPlan(clientId), repo.getClient(clientId), repo.listMetrics(), repo.listProgress(clientId), repo.listSharedReviews(clientId), repo.listNotes(clientId, false), repo.listPlans(clientId, { staff: false })]);
+  const plan = anchor?.visibleToClient ? anchor : null;
+  // Service plans shared with the client, with their shared log entries (design §2.2).
+  const servicePlans = await Promise.all(plans.filter((p) => p.planType !== "wellness" && p.visibleToClient && (p.status === "active" || p.status === "completed"))
+    .map(async (p) => ({ plan: p, entries: (await repo.listPlanEntries(clientId, p.id, false)).slice(0, 3) })));
   if (!plan) return (<><PageTitle eyebrow="My plan" title="Your plan" /><EmptyState title="Your plan is being prepared." body="After your first conversation, your practitioner will share a personalized plan here." /></>);
   const stage = STAGES.find((s) => s.key === client?.methodStage);
   return (
@@ -27,6 +32,26 @@ export default async function PlanPage() {
                   {g.target && <div><dt className="text-text-secondary">Target</dt><dd className="font-medium">{g.target}</dd></div>}
                 </dl>
                 {metric && <div className="mt-5 border-t border-border pt-5"><TrendChart metric={metric} entries={progress} target={g.target} /></div>}
+              </Panel>
+            );
+          })}
+          {servicePlans.map(({ plan: sp, entries }) => {
+            const sections = planTypes[sp.planType].sections.filter((s) => !s.private && sp.details[s.key]);
+            return (
+              <Panel key={sp.id}>
+                <p className="text-label text-secondary">{planTypes[sp.planType].label}</p>
+                <h2 className="text-h4 mt-1">{sp.title}</h2>
+                {sections.length > 0 && (
+                  <dl className="mt-4 space-y-3 text-sm">
+                    {sections.map((s) => <div key={s.key}><dt className="text-text-secondary">{s.label}</dt><dd className="mt-0.5 whitespace-pre-line">{sp.details[s.key]}</dd></div>)}
+                  </dl>
+                )}
+                {entries.length > 0 && (
+                  <div className="mt-5 border-t border-border pt-5">
+                    <p className="text-sm font-semibold">Recent notes</p>
+                    <ul className="mt-2 space-y-3">{entries.map((e) => <li key={e.id}><p className="text-sm text-text-secondary">{fmtDate(e.date, { month: "long", day: "numeric" })}</p><p className="mt-0.5">{e.body}</p></li>)}</ul>
+                  </div>
+                )}
               </Panel>
             );
           })}

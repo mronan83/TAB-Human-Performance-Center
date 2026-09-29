@@ -77,6 +77,16 @@ never shown by default). This is what makes a massage plan track progress over t
 - **Sensitive data (guardrail 4):** plans are client records. RLS, audit trigger and `rls.test.mjs` tests are required
   before the Supabase version ships; demo mode uses the mock repository.
 
+### 2.3a As built (C4b)
+
+- `wellness_plans` gains `plan_type`, `parent_plan_id`, `practitioner_id`, `details`; one active Wellness Plan per client
+  (unique index); service plans must sit under the same client's Wellness Plan (triggers).
+- Practitioner-only sections live in `plan_private_details` (care team only; the client can never read them); the
+  plan log is `plan_entries` (shared entries reach the client only while the plan is visible).
+- Nutrition gate: `practitioners.capabilities` and `has_capability('nutrition')`, enforced by triggers on the plan,
+  its private sections and its log, for owners too.
+- Type sections are defined in `lib/portal/plan-types.ts`; the app keeps only a type's section keys on save.
+
 ### 2.4 Authoring flow (TAB Practice → client page)
 
 1. **Wellness Plan:** write or edit focus, goals, review date; mark visible to the client when ready.
