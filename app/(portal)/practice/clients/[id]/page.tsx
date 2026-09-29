@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/portal";
 import { STAGES, fmtDate, fmtDateTime, serviceName } from "@/lib/portal/format";
 import { outcomeLabel } from "@/lib/portal/review";
+import { canUsePlanType, planTypes, servicePlanTypes } from "@/lib/portal/plan-types";
 import { PageTitle, Panel, Badge, StageTracker, ProgressBar } from "@/components/portal/ui";
 import { TrendChart } from "@/components/portal/TrendChart";
 import { NoteForm } from "@/components/portal/interactive";
@@ -13,13 +14,15 @@ const EMAIL_NOTE: Record<string, string> = { sent: "They’ve been emailed.", sk
 export default async function ClientDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ review?: string; email?: string }> }) {
   const { id } = await params;
   const { review, email } = await searchParams;
-  const { repo } = await requireStaff();
+  const { viewer, repo } = await requireStaff();
   const client = await repo.getClient(id);
   if (!client) notFound();
   const [plan, programs, notes, checkIns, metrics, progress, appts, forms, reviews, stageChanges] = await Promise.all([
     repo.getPlan(id), repo.listClientPrograms(id), repo.listNotes(id, true), repo.listCheckIns(id), repo.listMetrics(), repo.listProgress(id), repo.listAppointments(id), repo.listForms(id),
     repo.listReviews(id), repo.listStageChanges(id),
   ]);
+  const allPlans = await repo.listPlans(id, { staff: true });
+  const servicePlans = allPlans.filter((p) => p.planType !== "wellness");
   const tracked = metrics.filter((m) => progress.some((p) => p.metricKey === m.key)).slice(0, 3);
   return (
     <>
@@ -56,14 +59,37 @@ export default async function ClientDetail({ params, searchParams }: { params: P
               </ul>
             ) : <p className="text-text-secondary">No reviews yet.</p>}
           </Panel>
-          <Panel title={plan ? `Plan: ${plan.title}` : "Plan"}>
+          <Panel title="Plans" action={plan ? <Link href={`/practice/clients/${id}/plans/${plan.id}`} className="btn btn-outline btn-sm">Edit Wellness Plan</Link> : undefined}>
             {plan ? (
               <>
+                <p className="font-semibold">{plan.title}</p>
                 {plan.focus && <p className="text-text-secondary">{plan.focus}</p>}
                 <ul className="mt-4 space-y-2">{plan.goals.map((g) => <li key={g.id} className="flex items-start justify-between gap-3 rounded-xl bg-cream p-3"><span>{g.title}</span><Badge>{g.target ?? g.status}</Badge></li>)}</ul>
                 {plan.reviewDate && <p className="mt-4 text-sm text-text-secondary">Next review {fmtDate(plan.reviewDate, { month: "long", day: "numeric" })}</p>}
               </>
-            ) : <p className="text-text-secondary">No active plan.</p>}
+            ) : (
+              <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-text-secondary">No active Wellness Plan yet.</p><Link href={`/practice/clients/${id}/plans/new?type=wellness`} className="btn btn-primary btn-sm">Create Wellness Plan</Link></div>
+            )}
+            {servicePlans.length > 0 && (
+              <ul className="mt-6 divide-y divide-border border-t border-border">
+                {servicePlans.map((p) => (
+                  <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                    <Link href={`/practice/clients/${id}/plans/${p.id}`} className="font-semibold text-primary underline">{planTypes[p.planType].short}: {p.title}</Link>
+                    <span className="flex gap-2"><Badge tone={p.status === "active" ? "success" : "neutral"}>{p.status}</Badge><Badge tone={p.visibleToClient ? "success" : "neutral"}>{p.visibleToClient ? "Shared" : "Not shared"}</Badge></span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {plan && (
+              <div className="mt-6">
+                <p className="field-label">Add a service plan</p>
+                <div className="flex flex-wrap gap-2">
+                  {servicePlanTypes.filter((t) => canUsePlanType(t, viewer.capabilities)).map((t) => (
+                    <Link key={t} href={`/practice/clients/${id}/plans/new?type=${t}`} className="btn btn-outline btn-sm">{planTypes[t].short}</Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </Panel>
           <Panel title="Session notes">
             <NoteForm clientId={id} />

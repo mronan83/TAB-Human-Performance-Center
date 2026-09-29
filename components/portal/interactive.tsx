@@ -2,8 +2,9 @@
 
 import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import clsx from "clsx";
-import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction } from "@/app/(portal)/actions";
-import type { Consent, FormField, FormTemplate, MethodStage } from "@/lib/portal/types";
+import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction } from "@/app/(portal)/actions";
+import type { Consent, FormField, FormTemplate, MethodStage, Plan, PlanType } from "@/lib/portal/types";
+import { planTypes } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { services } from "@/content/services";
@@ -237,6 +238,87 @@ export function ProgressReviewForm({ clientId, clientName, currentStage }: { cli
         <button className="btn btn-primary" disabled={pending}>{pending ? "Saving…" : changing ? "Save review and update stage" : "Save review"}</button>
       </div>
       {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
+    </form>
+  );
+}
+
+/** Plan editor (design §2.4). Wellness Plans carry focus and goals; service plans carry their type's sections. */
+export function PlanForm({ clientId, planType, plan }: { clientId: string; planType: PlanType; plan?: Plan }) {
+  const [state, action, pending] = useActionState(savePlanAction.bind(null, clientId, plan?.id ?? null, planType), null);
+  const def = planTypes[planType];
+  const shared = def.sections.filter((s) => !s.private), priv = def.sections.filter((s) => s.private);
+  const goals = [...(plan?.goals ?? []), ...Array.from({ length: 3 }, () => undefined)].slice(0, 12);
+  const section = (sec: (typeof def.sections)[number], value?: string) => (
+    <div key={sec.key}>
+      <label htmlFor={`section-${sec.key}`} className="field-label">{sec.label}</label>
+      {sec.hint && <p id={`hint-${sec.key}`} className="-mt-1 mb-2 text-sm text-text-secondary">{sec.hint}</p>}
+      <textarea id={`section-${sec.key}`} name={`section:${sec.key}`} defaultValue={value} className="field-input" aria-describedby={sec.hint ? `hint-${sec.key}` : undefined} />
+    </div>
+  );
+  return (
+    <form action={action} className="space-y-6">
+      <div><label htmlFor="title" className="field-label">Title</label><input id="title" name="title" required defaultValue={plan?.title} className="field-input" /></div>
+      {planType === "wellness" && (
+        <div><label htmlFor="focus" className="field-label">Focus</label><textarea id="focus" name="focus" defaultValue={plan?.focus} className="field-input" placeholder="What this season of work is about, in their words." /></div>
+      )}
+      {planType === "wellness" && (
+        <fieldset className="space-y-4">
+          <legend className="field-label">Goals</legend>
+          {goals.map((g, i) => (
+            <div key={g?.id ?? `new-${i}`} className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2">
+              <input type="hidden" name={`goal.${i}.id`} value={g?.id ?? ""} />
+              <div className="md:col-span-2"><label htmlFor={`goal-${i}-title`} className="field-label">Goal {i + 1}</label><input id={`goal-${i}-title`} name={`goal.${i}.title`} defaultValue={g?.title} className="field-input" /></div>
+              <div><label htmlFor={`goal-${i}-why`} className="field-label">Why it matters</label><input id={`goal-${i}-why`} name={`goal.${i}.why`} defaultValue={g?.whyItMatters} className="field-input" /></div>
+              <div><label htmlFor={`goal-${i}-measure`} className="field-label">How we&rsquo;ll know</label><input id={`goal-${i}-measure`} name={`goal.${i}.measure`} defaultValue={g?.measure} className="field-input" /></div>
+              <div><label htmlFor={`goal-${i}-target`} className="field-label">Target</label><input id={`goal-${i}-target`} name={`goal.${i}.target`} defaultValue={g?.target} className="field-input" /></div>
+              <div><label htmlFor={`goal-${i}-status`} className="field-label">Status</label>
+                <select id={`goal-${i}-status`} name={`goal.${i}.status`} defaultValue={g?.status ?? "active"} className="field-input">
+                  <option value="active">Active</option><option value="achieved">Achieved</option><option value="paused">Paused</option><option value="dropped">Dropped</option>
+                </select></div>
+            </div>
+          ))}
+          <p className="text-sm text-text-secondary">Leave a goal&rsquo;s title empty to remove it. Save to get more empty rows.</p>
+        </fieldset>
+      )}
+      {shared.map((sec) => section(sec, plan?.details[sec.key]))}
+      {priv.length > 0 && (
+        <fieldset className="space-y-4 rounded-xl border border-border-strong bg-cream p-4">
+          <legend className="px-1 font-semibold">Practitioner-only</legend>
+          <p className="text-sm text-text-secondary">Never shown to the client.</p>
+          {priv.map((sec) => section(sec, plan?.privateDetails?.[sec.key]))}
+        </fieldset>
+      )}
+      <div className="grid gap-4 md:grid-cols-3">
+        <div><label htmlFor="status" className="field-label">Status</label>
+          <select id="status" name="status" defaultValue={plan?.status ?? "draft"} className="field-input">
+            <option value="draft">Draft</option><option value="active">Active</option><option value="completed">Completed</option><option value="archived">Archived</option>
+          </select></div>
+        <div><label htmlFor="startDate" className="field-label">Start date</label><input id="startDate" name="startDate" type="date" defaultValue={plan?.startDate} className="field-input" /></div>
+        <div><label htmlFor="reviewDate" className="field-label">Next review</label><input id="reviewDate" name="reviewDate" type="date" defaultValue={plan?.reviewDate} className="field-input" /></div>
+      </div>
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="visible" defaultChecked={plan?.visibleToClient ?? false} className="h-4 w-4 accent-[var(--color-olive)]" /> Share this plan with the client in My TAB (practitioner-only sections stay private)</label>
+      <button className="btn btn-primary" disabled={pending}>{pending ? "Saving…" : plan ? "Save plan" : "Create plan"}</button>
+      {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
+    </form>
+  );
+}
+
+export function PlanEntryForm({ clientId, planId }: { clientId: string; planId: string }) {
+  const [state, action, pending] = useActionState(addPlanEntryAction.bind(null, clientId, planId), null);
+  return (
+    <form action={action} className="space-y-4">
+      <div><label htmlFor="entry-body" className="field-label">New log entry</label><textarea id="entry-body" name="body" className="field-input" placeholder="What you did, how they responded, what changes next time." /></div>
+      <div className="flex flex-wrap items-end gap-4">
+        <div><label htmlFor="entry-date" className="field-label">Date</label><input id="entry-date" name="date" type="date" className="field-input" /></div>
+        <fieldset className="flex gap-2">
+          <legend className="field-label">Visibility</legend>
+          <label className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm"><input type="radio" name="visibility" value="internal" defaultChecked className="accent-[var(--color-olive)]" /> Internal only</label>
+          <label className="flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm"><input type="radio" name="visibility" value="shared" className="accent-[var(--color-olive)]" /> Share with client</label>
+        </fieldset>
+        <button className="btn btn-primary btn-sm" disabled={pending}>{pending ? "Saving…" : "Add entry"}</button>
+      </div>
+      {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
+      {state?.ok && <p role="status" className="text-sm font-semibold text-success">Entry added.</p>}
     </form>
   );
 }

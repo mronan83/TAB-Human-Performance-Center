@@ -84,6 +84,35 @@ test("progress review: the practitioner confirms a stage change and the client s
   await expect(page.locator('[aria-current="step"]')).toContainText("Align");
 });
 
+test("plans: a practitioner creates and shares a service plan; the client sees only what's shared (design §2)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-dana");
+  await page.getByRole("link", { name: "Life Coaching", exact: true }).click();
+  await expect(page.locator("main h1")).toHaveText("New Life Coaching plan");
+  await page.getByLabel("Title").fill("Make room for what matters");
+  await page.getByLabel("Values").fill("Family time and steady energy.");
+  await page.getByLabel("Status").selectOption("active");
+  await page.getByLabel(/Share this plan with the client/).check();
+  await page.getByRole("button", { name: "Create plan" }).click();
+  await expect(page.getByRole("status")).toContainText("Plan saved. It’s shared with the client");
+
+  await page.getByLabel("New log entry").fill("Named two evenings a week as protected family time.");
+  await page.getByLabel("Share with client").check();
+  await page.getByRole("button", { name: "Add entry" }).click();
+  await expect(page.getByText("Entry added.")).toBeVisible();
+
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  await page.goto("/my-tab/plan");
+  await expect(page.getByRole("heading", { name: "Make room for what matters" })).toBeVisible();
+  await expect(page.getByText("Family time and steady energy.")).toBeVisible();
+  await expect(page.getByText("Named two evenings a week as protected family time.")).toBeVisible();
+  // Shared massage sections and entries show; practitioner-only sections, internal entries and draft plans don't.
+  await expect(page.getByText("Upper back, shoulders, and hips.")).toBeVisible();
+  await expect(page.getByText("Prefers side-lying for hip work.")).toHaveCount(0);
+  await expect(page.getByText("Guarding around the right shoulder")).toHaveCount(0);
+  await expect(page.getByText("Strength block 2")).toHaveCount(0);
+});
+
 test("Start Where You Are: submits choices only (D-059)", async ({ page }) => {
   const sent = await inquiryOk(page);
   await page.goto("/start");

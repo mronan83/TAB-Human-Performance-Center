@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireClient, requireStaff, isMock } from "@/lib/portal";
 import { siteUrl } from "@/config/site";
-import type { Consent, MethodStage, ReviewOutcome } from "@/lib/portal/types";
+import type { Consent, GoalInput, MethodStage, Plan, PlanType, ReviewOutcome } from "@/lib/portal/types";
+import { canUsePlanType, planTypes, splitSections } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { sendStageUpdatedEmail } from "@/lib/email";
@@ -83,6 +84,68 @@ export async function recordProgressReviewAction(clientId: string, _prev: unknow
   revalidatePath(`/practice/clients/${clientId}`);
   revalidatePath("/my-tab", "layout");
   redirect(`/practice/clients/${clientId}?review=saved${stageChanged ? `&email=${email}` : ""}`);
+}
+
+const PLAN_STATUSES: Plan["status"][] = ["draft", "active", "completed", "archived"];
+const isoDate = (v: FormDataEntryValue | null) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v ?? "")) ? String(v) : undefined);
+
+/**
+ * Creates or updates a plan (design §2.4). Sections are kept to the type's schema; practitioner-only sections go to
+ * plan_private_details. Nutrition plans need the nutrition credential (the database enforces the same).
+ */
+export async function savePlanAction(clientId: string, planId: string | null, planType: PlanType, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  if (!(planType in planTypes)) return { ok: false, error: "Unknown plan type." };
+  if (!canUsePlanType(planType, viewer.capabilities)) return { ok: false, error: `${planTypes[planType].label}s need the matching credential on your practitioner profile.` };
+  const existing = planId ? (await repo.listPlans(clientId, { staff: true })).find((p) => p.id === planId) : undefined;
+  if (planId && !existing) return { ok: false, error: "Plan not found." };
+  const title = String(fd.get("title") ?? "").trim().slice(0, 200);
+  if (!title) return { ok: false, error: "Give the plan a title." };
+  const status = PLAN_STATUSES.find((s) => s === fd.get("status")) ?? "draft";
+  const sections: Record<string, string> = {};
+  for (const [k, v] of fd.entries()) if (k.startsWith("section:")) sections[k.slice(8)] = String(v);
+  const { shared, priv } = splitSections(planType, sections);
+  let goals: GoalInput[] | undefined;
+  if (planType === "wellness") {
+    const knownIds = new Set(existing?.goals.map((g) => g.id));
+    const txt = (k: string, i: number) => String(fd.get(`goal.${i}.${k}`) ?? "").trim().slice(0, 500) || undefined;
+    goals = [];
+    for (let i = 0; i < 12; i++) {
+      const t = txt("title", i);
+      if (!t) continue;
+      const id = String(fd.get(`goal.${i}.id`) ?? "");
+      goals.push({ id: knownIds.has(id) ? id : undefined, title: t, whyItMatters: txt("why", i), measure: txt("measure", i), target: txt("target", i),
+        status: (["active", "achieved", "paused", "dropped"] as const).find((s) => s === fd.get(`goal.${i}.status`)) ?? "active" });
+    }
+  }
+  let id: string;
+  try {
+    id = await repo.savePlan(clientId, viewer, {
+      id: planId ?? undefined, planType, title, status, focus: String(fd.get("focus") ?? "").trim().slice(0, 2000) || undefined,
+      visibleToClient: fd.get("visible") === "on", startDate: isoDate(fd.get("startDate")), reviewDate: isoDate(fd.get("reviewDate")),
+      details: shared, privateDetails: priv, goals,
+    });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "The plan couldn't be saved." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  redirect(`/practice/clients/${clientId}/plans/${id}?saved=1`);
+}
+
+/** Adds a dated entry to a plan's log. Shared entries appear in the client's My TAB when the plan is visible. */
+export async function addPlanEntryAction(clientId: string, planId: string, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const body = String(fd.get("body") ?? "").trim().slice(0, 4000);
+  if (!body) return { ok: false, error: "Write the entry first." };
+  try {
+    await repo.addPlanEntry(clientId, planId, viewer, { body, visibility: fd.get("visibility") === "shared" ? "shared" : "internal", date: isoDate(fd.get("date")) });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "The entry couldn't be saved." };
+  }
+  revalidatePath(`/practice/clients/${clientId}/plans/${planId}`);
+  revalidatePath("/my-tab", "layout");
+  return { ok: true };
 }
 
 /** Start and contact submissions: only the owner records the next step and links client records (RLS enforces the same). */

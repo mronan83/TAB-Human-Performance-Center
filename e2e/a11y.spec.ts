@@ -45,4 +45,8 @@ test("portal: demo sign-in and progress review meet WCAG 2.2 AA", async ({ page,
   await page.goto("/practice/clients/demo-client-ruth/review");
   await page.getByLabel("TAB Method stage", { exact: true }).selectOption("transform"); // shows the stage-change confirmation
   await scan(page, "/practice/clients/…/review (stage change)");
+  await page.goto("/practice/clients/demo-client-dana/plans/plan-dana-massage");
+  await scan(page, "/practice/clients/…/plans/… (service plan editor)");
+  await page.goto("/practice/clients/demo-client-dana/plans/plan-dana");
+  await scan(page, "/practice/clients/…/plans/… (Wellness Plan editor)");
 });

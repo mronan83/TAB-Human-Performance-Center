@@ -7,7 +7,7 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
-  Plan, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
+  Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 
 type Row = Record<string, any>;
@@ -64,6 +64,14 @@ async function mapClientProgram(r: Row, sb: Awaited<ReturnType<typeof db>>): Pro
   };
 }
 
+const mapPlan = (r: Row, priv?: Row): Plan => ({
+  id: r.id, clientId: r.client_id, planType: r.plan_type, parentPlanId: r.parent_plan_id ?? undefined, visibleToClient: r.visible_to_client,
+  details: r.details ?? {}, privateDetails: priv?.details, title: r.title, focus: r.focus ?? undefined, services: r.services, status: r.status,
+  startDate: r.start_date ?? undefined, reviewDate: r.review_date ?? undefined, practitionerName: r.practitioners?.display_name ?? r.profiles?.full_name,
+  goals: (r.plan_goals ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((g: Row) => ({ id: g.id, title: g.title, whyItMatters: g.why_it_matters ?? undefined, measure: g.measure ?? undefined, metricKey: g.metric_key ?? undefined, target: g.target ?? undefined, status: g.status })),
+});
+const PLAN_SELECT = "*, plan_goals(*), profiles:created_by(full_name), practitioners(display_name)";
+
 const mapReview = (r: Row): Review => ({
   id: r.id, date: r.review_date, summary: r.summary_for_client ?? "", nextSteps: r.next_steps ?? undefined, stage: r.method_stage ?? undefined,
   shared: r.shared, outcome: r.outcome ?? undefined, reflections: r.reflections ?? undefined, author: r.practitioners?.display_name ?? undefined,
@@ -100,13 +108,8 @@ export const supabaseRepository: PortalRepository = {
   },
   async getPlan(clientId) {
     const sb = await db();
-    const r = must(await sb.from("wellness_plans").select("*, plan_goals(*), profiles:created_by(full_name)").eq("client_id", clientId).eq("status", "active").order("created_at", { ascending: false }).limit(1).maybeSingle()) as Row | null;
-    if (!r) return null;
-    return {
-      id: r.id, clientId: r.client_id, title: r.title, focus: r.focus ?? undefined, services: r.services, status: r.status, startDate: r.start_date ?? undefined,
-      reviewDate: r.review_date ?? undefined, practitionerName: r.profiles?.full_name,
-      goals: (r.plan_goals ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((g: Row) => ({ id: g.id, title: g.title, whyItMatters: g.why_it_matters ?? undefined, measure: g.measure ?? undefined, metricKey: g.metric_key ?? undefined, target: g.target ?? undefined, status: g.status })),
-    } satisfies Plan;
+    const r = must(await sb.from("wellness_plans").select(PLAN_SELECT).eq("client_id", clientId).eq("plan_type", "wellness").eq("status", "active").order("created_at", { ascending: false }).limit(1).maybeSingle()) as Row | null;
+    return r ? mapPlan(r) : null;
   },
   async listClientPrograms(clientId) {
     const sb = await db();
@@ -245,6 +248,53 @@ export const supabaseRepository: PortalRepository = {
     const sb = await db();
     const rows = must(await sb.from("stage_changes").select("*, profiles:changed_by(full_name)").eq("client_id", clientId).order("created_at", { ascending: false })) as Row[];
     return rows.map((r): StageChange => ({ id: r.id, from: r.from_stage ?? undefined, to: r.to_stage, changedAt: r.created_at, changedBy: r.profiles?.full_name ?? undefined, reviewId: r.review_id ?? undefined }));
+  },
+  async listPlans(clientId, { staff }) {
+    const sb = await db();
+    const rows = must(await sb.from("wellness_plans").select(PLAN_SELECT).eq("client_id", clientId).neq("status", "archived").order("created_at")) as Row[];
+    // Practitioner-only sections: RLS returns nothing to clients; staff load them explicitly.
+    const priv = staff ? (must(await sb.from("plan_private_details").select("plan_id, details").eq("client_id", clientId)) as Row[]) : [];
+    return rows.map((r) => mapPlan(r, priv.find((p) => p.plan_id === r.id)));
+  },
+  async savePlan(clientId, _viewer, input) {
+    const sb = await db();
+    // RLS and triggers enforce the rules: care team only, one active Wellness Plan, service plans under it, nutrition gate.
+    const fields = {
+      title: input.title, focus: input.focus ?? null, status: input.status, visible_to_client: input.visibleToClient,
+      start_date: input.startDate ?? null, review_date: input.reviewDate ?? null, details: input.details,
+    };
+    let id = input.id;
+    if (id) {
+      must(await sb.from("wellness_plans").update(fields).eq("id", id).eq("client_id", clientId));
+    } else {
+      const anchor = input.planType === "wellness" ? null
+        : (must(await sb.from("wellness_plans").select("id").eq("client_id", clientId).eq("plan_type", "wellness").eq("status", "active").maybeSingle()) as Row | null);
+      if (input.planType !== "wellness" && !anchor) throw new Error("Create the Wellness Plan first.");
+      const services = input.planType === "wellness" || input.planType === "nutrition" ? [] : [input.planType];
+      id = (must(await sb.from("wellness_plans").insert({ ...fields, client_id: clientId, plan_type: input.planType, parent_plan_id: anchor?.id ?? null, services }).select("id").single()) as Row).id as string;
+    }
+    must(await sb.from("plan_private_details").upsert({ plan_id: id, client_id: clientId, details: input.privateDetails }));
+    if (input.planType === "wellness" && input.goals) {
+      const keep = input.goals.map((g) => g.id).filter(Boolean) as string[];
+      const del = sb.from("plan_goals").delete().eq("plan_id", id);
+      must(await (keep.length ? del.not("id", "in", `(${keep.join(",")})`) : del));
+      for (const [sort, g] of input.goals.entries()) {
+        const row = { plan_id: id, title: g.title, why_it_matters: g.whyItMatters ?? null, measure: g.measure ?? null, target: g.target ?? null, status: g.status ?? "active", sort };
+        must(await (g.id ? sb.from("plan_goals").update(row).eq("id", g.id).eq("plan_id", id) : sb.from("plan_goals").insert(row)));
+      }
+    }
+    return id;
+  },
+  async listPlanEntries(clientId, planId, includeInternal) {
+    const sb = await db();
+    let q = sb.from("plan_entries").select("*, profiles:practitioner_id(full_name)").eq("client_id", clientId).eq("plan_id", planId).order("entry_date", { ascending: false });
+    if (!includeInternal) q = q.eq("visibility", "shared");
+    const rows = must(await q) as Row[];
+    return rows.map((r): PlanEntry => ({ id: r.id, planId: r.plan_id, date: r.entry_date, body: r.body, visibility: r.visibility, author: r.profiles?.full_name ?? undefined }));
+  },
+  async addPlanEntry(clientId, planId, _viewer, entry) {
+    const sb = await db();
+    must(await sb.from("plan_entries").insert({ client_id: clientId, plan_id: planId, body: entry.body, visibility: entry.visibility, entry_date: entry.date ?? today() }));
   },
   async listProgramTemplates() {
     const sb = await db();
