@@ -62,6 +62,9 @@ export const planTypes: Record<PlanType, PlanTypeDef> = {
   },
 };
 
+/** Most goals a Wellness Plan can hold (owner request 2026-09-29). */
+export const MAX_PLAN_GOALS = 100;
+
 export const servicePlanTypes = (Object.keys(planTypes) as PlanType[]).filter((t) => t !== "wellness");
 export const canUsePlanType = (type: PlanType, capabilities: string[] = []) => {
   const cap = planTypes[type].capability;

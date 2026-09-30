@@ -3,8 +3,8 @@
 import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import clsx from "clsx";
 import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction } from "@/app/(portal)/actions";
-import type { Consent, FormField, FormTemplate, MethodStage, Plan, PlanType } from "@/lib/portal/types";
-import { planTypes } from "@/lib/portal/plan-types";
+import type { Consent, FormField, FormTemplate, Goal, MethodStage, Plan, PlanType } from "@/lib/portal/types";
+import { MAX_PLAN_GOALS, planTypes } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { services } from "@/content/services";
@@ -247,7 +247,6 @@ export function PlanForm({ clientId, planType, plan }: { clientId: string; planT
   const [state, action, pending] = useActionState(savePlanAction.bind(null, clientId, plan?.id ?? null, planType), null);
   const def = planTypes[planType];
   const shared = def.sections.filter((s) => !s.private), priv = def.sections.filter((s) => s.private);
-  const goals = [...(plan?.goals ?? []), ...Array.from({ length: 3 }, () => undefined)].slice(0, 12);
   const section = (sec: (typeof def.sections)[number], value?: string) => (
     <div key={sec.key}>
       <label htmlFor={`section-${sec.key}`} className="field-label">{sec.label}</label>
@@ -261,25 +260,7 @@ export function PlanForm({ clientId, planType, plan }: { clientId: string; planT
       {planType === "wellness" && (
         <div><label htmlFor="focus" className="field-label">Focus</label><textarea id="focus" name="focus" defaultValue={plan?.focus} className="field-input" placeholder="What this season of work is about, in their words." /></div>
       )}
-      {planType === "wellness" && (
-        <fieldset className="space-y-4">
-          <legend className="field-label">Goals</legend>
-          {goals.map((g, i) => (
-            <div key={g?.id ?? `new-${i}`} className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2">
-              <input type="hidden" name={`goal.${i}.id`} value={g?.id ?? ""} />
-              <div className="md:col-span-2"><label htmlFor={`goal-${i}-title`} className="field-label">Goal {i + 1}</label><input id={`goal-${i}-title`} name={`goal.${i}.title`} defaultValue={g?.title} className="field-input" /></div>
-              <div><label htmlFor={`goal-${i}-why`} className="field-label">Why it matters</label><input id={`goal-${i}-why`} name={`goal.${i}.why`} defaultValue={g?.whyItMatters} className="field-input" /></div>
-              <div><label htmlFor={`goal-${i}-measure`} className="field-label">How we&rsquo;ll know</label><input id={`goal-${i}-measure`} name={`goal.${i}.measure`} defaultValue={g?.measure} className="field-input" /></div>
-              <div><label htmlFor={`goal-${i}-target`} className="field-label">Target</label><input id={`goal-${i}-target`} name={`goal.${i}.target`} defaultValue={g?.target} className="field-input" /></div>
-              <div><label htmlFor={`goal-${i}-status`} className="field-label">Status</label>
-                <select id={`goal-${i}-status`} name={`goal.${i}.status`} defaultValue={g?.status ?? "active"} className="field-input">
-                  <option value="active">Active</option><option value="achieved">Achieved</option><option value="paused">Paused</option><option value="dropped">Dropped</option>
-                </select></div>
-            </div>
-          ))}
-          <p className="text-sm text-text-secondary">Leave a goal&rsquo;s title empty to remove it. Save to get more empty rows.</p>
-        </fieldset>
-      )}
+      {planType === "wellness" && <GoalsEditor initial={plan?.goals ?? []} />}
       {shared.map((sec) => section(sec, plan?.details[sec.key]))}
       {priv.length > 0 && (
         <fieldset className="space-y-4 rounded-xl border border-border-strong bg-cream p-4">
@@ -288,8 +269,8 @@ export function PlanForm({ clientId, planType, plan }: { clientId: string; planT
           {priv.map((sec) => section(sec, plan?.privateDetails?.[sec.key]))}
         </fieldset>
       )}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div><label htmlFor="status" className="field-label">Status</label>
+      <div className="grid gap-4 md:grid-cols-3 [&>div]:min-w-0">
+        <div><label htmlFor="status" className="field-label">Plan status</label>
           <select id="status" name="status" defaultValue={plan?.status ?? "draft"} className="field-input">
             <option value="draft">Draft</option><option value="active">Active</option><option value="completed">Completed</option><option value="archived">Archived</option>
           </select></div>
@@ -300,6 +281,42 @@ export function PlanForm({ clientId, planType, plan }: { clientId: string; planT
       <button className="btn btn-primary" disabled={pending}>{pending ? "Saving…" : plan ? "Save plan" : "Create plan"}</button>
       {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
     </form>
+  );
+}
+
+/** Wellness Plan goals: starts with the plan's goals (or one empty row) and adds rows up to MAX_PLAN_GOALS. */
+function GoalsEditor({ initial }: { initial: Goal[] }) {
+  const [rows, setRows] = useState<{ key: string; goal?: Goal }[]>(() =>
+    initial.length ? initial.slice(0, MAX_PLAN_GOALS).map((goal) => ({ key: goal.id, goal })) : [{ key: "new-0" }]);
+  const [nextKey, setNextKey] = useState(1);
+  const [focusKey, setFocusKey] = useState<string | null>(null);
+  useEffect(() => { if (focusKey) document.getElementById(`goal-${focusKey}-title`)?.focus(); }, [focusKey]);
+  const add = () => { const key = `new-${nextKey}`; setNextKey((n) => n + 1); setRows((r) => [...r, { key }]); setFocusKey(key); };
+  const remove = (key: string) => { setRows((r) => r.filter((x) => x.key !== key)); setFocusKey(null); document.getElementById("add-goal")?.focus(); };
+  return (
+    <fieldset className="space-y-4">
+      <legend className="field-label">Goals</legend>
+      {rows.map(({ key, goal: g }, i) => (
+        <div key={key} className="grid gap-3 rounded-xl border border-border p-4 md:grid-cols-2">
+          <input type="hidden" name={`goal.${i}.id`} value={g?.id ?? ""} />
+          <div className="flex items-end gap-3 md:col-span-2">
+            <div className="flex-1"><label htmlFor={`goal-${key}-title`} className="field-label">Goal {i + 1}</label><input id={`goal-${key}-title`} name={`goal.${i}.title`} defaultValue={g?.title} className="field-input" /></div>
+            <button type="button" onClick={() => remove(key)} className="btn btn-outline btn-sm" aria-label={`Remove goal ${i + 1}`}>Remove</button>
+          </div>
+          <div><label htmlFor={`goal-${key}-why`} className="field-label">Why it matters<span className="sr-only"> (goal {i + 1})</span></label><input id={`goal-${key}-why`} name={`goal.${i}.why`} defaultValue={g?.whyItMatters} className="field-input" /></div>
+          <div><label htmlFor={`goal-${key}-measure`} className="field-label">How we&rsquo;ll know<span className="sr-only"> (goal {i + 1})</span></label><input id={`goal-${key}-measure`} name={`goal.${i}.measure`} defaultValue={g?.measure} className="field-input" /></div>
+          <div><label htmlFor={`goal-${key}-target`} className="field-label">Target<span className="sr-only"> (goal {i + 1})</span></label><input id={`goal-${key}-target`} name={`goal.${i}.target`} defaultValue={g?.target} className="field-input" /></div>
+          <div><label htmlFor={`goal-${key}-status`} className="field-label">Status<span className="sr-only"> (goal {i + 1})</span></label>
+            <select id={`goal-${key}-status`} name={`goal.${i}.status`} defaultValue={g?.status ?? "active"} className="field-input">
+              <option value="active">Active</option><option value="achieved">Achieved</option><option value="paused">Paused</option><option value="dropped">Dropped</option>
+            </select></div>
+        </div>
+      ))}
+      <div className="flex flex-wrap items-center gap-3">
+        <button id="add-goal" type="button" onClick={add} disabled={rows.length >= MAX_PLAN_GOALS} className="btn btn-outline btn-sm">Add goal</button>
+        <p className="text-sm text-text-secondary" aria-live="polite">{rows.length} of {MAX_PLAN_GOALS} goals{rows.length >= MAX_PLAN_GOALS ? " (the most a plan can hold)" : ""}. Goals without a title aren&rsquo;t saved.</p>
+      </div>
+    </fieldset>
   );
 }
 

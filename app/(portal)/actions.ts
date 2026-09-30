@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { requireClient, requireStaff, isMock } from "@/lib/portal";
 import { siteUrl } from "@/config/site";
 import type { Consent, GoalInput, MethodStage, Plan, PlanType, ReviewOutcome } from "@/lib/portal/types";
-import { canUsePlanType, planTypes, splitSections } from "@/lib/portal/plan-types";
+import { MAX_PLAN_GOALS, canUsePlanType, planTypes, splitSections } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { sendStageUpdatedEmail } from "@/lib/email";
@@ -110,7 +110,7 @@ export async function savePlanAction(clientId: string, planId: string | null, pl
     const knownIds = new Set(existing?.goals.map((g) => g.id));
     const txt = (k: string, i: number) => String(fd.get(`goal.${i}.${k}`) ?? "").trim().slice(0, 500) || undefined;
     goals = [];
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < MAX_PLAN_GOALS; i++) {
       const t = txt("title", i);
       if (!t) continue;
       const id = String(fd.get(`goal.${i}.id`) ?? "");
