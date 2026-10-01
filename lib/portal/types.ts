@@ -70,7 +70,16 @@ export type Activity = {
   id: string; kind: "exercise" | "habit" | "reflection" | "reading" | "video" | "check_in"; title: string; instructions?: string; prescription?: Record<string, string | number>;
   /** Set on a personalized activity only: the practitioner's note for this client, and whether its prescription changed. */
   personalNote?: string; adjusted?: boolean;
+  /** Added for this client only (client_program_activities), not part of the library program (C7b). */
+  custom?: boolean;
+  /** The activity in the previous version this one was copied from (C7); used to carry progress to a newer version. */
+  sourceActivityId?: string;
 };
+/** An activity a practitioner added to one client's program (C7b). */
+export type ClientActivity = { id: string; week: number; kind: Activity["kind"]; title: string; instructions?: string };
+export type ClientActivityInput = Omit<ClientActivity, "id"> & { id?: string };
+/** A practitioner as the owner manages them on the Team page (C7b). */
+export type PractitionerSummary = { id: string; name: string; role: Role; active: boolean; canPublish: boolean; capabilities: string[] };
 export type Module = { id: string; week: number; title: string; body?: string; activities: Activity[] };
 
 /** One version of a program. Versions of the same program share `familyId` (C7, design §3.1). */
@@ -108,6 +117,8 @@ export type ClientProgram = {
   /** The plan this program supports, if any. */
   planId?: string;
   personalization: Personalization;
+  /** Activities added for this client only (C7b). */
+  customActivities: ClientActivity[];
 };
 
 export type ProgramAssignmentInput = {
@@ -118,6 +129,8 @@ export type ProgramAssignmentInput = {
   status: ClientProgram["status"];
   planId?: string;
   personalization: Personalization;
+  /** The full list of client-only activities; omitted ones are removed. */
+  customActivities: ClientActivityInput[];
 };
 
 export type MetricDefinition = { key: string; label: string; unit?: string; category: "physical" | "habit" | "wellbeing" | "health"; sensitive: boolean; higherIsBetter?: boolean; min?: number; max?: number };
@@ -249,6 +262,11 @@ export interface PortalRepository {
   saveProgramDraft(viewer: Viewer, input: ProgramDraftInput): Promise<string>;
   /** Moves a program version through its life cycle. Returns the id to show next (null after discarding). */
   runProgramAction(viewer: Viewer, id: string, action: ProgramAction): Promise<string | null>;
+  /** Moves an assigned program to a newer published version of the same program. Returns how many completed activities carried over. */
+  moveClientProgram(clientId: string, programId: string, viewer: Viewer, targetTemplateId: string): Promise<number>;
+  /** Owner only: practitioners with their publishing permission and credentials (C7b). */
+  listPractitioners(): Promise<PractitionerSummary[]>;
+  updatePractitioner(id: string, changes: { canPublish: boolean; capabilities: string[] }): Promise<void>;
   /** Assigns a published program to the client, or updates an assignment (status, plan link, personalization). Returns its id. */
   saveClientProgram(clientId: string, viewer: Viewer, input: ProgramAssignmentInput): Promise<string>;
   /** Every review for the client, shared or not (staff only; RLS enforces it). */

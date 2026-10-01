@@ -2,9 +2,9 @@
 
 import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import clsx from "clsx";
-import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction, saveClientProgramAction } from "@/app/(portal)/actions";
-import type { ClientProgram, Consent, FormField, FormTemplate, Goal, MethodStage, Plan, PlanType, ProgramTemplate } from "@/lib/portal/types";
-import { MAX_NOTE, MAX_PROGRAM_NOTE, MAX_RX_VALUE, programStatuses } from "@/lib/portal/programs";
+import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction, saveClientProgramAction, moveClientProgramAction, updatePractitionerAction } from "@/app/(portal)/actions";
+import type { ClientActivity, ClientProgram, Consent, PractitionerSummary, FormField, FormTemplate, Goal, MethodStage, Plan, PlanType, ProgramTemplate } from "@/lib/portal/types";
+import { LIMITS, MAX_NOTE, MAX_PROGRAM_NOTE, MAX_RX_VALUE, activityKinds, programStatuses } from "@/lib/portal/programs";
 import { MAX_PLAN_GOALS, planTypes } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
@@ -375,7 +375,82 @@ export function ProgramAssignmentForm({ clientId, template, program, plans }: { 
           })}
         </fieldset>
       ))}
+      <ClientActivitiesEditor weeks={[...new Set(template.modules.map((m) => m.week))].sort((a, b) => a - b)} initial={program?.customActivities ?? []} />
       <button className="btn btn-primary" disabled={pending}>{pending ? "Saving…" : program ? "Save program" : "Assign program"}</button>
+      {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
+    </form>
+  );
+}
+
+/** Activities added for this client only (C7b). They sit at the end of their week in My TAB and can be ticked off. */
+function ClientActivitiesEditor({ weeks, initial }: { weeks: number[]; initial: ClientActivity[] }) {
+  const [rows, setRows] = useState(() => initial.map((c) => ({ ...c, key: c.id, instructions: c.instructions ?? "" })));
+  const [n, setN] = useState(0);
+  const [focusKey, setFocusKey] = useState<string | null>(null);
+  useEffect(() => { if (focusKey) document.getElementById(`custom-${focusKey}-title`)?.focus(); }, [focusKey]);
+  const set = (i: number, patch: Partial<(typeof rows)[number]>) => setRows((r) => r.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+  const add = () => { const key = `new-${n}`; setN(n + 1); setRows((r) => [...r, { key, id: "", week: weeks[0] ?? 1, kind: "habit", title: "", instructions: "" }]); setFocusKey(key); };
+  const payload = JSON.stringify(rows.map(({ id, week, kind, title, instructions }) => ({ id: id || undefined, week, kind, title, instructions })));
+  return (
+    <fieldset className="space-y-3 rounded-xl border border-border p-4">
+      <legend className="px-1 font-semibold">Added for this client</legend>
+      <p className="text-sm text-text-secondary">Activities only this client sees, at the end of the week you choose. The library program doesn&rsquo;t change. Removing one also removes its completion.</p>
+      <input type="hidden" name="custom" value={payload} />
+      {rows.map((r, i) => {
+        const ctx = `added activity ${i + 1}`;
+        return (
+          <div key={r.key} className="space-y-3 rounded-xl bg-cream p-4">
+            <div className="grid gap-3 md:grid-cols-[7rem_10rem_1fr] [&>div]:min-w-0">
+              <div><label htmlFor={`custom-${r.key}-week`} className="field-label">Week<span className="sr-only"> ({ctx})</span></label>
+                <select id={`custom-${r.key}-week`} value={r.week} onChange={(e) => set(i, { week: Number(e.target.value) })} className="field-input">
+                  {weeks.map((w) => <option key={w} value={w}>{w}</option>)}
+                </select></div>
+              <div><label htmlFor={`custom-${r.key}-kind`} className="field-label">Type<span className="sr-only"> ({ctx})</span></label>
+                <select id={`custom-${r.key}-kind`} value={r.kind} onChange={(e) => set(i, { kind: e.target.value as ClientActivity["kind"] })} className="field-input">
+                  {activityKinds.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
+                </select></div>
+              <div><label htmlFor={`custom-${r.key}-title`} className="field-label">Activity<span className="sr-only"> ({ctx})</span></label>
+                <input id={`custom-${r.key}-title`} maxLength={LIMITS.title} value={r.title} onChange={(e) => set(i, { title: e.target.value })} className="field-input" /></div>
+            </div>
+            <div><label htmlFor={`custom-${r.key}-instructions`} className="field-label">Instructions<span className="sr-only"> ({ctx})</span></label>
+              <input id={`custom-${r.key}-instructions`} maxLength={LIMITS.instructions} value={r.instructions} onChange={(e) => set(i, { instructions: e.target.value })} className="field-input" /></div>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => { setRows((x) => x.filter((_, j) => j !== i)); setFocusKey(null); document.getElementById("add-custom")?.focus(); }}>Remove<span className="sr-only"> {ctx}</span></button>
+          </div>
+        );
+      })}
+      <button id="add-custom" type="button" className="btn btn-outline btn-sm" onClick={add} disabled={rows.length >= LIMITS.clientActivities}>Add an activity for this client</button>
+    </fieldset>
+  );
+}
+
+/** Moves the client to a newer published version (C7b). */
+export function MoveProgramForm({ clientId, programId, target, clientName }: { clientId: string; programId: string; target: { id: string; version: number }; clientName: string }) {
+  const [state, action, pending] = useActionState(moveClientProgramAction.bind(null, clientId, programId, target.id), null);
+  return (
+    <form action={action} onSubmit={(e) => { if (!window.confirm(`Move ${clientName} to version ${target.version}?`)) e.preventDefault(); }}>
+      <button className="btn btn-primary btn-sm" disabled={pending}>Move to version {target.version}</button>
+      {state && !state.ok && <p role="alert" className="mt-2 text-sm font-semibold text-danger">{state.error}</p>}
+    </form>
+  );
+}
+
+/** Team page row (C7b): the owner grants the publishing permission and the nutrition credential. */
+export function PractitionerForm({ practitioner }: { practitioner: PractitionerSummary }) {
+  const [state, action, pending] = useActionState(updatePractitionerAction.bind(null, practitioner.id), null);
+  const owner = practitioner.role === "owner";
+  return (
+    <form action={action} className="space-y-2">
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="canPublish" defaultChecked={owner || practitioner.canPublish} disabled={owner} className="h-4 w-4 accent-[var(--color-olive)]" />
+        Can publish and retire programs<span className="sr-only"> ({practitioner.name})</span>{owner && <span className="text-text-secondary"> (owners always can)</span>}
+      </label>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="nutrition" defaultChecked={practitioner.capabilities.includes("nutrition")} className="h-4 w-4 accent-[var(--color-olive)]" />
+        Nutrition coaching credential, e.g. IIN Health Coach<span className="sr-only"> ({practitioner.name})</span>
+      </label>
+      {owner && <input type="hidden" name="canPublish" value="on" />}
+      <button className="btn btn-outline btn-sm" disabled={pending}>Save<span className="sr-only"> {practitioner.name}</span></button>
+      {state?.ok && <p role="status" className="text-sm font-semibold text-success">Saved.</p>}
       {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
     </form>
   );

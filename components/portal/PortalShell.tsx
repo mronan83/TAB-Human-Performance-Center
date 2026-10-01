@@ -25,7 +25,8 @@ export const practiceNav: PortalNavItem[] = [
 ];
 
 export function PortalShell({ viewer, area, children }: { viewer: Viewer; area: "client" | "practice"; children: React.ReactNode }) {
-  const nav = area === "client" ? clientNav : practiceNav;
+  // Team (C7b): the owner grants the publishing permission and credentials.
+  const nav = area === "client" ? clientNav : viewer.role === "owner" ? [...practiceNav, { href: "/practice/team", label: "Team", icon: "team" } as PortalNavItem] : practiceNav;
   return (
     <div className="min-h-dvh bg-cream">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2">

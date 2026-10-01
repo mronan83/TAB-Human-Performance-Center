@@ -6,10 +6,10 @@ import { redirect } from "next/navigation";
 import { requireClient, requireStaff, isMock } from "@/lib/portal";
 import { siteUrl } from "@/config/site";
 import type { Consent, GoalInput, MethodStage, Plan, PlanType, ProgramAction, ReviewOutcome } from "@/lib/portal/types";
-import { parseProgramDraft } from "@/lib/portal/program-editor";
+import { parseClientActivities, parseProgramDraft } from "@/lib/portal/program-editor";
 import { MAX_PLAN_GOALS, canUsePlanType, planTypes, splitSections } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
-import { programStatuses, readPersonalization } from "@/lib/portal/programs";
+import { newerVersions, programStatuses, readPersonalization } from "@/lib/portal/programs";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { sendStageUpdatedEmail } from "@/lib/email";
 import type { ServiceSlug } from "@/content/services";
@@ -150,10 +150,13 @@ export async function saveClientProgramAction(clientId: string, templateId: stri
   if (planId && !(await repo.listPlans(clientId, { staff: true })).some((p) => p.id === planId)) return { ok: false, error: "Choose one of this client’s plans." };
   const status = programStatuses.find((s) => s.value === fd.get("status"))?.value ?? "active";
   const personalization = readPersonalization(template, (name) => { const v = fd.get(name); return v === null ? null : String(v); });
+  const custom = parseClientActivities(fd);
+  if (!custom.ok) return custom;
   let id: string;
   try {
     id = await repo.saveClientProgram(clientId, viewer, {
       id: programId ?? undefined, templateId, startedAt: isoDate(fd.get("startedAt")) ?? new Date().toISOString().slice(0, 10), status, planId, personalization,
+      customActivities: custom.items,
     });
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "The program couldn't be saved." };
@@ -161,6 +164,39 @@ export async function saveClientProgramAction(clientId: string, templateId: stri
   revalidatePath(`/practice/clients/${clientId}`);
   revalidatePath("/my-tab", "layout");
   redirect(`/practice/clients/${clientId}/programs/${id}?saved=1`);
+}
+
+/** Moves a client's program to a newer published version of the same program (C7b, design §3.1 Versioning). */
+export async function moveClientProgramAction(clientId: string, programId: string, targetId: string, _prev: unknown, _fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const program = await repo.getClientProgram(clientId, programId);
+  if (!program) return { ok: false, error: "Program not found." };
+  if (!newerVersions(program, await repo.listProgramTemplates()).some((t) => t.id === targetId)) return { ok: false, error: "That isn't a newer published version of this program." };
+  let carried: number;
+  try {
+    carried = await repo.moveClientProgram(clientId, programId, viewer, targetId);
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "The program couldn't be moved." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`, "layout");
+  revalidatePath("/my-tab", "layout");
+  redirect(`/practice/clients/${clientId}/programs/${programId}?moved=${carried}`);
+}
+
+/** Team (C7b): the owner grants the publishing permission and credentials that unlock gated plan types. */
+export async function updatePractitionerAction(practitionerId: string, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  if (viewer.role !== "owner") return { ok: false, error: "Only the owner can change this." };
+  const current = (await repo.listPractitioners()).find((p) => p.id === practitionerId);
+  if (!current) return { ok: false, error: "Practitioner not found." };
+  const others = current.capabilities.filter((c) => c !== "nutrition");
+  try {
+    await repo.updatePractitioner(practitionerId, { canPublish: fd.get("canPublish") === "on", capabilities: fd.get("nutrition") === "on" ? [...others, "nutrition"] : others });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "That couldn't be saved." };
+  }
+  revalidatePath("/practice/team");
+  return { ok: true };
 }
 
 /** Program editor (C7, design §3.1): creates a draft program or saves a draft version. Any practitioner may edit drafts. */

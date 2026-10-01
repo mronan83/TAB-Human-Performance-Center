@@ -144,9 +144,21 @@ Existing tables stay: `program_templates` → `program_modules` (by week) → `p
 - **Editor:** TAB Practice → Programs → New program, or open a draft. Weeks (week number, title, introduction) hold
   activities (type, name, instructions, prescription fields: sets, reps, load, duration, frequency, rest, tempo,
   distance). The whole draft saves in one transaction (`save_program_draft()`); limits are in `lib/portal/programs.ts`.
-- **Still to come (C7b):** moving a client to a newer version (carrying progress and personalization through
-  `source_activity_id`), client-only activities, and a team settings page where the owner grants the publishing
-  permission (until then it is set in the database).
+
+### 3.1b As built (C7b)
+
+- **Moving a client to a newer version:** on the client's program page in TAB Practice, *Move to version N* appears when a
+  newer published version exists. `move_client_program()` (`20261004000000_program_moves_custom_activities.sql`) runs as
+  the practitioner (care team only) and, in one transaction, re-points the assignment, carries each completed activity
+  and each personalization over to the activity it became (following `source_activity_id` back through the versions in
+  between, `program_activity_map()`), and leaves history for removed activities on the old version. The guard allows a
+  move only to a newer published version of the same program.
+- **Client-only activities:** *Added for this client* on the same page. They live in `client_program_activities` (RLS,
+  audit, same-client guard), appear at the end of their week in My TAB marked "added for you", can be ticked off
+  (`activity_logs.client_activity_id`), and stay put when the client moves to a newer version. Removing one removes its
+  completion. `save_client_activities()` saves the list in one transaction.
+- **Team page** (TAB Practice → Team, owner only): grant or remove the publishing permission and the nutrition coaching
+  credential. RLS already limits both to the owner (`practitioners_owner`).
 
 ## 4. AI program drafting (templates only)
 
