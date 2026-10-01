@@ -26,7 +26,7 @@ export async function getViewer(): Promise<Viewer | null> {
     const role = (await cookies()).get("tab_demo_role")?.value;
     if (role !== "owner" && role !== "client") return null;
     return role === "owner"
-      ? { userId: "demo-owner", role: "owner", name: "Your TAB practitioner", practitionerId: DEMO_PRACTITIONER_ID, capabilities: ["nutrition"] }
+      ? { userId: "demo-owner", role: "owner", name: "Your TAB practitioner", practitionerId: DEMO_PRACTITIONER_ID, capabilities: ["nutrition"], canPublish: true }
       : { userId: "demo-user", role: "client", name: "Dana", clientId: DEMO_CLIENT_ID };
   }
   const { createSupabaseServerClient } = await import("@/lib/supabase/server");
@@ -39,17 +39,20 @@ export async function getViewer(): Promise<Viewer | null> {
   // SEC-015: staff roles count only in a session verified with two-step verification (aal2), as in current_app_role().
   let staffVerified: boolean | undefined;
   let capabilities: string[] | undefined;
+  let canPublish = false;
   if (role !== "client") {
     const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
     staffVerified = profile?.mfa_required === false || aal?.currentLevel === "aal2";
     // Credentials that unlock gated plan types (e.g. nutrition). The database enforces the same (has_capability).
-    const { data: practitioner } = await sb.from("practitioners").select("capabilities").eq("id", user.id).maybeSingle();
+    const { data: practitioner } = await sb.from("practitioners").select("capabilities, can_publish").eq("id", user.id).maybeSingle();
     capabilities = practitioner?.capabilities ?? [];
+    // Publishing programs: owners, or practitioners with the publishing permission (can_publish_programs() in the database).
+    canPublish = role === "owner" || practitioner?.can_publish === true;
   }
   return {
     userId: user.id, role,
     name: client?.preferred_name ?? profile?.preferred_name ?? profile?.full_name ?? client?.full_name ?? "there",
-    clientId: client?.id, practitionerId: role === "client" ? undefined : user.id, staffVerified, capabilities,
+    clientId: client?.id, practitionerId: role === "client" ? undefined : user.id, staffVerified, capabilities, canPublish,
   };
 }
 

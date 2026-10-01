@@ -5,6 +5,7 @@ import { requireClient } from "@/lib/portal";
 import { clientLoginHref, bookingHref } from "@/lib/links";
 import { STAGES, fmtDate, fmtDateTime, serviceName, daysUntil } from "@/lib/portal/format";
 import { Panel, TextLink, StageTracker, ProgressBar, Badge } from "@/components/portal/ui";
+import { programProgress } from "@/lib/portal/programs";
 import { ActivityCheck } from "@/components/portal/interactive";
 import { SmartLink } from "@/components/SmartLink";
 import { PageHero } from "@/components/PageHero";
@@ -52,7 +53,7 @@ export default async function MyTabHome() {
         <Panel title="This week" action={<TextLink href="/my-tab/programs">All programs</TextLink>}>
           <div className="space-y-3">
             {d.todaysActivities.map(({ program, activity, done }) => (
-              <ActivityCheck key={program.id + activity.id} programId={program.id} activityId={activity.id} title={activity.title} done={done}
+              <ActivityCheck key={program.id + activity.id} programId={program.id} activityId={activity.id} title={activity.title} done={done} note={activity.personalNote}
                 detail={[program.template.title, activity.prescription && Object.values(activity.prescription).join(" × ")].filter(Boolean).join(" · ")} />
             ))}
           </div>
@@ -91,11 +92,10 @@ export default async function MyTabHome() {
         <Panel title="Programs">
           <div className="space-y-5">
             {d.programs.map((p) => {
-              const total = p.template.modules.reduce((n, m) => n + m.activities.length, 0);
               return (
                 <Link key={p.id} href={`/my-tab/programs/${p.id}`} className="block rounded-xl p-2 -m-2 hover:bg-cream">
                   <div className="mb-2 flex items-center justify-between"><span className="font-semibold">{p.template.title}</span><Badge>Week {p.currentWeek}{p.template.durationWeeks ? ` of ${p.template.durationWeeks}` : ""}</Badge></div>
-                  <ProgressBar value={total ? p.completedActivityIds.length / total : 0} label="Completed" />
+                  <ProgressBar value={programProgress(p)} label="Completed" />
                 </Link>
               );
             })}

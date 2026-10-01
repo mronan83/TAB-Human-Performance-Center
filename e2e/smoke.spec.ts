@@ -113,6 +113,77 @@ test("plans: a practitioner creates and shares a service plan; the client sees o
   await expect(page.getByText("Strength block 2")).toHaveCount(0);
 });
 
+test("programs: a practitioner assigns and personalizes a program; the client sees their version (design §2.4)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-dana");
+  await page.getByRole("link", { name: "Assign program" }).click();
+  await page.getByRole("link", { name: "Choose Rest & Reset" }).click();
+  await expect(page.locator("main h1")).toHaveText("Assign Rest & Reset");
+  await page.getByLabel("Supports plan").selectOption({ label: "Wellness Plan: Stronger, steadier, and back in routine" });
+  await page.getByLabel("Note to the client").fill("Start small: evenings first, then bedtime.");
+  await page.getByLabel("Skip for this client (Read: Why sleep changes in midlife)").check();
+  await page.getByLabel("Frequency (Screens off 30 minutes before bed)").fill("2 nights");
+  await page.getByLabel("Note for this client (Note when you start winding down each evening)").fill("Jot it on your phone; no need for detail.");
+  await page.getByRole("button", { name: "Assign program" }).click();
+  await expect(page.getByRole("status")).toContainText("Program saved. The client sees it in My TAB with your changes.");
+  await expect(page.getByLabel("Frequency (Screens off 30 minutes before bed)")).toHaveValue("2 nights");
+  await expect(page.getByLabel("Skip for this client (Read: Why sleep changes in midlife)")).toBeChecked();
+  const programId = new URL(page.url()).pathname.split("/").pop();
+
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  await page.goto(`/my-tab/programs/${programId}`);
+  await expect(page.getByRole("heading", { name: "A note from your practitioner" })).toBeVisible();
+  await expect(page.getByText("Start small: evenings first, then bedtime.")).toBeVisible();
+  await expect(page.getByText(/frequency 2 nights — adjusted for you/)).toBeVisible();
+  await expect(page.getByText("Jot it on your phone; no need for detail.")).toBeVisible();
+  await expect(page.getByText("Why sleep changes in midlife")).toHaveCount(0);
+});
+
+test("program editor: build a draft, publish it, then edit it as a new version (design §3.1)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  page.on("dialog", (d) => d.accept());
+  await page.goto("/practice/programs");
+  await page.getByRole("link", { name: "New program" }).click();
+  await page.getByLabel("Program title").fill("Morning Mobility");
+  await page.getByLabel("Summary").fill("Ten easy minutes to start the day.");
+  await page.getByRole("button", { name: "Add activity (week section 1)" }).click();
+  await expect(page.getByLabel("Activity (week section 1, activity 1)", { exact: true })).toBeFocused();
+  await page.getByLabel("Activity (week section 1, activity 1)", { exact: true }).fill("Cat-cow");
+  await page.getByRole("button", { name: "Add prescription (week section 1, activity 1)" }).click();
+  await page.getByLabel("Value (week section 1, activity 1, sets)").fill("2");
+  await page.getByRole("button", { name: "Add week" }).click();
+  await page.getByLabel("Title (week section 2)").fill("Hips");
+  await page.getByRole("button", { name: "Add activity (week section 2)" }).click();
+  await page.getByLabel("Type (week section 2, activity 1)").selectOption("habit");
+  await page.getByLabel("Activity (week section 2, activity 1)", { exact: true }).fill("Hip circles before breakfast");
+  await page.getByRole("button", { name: "Create draft" }).click();
+  await expect(page.getByRole("status")).toHaveText("Draft saved.");
+  await expect(page.getByLabel("Activity (week section 2, activity 1)", { exact: true })).toHaveValue("Hip circles before breakfast");
+
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("status")).toContainText("Published.");
+  await expect(page.getByRole("button", { name: "Save draft" })).toHaveCount(0); // published versions are read-only
+  await expect(page.getByText("sets 2")).toBeVisible();
+  const v1 = new URL(page.url()).pathname;
+
+  await page.goto("/practice/clients/demo-client-dana/programs/new");
+  await expect(page.getByRole("link", { name: "Choose Morning Mobility" })).toBeVisible();
+
+  await page.goto(v1);
+  await page.getByRole("button", { name: "Edit as a new version" }).click();
+  await expect(page.getByRole("status")).toContainText("New draft version started");
+  await expect(page.getByText("Version 2 (this page)")).toBeVisible();
+  await page.getByLabel("Value (week section 1, activity 1, sets)").fill("3");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByRole("status")).toHaveText("Draft saved.");
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("status")).toContainText("Published.");
+  await expect(page.getByText("sets 3")).toBeVisible();
+  await page.goto(v1);
+  await expect(page.getByText("sets 2")).toBeVisible(); // version 1 is unchanged...
+  await expect(page.getByText("This version can’t be assigned any more.")).toBeVisible(); // ...and retired
+});
+
 test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
   test.setTimeout(60_000);
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);

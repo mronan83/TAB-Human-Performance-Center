@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requireStaff } from "@/lib/portal";
 import { STAGES, fmtDate, fmtDateTime, serviceName } from "@/lib/portal/format";
 import { outcomeLabel } from "@/lib/portal/review";
+import { programProgress } from "@/lib/portal/programs";
 import { canUsePlanType, planTypes, servicePlanTypes } from "@/lib/portal/plan-types";
 import { PageTitle, Panel, Badge, StageTracker, ProgressBar } from "@/components/portal/ui";
 import { TrendChart } from "@/components/portal/TrendChart";
@@ -107,11 +108,18 @@ export default async function ClientDetail({ params, searchParams }: { params: P
           </Panel>
         </div>
         <div className="space-y-6">
-          <Panel title="Programs">
+          <Panel title="Programs" action={<Link href={`/practice/clients/${id}/programs/new`} className="btn btn-primary btn-sm">Assign program</Link>}>
             <div className="space-y-4">
-              {programs.map((p) => { const total = p.template.modules.reduce((n, m) => n + m.activities.length, 0); return (
-                <div key={p.id}><p className="mb-1 font-semibold">{p.template.title} <span className="font-normal text-text-secondary">· week {p.currentWeek}</span></p><ProgressBar value={total ? p.completedActivityIds.length / total : 0} label="Completion" /></div>
-              ); })}
+              {programs.map((p) => (
+                <div key={p.id}>
+                  <p className="mb-1 flex flex-wrap items-center gap-2">
+                    <Link href={`/practice/clients/${id}/programs/${p.id}`} className="font-semibold text-primary underline">{p.template.title}</Link>
+                    <span className="text-text-secondary">· week {p.currentWeek}</span>
+                    {p.status !== "active" && <Badge>{p.status}</Badge>}
+                  </p>
+                  <ProgressBar value={programProgress(p)} label="Completion" />
+                </div>
+              ))}
               {programs.length === 0 && <p className="text-text-secondary">None assigned.</p>}
             </div>
           </Panel>

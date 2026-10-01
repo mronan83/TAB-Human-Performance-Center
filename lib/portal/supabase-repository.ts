@@ -9,6 +9,7 @@ import type {
   Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
   Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
+import { currentWeekFor, personalizedModules } from "./programs";
 
 type Row = Record<string, any>;
 const db = () => createSupabaseServerClient();
@@ -45,7 +46,8 @@ const mapInquiry = (r: Row): Inquiry => ({
 const likeExact = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 const mapTemplate = (t: Row): ProgramTemplate => ({
-  id: t.id, slug: t.slug, title: t.title, summary: t.summary ?? undefined, service: t.service, durationWeeks: t.duration_weeks ?? undefined, status: t.status,
+  id: t.id, familyId: t.family_id, slug: t.slug, title: t.title, summary: t.summary ?? undefined, service: t.service, durationWeeks: t.duration_weeks ?? undefined,
+  status: t.status, version: t.version, submittedAt: t.submitted_at ?? undefined, publishedAt: t.published_at ?? undefined,
   modules: (t.program_modules ?? []).sort((a: Row, b: Row) => a.week - b.week || a.sort - b.sort).map((m: Row) => ({
     id: m.id, week: m.week, title: m.title, body: m.body_md ?? undefined,
     activities: (m.program_activities ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((a: Row) => ({ id: a.id, kind: a.kind, title: a.title, instructions: a.instructions ?? undefined, prescription: a.prescription })),
@@ -56,11 +58,11 @@ const TEMPLATE_SELECT = "*, program_modules(*, program_activities(*))";
 
 async function mapClientProgram(r: Row, sb: Awaited<ReturnType<typeof db>>): Promise<ClientProgram> {
   const logs = must(await sb.from("activity_logs").select("activity_id").eq("client_program_id", r.id).eq("completed", true)) as Row[];
-  const weeks = Math.floor((Date.now() - new Date(r.started_at).getTime()) / (7 * 86400000)) + 1;
   const template = mapTemplate(r.program_templates);
   return {
-    id: r.id, clientId: r.client_id, template, source: r.source, status: r.status, startedAt: r.started_at,
-    currentWeek: Math.min(Math.max(weeks, 1), template.durationWeeks ?? weeks), completedActivityIds: logs.map((l) => l.activity_id),
+    id: r.id, clientId: r.client_id, template, templateVersion: r.template_version, source: r.source, status: r.status, startedAt: r.started_at,
+    completedAt: r.completed_at ?? undefined, currentWeek: currentWeekFor(r.started_at, template.durationWeeks), completedActivityIds: logs.map((l) => l.activity_id),
+    planId: r.plan_id ?? undefined, personalization: r.personalization ?? {},
   };
 }
 
@@ -92,7 +94,8 @@ export const supabaseRepository: PortalRepository = {
       client, plan: plan ?? undefined, programs: active,
       nextAppointment: appointments.find((a) => a.startsAt > new Date().toISOString()),
       todaysActivities: active.flatMap((p) => {
-        const mod = p.template.modules.find((m) => m.week === p.currentWeek) ?? p.template.modules.at(-1);
+        const modules = personalizedModules(p);
+        const mod = modules.find((m) => m.week === p.currentWeek) ?? modules.at(-1);
         return (mod?.activities ?? []).filter((a) => a.kind !== "check_in").slice(0, 4).map((activity) => ({ program: p, activity, done: p.completedActivityIds.includes(activity.id) }));
       }),
       checkInDue: !checkIns.some((c) => c.weekOf === weekStart()),
@@ -298,8 +301,60 @@ export const supabaseRepository: PortalRepository = {
   },
   async listProgramTemplates() {
     const sb = await db();
-    const rows = must(await sb.from("program_templates").select(TEMPLATE_SELECT).order("title")) as Row[];
+    const rows = must(await sb.from("program_templates").select(TEMPLATE_SELECT).order("title").order("version")) as Row[];
     return rows.map(mapTemplate);
+  },
+  async getProgramTemplate(id) {
+    const sb = await db();
+    const r = must(await sb.from("program_templates").select(TEMPLATE_SELECT).eq("id", id).maybeSingle()) as Row | null;
+    return r ? mapTemplate(r) : null;
+  },
+  async saveProgramDraft(_viewer, input) {
+    const sb = await db();
+    // RLS (staff only) and the guard triggers (drafts only; version and slug set by the database) enforce the rules.
+    let id = input.id;
+    if (!id) {
+      const base = input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "program";
+      const slug = `${base}-${crypto.randomUUID().slice(0, 6)}`;
+      id = (must(await sb.from("program_templates").insert({ slug, title: input.title, service: input.service, status: "draft" }).select("id").single()) as Row).id as string;
+    }
+    const details = { title: input.title, summary: input.summary ?? "", service: input.service, duration_weeks: input.durationWeeks ?? "" };
+    const content = input.modules.map((m) => ({ id: m.id, week: m.week, title: m.title, body: m.body ?? "", activities: m.activities }));
+    must(await sb.rpc("save_program_draft", { template: id, details, content }));
+    return id;
+  },
+  async runProgramAction(_viewer, id, action) {
+    const sb = await db();
+    // Row-level security filters what a viewer can't change, so a missing row means "not allowed or not found".
+    const one = async (q: PromiseLike<{ data: Row | null; error: { message: string } | null }>) => {
+      const r = must(await q);
+      if (!r) throw new Error("Program not found, or you can't make that change.");
+      return r.id as string;
+    };
+    switch (action) {
+      case "submit": return one(sb.from("program_templates").update({ submitted_at: new Date().toISOString() }).eq("id", id).eq("status", "draft").select("id").maybeSingle());
+      case "publish": return one(sb.from("program_templates").update({ status: "published" }).eq("id", id).eq("status", "draft").select("id").maybeSingle());
+      case "retire": return one(sb.from("program_templates").update({ status: "retired" }).eq("id", id).eq("status", "published").select("id").maybeSingle());
+      case "new_version": return must(await sb.rpc("new_program_version", { template: id })) as string;
+      case "discard": {
+        const t = must(await sb.from("program_templates").select("family_id").eq("id", id).maybeSingle()) as Row | null;
+        await one(sb.from("program_templates").delete().eq("id", id).eq("status", "draft").select("id").maybeSingle());
+        const latest = must(await sb.from("program_templates").select("id").eq("family_id", t?.family_id).order("version", { ascending: false }).limit(1).maybeSingle()) as Row | null;
+        return latest?.id ?? null;
+      }
+    }
+  },
+  async saveClientProgram(clientId, _viewer, input) {
+    const sb = await db();
+    // RLS (care team only) and client_programs_guard (published only, version pinned, client and program fixed) enforce the rules.
+    const fields = { started_at: input.startedAt, status: input.status, plan_id: input.planId ?? null, personalization: input.personalization };
+    if (input.id) {
+      const r = must(await sb.from("client_programs").update(fields).eq("id", input.id).eq("client_id", clientId).eq("template_id", input.templateId).select("id").maybeSingle()) as Row | null;
+      if (!r) throw new Error("Program not found");
+      return r.id;
+    }
+    const r = must(await sb.from("client_programs").insert({ ...fields, client_id: clientId, template_id: input.templateId, source: "assigned" }).select("id").single()) as Row;
+    return r.id;
   },
   async listInquiries() {
     const sb = await db();

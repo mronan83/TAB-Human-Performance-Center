@@ -5,9 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireClient, requireStaff, isMock } from "@/lib/portal";
 import { siteUrl } from "@/config/site";
-import type { Consent, GoalInput, MethodStage, Plan, PlanType, ReviewOutcome } from "@/lib/portal/types";
+import type { Consent, GoalInput, MethodStage, Plan, PlanType, ProgramAction, ReviewOutcome } from "@/lib/portal/types";
+import { parseProgramDraft } from "@/lib/portal/program-editor";
 import { MAX_PLAN_GOALS, canUsePlanType, planTypes, splitSections } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
+import { programStatuses, readPersonalization } from "@/lib/portal/programs";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { sendStageUpdatedEmail } from "@/lib/email";
 import type { ServiceSlug } from "@/content/services";
@@ -131,6 +133,75 @@ export async function savePlanAction(clientId: string, planId: string | null, pl
   revalidatePath(`/practice/clients/${clientId}`);
   revalidatePath("/my-tab", "layout");
   redirect(`/practice/clients/${clientId}/plans/${id}?saved=1`);
+}
+
+/**
+ * Assigns a published program to a client, or updates an assignment (design §2.4 step 3). Personalization is read
+ * against the program's own activities and prescription keys only (lib/portal/programs.ts).
+ */
+export async function saveClientProgramAction(clientId: string, templateId: string, programId: string | null, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const existing = programId ? await repo.getClientProgram(clientId, programId) : null;
+  if (programId && (!existing || existing.template.id !== templateId)) return { ok: false, error: "Program not found." };
+  const template = existing?.template ?? (await repo.listProgramTemplates()).find((t) => t.id === templateId);
+  if (!template) return { ok: false, error: "Program not found." };
+  if (!existing && template.status !== "published") return { ok: false, error: "Only published programs can be assigned." };
+  const planId = String(fd.get("planId") ?? "") || undefined;
+  if (planId && !(await repo.listPlans(clientId, { staff: true })).some((p) => p.id === planId)) return { ok: false, error: "Choose one of this client’s plans." };
+  const status = programStatuses.find((s) => s.value === fd.get("status"))?.value ?? "active";
+  const personalization = readPersonalization(template, (name) => { const v = fd.get(name); return v === null ? null : String(v); });
+  let id: string;
+  try {
+    id = await repo.saveClientProgram(clientId, viewer, {
+      id: programId ?? undefined, templateId, startedAt: isoDate(fd.get("startedAt")) ?? new Date().toISOString().slice(0, 10), status, planId, personalization,
+    });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "The program couldn't be saved." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  redirect(`/practice/clients/${clientId}/programs/${id}?saved=1`);
+}
+
+/** Program editor (C7, design §3.1): creates a draft program or saves a draft version. Any practitioner may edit drafts. */
+export async function saveProgramDraftAction(programId: string | null, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const parsed = parseProgramDraft(fd);
+  if (!parsed.ok) return parsed;
+  if (programId) {
+    const t = await repo.getProgramTemplate(programId);
+    if (!t) return { ok: false, error: "Program not found." };
+    if (t.status !== "draft") return { ok: false, error: "Published programs can't be edited; start a new version." };
+  }
+  let id: string;
+  try {
+    id = await repo.saveProgramDraft(viewer, { ...parsed.draft, id: programId ?? undefined });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "The program couldn't be saved." };
+  }
+  revalidatePath("/practice/programs");
+  redirect(`/practice/programs/${id}?done=saved`);
+}
+
+const PROGRAM_ACTIONS: ProgramAction[] = ["submit", "publish", "retire", "new_version", "discard"];
+
+/** Submit for review, publish, retire, start a new version or discard a draft. Publishing and retiring need the permission. */
+export async function programActionAction(programId: string, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const action = PROGRAM_ACTIONS.find((a) => a === fd.get("action"));
+  if (!action) return { ok: false, error: "Unknown action." };
+  if ((action === "publish" || action === "retire") && !(viewer.role === "owner" || viewer.canPublish)) {
+    return { ok: false, error: "Publishing needs the publishing permission. Submit the draft for review instead." };
+  }
+  let next: string | null;
+  try {
+    next = await repo.runProgramAction(viewer, programId, action);
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "That didn't work. Try again." };
+  }
+  revalidatePath("/practice/programs", "layout");
+  revalidatePath("/practice/clients", "layout");
+  redirect(next ? `/practice/programs/${next}?done=${action}` : "/practice/programs?done=discard");
 }
 
 /** Adds a dated entry to a plan's log. Shared entries appear in the client's My TAB when the plan is visible. */

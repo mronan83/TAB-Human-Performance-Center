@@ -2,8 +2,9 @@
 
 import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import clsx from "clsx";
-import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction } from "@/app/(portal)/actions";
-import type { Consent, FormField, FormTemplate, Goal, MethodStage, Plan, PlanType } from "@/lib/portal/types";
+import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction, saveClientProgramAction } from "@/app/(portal)/actions";
+import type { ClientProgram, Consent, FormField, FormTemplate, Goal, MethodStage, Plan, PlanType, ProgramTemplate } from "@/lib/portal/types";
+import { MAX_NOTE, MAX_PROGRAM_NOTE, MAX_RX_VALUE, programStatuses } from "@/lib/portal/programs";
 import { MAX_PLAN_GOALS, planTypes } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
@@ -11,7 +12,7 @@ import { services } from "@/content/services";
 import { siteConfig } from "@/config/site";
 import { useTurnstile } from "@/components/Turnstile";
 
-export function ActivityCheck({ programId, activityId, title, detail, done }: { programId: string; activityId: string; title: string; detail?: string; done: boolean }) {
+export function ActivityCheck({ programId, activityId, title, detail, note, done }: { programId: string; activityId: string; title: string; detail?: string; note?: string; done: boolean }) {
   const [optimistic, setOptimistic] = useOptimistic(done);
   const [, start] = useTransition();
   return (
@@ -21,6 +22,7 @@ export function ActivityCheck({ programId, activityId, title, detail, done }: { 
       <span>
         <span className={clsx("block font-semibold", optimistic && "text-text-secondary line-through decoration-sage")}>{title}</span>
         {detail && <span className="mt-0.5 block text-sm text-text-secondary">{detail}</span>}
+        {note && <span className="mt-1 block text-sm"><span className="font-semibold">From your practitioner: </span>{note}</span>}
       </span>
     </label>
   );
@@ -317,6 +319,65 @@ function GoalsEditor({ initial }: { initial: Goal[] }) {
         <p className="text-sm text-text-secondary" aria-live="polite">{rows.length} of {MAX_PLAN_GOALS} goals{rows.length >= MAX_PLAN_GOALS ? " (the most a plan can hold)" : ""}. Goals without a title aren&rsquo;t saved.</p>
       </div>
     </fieldset>
+  );
+}
+
+const KIND_LABEL = { exercise: "Exercise", habit: "Habit", reflection: "Reflection", reading: "Read", video: "Watch", check_in: "Check-in" } as const;
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Assign a published program to a client or edit the assignment: plan link, status and personalization (design §2.4 step 3). */
+export function ProgramAssignmentForm({ clientId, template, program, plans }: { clientId: string; template: ProgramTemplate; program?: ClientProgram; plans: { id: string; label: string }[] }) {
+  const [state, action, pending] = useActionState(saveClientProgramAction.bind(null, clientId, template.id, program?.id ?? null), null);
+  const adj = program?.personalization.activities ?? {};
+  return (
+    <form action={action} className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3 [&>div]:min-w-0">
+        <div><label htmlFor="startedAt" className="field-label">Start date</label><input id="startedAt" name="startedAt" type="date" required defaultValue={program?.startedAt ?? new Date().toISOString().slice(0, 10)} className="field-input" /></div>
+        <div><label htmlFor="program-status" className="field-label">Program status</label>
+          <select id="program-status" name="status" defaultValue={program?.status ?? "active"} className="field-input">
+            {programStatuses.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select></div>
+        <div><label htmlFor="planId" className="field-label">Supports plan</label>
+          <select id="planId" name="planId" defaultValue={program?.planId ?? ""} className="field-input">
+            <option value="">Not linked to a plan</option>
+            {plans.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+          </select></div>
+      </div>
+      <div>
+        <label htmlFor="programNote" className="field-label">Note to the client</label>
+        <p id="hint-programNote" className="-mt-1 mb-2 text-sm text-text-secondary">Shown at the top of the program in My TAB. Coaching language only; no diagnosis or treatment.</p>
+        <textarea id="programNote" name="programNote" maxLength={MAX_PROGRAM_NOTE} defaultValue={program?.personalization.note} className="field-input" aria-describedby="hint-programNote" />
+      </div>
+      <div>
+        <h3 className="text-h4">Personalize activities</h3>
+        <p className="mt-1 text-sm text-text-secondary">Changes apply to this client only. The program in the library stays as it is.</p>
+      </div>
+      {template.modules.map((m) => (
+        <fieldset key={m.id} className="space-y-3 rounded-xl border border-border p-4">
+          <legend className="px-1 font-semibold">{m.title}</legend>
+          {m.activities.map((a) => {
+            const x = adj[a.id];
+            return (
+              <div key={a.id} className="rounded-xl bg-cream p-4">
+                <p className="font-semibold">{KIND_LABEL[a.kind]}: {a.title}</p>
+                {a.instructions && <p className="text-sm text-text-secondary">{a.instructions}</p>}
+                <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name={`skip:${a.id}`} defaultChecked={!!x?.skip} className="h-4 w-4 accent-[var(--color-olive)]" /> Skip for this client<span className="sr-only"> ({a.title})</span></label>
+                <div className="mt-3 grid gap-3 md:grid-cols-3 [&>div]:min-w-0">
+                  {Object.entries(a.prescription ?? {}).map(([key, base]) => (
+                    <div key={key}><label htmlFor={`rx-${a.id}-${key}`} className="field-label">{cap(key)}<span className="sr-only"> ({a.title})</span></label>
+                      <input id={`rx-${a.id}-${key}`} name={`rx:${a.id}:${key}`} maxLength={MAX_RX_VALUE} defaultValue={x?.prescription?.[key] ?? String(base)} className="field-input" /></div>
+                  ))}
+                  <div className="md:col-span-3"><label htmlFor={`note-${a.id}`} className="field-label">Note for this client<span className="sr-only"> ({a.title})</span></label>
+                    <input id={`note-${a.id}`} name={`note:${a.id}`} maxLength={MAX_NOTE} defaultValue={x?.note} className="field-input" /></div>
+                </div>
+              </div>
+            );
+          })}
+        </fieldset>
+      ))}
+      <button className="btn btn-primary" disabled={pending}>{pending ? "Saving…" : program ? "Save program" : "Assign program"}</button>
+      {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
+    </form>
   );
 }
 

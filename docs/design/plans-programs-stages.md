@@ -1,6 +1,6 @@
 # Plans, programs and TAB Method stages: G1 design
 
-_Status: **approved (G1), 2026-09-29.** Covers backlog C4 (built in three slices: C4a reviews and stages, C4b plans, C4c program assignment), C7, C13 and C14._
+_Status: **approved (G1), 2026-09-29.** Covers backlog C4 (built in three slices: C4a reviews and stages, C4b plans, C4c program assignment; all three built), C7, C13 and C14._
 
 Owner inputs this design is built on (2026-09-28/29, recorded in `requirements-register.md` §7.1):
 
@@ -97,6 +97,21 @@ never shown by default). This is what makes a massage plan track progress over t
 
 Practitioners see only their assigned clients (D-045); the owner sees all.
 
+### 2.4a As built (C4c): assigning and personalizing programs
+
+- **Where:** TAB Practice → client → Programs → **Assign program** → choose a published program → set start date, status,
+  the plan it supports (optional) and the personalization → **Assign program**. Each assigned program has its own page
+  to change status, plan link and personalization.
+- **Personalization** lives in `client_programs.personalization` and never changes the library template: a note to the
+  client, and per activity *skip*, *prescription values* (only keys the template already has) and a *note*.
+  `personalizedModules()` (`lib/portal/programs.ts`) applies it for My TAB, the dashboard and completion figures.
+- **Database rules** (`20261002000000_program_assignment.sql`): only published programs can be assigned; the template
+  version is pinned by the database at assignment; an assignment keeps its client, program and version; `completed_at`
+  follows the status; `assigned_by` is stamped; clients can't change their programs and can log only activities still in
+  their program (not skipped). Access is the existing care-team policy; audit trigger unchanged.
+- **Not in this slice:** adding a client-only activity (a true *swap*) waits for the program editor (C7), because activity
+  logs point at template activities; moving a client to a newer template version is also C7 (§3.1 Versioning).
+
 ## 3. Programs (library)
 
 Existing tables stay: `program_templates` → `program_modules` (by week) → `program_activities` (typed, with a
@@ -112,6 +127,26 @@ Existing tables stay: `program_templates` → `program_modules` (by week) → `p
 | Structure | Weeks → modules → activities (exercise, habit, reflection, reading, video). Unchanged. |
 | Products | A published template can be packaged as a product (D-044, D-052); pricing stays in Stripe. Separate step, owner-only. |
 | Retiring | `retired` hides a template from assignment; existing clients keep it. |
+
+### 3.1a As built (C7, first slice)
+
+- **Data model:** each version is its own `program_templates` row; a program's versions share `family_id` (the first
+  version's id) and its slug. Clients, products and cohorts keep pointing at the row they were given, so content they
+  have never changes. Entitlements and cohorts give access to every published version of the program they name.
+- **Life cycle:** `draft → published → retired`. One draft and one published version per program at a time.
+  Publishing a version retires the previous one; its clients keep it and can still read it.
+- **Who:** any practitioner creates and edits drafts and can *submit for review*; publishing and retiring need
+  `can_publish_programs()` (owners, or practitioners with `practitioners.can_publish`). Enforced in the database
+  (`20261003000000_program_editor.sql`) and mirrored in the app (`viewer.canPublish`).
+- **Read-only once published:** the guard triggers reject any change to a published or retired version or its weeks and
+  activities. *Edit as a new version* (`new_program_version()`) copies the latest version into a new draft; each copied
+  activity records `source_activity_id`, which C7b uses to carry a client's progress to a newer version.
+- **Editor:** TAB Practice → Programs → New program, or open a draft. Weeks (week number, title, introduction) hold
+  activities (type, name, instructions, prescription fields: sets, reps, load, duration, frequency, rest, tempo,
+  distance). The whole draft saves in one transaction (`save_program_draft()`); limits are in `lib/portal/programs.ts`.
+- **Still to come (C7b):** moving a client to a newer version (carrying progress and personalization through
+  `source_activity_id`), client-only activities, and a team settings page where the owner grants the publishing
+  permission (until then it is set in the database).
 
 ## 4. AI program drafting (templates only)
 
