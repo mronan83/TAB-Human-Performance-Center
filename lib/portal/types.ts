@@ -64,20 +64,46 @@ export type PlanInput = {
   goals?: GoalInput[];
 };
 
-export type Activity = { id: string; kind: "exercise" | "habit" | "reflection" | "reading" | "video" | "check_in"; title: string; instructions?: string; prescription?: Record<string, string | number> };
+export type Activity = {
+  id: string; kind: "exercise" | "habit" | "reflection" | "reading" | "video" | "check_in"; title: string; instructions?: string; prescription?: Record<string, string | number>;
+  /** Set on a personalized activity only: the practitioner's note for this client, and whether its prescription changed. */
+  personalNote?: string; adjusted?: boolean;
+};
 export type Module = { id: string; week: number; title: string; body?: string; activities: Activity[] };
 
-export type ProgramTemplate = { id: string; slug: string; title: string; summary?: string; service: ServiceSlug; durationWeeks?: number; status: "draft" | "published" | "retired"; modules: Module[] };
+export type ProgramTemplate = { id: string; slug: string; title: string; summary?: string; service: ServiceSlug; durationWeeks?: number; status: "draft" | "published" | "retired"; version: number; modules: Module[] };
+
+/** One client's changes to one activity (C4c). Prescription values replace the template's for the same keys. */
+export type ActivityAdjustment = { skip?: boolean; note?: string; prescription?: Record<string, string> };
+/** Per-client personalization of an assigned program; the template itself never changes (design §2.4). */
+export type Personalization = { note?: string; activities?: Record<string, ActivityAdjustment> };
 
 export type ClientProgram = {
   id: string;
   clientId: string;
+  /** The template as published. Use `personalizedModules()` (lib/portal/programs.ts) for what the client sees. */
   template: ProgramTemplate;
+  /** The template version pinned at assignment. */
+  templateVersion: number;
   source: "assigned" | "purchased" | "cohort";
   status: "active" | "paused" | "completed" | "cancelled";
   startedAt: string;
+  completedAt?: string;
   currentWeek: number;
   completedActivityIds: string[];
+  /** The plan this program supports, if any. */
+  planId?: string;
+  personalization: Personalization;
+};
+
+export type ProgramAssignmentInput = {
+  /** Set to update an existing assignment; omit to assign. */
+  id?: string;
+  templateId: string;
+  startedAt: string;
+  status: ClientProgram["status"];
+  planId?: string;
+  personalization: Personalization;
 };
 
 export type MetricDefinition = { key: string; label: string; unit?: string; category: "physical" | "habit" | "wellbeing" | "health"; sensitive: boolean; higherIsBetter?: boolean; min?: number; max?: number };
@@ -204,6 +230,8 @@ export interface PortalRepository {
   listNotes(clientId: string, includeInternal: boolean): Promise<SessionNote[]>;
   addNote(clientId: string, viewer: Viewer, note: { body: string; visibility: "internal" | "shared"; service?: ServiceSlug }): Promise<void>;
   listProgramTemplates(): Promise<ProgramTemplate[]>;
+  /** Assigns a published program to the client, or updates an assignment (status, plan link, personalization). Returns its id. */
+  saveClientProgram(clientId: string, viewer: Viewer, input: ProgramAssignmentInput): Promise<string>;
   /** Every review for the client, shared or not (staff only; RLS enforces it). */
   listReviews(clientId: string): Promise<Review[]>;
   /** Saves a Progress Review; when `newStage` differs, changes the stage in the same transaction. Returns whether it changed. */

@@ -74,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|Nutrition plans need|A service plan must|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
+const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -274,6 +274,37 @@ await expectDenied('without the credential no nutrition log entries', () => as(P
 await expectDenied('nor practitioner-only nutrition sections', () => as(P, `insert into plan_private_details (plan_id, client_id) values ('${NUTRITION}','${DANA}')`));
 await expectDenied('practitioner-only sections cannot be truncated', () => as(O, 'truncate plan_private_details'));
 check('plan log and private sections are audited', (await superuser(`select count(distinct table_name)::int n from audit_events where table_name in ('plan_entries','plan_private_details')`))[0].n, 2);
+
+// C4c: assigning and personalizing programs. Published templates only, version pinned by the database,
+// personalization written by the care team only, and clients log only activities still in their program.
+await superuser(`update program_templates set version=2 where id='${T_PUB}'`);
+const MOD_PUB = (await superuser(`select id from program_modules where template_id='${T_PUB}'`))[0].id;
+const MOD_DRAFT = (await superuser(`select id from program_modules where template_id='${T_DRAFT}'`))[0].id;
+const [ACT_KEEP, ACT_SKIP] = (await superuser(`insert into program_activities (module_id, kind, title, sort) values ('${MOD_PUB}','exercise','Sit-to-stand',0),('${MOD_PUB}','exercise','Step-up',1) returning id`)).map(r=>r.id);
+const ACT_DRAFT = (await superuser(`insert into program_activities (module_id, kind, title) values ('${MOD_DRAFT}','exercise','Draft only') returning id`))[0].id;
+const CP_NEW = (await one(P, `insert into client_programs (client_id, template_id, template_version, plan_id, personalization)
+  values ('${DANA}','${T_PUB}',9,'${MASSAGE}','{"note":"Go gently","activities":{"${ACT_SKIP}":{"skip":true}}}') returning id`)).id;
+check('assignment pins the template version and records who assigned it', (await superuser(`select template_version, assigned_by from client_programs where id='${CP_NEW}'`))[0], { template_version: 2, assigned_by: P });
+await expectDenied('a draft program cannot be assigned', () => as(P, `insert into client_programs (client_id, template_id) values ('${DANA}','${T_DRAFT}')`));
+await expectDenied('unassigned practitioner cannot assign a program', () => as(P2, `insert into client_programs (client_id, template_id) values ('${DANA}','${T_PUB}')`));
+await expectDenied('client cannot assign themselves a program', () => as(C1, `insert into client_programs (client_id, template_id) values ('${DANA}','${T_PUB}')`));
+await expectDenied("a program cannot link to another client's plan", () => as(O, `insert into client_programs (client_id, template_id, plan_id) values ('${DANA}','${T_PUB}','${SAM_ANCHOR}')`));
+await as(C1, `update client_programs set personalization='{}' where id='${CP_NEW}'`);
+check('client cannot change their personalization', (await superuser(`select personalization->>'note' n from client_programs where id='${CP_NEW}'`))[0].n, 'Go gently');
+check('client reads their personalization', (await as(C1, `select personalization->>'note' n from client_programs where id='${CP_NEW}'`)).map(r=>r.n), ['Go gently']);
+check('unassigned practitioner cannot read it', (await as(P2, `select 1 from client_programs where client_id='${DANA}'`)).length, 0);
+await expectDenied('an assignment keeps its program', () => as(P, `update client_programs set template_id='${T_DRAFT}' where id='${CP_NEW}'`));
+await expectDenied('an assignment keeps its pinned version', () => as(P, `update client_programs set template_version=1 where id='${CP_NEW}'`));
+check('personalization must be an object', await attempt(() => as(P, `update client_programs set personalization='[]' where id='${CP_NEW}'`)), false);
+await as(P, `update client_programs set status='completed' where id='${CP_NEW}'`);
+check('completing a program stamps the date', (await superuser(`select completed_at = current_date as today from client_programs where id='${CP_NEW}'`))[0].today, true);
+await as(P, `update client_programs set status='active' where id='${CP_NEW}'`);
+check('reopening clears it', (await superuser(`select completed_at from client_programs where id='${CP_NEW}'`))[0].completed_at, null);
+await as(C1, `insert into activity_logs (client_id, client_program_id, activity_id) values ('${DANA}','${CP_NEW}','${ACT_KEEP}')`);
+check('client logs an activity in their program', (await superuser(`select count(*)::int n from activity_logs where client_program_id='${CP_NEW}'`))[0].n, 1);
+await expectDenied('client cannot log an activity skipped for them', () => as(C1, `insert into activity_logs (client_id, client_program_id, activity_id) values ('${DANA}','${CP_NEW}','${ACT_SKIP}')`));
+await expectDenied('client cannot log an activity from another program', () => as(C1, `insert into activity_logs (client_id, client_program_id, activity_id) values ('${DANA}','${CP_NEW}','${ACT_DRAFT}')`));
+check('assignments are audited', (await superuser(`select count(*)::int n from audit_events where table_name='client_programs' and record_id='${CP_NEW}'`))[0].n, 3);
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

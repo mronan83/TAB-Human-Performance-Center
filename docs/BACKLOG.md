@@ -6,7 +6,7 @@ Register IDs in brackets link to `docs/requirements-register.md`.
 
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 
-_Last updated: 2026-09-29, Wellness Plan goals up to 100._
+_Last updated: 2026-10-01, C4c program assignment and personalization._
 
 ## P0 · Now
 
@@ -39,7 +39,7 @@ _Last updated: 2026-09-29, Wellness Plan goals up to 100._
 | ID | Item | Category | Owner | Depends on |
 |---|---|---|---|---|
 | C3b | Portal security hardening, part 2: internal notes in a private schema behind audited functions, audit drain [SEC-019]; secure session cookies, transactional Stripe webhook [SEC-020] | Security | Claude | |
-| C4 | **G1 approved; building in slices. C4a done (#22), C4b done (#23); Wellness Plan goals up to 100 on `claude/zealous-davinci-64dima`; C4c program assignment next.** Design: `docs/design/plans-programs-stages.md`. Admin tools in TAB Practice: typed plans (Wellness Plan + service plans), plan log, assign and personalize programs, Progress Review and stage change (dashboard + email). Also: invite to My TAB, write and edit the plan, progress reviews, assign resources and forms, shared summaries [GAP-023, STAFF-005/006/010, PORTAL-011] | Portal | Claude | |
+| C4 | **G1 approved; all three slices built: C4a (#22), C4b (#23), C4c program assignment and personalization on `claude/zealous-davinci-64dima`.** Design: `docs/design/plans-programs-stages.md`. Remaining under C4: invite to My TAB, assign resources and forms from TAB Practice [GAP-023, STAFF-005/006/010, PORTAL-011] | Portal | Claude | |
 | C5 | Sign-in plumbing: invite confirmation route, Site URL and redirects, sign-in email through Resend, staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | A1, A2 |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | |
 | A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | |
@@ -50,7 +50,7 @@ _Last updated: 2026-09-29, Wellness Plan goals up to 100._
 
 | ID | Item | Category | Owner |
 |---|---|---|---|
-| C7 | Program editor with versioning (design §3, G1 pending); any practitioner edits | Portal | Claude |
+| C7 | Program editor with versioning (design §3.1, G1 approved); any practitioner edits drafts, publishing needs the permission; also client-only activities and moving a client to a newer version (deferred from C4c) | Portal | Claude |
 | C8 | Payload CMS, after Phase 1 [A-02] | Platform | Claude |
 | C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude |
 | C10 | Correct handoff-document references [DIV-03] | Docs | Claude |
@@ -66,6 +66,7 @@ _Last updated: 2026-09-29, Wellness Plan goals up to 100._
 
 ## Recently done
 
+- **#24** (2026-09-30): Wellness Plan goals up to 100; plan editor date fields fixed on iPad. Promoted with C4b (`dpl_9TA6w…`).
 - **#23** (2026-09-29): C4b typed plans (Wellness Plan + service plans), practitioner-only sections, plan log, nutrition gate.
 - **#22** (2026-09-29): C4a Progress Reviews and practitioner-confirmed stage changes (dashboard notice, stage email, tamper-proof stage history).
 - **Vercel settings** (2026-09-28): staged production for G3 (merges build but don't go live until promoted; A22 closed); Vercel login extended to every URL after `tab-wellness-collective.vercel.app` was found public.

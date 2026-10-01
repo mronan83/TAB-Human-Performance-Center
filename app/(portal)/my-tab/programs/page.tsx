@@ -3,11 +3,13 @@ import Image from "next/image";
 import { requireClient } from "@/lib/portal";
 import { fmtMoney, serviceName } from "@/lib/portal/format";
 import { getService } from "@/content/services";
+import { programProgress } from "@/lib/portal/programs";
 import { PageTitle, Panel, Badge, ProgressBar, EmptyState } from "@/components/portal/ui";
 
 export default async function ProgramsPage() {
   const { clientId, repo } = await requireClient();
-  const [programs, products, entitlements] = await Promise.all([repo.listClientPrograms(clientId), repo.listProducts(), repo.listEntitlements(clientId)]);
+  const [all, products, entitlements] = await Promise.all([repo.listClientPrograms(clientId), repo.listProducts(), repo.listEntitlements(clientId)]);
+  const programs = all.filter((p) => p.status !== "cancelled");
   const owned = new Set(entitlements.filter((e) => e.status === "active").map((e) => e.product.id));
   return (
     <>
@@ -15,7 +17,6 @@ export default async function ProgramsPage() {
       {programs.length === 0 ? <EmptyState title="No programs yet." body="Your practitioner will add programs as part of your plan." /> : (
         <div className="grid gap-6 md:grid-cols-2">
           {programs.map((p) => {
-            const total = p.template.modules.reduce((n, m) => n + m.activities.length, 0);
             return (
               <Link key={p.id} href={`/my-tab/programs/${p.id}`} className="block rounded-[20px] border border-border bg-white p-6 transition-shadow hover:shadow-[var(--shadow-md)]">
                 <div className="flex items-center gap-4">
@@ -23,8 +24,8 @@ export default async function ProgramsPage() {
                   <div><h2 className="text-h4">{p.template.title}</h2><p className="text-sm text-text-secondary">{serviceName(p.template.service)}</p></div>
                 </div>
                 <p className="mt-4 text-text-secondary">{p.template.summary}</p>
-                <div className="mt-5 flex items-center gap-2"><Badge tone="brand">Week {p.currentWeek}</Badge>{p.source === "purchased" && <Badge tone="accent">Purchased</Badge>}</div>
-                <div className="mt-4"><ProgressBar value={total ? p.completedActivityIds.length / total : 0} label="Completed" /></div>
+                <div className="mt-5 flex items-center gap-2">{p.status === "active" ? <Badge tone="brand">Week {p.currentWeek}</Badge> : <Badge>{p.status === "paused" ? "Paused" : "Completed"}</Badge>}{p.source === "purchased" && <Badge tone="accent">Purchased</Badge>}</div>
+                <div className="mt-4"><ProgressBar value={programProgress(p)} label="Completed" /></div>
               </Link>
             );
           })}

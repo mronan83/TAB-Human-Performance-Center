@@ -1,6 +1,6 @@
 # Plans, programs and TAB Method stages: G1 design
 
-_Status: **approved (G1), 2026-09-29.** Covers backlog C4 (built in three slices: C4a reviews and stages, C4b plans, C4c program assignment), C7, C13 and C14._
+_Status: **approved (G1), 2026-09-29.** Covers backlog C4 (built in three slices: C4a reviews and stages, C4b plans, C4c program assignment; all three built), C7, C13 and C14._
 
 Owner inputs this design is built on (2026-09-28/29, recorded in `requirements-register.md` §7.1):
 
@@ -96,6 +96,21 @@ never shown by default). This is what makes a massage plan track progress over t
 4. **Log entries** against any plan after sessions.
 
 Practitioners see only their assigned clients (D-045); the owner sees all.
+
+### 2.4a As built (C4c): assigning and personalizing programs
+
+- **Where:** TAB Practice → client → Programs → **Assign program** → choose a published program → set start date, status,
+  the plan it supports (optional) and the personalization → **Assign program**. Each assigned program has its own page
+  to change status, plan link and personalization.
+- **Personalization** lives in `client_programs.personalization` and never changes the library template: a note to the
+  client, and per activity *skip*, *prescription values* (only keys the template already has) and a *note*.
+  `personalizedModules()` (`lib/portal/programs.ts`) applies it for My TAB, the dashboard and completion figures.
+- **Database rules** (`20261002000000_program_assignment.sql`): only published programs can be assigned; the template
+  version is pinned by the database at assignment; an assignment keeps its client, program and version; `completed_at`
+  follows the status; `assigned_by` is stamped; clients can't change their programs and can log only activities still in
+  their program (not skipped). Access is the existing care-team policy; audit trigger unchanged.
+- **Not in this slice:** adding a client-only activity (a true *swap*) waits for the program editor (C7), because activity
+  logs point at template activities; moving a client to a newer template version is also C7 (§3.1 Versioning).
 
 ## 3. Programs (library)
 

@@ -113,6 +113,32 @@ test("plans: a practitioner creates and shares a service plan; the client sees o
   await expect(page.getByText("Strength block 2")).toHaveCount(0);
 });
 
+test("programs: a practitioner assigns and personalizes a program; the client sees their version (design §2.4)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-dana");
+  await page.getByRole("link", { name: "Assign program" }).click();
+  await page.getByRole("link", { name: "Choose Rest & Reset" }).click();
+  await expect(page.locator("main h1")).toHaveText("Assign Rest & Reset");
+  await page.getByLabel("Supports plan").selectOption({ label: "Wellness Plan: Stronger, steadier, and back in routine" });
+  await page.getByLabel("Note to the client").fill("Start small: evenings first, then bedtime.");
+  await page.getByLabel("Skip for this client (Read: Why sleep changes in midlife)").check();
+  await page.getByLabel("Frequency (Screens off 30 minutes before bed)").fill("2 nights");
+  await page.getByLabel("Note for this client (Note when you start winding down each evening)").fill("Jot it on your phone; no need for detail.");
+  await page.getByRole("button", { name: "Assign program" }).click();
+  await expect(page.getByRole("status")).toContainText("Program saved. The client sees it in My TAB with your changes.");
+  await expect(page.getByLabel("Frequency (Screens off 30 minutes before bed)")).toHaveValue("2 nights");
+  await expect(page.getByLabel("Skip for this client (Read: Why sleep changes in midlife)")).toBeChecked();
+  const programId = new URL(page.url()).pathname.split("/").pop();
+
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  await page.goto(`/my-tab/programs/${programId}`);
+  await expect(page.getByRole("heading", { name: "A note from your practitioner" })).toBeVisible();
+  await expect(page.getByText("Start small: evenings first, then bedtime.")).toBeVisible();
+  await expect(page.getByText(/frequency 2 nights — adjusted for you/)).toBeVisible();
+  await expect(page.getByText("Jot it on your phone; no need for detail.")).toBeVisible();
+  await expect(page.getByText("Why sleep changes in midlife")).toHaveCount(0);
+});
+
 test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
   test.setTimeout(60_000);
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);

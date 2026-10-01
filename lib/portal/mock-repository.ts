@@ -6,6 +6,7 @@ import type {
   Activity, Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate,
   Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
+import { currentWeekFor, isActivityInProgram, personalizedModules } from "./programs";
 
 const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
 // Demo appointment times are Michigan local time (EDT, UTC-4).
@@ -26,7 +27,7 @@ const metrics: MetricDefinition[] = [
 const act = (id: string, kind: Activity["kind"], title: string, instructions?: string, prescription?: Activity["prescription"]): Activity => ({ id, kind, title, instructions, prescription });
 
 const strengthTemplate: ProgramTemplate = {
-  id: "tpl-strength-foundations", slug: "strength-foundations", title: "Strength Foundations", service: "personal-strength-training", durationWeeks: 8, status: "published",
+  id: "tpl-strength-foundations", slug: "strength-foundations", title: "Strength Foundations", service: "personal-strength-training", durationWeeks: 8, status: "published", version: 1,
   summary: "Build full-body strength, balance, and confidence with three short sessions a week.",
   modules: [
     { id: "m1", week: 1, title: "Week 1: Learn the patterns", body: "This week is about learning how the movements should feel. Go slower than you think you need to.", activities: [
@@ -52,7 +53,7 @@ const strengthTemplate: ProgramTemplate = {
 };
 
 const restTemplate: ProgramTemplate = {
-  id: "tpl-rest-reset", slug: "rest-and-reset", title: "Rest & Reset", service: "womens-wellness-coaching", durationWeeks: 4, status: "published",
+  id: "tpl-rest-reset", slug: "rest-and-reset", title: "Rest & Reset", service: "womens-wellness-coaching", durationWeeks: 4, status: "published", version: 1,
   summary: "Small, realistic changes for better sleep and steadier energy.",
   modules: [
     { id: "r1", week: 1, title: "Week 1: Notice your evenings", activities: [
@@ -150,8 +151,12 @@ function seed(): Store {
       details: { training_focus: "Hinge and single-leg strength.", weekly_structure: "Three 30-minute sessions: two at home, one with a coach." }, privateDetails: { movement_notes: "Keep step-ups on the low box until week 4." },
     }],
     programs: [
-      { id: "cp-strength", clientId: DEMO_CLIENT_ID, template: strengthTemplate, source: "assigned", status: "active", startedAt: day(-15), currentWeek: 3, completedActivityIds: ["a1", "a2", "a3", "a4", "a5", "b1", "b2", "b4"] },
-      { id: "cp-rest", clientId: DEMO_CLIENT_ID, template: restTemplate, source: "assigned", status: "active", startedAt: day(-8), currentWeek: 2, completedActivityIds: ["r1a", "r1c"] },
+      { id: "cp-strength", clientId: DEMO_CLIENT_ID, template: strengthTemplate, templateVersion: 1, planId: "plan-dana", source: "assigned", status: "active", startedAt: day(-15), currentWeek: 3, completedActivityIds: ["a1", "a2", "a3", "a4", "a5", "b1", "b2", "b4"],
+        personalization: {
+          note: "I’ve adjusted week 2 around how your knee felt on step-ups. Keep everything slow and controlled.",
+          activities: { b3: { note: "Use the low box and hold the rail.", prescription: { reps: "4 each side" } } },
+        } },
+      { id: "cp-rest", clientId: DEMO_CLIENT_ID, template: restTemplate, templateVersion: 1, planId: "plan-dana", source: "assigned", status: "active", startedAt: day(-8), currentWeek: 2, completedActivityIds: ["r1a", "r1c"], personalization: {} },
     ],
     progress: { [DEMO_CLIENT_ID]: progress },
     checkIns: { [DEMO_CLIENT_ID]: [
@@ -224,15 +229,17 @@ store.stageChanges ??= {};
 store.planEntries ??= {}; // a store created before stage history existed (dev hot reload)
 
 const clone = <T>(v: T): T => structuredClone(v);
+const withWeek = (p: ClientProgram): ClientProgram => ({ ...p, currentWeek: currentWeekFor(p.startedAt, p.template.durationWeeks) });
 /** Practitioner-only sections are only ever returned to staff (plan_private_details in the database). */
 const stripPrivate = (p: Plan | null) => (p ? { ...p, privateDetails: undefined } : p);
 
 export const mockRepository: PortalRepository = {
   async getDashboard(clientId) {
     const client = (await this.getClient(clientId))!;
-    const programs = await this.listClientPrograms(clientId);
+    const programs = (await this.listClientPrograms(clientId)).filter((p) => p.status === "active");
     const todaysActivities = programs.flatMap((p) => {
-      const mod = p.template.modules.find((m) => m.week === p.currentWeek) ?? p.template.modules.at(-1);
+      const modules = personalizedModules(p);
+      const mod = modules.find((m) => m.week === p.currentWeek) ?? modules.at(-1);
       return (mod?.activities ?? []).filter((a) => a.kind !== "check_in").slice(0, 4).map((activity) => ({ program: p, activity, done: p.completedActivityIds.includes(activity.id) }));
     });
     const checkIns = store.checkIns[clientId] ?? [];
@@ -247,11 +254,12 @@ export const mockRepository: PortalRepository = {
   },
   async getClient(id) { return clone(store.clients.find((c) => c.id === id) ?? null); },
   async getPlan(clientId) { return clone(stripPrivate(store.plans.find((p) => p.clientId === clientId && p.planType === "wellness" && p.status === "active") ?? null)); },
-  async listClientPrograms(clientId) { return clone(store.programs.filter((p) => p.clientId === clientId)); },
-  async getClientProgram(clientId, id) { return clone(store.programs.find((p) => p.clientId === clientId && p.id === id) ?? null); },
+  async listClientPrograms(clientId) { return clone(store.programs.filter((p) => p.clientId === clientId).map(withWeek)); },
+  async getClientProgram(clientId, id) { const p = store.programs.find((x) => x.clientId === clientId && x.id === id); return clone(p ? withWeek(p) : null); },
   async toggleActivity(clientId, programId, activityId, done) {
     const p = store.programs.find((x) => x.clientId === clientId && x.id === programId);
     if (!p) return;
+    if (done && !isActivityInProgram(p, activityId)) throw new Error("That activity is not part of this program");
     p.completedActivityIds = done ? [...new Set([...p.completedActivityIds, activityId])] : p.completedActivityIds.filter((a) => a !== activityId);
   },
   async listMetrics() { return clone(metrics); },
@@ -289,6 +297,23 @@ export const mockRepository: PortalRepository = {
   async listNotes(clientId, includeInternal) { return clone((store.notes[clientId] ?? []).filter((n) => includeInternal || n.visibility === "shared")); },
   async addNote(clientId, viewer, note) { (store.notes[clientId] ??= []).unshift({ id: `n${Date.now()}`, date: day(0), author: viewer.name, ...note }); },
   async listProgramTemplates() { return clone([strengthTemplate, restTemplate]); },
+  async saveClientProgram(clientId, _viewer, input) {
+    // Mirrors client_programs_guard: published templates only, version pinned, client and template fixed.
+    if (input.id) {
+      const p = store.programs.find((x) => x.clientId === clientId && x.id === input.id);
+      if (!p) throw new Error("Program not found");
+      if (p.template.id !== input.templateId) throw new Error("An assigned program keeps its client, program and version");
+      Object.assign(p, { startedAt: input.startedAt, status: input.status, planId: input.planId, personalization: input.personalization,
+        completedAt: input.status === "completed" ? (p.completedAt ?? day(0)) : undefined });
+      return p.id;
+    }
+    const template = [strengthTemplate, restTemplate].find((t) => t.id === input.templateId);
+    if (template?.status !== "published") throw new Error("Only published programs can be assigned");
+    const id = `cp${Date.now()}`;
+    store.programs.unshift({ id, clientId, template, templateVersion: template.version, source: "assigned", status: input.status, startedAt: input.startedAt,
+      completedAt: input.status === "completed" ? day(0) : undefined, currentWeek: 1, completedActivityIds: [], planId: input.planId, personalization: input.personalization });
+    return id;
+  },
   async listReviews(clientId) { return clone(store.reviews[clientId] ?? []); },
   async recordProgressReview(clientId, viewer, input) {
     const client = store.clients.find((c) => c.id === clientId);

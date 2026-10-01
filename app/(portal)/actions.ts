@@ -8,6 +8,7 @@ import { siteUrl } from "@/config/site";
 import type { Consent, GoalInput, MethodStage, Plan, PlanType, ReviewOutcome } from "@/lib/portal/types";
 import { MAX_PLAN_GOALS, canUsePlanType, planTypes, splitSections } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
+import { programStatuses, readPersonalization } from "@/lib/portal/programs";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { sendStageUpdatedEmail } from "@/lib/email";
 import type { ServiceSlug } from "@/content/services";
@@ -131,6 +132,34 @@ export async function savePlanAction(clientId: string, planId: string | null, pl
   revalidatePath(`/practice/clients/${clientId}`);
   revalidatePath("/my-tab", "layout");
   redirect(`/practice/clients/${clientId}/plans/${id}?saved=1`);
+}
+
+/**
+ * Assigns a published program to a client, or updates an assignment (design §2.4 step 3). Personalization is read
+ * against the program's own activities and prescription keys only (lib/portal/programs.ts).
+ */
+export async function saveClientProgramAction(clientId: string, templateId: string, programId: string | null, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const existing = programId ? await repo.getClientProgram(clientId, programId) : null;
+  if (programId && (!existing || existing.template.id !== templateId)) return { ok: false, error: "Program not found." };
+  const template = existing?.template ?? (await repo.listProgramTemplates()).find((t) => t.id === templateId);
+  if (!template) return { ok: false, error: "Program not found." };
+  if (!existing && template.status !== "published") return { ok: false, error: "Only published programs can be assigned." };
+  const planId = String(fd.get("planId") ?? "") || undefined;
+  if (planId && !(await repo.listPlans(clientId, { staff: true })).some((p) => p.id === planId)) return { ok: false, error: "Choose one of this client’s plans." };
+  const status = programStatuses.find((s) => s.value === fd.get("status"))?.value ?? "active";
+  const personalization = readPersonalization(template, (name) => { const v = fd.get(name); return v === null ? null : String(v); });
+  let id: string;
+  try {
+    id = await repo.saveClientProgram(clientId, viewer, {
+      id: programId ?? undefined, templateId, startedAt: isoDate(fd.get("startedAt")) ?? new Date().toISOString().slice(0, 10), status, planId, personalization,
+    });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "The program couldn't be saved." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  redirect(`/practice/clients/${clientId}/programs/${id}?saved=1`);
 }
 
 /** Adds a dated entry to a plan's log. Shared entries appear in the client's My TAB when the plan is visible. */
