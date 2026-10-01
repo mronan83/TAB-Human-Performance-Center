@@ -46,7 +46,8 @@ const mapInquiry = (r: Row): Inquiry => ({
 const likeExact = (s: string) => s.replace(/[\\%_]/g, (c) => `\\${c}`);
 
 const mapTemplate = (t: Row): ProgramTemplate => ({
-  id: t.id, slug: t.slug, title: t.title, summary: t.summary ?? undefined, service: t.service, durationWeeks: t.duration_weeks ?? undefined, status: t.status, version: t.version,
+  id: t.id, familyId: t.family_id, slug: t.slug, title: t.title, summary: t.summary ?? undefined, service: t.service, durationWeeks: t.duration_weeks ?? undefined,
+  status: t.status, version: t.version, submittedAt: t.submitted_at ?? undefined, publishedAt: t.published_at ?? undefined,
   modules: (t.program_modules ?? []).sort((a: Row, b: Row) => a.week - b.week || a.sort - b.sort).map((m: Row) => ({
     id: m.id, week: m.week, title: m.title, body: m.body_md ?? undefined,
     activities: (m.program_activities ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((a: Row) => ({ id: a.id, kind: a.kind, title: a.title, instructions: a.instructions ?? undefined, prescription: a.prescription })),
@@ -300,8 +301,48 @@ export const supabaseRepository: PortalRepository = {
   },
   async listProgramTemplates() {
     const sb = await db();
-    const rows = must(await sb.from("program_templates").select(TEMPLATE_SELECT).order("title")) as Row[];
+    const rows = must(await sb.from("program_templates").select(TEMPLATE_SELECT).order("title").order("version")) as Row[];
     return rows.map(mapTemplate);
+  },
+  async getProgramTemplate(id) {
+    const sb = await db();
+    const r = must(await sb.from("program_templates").select(TEMPLATE_SELECT).eq("id", id).maybeSingle()) as Row | null;
+    return r ? mapTemplate(r) : null;
+  },
+  async saveProgramDraft(_viewer, input) {
+    const sb = await db();
+    // RLS (staff only) and the guard triggers (drafts only; version and slug set by the database) enforce the rules.
+    let id = input.id;
+    if (!id) {
+      const base = input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "program";
+      const slug = `${base}-${crypto.randomUUID().slice(0, 6)}`;
+      id = (must(await sb.from("program_templates").insert({ slug, title: input.title, service: input.service, status: "draft" }).select("id").single()) as Row).id as string;
+    }
+    const details = { title: input.title, summary: input.summary ?? "", service: input.service, duration_weeks: input.durationWeeks ?? "" };
+    const content = input.modules.map((m) => ({ id: m.id, week: m.week, title: m.title, body: m.body ?? "", activities: m.activities }));
+    must(await sb.rpc("save_program_draft", { template: id, details, content }));
+    return id;
+  },
+  async runProgramAction(_viewer, id, action) {
+    const sb = await db();
+    // Row-level security filters what a viewer can't change, so a missing row means "not allowed or not found".
+    const one = async (q: PromiseLike<{ data: Row | null; error: { message: string } | null }>) => {
+      const r = must(await q);
+      if (!r) throw new Error("Program not found, or you can't make that change.");
+      return r.id as string;
+    };
+    switch (action) {
+      case "submit": return one(sb.from("program_templates").update({ submitted_at: new Date().toISOString() }).eq("id", id).eq("status", "draft").select("id").maybeSingle());
+      case "publish": return one(sb.from("program_templates").update({ status: "published" }).eq("id", id).eq("status", "draft").select("id").maybeSingle());
+      case "retire": return one(sb.from("program_templates").update({ status: "retired" }).eq("id", id).eq("status", "published").select("id").maybeSingle());
+      case "new_version": return must(await sb.rpc("new_program_version", { template: id })) as string;
+      case "discard": {
+        const t = must(await sb.from("program_templates").select("family_id").eq("id", id).maybeSingle()) as Row | null;
+        await one(sb.from("program_templates").delete().eq("id", id).eq("status", "draft").select("id").maybeSingle());
+        const latest = must(await sb.from("program_templates").select("id").eq("family_id", t?.family_id).order("version", { ascending: false }).limit(1).maybeSingle()) as Row | null;
+        return latest?.id ?? null;
+      }
+    }
   },
   async saveClientProgram(clientId, _viewer, input) {
     const sb = await db();

@@ -4,7 +4,7 @@
  */
 import type {
   Activity, Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate,
-  Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
+  Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, Product, ProgramDraftInput, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 import { currentWeekFor, isActivityInProgram, personalizedModules } from "./programs";
 
@@ -27,7 +27,7 @@ const metrics: MetricDefinition[] = [
 const act = (id: string, kind: Activity["kind"], title: string, instructions?: string, prescription?: Activity["prescription"]): Activity => ({ id, kind, title, instructions, prescription });
 
 const strengthTemplate: ProgramTemplate = {
-  id: "tpl-strength-foundations", slug: "strength-foundations", title: "Strength Foundations", service: "personal-strength-training", durationWeeks: 8, status: "published", version: 1,
+  id: "tpl-strength-foundations", familyId: "tpl-strength-foundations", slug: "strength-foundations", title: "Strength Foundations", service: "personal-strength-training", durationWeeks: 8, status: "published", version: 1,
   summary: "Build full-body strength, balance, and confidence with three short sessions a week.",
   modules: [
     { id: "m1", week: 1, title: "Week 1: Learn the patterns", body: "This week is about learning how the movements should feel. Go slower than you think you need to.", activities: [
@@ -53,7 +53,7 @@ const strengthTemplate: ProgramTemplate = {
 };
 
 const restTemplate: ProgramTemplate = {
-  id: "tpl-rest-reset", slug: "rest-and-reset", title: "Rest & Reset", service: "womens-wellness-coaching", durationWeeks: 4, status: "published", version: 1,
+  id: "tpl-rest-reset", familyId: "tpl-rest-reset", slug: "rest-and-reset", title: "Rest & Reset", service: "womens-wellness-coaching", durationWeeks: 4, status: "published", version: 1,
   summary: "Small, realistic changes for better sleep and steadier energy.",
   modules: [
     { id: "r1", week: 1, title: "Week 1: Notice your evenings", activities: [
@@ -64,6 +64,21 @@ const restTemplate: ProgramTemplate = {
     { id: "r2", week: 2, title: "Week 2: A steadier wind-down", activities: [
       act("r2a", "habit", "Same bedtime, within 30 minutes", undefined, { frequency: "5 nights" }),
       act("r2b", "reflection", "What got in the way this week?"),
+    ]},
+  ],
+};
+
+/** A draft submitted for review, to show the program editor's workflow (C7). */
+const deskDraft: ProgramTemplate = {
+  id: "tpl-desk-reset", familyId: "tpl-desk-reset", slug: "desk-reset", title: "Desk Reset", service: "personal-strength-training", durationWeeks: 2, status: "draft", version: 1,
+  summary: "Five-minute movement breaks for long days at a desk.", submittedAt: new Date(Date.now() - 86400000).toISOString(),
+  modules: [
+    { id: "d1", week: 1, title: "Week 1: Move every hour", activities: [
+      act("d1a", "exercise", "Chin tucks", "Sit tall, draw your chin straight back, hold for a breath.", { reps: "10" }),
+      act("d1b", "habit", "Stand up every hour", undefined, { frequency: "workdays" }),
+    ]},
+    { id: "d2", week: 2, title: "Week 2: Open the chest", activities: [
+      act("d2a", "exercise", "Doorway stretch", "Forearms on the frame, step through gently.", { duration: "30 sec", sets: 2 }),
     ]},
   ],
 };
@@ -101,6 +116,8 @@ const products: Product[] = [
 ];
 
 type Store = {
+  /** Every version of every program (C7). */
+  templates: ProgramTemplate[];
   clients: Client[];
   plans: Plan[];
   programs: ClientProgram[];
@@ -131,6 +148,7 @@ function seed(): Store {
   for (const [k, vals] of Object.entries(series)) vals.forEach((v, i) => progress.push({ metricKey: k, value: v, recordedOn: weekStart(i - vals.length + 1), source: "client" }));
 
   return {
+    templates: [strengthTemplate, restTemplate, deskDraft],
     clients: [dana, ...others],
     plans: [{
       id: "plan-dana", clientId: DEMO_CLIENT_ID, planType: "wellness", visibleToClient: true, details: {}, title: "Stronger, steadier, and back in routine", focus: "Build strength and energy through midlife with a routine that fits a busy week.",
@@ -229,6 +247,19 @@ store.stageChanges ??= {};
 store.planEntries ??= {}; // a store created before stage history existed (dev hot reload)
 
 const clone = <T>(v: T): T => structuredClone(v);
+/** A draft's content from the editor: ids from this draft are kept, anything else gets a new id (as in save_program_draft). */
+function buildModules(input: ProgramDraftInput["modules"], current: ProgramTemplate["modules"]): ProgramTemplate["modules"] {
+  const moduleIds = new Set(current.map((m) => m.id));
+  const activityIds = new Set(current.flatMap((m) => m.activities.map((a) => a.id)));
+  const n = Date.now();
+  return input.map((m, i) => ({
+    id: m.id && moduleIds.has(m.id) ? m.id : `m${n}-${i}`, week: m.week, title: m.title, body: m.body,
+    activities: m.activities.map((a, j) => ({
+      id: a.id && activityIds.has(a.id) ? a.id : `a${n}-${i}-${j}`, kind: a.kind, title: a.title, instructions: a.instructions,
+      prescription: Object.keys(a.prescription).length ? a.prescription : undefined,
+    })),
+  }));
+}
 const withWeek = (p: ClientProgram): ClientProgram => ({ ...p, currentWeek: currentWeekFor(p.startedAt, p.template.durationWeeks) });
 /** Practitioner-only sections are only ever returned to staff (plan_private_details in the database). */
 const stripPrivate = (p: Plan | null) => (p ? { ...p, privateDetails: undefined } : p);
@@ -296,7 +327,62 @@ export const mockRepository: PortalRepository = {
   async listClients(_viewer: Viewer) { return clone(store.clients); },
   async listNotes(clientId, includeInternal) { return clone((store.notes[clientId] ?? []).filter((n) => includeInternal || n.visibility === "shared")); },
   async addNote(clientId, viewer, note) { (store.notes[clientId] ??= []).unshift({ id: `n${Date.now()}`, date: day(0), author: viewer.name, ...note }); },
-  async listProgramTemplates() { return clone([strengthTemplate, restTemplate]); },
+  async listProgramTemplates() { return clone(store.templates); },
+  async getProgramTemplate(id) { return clone(store.templates.find((t) => t.id === id) ?? null); },
+  // The rules below mirror guard_program_template and save_program_draft (20261003000000_program_editor.sql).
+  async saveProgramDraft(_viewer, input) {
+    const details = { title: input.title, summary: input.summary, service: input.service, durationWeeks: input.durationWeeks };
+    if (!input.id) {
+      const id = `tpl-${Date.now()}`;
+      const base = input.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "program";
+      const slug = store.templates.some((t) => t.slug === base) ? `${base}-${id.slice(-4)}` : base;
+      store.templates.push({ id, familyId: id, slug, version: 1, status: "draft", ...details, modules: buildModules(input.modules, []) });
+      return id;
+    }
+    const t = store.templates.find((x) => x.id === input.id);
+    if (!t) throw new Error("Program not found");
+    if (t.status !== "draft") throw new Error("Published programs can't be edited; start a new version");
+    Object.assign(t, details, { modules: buildModules(input.modules, t.modules) });
+    return t.id;
+  },
+  async runProgramAction(viewer, id, action) {
+    const t = store.templates.find((x) => x.id === id);
+    if (!t) throw new Error("Program not found");
+    const family = store.templates.filter((x) => x.familyId === t.familyId);
+    const needPublish = () => { if (!(viewer.role === "owner" || viewer.canPublish)) throw new Error("Publishing needs the publishing permission"); };
+    const needDraft = () => { if (t.status !== "draft") throw new Error("Published programs can't be edited; start a new version"); };
+    switch (action) {
+      case "submit": needDraft(); t.submittedAt = new Date().toISOString(); return t.id;
+      case "publish":
+        needPublish(); needDraft();
+        family.filter((x) => x.status === "published").forEach((x) => { x.status = "retired"; });
+        Object.assign(t, { status: "published", publishedAt: new Date().toISOString(), submittedAt: undefined });
+        return t.id;
+      case "retire":
+        needPublish();
+        if (t.status !== "published") throw new Error("Only a published program can be retired");
+        t.status = "retired";
+        return t.id;
+      case "new_version": {
+        const draft = family.find((x) => x.status === "draft");
+        if (draft) return draft.id;
+        const latest = family.reduce((a, b) => (b.version > a.version ? b : a));
+        const n = Date.now();
+        const copy: ProgramTemplate = {
+          ...clone(latest), id: `tpl-${n}`, version: latest.version + 1, status: "draft", submittedAt: undefined, publishedAt: undefined,
+          modules: latest.modules.map((m, i) => ({ ...clone(m), id: `m${n}-${i}`, activities: m.activities.map((a, j) => ({ ...clone(a), id: `a${n}-${i}-${j}` })) })),
+        };
+        store.templates.push(copy);
+        return copy.id;
+      }
+      case "discard": {
+        needDraft();
+        store.templates.splice(store.templates.indexOf(t), 1);
+        const rest = family.filter((x) => x !== t);
+        return rest.length ? rest.reduce((a, b) => (b.version > a.version ? b : a)).id : null;
+      }
+    }
+  },
   async saveClientProgram(clientId, _viewer, input) {
     // Mirrors client_programs_guard: published templates only, version pinned, client and template fixed.
     if (input.id) {
@@ -307,8 +393,9 @@ export const mockRepository: PortalRepository = {
         completedAt: input.status === "completed" ? (p.completedAt ?? day(0)) : undefined });
       return p.id;
     }
-    const template = [strengthTemplate, restTemplate].find((t) => t.id === input.templateId);
-    if (template?.status !== "published") throw new Error("Only published programs can be assigned");
+    const found = store.templates.find((t) => t.id === input.templateId);
+    if (found?.status !== "published") throw new Error("Only published programs can be assigned");
+    const template = clone(found);
     const id = `cp${Date.now()}`;
     store.programs.unshift({ id, clientId, template, templateVersion: template.version, source: "assigned", status: input.status, startedAt: input.startedAt,
       completedAt: input.status === "completed" ? day(0) : undefined, currentWeek: 1, completedActivityIds: [], planId: input.planId, personalization: input.personalization });

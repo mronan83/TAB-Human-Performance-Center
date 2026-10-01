@@ -6,7 +6,9 @@ export type Role = "owner" | "practitioner" | "client";
 export type MethodStage = "start" | "transform" | "align" | "become" | "evolve";
 
 /** `staffVerified` is false for a staff sign-in without two-step verification (SEC-015): the database then grants no staff access. */
-export type Viewer = { userId: string; role: Role; name: string; clientId?: string; practitionerId?: string; staffVerified?: boolean; capabilities?: string[] };
+export type Viewer = { userId: string; role: Role; name: string; clientId?: string; practitionerId?: string; staffVerified?: boolean; capabilities?: string[];
+  /** May publish and retire program versions (owners, and practitioners with the publishing permission). */
+  canPublish?: boolean };
 
 export type Client = {
   id: string;
@@ -71,7 +73,19 @@ export type Activity = {
 };
 export type Module = { id: string; week: number; title: string; body?: string; activities: Activity[] };
 
-export type ProgramTemplate = { id: string; slug: string; title: string; summary?: string; service: ServiceSlug; durationWeeks?: number; status: "draft" | "published" | "retired"; version: number; modules: Module[] };
+/** One version of a program. Versions of the same program share `familyId` (C7, design §3.1). */
+export type ProgramTemplate = {
+  id: string; familyId: string; slug: string; title: string; summary?: string; service: ServiceSlug; durationWeeks?: number;
+  status: "draft" | "published" | "retired"; version: number; modules: Module[];
+  /** Draft only: when it was submitted for review by someone without the publishing permission. */
+  submittedAt?: string; publishedAt?: string;
+};
+
+export type ProgramActivityInput = { id?: string; kind: Activity["kind"]; title: string; instructions?: string; prescription: Record<string, string> };
+export type ProgramModuleInput = { id?: string; week: number; title: string; body?: string; activities: ProgramActivityInput[] };
+/** A draft program: details and the whole content, in order. Rows without an id are new; rows left out are removed. */
+export type ProgramDraftInput = { id?: string; title: string; summary?: string; service: ServiceSlug; durationWeeks?: number; modules: ProgramModuleInput[] };
+export type ProgramAction = "submit" | "publish" | "retire" | "new_version" | "discard";
 
 /** One client's changes to one activity (C4c). Prescription values replace the template's for the same keys. */
 export type ActivityAdjustment = { skip?: boolean; note?: string; prescription?: Record<string, string> };
@@ -230,6 +244,11 @@ export interface PortalRepository {
   listNotes(clientId: string, includeInternal: boolean): Promise<SessionNote[]>;
   addNote(clientId: string, viewer: Viewer, note: { body: string; visibility: "internal" | "shared"; service?: ServiceSlug }): Promise<void>;
   listProgramTemplates(): Promise<ProgramTemplate[]>;
+  getProgramTemplate(id: string): Promise<ProgramTemplate | null>;
+  /** Creates a draft program (version 1) or saves a draft version. Returns its id. */
+  saveProgramDraft(viewer: Viewer, input: ProgramDraftInput): Promise<string>;
+  /** Moves a program version through its life cycle. Returns the id to show next (null after discarding). */
+  runProgramAction(viewer: Viewer, id: string, action: ProgramAction): Promise<string | null>;
   /** Assigns a published program to the client, or updates an assignment (status, plan link, personalization). Returns its id. */
   saveClientProgram(clientId: string, viewer: Viewer, input: ProgramAssignmentInput): Promise<string>;
   /** Every review for the client, shared or not (staff only; RLS enforces it). */

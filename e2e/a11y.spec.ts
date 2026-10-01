@@ -53,4 +53,10 @@ test("portal: demo sign-in and progress review meet WCAG 2.2 AA", async ({ page,
   await scan(page, "/practice/clients/…/programs/new (choose a program)");
   await page.goto("/practice/clients/demo-client-dana/programs/cp-strength");
   await scan(page, "/practice/clients/…/programs/… (personalize a program)");
+  await page.goto("/practice/programs");
+  await scan(page, "/practice/programs (library)");
+  await page.goto("/practice/programs/tpl-desk-reset");
+  await scan(page, "/practice/programs/… (program editor)");
+  await page.goto("/practice/programs/tpl-strength-foundations");
+  await scan(page, "/practice/programs/… (published version)");
 });

@@ -74,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
+const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -305,6 +305,61 @@ check('client logs an activity in their program', (await superuser(`select count
 await expectDenied('client cannot log an activity skipped for them', () => as(C1, `insert into activity_logs (client_id, client_program_id, activity_id) values ('${DANA}','${CP_NEW}','${ACT_SKIP}')`));
 await expectDenied('client cannot log an activity from another program', () => as(C1, `insert into activity_logs (client_id, client_program_id, activity_id) values ('${DANA}','${CP_NEW}','${ACT_DRAFT}')`));
 check('assignments are audited', (await superuser(`select count(*)::int n from audit_events where table_name='client_programs' and record_id='${CP_NEW}'`))[0].n, 3);
+
+// C7: program editor with versioning. Drafts by any practitioner, publishing by permission, published versions
+// read-only, a new version copies the content, and publishing it retires the old one without moving its clients.
+const draftId = (await one(P, `insert into program_templates (slug, title, service, status) values ('desk-reset','Desk Reset','personal-strength-training','draft') returning id`)).id;
+check('a practitioner starts a draft program (version 1, its own family)', (await superuser(`select version, family_id = id as root, created_by from program_templates where id='${draftId}'`))[0], { version: 1, root: true, created_by: P });
+await expectDenied('a new program cannot start published', () => as(P, `insert into program_templates (slug, title, service, status) values ('sneaky','Sneaky','personal-strength-training','published')`));
+await expectDenied('a client cannot create a program', () => as(C1, `insert into program_templates (slug, title, service) values ('mine','Mine','personal-strength-training')`));
+const DR_MOD = (await one(P, `insert into program_modules (template_id, week, title) values ('${draftId}',1,'Week 1') returning id`)).id;
+const DR_ACT = (await one(P2, `insert into program_activities (module_id, kind, title, prescription) values ('${DR_MOD}','exercise','Chin tucks','{"reps":"10"}') returning id`)).id;
+await as(P, `update program_templates set summary='Five minutes between meetings.', submitted_at=now() where id='${draftId}'`);
+check('any practitioner edits a draft and its content', (await superuser(`select summary, submitted_at is not null as submitted from program_templates where id='${draftId}'`))[0], { summary: 'Five minutes between meetings.', submitted: true });
+await expectDenied('a practitioner without the publishing permission cannot publish', () => as(P, `update program_templates set status='published' where id='${draftId}'`));
+await as(O, `update program_templates set status='published' where id='${draftId}'`, 'aal1');
+check('publishing needs a two-step-verified session', (await superuser(`select status from program_templates where id='${draftId}'`))[0].status, 'draft');
+await superuser(`update practitioners set can_publish=true where id='${P2}'`);
+await as(P2, `update program_templates set status='published' where id='${draftId}'`);
+check('a practitioner with the permission publishes', (await superuser(`select status, published_by, submitted_at from program_templates where id='${draftId}'`))[0], { status: 'published', published_by: P2, submitted_at: null });
+await superuser(`update practitioners set can_publish=false where id='${P2}'`);
+await expectDenied('a published version cannot be edited', () => as(O, `update program_templates set title='Changed' where id='${draftId}'`));
+await expectDenied('its weeks cannot change', () => as(O, `insert into program_modules (template_id, week, title) values ('${draftId}',2,'Week 2')`));
+await expectDenied('nor its activities', () => as(O, `update program_activities set title='Changed' where id='${DR_ACT}'`));
+await expectDenied('nor can they be deleted', () => as(O, `delete from program_activities where id='${DR_ACT}'`));
+await expectDenied('a published version cannot be deleted', () => as(O, `delete from program_templates where id='${draftId}'`));
+await expectDenied('a version keeps its number', () => as(O, `update program_templates set version=7 where id='${draftId}'`));
+const CP_V1 = (await one(P, `insert into client_programs (client_id, template_id) values ('${DANA}','${draftId}') returning id`)).id;
+const V2 = (await one(P, `select new_program_version('${draftId}') as id`)).id;
+check('a new version is a draft copy, numbered 2, same program', (await superuser(`select status, version, family_id='${draftId}' as same, slug, title from program_templates where id='${V2}'`))[0], { status: 'draft', version: 2, same: true, slug: 'desk-reset', title: 'Desk Reset' });
+check('content is copied and remembers its source', (await superuser(`select a.title, a.source_activity_id from program_activities a join program_modules m on m.id=a.module_id where m.template_id='${V2}'`)), [{ title: 'Chin tucks', source_activity_id: DR_ACT }]);
+check('asking again returns the same draft', (await one(P2, `select new_program_version('${draftId}') as id`)).id, V2);
+await expectDenied('a client cannot start a new version', () => as(C1, `select new_program_version('${draftId}')`));
+await as(P, `update program_activities set prescription='{"reps":"12"}' where module_id in (select id from program_modules where template_id='${V2}')`);
+await as(O, `update program_templates set status='published' where id='${V2}'`);
+check('publishing version 2 retires version 1', (await superuser(`select version, status from program_templates where family_id='${draftId}' order by version`)), [{ version: 1, status: 'retired' }, { version: 2, status: 'published' }]);
+check('clients on version 1 keep it', (await superuser(`select template_id, template_version from client_programs where id='${CP_V1}'`))[0], { template_id: draftId, template_version: 1 });
+check('and still read it after it is retired', (await as(C1, `select t.title, a.prescription->>'reps' reps from program_templates t join program_modules m on m.template_id=t.id join program_activities a on a.module_id=m.id where t.id='${draftId}'`)), [{ title: 'Desk Reset', reps: '10' }]);
+check('other clients cannot read it', (await as(C2, `select 1 from program_modules where template_id='${draftId}'`)).length, 0);
+await expectDenied('a retired version cannot be republished', () => as(O, `update program_templates set status='published' where id='${draftId}'`));
+await expectDenied('a retired version cannot be assigned', () => as(P, `insert into client_programs (client_id, template_id) values ('${DANA}','${draftId}')`));
+await expectDenied('a practitioner without the permission cannot retire a program', () => as(P, `update program_templates set status='retired' where id='${V2}'`));
+const V3 = (await one(P, `select new_program_version('${V2}') as id`)).id;
+await as(P, `delete from program_templates where id='${V3}'`);
+check('a draft version can be discarded', (await superuser(`select count(*)::int n from program_templates where family_id='${draftId}'`))[0].n, 2);
+const V4 = (await one(P2, `select new_program_version('${V2}') as id`)).id;
+const V4_ACT = (await superuser(`select a.id from program_activities a join program_modules m on m.id=a.module_id where m.template_id='${V4}'`))[0].id;
+await as(P2, `select save_program_draft('${V4}', '{"title":"Desk Reset","summary":"Two weeks","service":"personal-strength-training","duration_weeks":"2"}',
+  '[{"week":1,"title":"Week 1","activities":[{"id":"${V4_ACT}","kind":"exercise","title":"Chin tucks","prescription":{"reps":"12"}},{"kind":"habit","title":"Stand every hour","prescription":{}}]},
+    {"week":2,"title":"Week 2","activities":[{"id":"${DR_ACT}","kind":"exercise","title":"Hijacked","prescription":{}}]}]')`);
+check('a draft saves its details and content in one go', (await superuser(`select m.week, a.title, a.source_activity_id is not null as kept from program_activities a join program_modules m on m.id=a.module_id where m.template_id='${V4}' order by m.week, a.sort`)),
+  [{ week: 1, title: 'Chin tucks', kept: true }, { week: 1, title: 'Stand every hour', kept: false }, { week: 2, title: 'Hijacked', kept: false }]);
+check("an activity id from another version is added as new, not moved", (await superuser(`select title from program_activities where id='${DR_ACT}'`))[0].title, 'Chin tucks');
+await expectDenied('a client cannot save a draft', () => as(C1, `select save_program_draft('${V4}', '{"title":"x","service":"personal-strength-training"}', '[]')`));
+await expectDenied('a published version cannot be saved as a draft', () => as(O, `select save_program_draft('${V2}', '{"title":"x","service":"personal-strength-training"}', '[]')`));
+await as(P2, `select save_program_draft('${V4}', '{"title":"Desk Reset","service":"personal-strength-training"}', '[]')`);
+check('content left out is removed', (await superuser(`select count(*)::int n from program_modules where template_id='${V4}'`))[0].n, 0);
+check('program changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='program_templates' and record_id='${V2}'`))[0].n > 0, true);
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

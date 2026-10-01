@@ -128,6 +128,26 @@ Existing tables stay: `program_templates` → `program_modules` (by week) → `p
 | Products | A published template can be packaged as a product (D-044, D-052); pricing stays in Stripe. Separate step, owner-only. |
 | Retiring | `retired` hides a template from assignment; existing clients keep it. |
 
+### 3.1a As built (C7, first slice)
+
+- **Data model:** each version is its own `program_templates` row; a program's versions share `family_id` (the first
+  version's id) and its slug. Clients, products and cohorts keep pointing at the row they were given, so content they
+  have never changes. Entitlements and cohorts give access to every published version of the program they name.
+- **Life cycle:** `draft → published → retired`. One draft and one published version per program at a time.
+  Publishing a version retires the previous one; its clients keep it and can still read it.
+- **Who:** any practitioner creates and edits drafts and can *submit for review*; publishing and retiring need
+  `can_publish_programs()` (owners, or practitioners with `practitioners.can_publish`). Enforced in the database
+  (`20261003000000_program_editor.sql`) and mirrored in the app (`viewer.canPublish`).
+- **Read-only once published:** the guard triggers reject any change to a published or retired version or its weeks and
+  activities. *Edit as a new version* (`new_program_version()`) copies the latest version into a new draft; each copied
+  activity records `source_activity_id`, which C7b uses to carry a client's progress to a newer version.
+- **Editor:** TAB Practice → Programs → New program, or open a draft. Weeks (week number, title, introduction) hold
+  activities (type, name, instructions, prescription fields: sets, reps, load, duration, frequency, rest, tempo,
+  distance). The whole draft saves in one transaction (`save_program_draft()`); limits are in `lib/portal/programs.ts`.
+- **Still to come (C7b):** moving a client to a newer version (carrying progress and personalization through
+  `source_activity_id`), client-only activities, and a team settings page where the owner grants the publishing
+  permission (until then it is set in the database).
+
 ## 4. AI program drafting (templates only)
 
 - **What it does:** in the program editor, "Draft with AI": the practitioner describes the program (pillar, audience,

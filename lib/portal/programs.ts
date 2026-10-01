@@ -3,7 +3,7 @@
  * with their practitioner's personalization applied. Shared by both repositories, the actions and the pages.
  */
 import { planTypes } from "./plan-types";
-import type { ClientProgram, Module, Personalization, Plan, ProgramTemplate } from "./types";
+import type { Activity, ClientProgram, Module, Personalization, Plan, ProgramTemplate } from "./types";
 
 export const programStatuses = [
   { value: "active", label: "Active" },
@@ -73,3 +73,18 @@ export function readPersonalization(template: ProgramTemplate, get: (name: strin
 /** The client's plans a program can support, labelled by type (an archived plan only when it is already linked). */
 export const planOptions = (plans: Plan[], keep?: string) =>
   plans.filter((p) => p.status !== "archived" || p.id === keep).map((p) => ({ id: p.id, label: `${planTypes[p.planType].short}: ${p.title}` }));
+
+// Program editor (C7): activity kinds, prescription fields and limits (parsed in program-editor.ts).
+export const activityKinds = [
+  { value: "exercise", label: "Exercise" },
+  { value: "habit", label: "Habit" },
+  { value: "reflection", label: "Reflection" },
+  { value: "reading", label: "Reading" },
+  { value: "video", label: "Video" },
+  { value: "check_in", label: "Check-in" },
+] as const satisfies readonly { value: Activity["kind"]; label: string }[];
+
+/** Prescription fields a practitioner can set; personalization (C4c) adjusts the same keys per client. */
+export const prescriptionKeys = ["sets", "reps", "load", "duration", "frequency", "rest", "tempo", "distance"] as const;
+
+export const LIMITS = { weeks: 52, modules: 52, activities: 25, rx: prescriptionKeys.length, title: 120, summary: 600, body: 2000, instructions: 1000, rxValue: 40 } as const;

@@ -6,7 +6,7 @@ Register IDs in brackets link to `docs/requirements-register.md`.
 
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 
-_Last updated: 2026-10-01, C4c program assignment and personalization._
+_Last updated: 2026-10-01, C7 program editor with versioning (first slice)._
 
 ## P0 · Now
 
@@ -50,7 +50,7 @@ _Last updated: 2026-10-01, C4c program assignment and personalization._
 
 | ID | Item | Category | Owner |
 |---|---|---|---|
-| C7 | Program editor with versioning (design §3.1, G1 approved); any practitioner edits drafts, publishing needs the permission; also client-only activities and moving a client to a newer version (deferred from C4c) | Portal | Claude |
+| C7b | Program editor, part 2: move a client to a newer program version (progress and personalization carried over), client-only activities, team settings page for the publishing permission (design §3.1a). C7 part 1 (editor, versions, publish permission) on `claude/zealous-davinci-64dima` | Portal | Claude |
 | C8 | Payload CMS, after Phase 1 [A-02] | Platform | Claude |
 | C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude |
 | C10 | Correct handoff-document references [DIV-03] | Docs | Claude |
