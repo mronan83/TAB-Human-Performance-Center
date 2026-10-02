@@ -4,9 +4,9 @@
  */
 import type {
   Activity, Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate,
-  Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, Product, ProgramDraftInput, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
+  Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, PractitionerSummary, Product, ProgramAssignmentInput, ProgramDraftInput, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
-import { currentWeekFor, isActivityInProgram, personalizedModules } from "./programs";
+import { activityMap, currentWeekFor, isActivityInProgram, personalizedModules } from "./programs";
 
 const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); };
 // Demo appointment times are Michigan local time (EDT, UTC-4).
@@ -118,6 +118,7 @@ const products: Product[] = [
 type Store = {
   /** Every version of every program (C7). */
   templates: ProgramTemplate[];
+  practitioners: PractitionerSummary[];
   clients: Client[];
   plans: Plan[];
   programs: ClientProgram[];
@@ -149,6 +150,10 @@ function seed(): Store {
 
   return {
     templates: [strengthTemplate, restTemplate, deskDraft],
+    practitioners: [
+      { id: DEMO_PRACTITIONER_ID, name: "Your TAB practitioner", role: "owner", active: true, canPublish: true, capabilities: ["nutrition"] },
+      { id: "demo-practitioner-avery", name: "Avery Brooks (demo practitioner)", role: "practitioner", active: true, canPublish: false, capabilities: [] },
+    ],
     clients: [dana, ...others],
     plans: [{
       id: "plan-dana", clientId: DEMO_CLIENT_ID, planType: "wellness", visibleToClient: true, details: {}, title: "Stronger, steadier, and back in routine", focus: "Build strength and energy through midlife with a routine that fits a busy week.",
@@ -173,8 +178,9 @@ function seed(): Store {
         personalization: {
           note: "I’ve adjusted week 2 around how your knee felt on step-ups. Keep everything slow and controlled.",
           activities: { b3: { note: "Use the low box and hold the rail.", prescription: { reps: "4 each side" } } },
-        } },
-      { id: "cp-rest", clientId: DEMO_CLIENT_ID, template: restTemplate, templateVersion: 1, planId: "plan-dana", source: "assigned", status: "active", startedAt: day(-8), currentWeek: 2, completedActivityIds: ["r1a", "r1c"], personalization: {} },
+        },
+        customActivities: [{ id: "cx1", week: 3, kind: "habit", title: "Calf stretch after your evening walk", instructions: "Thirty seconds each side, against a wall." }] },
+      { id: "cp-rest", clientId: DEMO_CLIENT_ID, template: restTemplate, templateVersion: 1, planId: "plan-dana", source: "assigned", status: "active", startedAt: day(-8), currentWeek: 2, completedActivityIds: ["r1a", "r1c"], personalization: {}, customActivities: [] },
     ],
     progress: { [DEMO_CLIENT_ID]: progress },
     checkIns: { [DEMO_CLIENT_ID]: [
@@ -247,16 +253,21 @@ store.stageChanges ??= {};
 store.planEntries ??= {}; // a store created before stage history existed (dev hot reload)
 
 const clone = <T>(v: T): T => structuredClone(v);
+/** Client-only activities from the form: ids from this program are kept, new rows get an id (as save_client_activities). */
+const withIds = (items: ProgramAssignmentInput["customActivities"], kept: Set<string>) =>
+  items.map((c, i) => ({ ...c, id: c.id && kept.has(c.id) ? c.id : `cx${Date.now()}-${i}` }));
 /** A draft's content from the editor: ids from this draft are kept, anything else gets a new id (as in save_program_draft). */
 function buildModules(input: ProgramDraftInput["modules"], current: ProgramTemplate["modules"]): ProgramTemplate["modules"] {
   const moduleIds = new Set(current.map((m) => m.id));
-  const activityIds = new Set(current.flatMap((m) => m.activities.map((a) => a.id)));
+  const existing = new Map(current.flatMap((m) => m.activities).map((a) => [a.id, a]));
+  const activityIds = new Set(existing.keys());
   const n = Date.now();
   return input.map((m, i) => ({
     id: m.id && moduleIds.has(m.id) ? m.id : `m${n}-${i}`, week: m.week, title: m.title, body: m.body,
     activities: m.activities.map((a, j) => ({
       id: a.id && activityIds.has(a.id) ? a.id : `a${n}-${i}-${j}`, kind: a.kind, title: a.title, instructions: a.instructions,
       prescription: Object.keys(a.prescription).length ? a.prescription : undefined,
+      sourceActivityId: a.id ? existing.get(a.id)?.sourceActivityId : undefined,
     })),
   }));
 }
@@ -370,7 +381,7 @@ export const mockRepository: PortalRepository = {
         const n = Date.now();
         const copy: ProgramTemplate = {
           ...clone(latest), id: `tpl-${n}`, version: latest.version + 1, status: "draft", submittedAt: undefined, publishedAt: undefined,
-          modules: latest.modules.map((m, i) => ({ ...clone(m), id: `m${n}-${i}`, activities: m.activities.map((a, j) => ({ ...clone(a), id: `a${n}-${i}-${j}` })) })),
+          modules: latest.modules.map((m, i) => ({ ...clone(m), id: `m${n}-${i}`, activities: m.activities.map((a, j) => ({ ...clone(a), id: `a${n}-${i}-${j}`, sourceActivityId: a.id })) })),
         };
         store.templates.push(copy);
         return copy.id;
@@ -389,7 +400,12 @@ export const mockRepository: PortalRepository = {
       const p = store.programs.find((x) => x.clientId === clientId && x.id === input.id);
       if (!p) throw new Error("Program not found");
       if (p.template.id !== input.templateId) throw new Error("An assigned program keeps its client, program and version");
-      Object.assign(p, { startedAt: input.startedAt, status: input.status, planId: input.planId, personalization: input.personalization,
+      const kept = new Set(p.customActivities.map((c) => c.id));
+      const customActivities = withIds(input.customActivities, kept);
+      // Removing a client-only activity removes its completion too (as the database's cascade does).
+      const remaining = new Set([...p.template.modules.flatMap((m) => m.activities.map((a) => a.id)), ...customActivities.map((c) => c.id)]);
+      Object.assign(p, { startedAt: input.startedAt, status: input.status, planId: input.planId, personalization: input.personalization, customActivities,
+        completedActivityIds: p.completedActivityIds.filter((id) => remaining.has(id)),
         completedAt: input.status === "completed" ? (p.completedAt ?? day(0)) : undefined });
       return p.id;
     }
@@ -398,8 +414,33 @@ export const mockRepository: PortalRepository = {
     const template = clone(found);
     const id = `cp${Date.now()}`;
     store.programs.unshift({ id, clientId, template, templateVersion: template.version, source: "assigned", status: input.status, startedAt: input.startedAt,
-      completedAt: input.status === "completed" ? day(0) : undefined, currentWeek: 1, completedActivityIds: [], planId: input.planId, personalization: input.personalization });
+      completedAt: input.status === "completed" ? day(0) : undefined, currentWeek: 1, completedActivityIds: [], planId: input.planId, personalization: input.personalization,
+      customActivities: withIds(input.customActivities, new Set()) });
     return id;
+  },
+  async moveClientProgram(clientId, programId, _viewer, targetTemplateId) {
+    // Mirrors move_client_program and guard_client_program (20261004000000_program_moves_custom_activities.sql).
+    const p = store.programs.find((x) => x.clientId === clientId && x.id === programId);
+    if (!p) throw new Error("Program not found");
+    const target = store.templates.find((t) => t.id === targetTemplateId);
+    if (!target || target.status !== "published" || target.familyId !== p.template.familyId || target.version <= p.templateVersion) {
+      throw new Error("A program can only move to a newer published version of itself");
+    }
+    const map = activityMap(p.template, target, store.templates);
+    const old = p.personalization.activities ?? {};
+    const activities = Object.fromEntries(Object.entries(old).flatMap(([id, adj]) => (map.has(id) ? [[map.get(id)!, adj]] : [])));
+    const personalization = { ...(p.personalization.note && { note: p.personalization.note }), ...(Object.keys(activities).length && { activities }) };
+    const custom = new Set(p.customActivities.map((c) => c.id));
+    const carried = p.completedActivityIds.filter((id) => map.has(id) && !activities[map.get(id)!]?.skip).map((id) => map.get(id)!);
+    Object.assign(p, { template: clone(target), templateVersion: target.version, personalization,
+      completedActivityIds: [...carried, ...p.completedActivityIds.filter((id) => custom.has(id))] });
+    return carried.length;
+  },
+  async listPractitioners() { return clone(store.practitioners); },
+  async updatePractitioner(id, changes) {
+    const x = store.practitioners.find((p) => p.id === id);
+    if (!x) throw new Error("Practitioner not found");
+    Object.assign(x, changes);
   },
   async listReviews(clientId) { return clone(store.reviews[clientId] ?? []); },
   async recordProgressReview(clientId, viewer, input) {

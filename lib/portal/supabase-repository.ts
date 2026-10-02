@@ -6,7 +6,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
-  Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
+  Appointment, CheckIn, Client, ClientActivityInput, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
   Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 import { currentWeekFor, personalizedModules } from "./programs";
@@ -50,20 +50,31 @@ const mapTemplate = (t: Row): ProgramTemplate => ({
   status: t.status, version: t.version, submittedAt: t.submitted_at ?? undefined, publishedAt: t.published_at ?? undefined,
   modules: (t.program_modules ?? []).sort((a: Row, b: Row) => a.week - b.week || a.sort - b.sort).map((m: Row) => ({
     id: m.id, week: m.week, title: m.title, body: m.body_md ?? undefined,
-    activities: (m.program_activities ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((a: Row) => ({ id: a.id, kind: a.kind, title: a.title, instructions: a.instructions ?? undefined, prescription: a.prescription })),
+    activities: (m.program_activities ?? []).sort((a: Row, b: Row) => a.sort - b.sort).map((a: Row) => ({
+      id: a.id, kind: a.kind, title: a.title, instructions: a.instructions ?? undefined, prescription: a.prescription, sourceActivityId: a.source_activity_id ?? undefined,
+    })),
   })),
 });
 
 const TEMPLATE_SELECT = "*, program_modules(*, program_activities(*))";
 
+const CLIENT_PROGRAM_SELECT = `*, program_templates(${TEMPLATE_SELECT}), client_program_activities(*)`;
+
 async function mapClientProgram(r: Row, sb: Awaited<ReturnType<typeof db>>): Promise<ClientProgram> {
-  const logs = must(await sb.from("activity_logs").select("activity_id").eq("client_program_id", r.id).eq("completed", true)) as Row[];
+  const logs = must(await sb.from("activity_logs").select("activity_id, client_activity_id").eq("client_program_id", r.id).eq("completed", true)) as Row[];
   const template = mapTemplate(r.program_templates);
   return {
     id: r.id, clientId: r.client_id, template, templateVersion: r.template_version, source: r.source, status: r.status, startedAt: r.started_at,
-    completedAt: r.completed_at ?? undefined, currentWeek: currentWeekFor(r.started_at, template.durationWeeks), completedActivityIds: logs.map((l) => l.activity_id),
+    completedAt: r.completed_at ?? undefined, currentWeek: currentWeekFor(r.started_at, template.durationWeeks), completedActivityIds: logs.map((l) => l.activity_id ?? l.client_activity_id).filter(Boolean),
     planId: r.plan_id ?? undefined, personalization: r.personalization ?? {},
+    customActivities: (r.client_program_activities ?? []).sort((a: Row, b: Row) => a.sort - b.sort)
+      .map((c: Row) => ({ id: c.id, week: c.week, kind: c.kind, title: c.title, instructions: c.instructions ?? undefined })),
   };
+}
+
+/** Saves a program's client-only activities in one transaction (save_client_activities, C7b). */
+async function saveCustom(sb: Awaited<ReturnType<typeof db>>, programId: string, items: ClientActivityInput[]) {
+  must(await sb.rpc("save_client_activities", { program: programId, items: items.map((c) => ({ ...c, instructions: c.instructions ?? "" })) }));
 }
 
 const mapPlan = (r: Row, priv?: Row): Plan => ({
@@ -116,18 +127,21 @@ export const supabaseRepository: PortalRepository = {
   },
   async listClientPrograms(clientId) {
     const sb = await db();
-    const rows = must(await sb.from("client_programs").select(`*, program_templates(${TEMPLATE_SELECT})`).eq("client_id", clientId).order("started_at", { ascending: false })) as Row[];
+    const rows = must(await sb.from("client_programs").select(CLIENT_PROGRAM_SELECT).eq("client_id", clientId).order("started_at", { ascending: false })) as Row[];
     return Promise.all(rows.map((r) => mapClientProgram(r, sb)));
   },
   async getClientProgram(clientId, id) {
     const sb = await db();
-    const r = must(await sb.from("client_programs").select(`*, program_templates(${TEMPLATE_SELECT})`).eq("client_id", clientId).eq("id", id).maybeSingle()) as Row | null;
+    const r = must(await sb.from("client_programs").select(CLIENT_PROGRAM_SELECT).eq("client_id", clientId).eq("id", id).maybeSingle()) as Row | null;
     return r ? mapClientProgram(r, sb) : null;
   },
   async toggleActivity(clientId, programId, activityId, done) {
     const sb = await db();
-    if (done) must(await sb.from("activity_logs").insert({ client_id: clientId, client_program_id: programId, activity_id: activityId, completed: true }));
-    else must(await sb.from("activity_logs").delete().eq("client_id", clientId).eq("client_program_id", programId).eq("activity_id", activityId));
+    // An activity added for this client (C7b) is logged by client_activity_id; guard_activity_log checks either kind.
+    const custom = must(await sb.from("client_program_activities").select("id").eq("id", activityId).eq("client_program_id", programId).maybeSingle());
+    const col = custom ? "client_activity_id" : "activity_id";
+    if (done) must(await sb.from("activity_logs").insert({ client_id: clientId, client_program_id: programId, [col]: activityId, completed: true }));
+    else must(await sb.from("activity_logs").delete().eq("client_id", clientId).eq("client_program_id", programId).eq(col, activityId));
   },
   async listMetrics() {
     const sb = await db();
@@ -351,10 +365,30 @@ export const supabaseRepository: PortalRepository = {
     if (input.id) {
       const r = must(await sb.from("client_programs").update(fields).eq("id", input.id).eq("client_id", clientId).eq("template_id", input.templateId).select("id").maybeSingle()) as Row | null;
       if (!r) throw new Error("Program not found");
+      await saveCustom(sb, r.id, input.customActivities);
       return r.id;
     }
     const r = must(await sb.from("client_programs").insert({ ...fields, client_id: clientId, template_id: input.templateId, source: "assigned" }).select("id").single()) as Row;
+    await saveCustom(sb, r.id, input.customActivities);
     return r.id;
+  },
+  async moveClientProgram(clientId, programId, _viewer, targetTemplateId) {
+    const sb = await db();
+    // move_client_program runs as the caller: care team only (RLS), newer published version of the same program only (guard).
+    const cp = must(await sb.from("client_programs").select("id").eq("id", programId).eq("client_id", clientId).maybeSingle());
+    if (!cp) throw new Error("Program not found");
+    return must(await sb.rpc("move_client_program", { program: programId, target: targetTemplateId })) as number;
+  },
+  async listPractitioners() {
+    const sb = await db();
+    const rows = must(await sb.from("practitioners").select("id, display_name, active, can_publish, capabilities, profiles(role)").order("display_name")) as Row[];
+    return rows.map((r) => ({ id: r.id, name: r.display_name, role: r.profiles?.role ?? "practitioner", active: r.active, canPublish: r.can_publish, capabilities: r.capabilities ?? [] }));
+  },
+  async updatePractitioner(id, changes) {
+    const sb = await db();
+    // practitioners_owner: only the owner can change these (RLS); a missing row means not allowed or not found.
+    const r = must(await sb.from("practitioners").update({ can_publish: changes.canPublish, capabilities: changes.capabilities }).eq("id", id).select("id").maybeSingle());
+    if (!r) throw new Error("Practitioner not found, or you can't change it.");
   },
   async listInquiries() {
     const sb = await db();

@@ -36,7 +36,7 @@ export default async function ProgramDetail({ params }: { params: Promise<{ id: 
                   {m.activities.map((a) => (
                     <ActivityCheck key={a.id} programId={p.id} activityId={a.id} done={p.completedActivityIds.includes(a.id)}
                       title={`${KIND_LABEL[a.kind]}: ${a.title}`}
-                      detail={[a.instructions, a.prescription && Object.entries(a.prescription).map(([k, v]) => `${k} ${v}`).join(" · "), a.adjusted && "adjusted for you"].filter(Boolean).join(" — ")} note={a.personalNote} />
+                      detail={[a.instructions, a.prescription && Object.entries(a.prescription).map(([k, v]) => `${k} ${v}`).join(" · "), a.adjusted && "adjusted for you", a.custom && "added for you"].filter(Boolean).join(" — ")} note={a.personalNote} />
                   ))}
                 </div>
               )}

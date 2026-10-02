@@ -184,6 +184,60 @@ test("program editor: build a draft, publish it, then edit it as a new version (
   await expect(page.getByText("This version can’t be assigned any more.")).toBeVisible(); // ...and retired
 });
 
+test("program versions: move a client to a newer version, add a client-only activity (C7b)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  page.on("dialog", (d) => d.accept());
+  // Publish version 2 of Strength Foundations with a heavier first exercise.
+  await page.goto("/practice/programs/tpl-strength-foundations");
+  await page.getByRole("button", { name: "Edit as a new version" }).click();
+  await expect(page.getByRole("status")).toContainText("New draft version started");
+  await page.getByLabel("Value (week section 1, activity 1, sets)").fill("4");
+  await page.getByRole("button", { name: "Save draft" }).click();
+  await expect(page.getByRole("status")).toHaveText("Draft saved.");
+  await page.getByRole("button", { name: "Publish" }).click();
+  await expect(page.getByRole("status")).toContainText("Published.");
+
+  // Dana is still on version 1 until her practitioner moves her.
+  await page.goto("/practice/clients/demo-client-dana/programs/cp-strength");
+  await expect(page.getByText("Version 2 is available")).toBeVisible();
+  await page.getByRole("button", { name: "Move to version 2" }).click();
+  await expect(page.getByRole("status")).toContainText(/Moved to version 2\. \d+ completed activit(y|ies) carried over/);
+  await expect(page.getByText("Version 2 is available")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Add an activity for this client" }).click();
+  await expect(page.getByLabel("Activity (added activity 2)")).toBeFocused();
+  await page.getByLabel("Activity (added activity 2)").fill("Balance on one foot while brushing your teeth");
+  await page.getByLabel("Week (added activity 2)").selectOption("1");
+  await page.getByRole("button", { name: "Save program" }).click();
+  await expect(page.getByRole("status")).toContainText("Program saved.");
+
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  await page.goto("/my-tab/programs/cp-strength");
+  await expect(page.getByText(/sets 4/)).toBeVisible(); // the new version
+  await expect(page.getByText("Use the low box and hold the rail.")).toBeVisible(); // personalization carried over
+  const added = page.getByRole("checkbox", { name: /Balance on one foot while brushing your teeth/ });
+  await expect(page.getByText(/added for you/).first()).toBeVisible();
+  await added.check();
+  await page.reload();
+  await expect(page.getByRole("checkbox", { name: /Balance on one foot while brushing your teeth/ })).toBeChecked();
+});
+
+test("team: only the owner grants the publishing permission (C7b)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/team");
+  const publish = page.getByLabel("Can publish and retire programs (Avery Brooks (demo practitioner))");
+  await expect(publish).not.toBeChecked();
+  await publish.check();
+  await page.getByRole("button", { name: "Save Avery Brooks (demo practitioner)" }).click();
+  await expect(page.getByText("Saved.")).toBeVisible();
+  await page.reload();
+  await expect(page.getByLabel("Can publish and retire programs (Avery Brooks (demo practitioner))")).toBeChecked();
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  const res = await page.goto("/practice/team");
+  expect(page.url()).not.toContain("/practice/team");
+  expect(res?.status()).toBeLessThan(500);
+});
+
 test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
   test.setTimeout(60_000);
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);

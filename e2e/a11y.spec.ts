@@ -59,4 +59,6 @@ test("portal: demo sign-in and progress review meet WCAG 2.2 AA", async ({ page,
   await scan(page, "/practice/programs/… (program editor)");
   await page.goto("/practice/programs/tpl-strength-foundations");
   await scan(page, "/practice/programs/… (published version)");
+  await page.goto("/practice/team");
+  await scan(page, "/practice/team");
 });

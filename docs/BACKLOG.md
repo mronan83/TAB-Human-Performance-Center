@@ -6,7 +6,7 @@ Register IDs in brackets link to `docs/requirements-register.md`.
 
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 
-_Last updated: 2026-10-01, C7 program editor with versioning (first slice)._
+_Last updated: 2026-10-01, C7b version moves, client-only activities, Team page._
 
 ## P0 · Now
 
@@ -50,7 +50,6 @@ _Last updated: 2026-10-01, C7 program editor with versioning (first slice)._
 
 | ID | Item | Category | Owner |
 |---|---|---|---|
-| C7b | Program editor, part 2: move a client to a newer program version (progress and personalization carried over), client-only activities, team settings page for the publishing permission (design §3.1a). C7 part 1 (editor, versions, publish permission) on `claude/zealous-davinci-64dima` | Portal | Claude |
 | C8 | Payload CMS, after Phase 1 [A-02] | Platform | Claude |
 | C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude |
 | C10 | Correct handoff-document references [DIV-03] | Docs | Claude |
@@ -66,6 +65,8 @@ _Last updated: 2026-10-01, C7 program editor with versioning (first slice)._
 
 ## Recently done
 
+- **C7b** (on `claude/zealous-davinci-64dima`): move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission.
+- **#25** (2026-10-01): C4c assign and personalize programs; C7 program editor with versioning and the publishing permission. Promoted (`dpl_Djq3uj…`).
 - **#24** (2026-09-30): Wellness Plan goals up to 100; plan editor date fields fixed on iPad. Promoted with C4b (`dpl_9TA6w…`).
 - **#23** (2026-09-29): C4b typed plans (Wellness Plan + service plans), practitioner-only sections, plan log, nutrition gate.
 - **#22** (2026-09-29): C4a Progress Reviews and practitioner-confirmed stage changes (dashboard notice, stage email, tamper-proof stage history).

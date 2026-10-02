@@ -22,10 +22,13 @@ export function currentWeekFor(startedAt: string, durationWeeks?: number) {
   return Math.max(1, durationWeeks ? Math.min(weeks, durationWeeks) : weeks);
 }
 
-/** The modules as this client sees them: skipped activities removed, prescriptions and notes applied. */
-export function personalizedModules(p: Pick<ClientProgram, "template" | "personalization">): Module[] {
+/**
+ * The modules as this client sees them: skipped activities removed, prescriptions and notes applied, and activities
+ * added for this client (C7b) placed at the end of their week (the last earlier week if the program has no such week).
+ */
+export function personalizedModules(p: Pick<ClientProgram, "template" | "personalization"> & { customActivities?: ClientProgram["customActivities"] }): Module[] {
   const adj = p.personalization.activities ?? {};
-  return p.template.modules.map((m) => ({
+  const modules: Module[] = p.template.modules.map((m) => ({
     ...m,
     activities: m.activities.filter((a) => !adj[a.id]?.skip).map((a) => {
       const x = adj[a.id];
@@ -34,6 +37,11 @@ export function personalizedModules(p: Pick<ClientProgram, "template" | "persona
       return { ...a, prescription: rx ? { ...a.prescription, ...rx } : a.prescription, personalNote: x.note, adjusted: !!rx };
     }),
   }));
+  for (const c of p.customActivities ?? []) {
+    const target = modules.find((m) => m.week === c.week) ?? [...modules].reverse().find((m) => m.week < c.week) ?? modules[0];
+    target?.activities.push({ id: c.id, kind: c.kind, title: c.title, instructions: c.instructions, custom: true });
+  }
+  return modules;
 }
 
 /** Share of the client's (personalized) activities completed, 0–1. */
@@ -44,7 +52,7 @@ export function programProgress(p: ClientProgram) {
 }
 
 /** Whether the client may tick this activity off: it is in the program and not skipped for them. */
-export const isActivityInProgram = (p: Pick<ClientProgram, "template" | "personalization">, activityId: string) =>
+export const isActivityInProgram = (p: Pick<ClientProgram, "template" | "personalization" | "customActivities">, activityId: string) =>
   personalizedModules(p).some((m) => m.activities.some((a) => a.id === activityId));
 
 /**
@@ -87,4 +95,23 @@ export const activityKinds = [
 /** Prescription fields a practitioner can set; personalization (C4c) adjusts the same keys per client. */
 export const prescriptionKeys = ["sets", "reps", "load", "duration", "frequency", "rest", "tempo", "distance"] as const;
 
-export const LIMITS = { weeks: 52, modules: 52, activities: 25, rx: prescriptionKeys.length, title: 120, summary: 600, body: 2000, instructions: 1000, rxValue: 40 } as const;
+export const LIMITS = { weeks: 52, modules: 52, activities: 25, rx: prescriptionKeys.length, title: 120, summary: 600, body: 2000, instructions: 1000, rxValue: 40, clientActivities: 50 } as const;
+
+/** Newer published versions of an assigned program's program, newest first (C7b). */
+export const newerVersions = (p: ClientProgram, templates: ProgramTemplate[]) =>
+  templates.filter((t) => t.familyId === p.template.familyId && t.status === "published" && t.version > p.templateVersion).sort((a, b) => b.version - a.version);
+
+/** Which activity in `to` each activity in `from` became, following sourceActivityId back through `all` versions. */
+export function activityMap(from: ProgramTemplate, to: ProgramTemplate, all: ProgramTemplate[]): Map<string, string> {
+  const byId = new Map(all.flatMap((t) => t.modules.flatMap((m) => m.activities)).map((a) => [a.id, a]));
+  const inFrom = new Set(from.modules.flatMap((m) => m.activities.map((a) => a.id)));
+  const map = new Map<string, string>();
+  for (const a of to.modules.flatMap((m) => m.activities)) {
+    let src = a.sourceActivityId;
+    for (let depth = 0; src && depth < 100; depth++) {
+      if (inFrom.has(src)) { map.set(src, a.id); break; }
+      src = byId.get(src)?.sourceActivityId;
+    }
+  }
+  return map;
+}

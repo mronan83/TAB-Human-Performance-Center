@@ -74,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
+const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|can only move to a newer published version|Only practitioners can move|Only practitioners can change a client's program|Program not found|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -360,6 +360,44 @@ await expectDenied('a published version cannot be saved as a draft', () => as(O,
 await as(P2, `select save_program_draft('${V4}', '{"title":"Desk Reset","service":"personal-strength-training"}', '[]')`);
 check('content left out is removed', (await superuser(`select count(*)::int n from program_modules where template_id='${V4}'`))[0].n, 0);
 check('program changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='program_templates' and record_id='${V2}'`))[0].n > 0, true);
+
+// C7b: moving a client to a newer version (progress and personalization follow each activity), client-only activities,
+// and the publishing permission, which only the owner grants.
+await as(P, `update client_programs set personalization='{"note":"Go gently","activities":{"${DR_ACT}":{"note":"Keep it slow"}}}' where id='${CP_V1}'`);
+await as(C1, `insert into activity_logs (client_id, client_program_id, activity_id) values ('${DANA}','${CP_V1}','${DR_ACT}')`);
+const V2_ACT = (await superuser(`select a.id from program_activities a join program_modules m on m.id=a.module_id where m.template_id='${V2}'`))[0].id;
+await expectDenied('an unassigned practitioner cannot move a client', () => as(P2, `select move_client_program('${CP_V1}','${V2}')`));
+await expectDenied('a client cannot move their own program', () => as(C1, `select move_client_program('${CP_V1}','${V2}')`));
+await expectDenied("a program cannot move to a different program", () => as(P, `select move_client_program('${CP_V1}','${T_PUB}')`));
+check('moving to the newer version carries completed activities over', (await one(P, `select move_client_program('${CP_V1}','${V2}') as n`)).n, 1);
+check('the assignment now pins version 2', (await superuser(`select template_id, template_version from client_programs where id='${CP_V1}'`))[0], { template_id: V2, template_version: 2 });
+check('personalization follows the activity', (await superuser(`select personalization from client_programs where id='${CP_V1}'`))[0].personalization, { note: 'Go gently', activities: { [V2_ACT]: { note: 'Keep it slow' } } });
+check('progress follows the activity', (await superuser(`select activity_id from activity_logs where client_program_id='${CP_V1}'`)).map(r=>r.activity_id), [V2_ACT]);
+check('the client reads the new version', (await as(C1, `select a.prescription->>'reps' reps from program_activities a join program_modules m on m.id=a.module_id where m.template_id='${V2}'`)).map(r=>r.reps), ['12']);
+await expectDenied('a program cannot move back to an older version', () => as(P, `update client_programs set template_id='${draftId}' where id='${CP_V1}'`));
+// Client-only activities
+await as(P, `select save_client_activities('${CP_V1}', '[{"week":1,"kind":"habit","title":"Walk the dog after lunch","instructions":"Ten minutes is plenty."}]')`);
+const CUSTOM = (await superuser(`select id, created_by from client_program_activities where client_program_id='${CP_V1}'`))[0];
+check('a practitioner adds an activity for one client', CUSTOM.created_by, P);
+check('the client reads it', (await as(C1, `select title from client_program_activities`)).map(r=>r.title), ['Walk the dog after lunch']);
+check('an unassigned practitioner cannot', (await as(P2, `select 1 from client_program_activities`)).length, 0);
+check('another client cannot', (await as(C2, `select 1 from client_program_activities`)).length, 0);
+await expectDenied('a client cannot add activities to their program', () => as(C1, `insert into client_program_activities (client_id, client_program_id, week, kind, title) values ('${DANA}','${CP_V1}',1,'habit','Self-made')`));
+await expectDenied('nor through the save function', () => as(C1, `select save_client_activities('${CP_V1}', '[]')`));
+await as(C1, `insert into activity_logs (client_id, client_program_id, client_activity_id) values ('${DANA}','${CP_V1}','${CUSTOM.id}')`);
+check('the client logs an activity added for them', (await superuser(`select count(*)::int n from activity_logs where client_activity_id='${CUSTOM.id}'`))[0].n, 1);
+await expectDenied("it can't be logged against another program", () => as(C1, `insert into activity_logs (client_id, client_program_id, client_activity_id) values ('${DANA}','${CP_NEW}','${CUSTOM.id}')`));
+check('a log names one activity, not two', await attempt(() => as(C1, `insert into activity_logs (client_id, client_program_id, activity_id, client_activity_id) values ('${DANA}','${CP_V1}','${V2_ACT}','${CUSTOM.id}')`)), false);
+await expectDenied("an activity can't be added to another client's program", () => as(O, `insert into client_program_activities (client_id, client_program_id, week, kind, title) values ('${SAM}','${CP_V1}',1,'habit','Crossed')`));
+check('client-only activities are audited', (await superuser(`select count(*)::int n from audit_events where table_name='client_program_activities'`))[0].n > 0, true);
+await as(P, `select save_client_activities('${CP_V1}', '[]')`);
+check('removing it removes its log', (await superuser(`select count(*)::int n from activity_logs where client_program_id='${CP_V1}' and client_activity_id is not null`))[0].n, 0);
+// Publishing permission: only the owner grants it
+await as(P, `update practitioners set can_publish=true where id='${P}'`);
+check('a practitioner cannot grant themselves the publishing permission', (await superuser(`select can_publish from practitioners where id='${P}'`))[0].can_publish, false);
+await as(O, `update practitioners set can_publish=true where id='${P}'`);
+check('the owner grants it', (await superuser(`select can_publish from practitioners where id='${P}'`))[0].can_publish, true);
+await as(O, `update practitioners set can_publish=false where id='${P}'`);
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

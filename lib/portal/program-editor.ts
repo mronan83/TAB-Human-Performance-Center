@@ -5,7 +5,7 @@
 import { z } from "zod";
 import { services } from "@/content/services";
 import { LIMITS, activityKinds, prescriptionKeys } from "./programs";
-import type { Activity, ProgramDraftInput } from "./types";
+import type { Activity, ClientActivityInput, ProgramDraftInput } from "./types";
 
 const text = (max: number) => z.string().trim().max(max);
 const optional = (max: number) => text(max).optional().transform((v) => v || undefined);
@@ -44,4 +44,20 @@ export function parseProgramDraft(fd: FormData): { ok: true; draft: Omit<Program
   if (!r.success) return { ok: false, error: r.error.issues[0]?.message ?? "Check the program and try again." };
   const modules = [...r.data.modules].sort((a, b) => a.week - b.week);
   return { ok: true, draft: { ...r.data, modules, durationWeeks: modules.length ? modules[modules.length - 1].week : undefined } };
+}
+
+/** Activities added for one client (C7b), posted as JSON in `custom` by the assignment form. */
+const clientActivities = z.array(z.object({
+  id,
+  week: z.coerce.number().int().min(1).max(LIMITS.weeks),
+  kind: activity.shape.kind,
+  title: text(LIMITS.title).min(1, "Every added activity needs a name."),
+  instructions: optional(LIMITS.instructions),
+})).max(LIMITS.clientActivities, `A program can hold up to ${LIMITS.clientActivities} added activities.`);
+
+export function parseClientActivities(fd: FormData): { ok: true; items: ClientActivityInput[] } | { ok: false; error: string } {
+  let raw: unknown;
+  try { raw = JSON.parse(String(fd.get("custom") ?? "[]")); } catch { return { ok: false, error: "The added activities couldn't be read. Reload and try again." }; }
+  const r = clientActivities.safeParse(raw);
+  return r.success ? { ok: true, items: r.data } : { ok: false, error: r.error.issues[0]?.message ?? "Check the added activities and try again." };
 }
