@@ -269,7 +269,8 @@ test("TAB Practice for the pilot: invite to My TAB, assign a form, share a resou
   await expect(page.getByText("Your weekly routine")).toBeVisible();
   await page.goto("/my-tab/resources");
   await page.getByRole("link", { name: /Sleep and recovery/ }).click();
-  await expect(page).toHaveURL(/\/resources$/);
+  // The link records the view, then navigates; /\/resources$/ would already match /my-tab/resources.
+  await page.waitForURL((url) => url.pathname === "/resources");
 
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
   await page.goto("/practice/clients/demo-client-dana");
