@@ -10,7 +10,8 @@
     "test:rls": "node supabase/tests/rls.test.mjs supabase/migrations/*.sql",
     "test:contrast": "node scripts/check-contrast.mjs",
     "check": "npm run typecheck && npm run test:rls && npm run test:contrast && npm run build",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "backlog:html": "node scripts/render-backlog.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

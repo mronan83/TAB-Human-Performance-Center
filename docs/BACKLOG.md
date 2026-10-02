@@ -1,71 +1,82 @@
 # Backlog and actions
 
-The single list of remaining work. Every PR updates it; after every approved merge Claude posts it to the owner
-(`CLAUDE.md`, Branches and review gates). IDs are stable: **A** = owner actions, **C** = Claude's engineering work.
-Register IDs in brackets link to `docs/requirements-register.md`.
+The single list of remaining work. Every PR updates it. After every successful production promotion (G3) Claude
+renders this file into the backlog page (`npm run backlog:html`) and republishes it to the owner (`CLAUDE.md`, Branches
+and review gates). IDs are stable: **A** = owner actions, **C** = Claude's engineering work. Register IDs in brackets
+refer to `docs/requirements-register.md`.
 
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
+**Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-01, C7b version moves, client-only activities, Team page._
+_Last updated: 2026-10-02, C7b merged (#26); backlog page rendered from this file._
 
 ## P0 · Now
 
-| ID | Item | Category | Owner | Unblocks |
-|---|---|---|---|---|
-| A1 | Register `tabwellnesscollective.com` and `.net` once the name is officially approved (owner, 2026-09-28). Still unregistered at the registry on 2026-09-28 [RSK-007] | Accounts | Owner | A2, A3, C1, C5, launch |
-
+| ID | Item | Category | Owner | Effort | Blocker |
+|---|---|---|---|---|---|
+| A1 | Register `tabwellnesscollective.com` and `.net` once the name is officially approved (owner, 2026-09-28). Still unregistered at the registry on 2026-09-28 [RSK-007] | Accounts | Owner | S | Name approval |
 
 ## P1 · Public-site launch
 
-| ID | Item | Category | Owner | Depends on |
-|---|---|---|---|---|
-| A2 | Resend account and its DNS records. Until then the forms can't send [D-005] | Accounts | Owner | A1 |
-| A3 | Turnstile keys: real keys for Production, test keys for Preview [SEC-013] | Accounts | Owner | A1 |
-| A4 | Plausible account for the domain (Start funnel counts) [GAP-015, D-057] | Accounts | Owner | A1 |
-| A5 | Timely Client Login link [WEB-020] | Content | Owner | |
-| A6 | Business facts: address, phone, hours, map link, gift cards link (15 placeholders in `config/site.ts`) [GAP-003, GAP-020] | Content | Owner | |
-| A7 | Legal pages with counsel: privacy (Plausible, forms, My TAB), terms, cancellation. Also confirm the duties that remain without HIPAA: breach notification, record retention [GAP-010] | Legal | Owner + counsel | |
-| A8 | Content: founder story, bio, photos, the 14 draft service FAQs [GAP-012] | Content | Owner | |
-| A9 | Designer fix: horizontal-lockup descriptor legibility (launch-blocking) [DS-006] | Brand | Owner (designer) | |
-| A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | |
-| A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | |
-| A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | |
-| A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | A2 |
-| C1 | Switch-over runbook (first step: set `portalDemoOnProduction` to false before the custom domain is attached): DNS order that keeps Google Workspace email, legacy email forwarding, redirect checks on the live domain, rollback [§7.4, RSK-009] | Launch | Claude | A1, A10 |
-| C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | A1–A11 |
+| ID | Item | Category | Owner | Effort | Blocker |
+|---|---|---|---|---|---|
+| A2 | Resend account and its DNS records. Until then the forms can't send [D-005] | Accounts | Owner | S | A1 |
+| A3 | Turnstile keys: real keys for Production, test keys for Preview [SEC-013] | Accounts | Owner | S | A1 |
+| A4 | Plausible account for the domain (Start funnel counts) [GAP-015, D-057] | Accounts | Owner | S | A1 |
+| A5 | Timely Client Login link [WEB-020] | Content | Owner | S | None |
+| A6 | Business facts: address, phone, hours, map link, gift cards link (15 placeholders in `config/site.ts`) [GAP-003, GAP-020] | Content | Owner | S | None |
+| A7 | Legal pages with counsel: privacy (Plausible, forms, My TAB), terms, cancellation. Also confirm the duties that remain without HIPAA: breach notification, record retention [GAP-010] | Legal | Owner + counsel | L | None |
+| A8 | Content: founder story, bio, photos, the 14 draft service FAQs [GAP-012] | Content | Owner | M | None |
+| A9 | Designer fix: horizontal-lockup descriptor legibility (launch-blocking) [DS-006] | Brand | Owner (designer) | S | None |
+| A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | S | None |
+| A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | S | Launch date |
+| A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | S | None |
+| A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | S | A2 |
+| C1 | Switch-over runbook (first step: set `portalDemoOnProduction` to false before the custom domain is attached): DNS order that keeps Google Workspace email, legacy email forwarding, redirect checks on the live domain, rollback [§7.4, RSK-009] | Launch | Claude | M | A1, A10 |
+| C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
 
 ## P2 · My TAB go-live (`CLAUDE.md` guardrail 4)
 
-| ID | Item | Category | Owner | Depends on |
-|---|---|---|---|---|
-| C3b | Portal security hardening, part 2: internal notes in a private schema behind audited functions, audit drain [SEC-019]; secure session cookies, transactional Stripe webhook [SEC-020] | Security | Claude | |
-| C4 | **G1 approved; all three slices built: C4a (#22), C4b (#23), C4c program assignment and personalization on `claude/zealous-davinci-64dima`.** Design: `docs/design/plans-programs-stages.md`. Remaining under C4: invite to My TAB, assign resources and forms from TAB Practice [GAP-023, STAFF-005/006/010, PORTAL-011] | Portal | Claude | |
-| C5 | Sign-in plumbing: invite confirmation route, Site URL and redirects, sign-in email through Resend, staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | A1, A2 |
-| C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | |
-| A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | |
-| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | C3–C6, C3b, A7, A14 |
-| A16 | Pilot with 3–5 existing clients, then open My TAB to everyone | Operations | Owner | A15 |
+| ID | Item | Category | Owner | Effort | Blocker |
+|---|---|---|---|---|---|
+| C4 | Finish TAB Practice for the pilot: invite a client to My TAB, assign resources and forms from the client page. C4a–C4c and the program editor (C7) are done; design `docs/design/plans-programs-stages.md` [GAP-023, STAFF-005/006/010, PORTAL-011] | Portal | Claude | M | None |
+| C3b | Portal security hardening, part 2: internal notes in a private schema behind audited functions, audit drain [SEC-019]; secure session cookies, transactional Stripe webhook [SEC-020] | Security | Claude | M | None |
+| C5 | Sign-in plumbing: invite confirmation route, Site URL and redirects, sign-in email through Resend, staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
+| C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
+| A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | S | None |
+| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | M | C3b, C4, C5, C6, A7, A14 |
+| A16 | Pilot with 3–5 existing clients, then open My TAB to everyone | Operations | Owner | L | A15 |
 
 ## P3 · Later or optional
 
-| ID | Item | Category | Owner |
-|---|---|---|---|
-| C8 | Payload CMS, after Phase 1 [A-02] | Platform | Claude |
-| C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude |
-| C10 | Correct handoff-document references [DIV-03] | Docs | Claude |
-| C13 | AI program drafting, templates only, no client data (design §4) | Portal | Claude |
-| C14 | Rule-based stage-readiness prompts in TAB Practice (design §5.1) | Portal | Claude |
-| A24 | Anthropic API account and key for AI program drafting (Vercel Sensitive var `ANTHROPIC_API_KEY`) | Accounts | Owner |
-| C11 | Before paid ads: keep the Meta pixel off `/start` and `/contact` after in-site navigation [GAP-022] | Analytics | Claude |
-| C12 | Pin Node to `22.x` in `package.json` `engines`; `>=22` lets Vercel move to each new major on its own (builds run on 24 today) | Platform | Claude |
-| A17 | Stripe account, when programs are sold online [D-052] | Accounts | Owner |
-| A18 | Optional: Vercel Protection Bypass secret (automated preview tests); Vercel Firewall rate limit (declined for now) | Accounts | Owner |
-| A21 | Optional: delete the five blank Sensitive `NEXT_PUBLIC_*` variables in Vercel (site URL, indexing, Turnstile site key, Supabase URL and anon key) so they can be re-added as Config when they get values | Accounts | Owner |
-| A19 | Designer extras: service-icon vectors, print cleanup [DS-006] | Brand | Owner (designer) |
+| ID | Item | Category | Owner | Effort | Blocker |
+|---|---|---|---|---|---|
+| C14 | Rule-based stage-readiness prompts in TAB Practice (design §5.1) | Portal | Claude | M | None |
+| C13 | AI program drafting, templates only, no client data (design §4) | Portal | Claude | M | A24 |
+| A24 | Anthropic API account and key for AI program drafting (Vercel Sensitive var `ANTHROPIC_API_KEY`) | Accounts | Owner | S | None |
+| C8 | Payload CMS, after Phase 1 [A-02] | Platform | Claude | L | Phase 1 launch |
+| C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude | L | None |
+| C10 | Correct handoff-document references [DIV-03] | Docs | Claude | S | None |
+| C11 | Before paid ads: keep the Meta pixel off `/start` and `/contact` after in-site navigation [GAP-022] | Analytics | Claude | S | Paid ads start |
+| C12 | Pin Node to `22.x` in `package.json` `engines`; `>=22` lets Vercel move to each new major on its own (builds run on 24 today) | Platform | Claude | S | None |
+| A17 | Stripe account, when programs are sold online [D-052] | Accounts | Owner | S | Online sales |
+| A18 | Optional: Vercel Protection Bypass secret (automated preview tests); Vercel Firewall rate limit (declined for now) | Accounts | Owner | S | None |
+| A21 | Optional: delete the five blank Sensitive `NEXT_PUBLIC_*` variables in Vercel (site URL, indexing, Turnstile site key, Supabase URL and anon key) so they can be re-added as Config when they get values | Accounts | Owner | S | None |
+| A19 | Designer extras: service-icon vectors, print cleanup [DS-006] | Brand | Owner (designer) | M | None |
+
+## Notes on sequencing
+
+**A1 gates the launch path.** A2, A3, A4, C1, C2 and C5 all wait on the domain, and the domain waits on the name approval. Nothing else on this page unblocks as much.
+
+**A7 and A8 don't need the domain.** Legal review with counsel is usually the longest lead time before launch, and the content is yours to write. Both can start now, in parallel with the name approval.
+
+**C4 is the last portal work the pilot needs.** Inviting a client and assigning resources and forms are what a practitioner does on day one of A16. C14 and C13 are improvements, not pilot needs.
+
+**A15 is the real go-live gate for My TAB.** It needs C3b, C4, C5, C6, A7 and A14 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
 
-- **C7b** (on `claude/zealous-davinci-64dima`): move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission.
+- **#26** (2026-10-02): C7b move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission.
 - **#25** (2026-10-01): C4c assign and personalize programs; C7 program editor with versioning and the publishing permission. Promoted (`dpl_Djq3uj…`).
 - **#24** (2026-09-30): Wellness Plan goals up to 100; plan editor date fields fixed on iPad. Promoted with C4b (`dpl_9TA6w…`).
 - **#23** (2026-09-29): C4b typed plans (Wellness Plan + service plans), practitioner-only sections, plan log, nutrition gate.
