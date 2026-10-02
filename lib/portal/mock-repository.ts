@@ -110,6 +110,17 @@ const goalsForm: FormTemplate = {
   ]}],
 };
 
+const routineForm: FormTemplate = {
+  id: "form-routine", slug: "weekly-routine", title: "Your weekly routine", description: "A quick picture of your week so we can plan around it.", sensitivity: "general",
+  sections: [{ title: "Your week", fields: [
+    { id: "busy_days", type: "multi", label: "Which days are usually busiest?", options: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"] },
+    { id: "best_time", type: "choice", label: "When do you have the most energy?", options: ["Morning", "Midday", "Evening"] },
+    { id: "minutes", type: "scale", label: "How many minutes a day could you realistically give to your plan?", min: 1, max: 5, minLabel: "5 or fewer", maxLabel: "30 or more" },
+  ]}],
+};
+/** Published form templates a practitioner can assign in the demo. */
+const formLibrary = [welcomeForm, goalsForm, routineForm];
+
 const products: Product[] = [
   { id: "p1", slug: "midlife-cohort-pilot", title: "Midlife pilot cohort (8 weeks)", description: "Small-group coaching for strength, energy, and routines through midlife.", kind: "cohort", service: "womens-wellness-coaching", priceCents: 39700, active: true },
   { id: "p2", slug: "strength-foundations-self-paced", title: "Strength Foundations (self-paced)", description: "Eight weeks of guided strength sessions you can do at home.", kind: "program", service: "personal-strength-training", priceCents: 9700, active: true },
@@ -137,9 +148,10 @@ type Store = {
 };
 
 function seed(): Store {
-  const dana: Client = { id: DEMO_CLIENT_ID, fullName: "Dana Whitfield", preferredName: "Dana", email: "dana@example.com", phone: "", status: "active", methodStage: "transform", services: ["personal-strength-training", "womens-wellness-coaching", "massage-bodywork"], primaryPractitioner: "Your TAB practitioner", delivery: "Either", lastCheckIn: weekStart(-1) };
+  const dana: Client = { id: DEMO_CLIENT_ID, fullName: "Dana Whitfield", preferredName: "Dana", email: "dana@example.com", phone: "", status: "active", methodStage: "transform", services: ["personal-strength-training", "womens-wellness-coaching", "massage-bodywork"], primaryPractitioner: "Your TAB practitioner", delivery: "Either", lastCheckIn: weekStart(-1),
+    myTab: { status: "active", invitedAt: day(-42), activatedAt: day(-41) } };
   const others: Client[] = [
-    { id: "demo-client-marcus", fullName: "Marcus Lee", status: "active", methodStage: "align", services: ["personal-strength-training"], delivery: "In person", lastCheckIn: weekStart(0) },
+    { id: "demo-client-marcus", fullName: "Marcus Lee", email: "marcus.lee@example.com", myTab: { status: "invited", invitedAt: day(-2) }, status: "active", methodStage: "align", services: ["personal-strength-training"], delivery: "In person", lastCheckIn: weekStart(0) },
     { id: "demo-client-ruth", fullName: "Ruth Alvarez", status: "active", methodStage: "start", services: ["massage-bodywork"], delivery: "In person" },
     { id: "demo-client-keisha", fullName: "Keisha Morgan", status: "paused", methodStage: "become", services: ["holistic-life-coaching"], delivery: "Virtual", lastCheckIn: weekStart(-4) },
     { id: "demo-client-tom", fullName: "Tom Brennan", email: "tom.brennan@example.com", status: "prospect", methodStage: "start", services: [], delivery: "Either" },
@@ -197,8 +209,8 @@ function seed(): Store {
       { id: "rs2", title: "A five-minute evening wind-down", kind: "Guide", href: "/resources", assignedAt: day(-3), viewedAt: day(-2) },
     ]},
     forms: { [DEMO_CLIENT_ID]: [
-      { template: welcomeForm, status: "submitted", submittedAt: day(-40), answers: { goals: "Feel strong again and sleep better." } },
-      { template: goalsForm, status: "not_started", dueOn: day(40) },
+      { id: "fa-welcome", template: welcomeForm, status: "submitted", submittedAt: day(-40), answers: { goals: "Feel strong again and sleep better." } },
+      { id: "fa-reflection", template: goalsForm, status: "not_started", dueOn: day(40) },
     ]},
     notes: { [DEMO_CLIENT_ID]: [
       { id: "n1", date: day(-5), service: "personal-strength-training", visibility: "shared", body: "Great session. Step-ups felt better with the lower box; keep that height this week and focus on slow lowering.", author: "Your TAB practitioner" },
@@ -523,6 +535,41 @@ export const mockRepository: PortalRepository = {
     const targets = store.inquiries.filter((i) => i.id === id || (!i.clientId && i.email.toLowerCase() === email));
     targets.forEach((i) => { i.clientId = client.id; i.clientName = client.fullName; });
     return targets.length;
+  },
+  async inviteClient(clientId) {
+    // Mirrors clients_invite_stamp: the care team invites; demo mode never sends email (lib/email.ts does the same).
+    const c = store.clients.find((x) => x.id === clientId);
+    if (!c) throw new Error("Client not found");
+    if (c.myTab?.status === "active") return "already_active";
+    if (!c.email) throw new Error("Add the client's email address first.");
+    c.myTab = { status: "invited", invitedAt: new Date().toISOString() };
+    console.info("[invite] My TAB invitation: not sent (demo mode)");
+    return "skipped";
+  },
+  async listFormTemplates() { return clone(formLibrary); },
+  async assignForm(clientId, _viewer, input) {
+    const template = formLibrary.find((t) => t.id === input.templateId);
+    if (!template) throw new Error("Only published forms can be assigned");
+    const list = (store.forms[clientId] ??= []);
+    if (list.some((f) => f.template.id === template.id && f.status !== "submitted" && f.status !== "reviewed")) throw new Error("That form is already waiting for this client.");
+    list.push({ id: `fa${Date.now()}`, template: clone(template), dueOn: input.dueOn, status: "not_started" });
+  },
+  async withdrawForm(clientId, assignmentId) {
+    const list = store.forms[clientId] ?? [];
+    const f = list.find((x) => x.id === assignmentId);
+    if (!f) throw new Error("Form not found");
+    if (f.status !== "not_started") throw new Error("A form the client has started stays assigned");
+    list.splice(list.indexOf(f), 1);
+  },
+  async assignResource(clientId, _viewer, input) {
+    (store.resources[clientId] ??= []).unshift({ id: `rs${Date.now()}`, title: input.title, kind: input.kind, note: input.note, href: input.href, assignedAt: day(0) });
+  },
+  async markResourceViewed(clientId, assignmentId) {
+    const r = (store.resources[clientId] ?? []).find((x) => x.id === assignmentId);
+    if (r && !r.viewedAt) r.viewedAt = day(0);
+  },
+  async removeResource(clientId, assignmentId) {
+    store.resources[clientId] = (store.resources[clientId] ?? []).filter((r) => r.id !== assignmentId);
   },
   async createClientFromInquiry(id) {
     const inquiry = store.inquiries.find((x) => x.id === id);

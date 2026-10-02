@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-02, C7b promoted (#26); backlog page rendered from this file._
+_Last updated: 2026-10-02, C4 done: invite to My TAB, assign forms and resources._
 
 ## P0 · Now
 
@@ -39,12 +39,11 @@ _Last updated: 2026-10-02, C7b promoted (#26); backlog page rendered from this f
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| C4 | Finish TAB Practice for the pilot: invite a client to My TAB, assign resources and forms from the client page. C4a–C4c and the program editor (C7) are done; design `docs/design/plans-programs-stages.md` [GAP-023, STAFF-005/006/010, PORTAL-011] | Portal | Claude | M | None |
 | C3b | Portal security hardening, part 2: internal notes in a private schema behind audited functions, audit drain [SEC-019]; secure session cookies, transactional Stripe webhook [SEC-020] | Security | Claude | M | None |
-| C5 | Sign-in plumbing: invite confirmation route, Site URL and redirects, sign-in email through Resend, staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
+| C5 | Sign-in plumbing: Site URL and redirects; sign-in and invitation emails through Resend, with Supabase's invite template worded like ours (no personal details, guardrail 5); confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in; staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
 | A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | S | None |
-| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | M | C3b, C4, C5, C6, A7, A14 |
+| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | M | C3b, C5, C6, A7, A14 |
 | A16 | Pilot with 3–5 existing clients, then open My TAB to everyone | Operations | Owner | L | A15 |
 
 ## P3 · Later or optional
@@ -70,12 +69,13 @@ _Last updated: 2026-10-02, C7b promoted (#26); backlog page rendered from this f
 
 **A7 and A8 don't need the domain.** Legal review with counsel is usually the longest lead time before launch, and the content is yours to write. Both can start now, in parallel with the name approval.
 
-**C4 is the last portal work the pilot needs.** Inviting a client and assigning resources and forms are what a practitioner does on day one of A16. C14 and C13 are improvements, not pilot needs.
+**The pilot's practitioner tools are done.** With C4, a practitioner can invite a client, assign plans, programs, forms and resources, and record progress reviews. What stands between the demo and A16 is plumbing and paperwork, not features: C3b, C5 and C6 on my side, A7 and A14 on yours. C14 and C13 are improvements, not pilot needs.
 
-**A15 is the real go-live gate for My TAB.** It needs C3b, C4, C5, C6, A7 and A14 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
+**A15 is the real go-live gate for My TAB.** It needs C3b, C5, C6, A7 and A14 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
 
+- **C4** (on `claude/zealous-davinci-64dima`): invite a client to My TAB (invited and first sign-in tracked), assign and withdraw forms, share and remove resources; clients' opened resources show as viewed.
 - **#26** (2026-10-02): C7b move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission. Promoted (`dpl_8fqGu5…`).
 - **#25** (2026-10-01): C4c assign and personalize programs; C7 program editor with versioning and the publishing permission. Promoted (`dpl_Djq3uj…`).
 - **#24** (2026-09-30): Wellness Plan goals up to 100; plan editor date fields fixed on iPad. Promoted with C4b (`dpl_9TA6w…`).

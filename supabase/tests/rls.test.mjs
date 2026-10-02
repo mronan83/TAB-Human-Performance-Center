@@ -74,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|can only move to a newer published version|Only practitioners can move|Only practitioners can change a client's program|Program not found|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
+const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|can only move to a newer published version|Only practitioners can move|Only practitioners can change a client's program|Program not found|A form the client has started stays assigned|Only published forms can be assigned|A form assignment keeps its client|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -398,6 +398,42 @@ check('a practitioner cannot grant themselves the publishing permission', (await
 await as(O, `update practitioners set can_publish=true where id='${P}'`);
 check('the owner grants it', (await superuser(`select can_publish from practitioners where id='${P}'`))[0].can_publish, true);
 await as(O, `update practitioners set can_publish=false where id='${P}'`);
+
+// C4: inviting a client to My TAB, and assigning resources and forms from TAB Practice.
+await as(P, `update clients set invited_at='2000-01-01' where id='${DANA}'`);
+check('the care team invites a client; time and inviter are stamped', (await superuser(`select invited_at > now() - interval '1 minute' as recent, invited_by from clients where id='${DANA}'`))[0], { recent: true, invited_by: P });
+await as(P2, `update clients set invited_at=now() where id='${DANA}'`);
+check('an unassigned practitioner cannot invite', (await superuser(`select invited_by from clients where id='${DANA}'`))[0].invited_by, P);
+await expectDenied('a client cannot mark themselves invited', () => as(C1, `update clients set invited_at=now() where id='${DANA}'`));
+await expectDenied('nor change who invited them', () => as(C1, `update clients set invited_by='${C1}' where id='${DANA}'`));
+await as(P, `update clients set phone='555-0100' where id='${DANA}'`);
+check('other edits keep the inviter', (await superuser(`select invited_by from clients where id='${DANA}'`))[0].invited_by, P);
+check('a linked account is not yet a sign-in', (await superuser(`select activated_at from clients where id='${DANA}'`))[0].activated_at, null);
+await as(C1, `select record_my_tab_sign_in()`);
+const firstSignIn = (await superuser(`select activated_at from clients where id='${DANA}'`))[0].activated_at;
+check('the first sign-in is recorded', firstSignIn !== null, true);
+await as(C1, `select record_my_tab_sign_in()`);
+check('later sign-ins keep the first', (await superuser(`select activated_at from clients where id='${DANA}'`))[0].activated_at.getTime(), firstSignIn.getTime());
+await expectDenied('a client cannot set their sign-in date directly', () => as(C1, `update clients set activated_at='2020-01-01' where id='${DANA}'`));
+await as(C2, `select record_my_tab_sign_in()`);
+check("signing in records only the client's own record", (await superuser(`select activated_at from clients where id='${DANA}'`))[0].activated_at.getTime(), firstSignIn.getTime());
+const F_DRAFT = '88888888-8888-8888-8888-888888888883';
+await superuser(`insert into form_templates (id, slug, title, schema, status) values ('${F_DRAFT}','draft-form','Draft form','{}','draft')`);
+await expectDenied('a draft form cannot be assigned', () => as(P, `insert into form_assignments (client_id, template_id) values ('${DANA}','${F_DRAFT}')`));
+const FA = (await one(P, `insert into form_assignments (client_id, template_id, due_on) values ('${DANA}','${F_OTHER}','2026-11-01') returning id`)).id;
+check('the care team assigns a published form, stamped with who', (await superuser(`select assigned_by from form_assignments where id='${FA}'`))[0].assigned_by, P);
+await expectDenied('a client cannot assign themselves a form', () => as(C1, `insert into form_assignments (client_id, template_id) values ('${DANA}','${F_OTHER}')`));
+await expectDenied('an assignment cannot move to another client', () => as(O, `update form_assignments set client_id='${SAM}' where id='${FA}'`));
+await as(P, `delete from form_assignments where id='${FA}'`);
+check('a form not yet started can be withdrawn', (await superuser(`select count(*)::int n from form_assignments where id='${FA}'`))[0].n, 0);
+await expectDenied('a form the client has answered cannot be withdrawn', () => as(P, `delete from form_assignments where client_id='${DANA}' and template_id='${F_ASSIGNED}'`));
+const RA = (await one(P, `insert into resource_assignments (client_id, resource_ref, title, kind, note) values ('${DANA}','/resources','Sleep and recovery','Guide','Read before Thursday') returning id`)).id;
+check('the care team shares a resource, stamped with who', (await superuser(`select assigned_by from resource_assignments where id='${RA}'`))[0].assigned_by, P);
+check('the client sees it', (await as(C1, `select title from resource_assignments where id='${RA}'`)).map(r=>r.title), ['Sleep and recovery']);
+check('other clients do not', (await as(C2, `select 1 from resource_assignments where id='${RA}'`)).length, 0);
+await expectDenied('a client cannot share resources with themselves', () => as(C1, `insert into resource_assignments (client_id, resource_ref, title) values ('${DANA}','/x','Self-assigned')`));
+await as(P, `delete from resource_assignments where id='${RA}'`);
+check('the care team removes a shared resource', (await superuser(`select count(*)::int n from resource_assignments where id='${RA}'`))[0].n, 0);
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

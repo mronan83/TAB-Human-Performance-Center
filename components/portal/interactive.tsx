@@ -2,7 +2,8 @@
 
 import { useActionState, useEffect, useOptimistic, useState, useTransition } from "react";
 import clsx from "clsx";
-import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction, saveClientProgramAction, moveClientProgramAction, updatePractitionerAction } from "@/app/(portal)/actions";
+import { toggleActivityAction, saveCheckInAction, submitFormAction, setConsentAction, updateContactAction, addNoteAction, sendMagicLinkAction, recordProgressReviewAction, savePlanAction, addPlanEntryAction, saveClientProgramAction, moveClientProgramAction, updatePractitionerAction, inviteClientAction, assignFormAction, assignResourceAction, markResourceViewedAction } from "@/app/(portal)/actions";
+import { resourceKinds } from "@/lib/portal/resources";
 import type { ClientActivity, ClientProgram, Consent, PractitionerSummary, FormField, FormTemplate, Goal, MethodStage, Plan, PlanType, ProgramTemplate } from "@/lib/portal/types";
 import { LIMITS, MAX_NOTE, MAX_PROGRAM_NOTE, MAX_RX_VALUE, activityKinds, programStatuses } from "@/lib/portal/programs";
 import { MAX_PLAN_GOALS, planTypes } from "@/lib/portal/plan-types";
@@ -452,6 +453,98 @@ export function PractitionerForm({ practitioner }: { practitioner: PractitionerS
       <button className="btn btn-outline btn-sm" disabled={pending}>Save<span className="sr-only"> {practitioner.name}</span></button>
       {state?.ok && <p role="status" className="text-sm font-semibold text-success">Saved.</p>}
       {state && !state.ok && <p role="alert" className="text-sm font-semibold text-danger">{state.error}</p>}
+    </form>
+  );
+}
+
+type Msg = { ok: boolean; message: string } | null;
+const Result = ({ state }: { state: Msg }) => state ? <p role={state.ok ? "status" : "alert"} className={clsx("mt-2 text-sm font-semibold", state.ok ? "text-success" : "text-danger")}>{state.message}</p> : null;
+
+/** My TAB access (C4): invite the client, or send the invitation again. */
+export function InviteForm({ clientId, status, hasEmail }: { clientId: string; status: "not_invited" | "invited" | "active"; hasEmail: boolean }) {
+  const [state, action, pending] = useActionState(inviteClientAction.bind(null, clientId), null as Msg);
+  if (status === "active") return null;
+  return (
+    <form action={action}>
+      <button className="btn btn-primary btn-sm" disabled={pending || !hasEmail}>{status === "invited" ? "Send the invitation again" : "Invite to My TAB"}</button>
+      {!hasEmail && <p className="mt-2 text-sm text-text-secondary">Add their email address to invite them.</p>}
+      <Result state={state} />
+    </form>
+  );
+}
+
+/** A small button bound to one record: withdraw a form, remove a resource (C4). */
+export function RowActionButton({ action, label, context }: { action: (prev: unknown, fd: FormData) => Promise<{ ok: boolean; message: string }>; label: string; context: string }) {
+  const [state, run, pending] = useActionState(action, null as Msg);
+  return (
+    <form action={run} className="shrink-0">
+      <button className="btn btn-outline btn-sm" disabled={pending}>{label}<span className="sr-only"> {context}</span></button>
+      {state && !state.ok && <p role="alert" className="mt-1 text-sm font-semibold text-danger">{state.message}</p>}
+    </form>
+  );
+}
+
+/** A shared resource in My TAB: opening it marks it viewed; links off the site open in a new tab (C4). */
+export function ResourceLink({ id, href, className, children }: { id: string; href: string; className?: string; children: React.ReactNode }) {
+  const external = /^https:\/\//i.test(href);
+  return (
+    <a href={href} className={className} {...(external && { target: "_blank", rel: "noopener noreferrer" })}
+      onClick={async (e) => {
+        // A new tab keeps this page alive; a link within the site would unload it before the call finishes.
+        if (external || e.metaKey || e.ctrlKey || e.shiftKey) { void markResourceViewedAction(id); return; }
+        e.preventDefault();
+        await markResourceViewedAction(id).catch(() => undefined);
+        window.location.assign(href);
+      }}>
+      {children}{external && <span className="sr-only"> (opens in a new tab)</span>}
+    </a>
+  );
+}
+
+/** Assign a published form with an optional due date (C4). */
+export function AssignFormForm({ clientId, templates }: { clientId: string; templates: { id: string; title: string }[] }) {
+  const [state, action, pending] = useActionState(assignFormAction.bind(null, clientId), null as Msg);
+  return (
+    <form action={action} className="space-y-3">
+      <div className="grid gap-3 sm:grid-cols-[1fr_10rem] [&>div]:min-w-0">
+        <div><label htmlFor="assign-form" className="field-label">Form</label>
+          <select id="assign-form" name="templateId" required className="field-input" defaultValue="">
+            <option value="" disabled>Choose a form</option>
+            {templates.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+          </select></div>
+        <div><label htmlFor="assign-due" className="field-label">Due (optional)</label><input id="assign-due" name="dueOn" type="date" className="field-input" /></div>
+      </div>
+      <button className="btn btn-outline btn-sm" disabled={pending}>Assign form</button>
+      <Result state={state} />
+    </form>
+  );
+}
+
+/** Share a resource: a topic from the public Resources page, any page on the site, or an https link (C4). */
+export function ShareResourceForm({ clientId, library }: { clientId: string; library: { title: string; group: string; href: string }[] }) {
+  const [state, action, pending] = useActionState(assignResourceAction.bind(null, clientId), null as Msg);
+  const [title, setTitle] = useState("");
+  const [href, setHref] = useState("/resources");
+  useEffect(() => { if (state?.ok) { setTitle(""); setHref("/resources"); } }, [state]);
+  const groups = [...new Set(library.map((r) => r.group))];
+  return (
+    <form action={action} className="space-y-3">
+      <div><label htmlFor="resource-pick" className="field-label">From the Resources page (optional)</label>
+        <select id="resource-pick" className="field-input" defaultValue="" onChange={(e) => { const r = library[Number(e.target.value)]; if (r) { setTitle(r.title); setHref(r.href); } }}>
+          <option value="">Choose a topic, or write your own below</option>
+          {groups.map((g) => <optgroup key={g} label={g}>{library.map((r, i) => r.group === g && <option key={i} value={i}>{r.title}</option>)}</optgroup>)}
+        </select></div>
+      <div className="grid gap-3 sm:grid-cols-[1fr_9rem] [&>div]:min-w-0">
+        <div><label htmlFor="resource-title" className="field-label">Title</label><input id="resource-title" name="title" required maxLength={160} value={title} onChange={(e) => setTitle(e.target.value)} className="field-input" /></div>
+        <div><label htmlFor="resource-kind" className="field-label">Type</label>
+          <select id="resource-kind" name="kind" className="field-input" defaultValue="Guide">{resourceKinds.map((k) => <option key={k} value={k}>{k}</option>)}</select></div>
+      </div>
+      <div><label htmlFor="resource-href" className="field-label">Link</label>
+        <p id="hint-resource-href" className="-mt-1 mb-2 text-sm text-text-secondary">A page on this site, such as /resources, or a link starting with https://.</p>
+        <input id="resource-href" name="href" maxLength={500} value={href} onChange={(e) => setHref(e.target.value)} className="field-input" aria-describedby="hint-resource-href" /></div>
+      <div><label htmlFor="resource-note" className="field-label">Note to the client (optional)</label><input id="resource-note" name="note" maxLength={500} className="field-input" /></div>
+      <button className="btn btn-outline btn-sm" disabled={pending}>Share resource</button>
+      <Result state={state} />
     </form>
   );
 }

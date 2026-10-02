@@ -22,7 +22,11 @@ export type Client = {
   primaryPractitioner?: string;
   delivery?: "In person" | "Virtual" | "Either";
   lastCheckIn?: string;
+  /** My TAB access (C4): invited by the care team, then active from the client's first sign-in. */
+  myTab?: { status: "not_invited" | "invited" | "active"; invitedAt?: string; activatedAt?: string };
 };
+/** What happened when a practitioner invited a client to My TAB (C4). */
+export type InviteResult = "sent" | "has_account" | "already_active" | "skipped" | "failed";
 
 export type Goal = { id: string; title: string; whyItMatters?: string; measure?: string; metricKey?: string; target?: string; status: "active" | "achieved" | "paused" | "dropped" };
 
@@ -149,7 +153,7 @@ export type FormField =
   | { id: string; type: "choice"; label: string; options: string[]; required?: boolean }
   | { id: string; type: "multi"; label: string; options: string[]; required?: boolean };
 export type FormTemplate = { id: string; slug: string; title: string; description?: string; sensitivity: "general" | "sensitive"; sections: { title: string; fields: FormField[] }[] };
-export type FormAssignment = { template: FormTemplate; dueOn?: string; status: "not_started" | "draft" | "submitted" | "reviewed"; submittedAt?: string; answers?: Record<string, unknown> };
+export type FormAssignment = { id?: string; template: FormTemplate; dueOn?: string; status: "not_started" | "draft" | "submitted" | "reviewed"; submittedAt?: string; answers?: Record<string, unknown> };
 
 export type SessionNote = { id: string; date: string; service?: ServiceSlug; visibility: "internal" | "shared"; body: string; author: string };
 export type Review = { id: string; date: string; summary: string; nextSteps?: string; stage?: MethodStage; shared?: boolean; outcome?: ReviewOutcome; reflections?: ReviewReflections; author?: string };
@@ -264,6 +268,17 @@ export interface PortalRepository {
   runProgramAction(viewer: Viewer, id: string, action: ProgramAction): Promise<string | null>;
   /** Moves an assigned program to a newer published version of the same program. Returns how many completed activities carried over. */
   moveClientProgram(clientId: string, programId: string, viewer: Viewer, targetTemplateId: string): Promise<number>;
+  /** Invites the client to My TAB (care team only) and sends the invitation (C4). */
+  inviteClient(clientId: string, viewer: Viewer): Promise<InviteResult>;
+  /** Published form templates a practitioner can assign. */
+  listFormTemplates(): Promise<FormTemplate[]>;
+  assignForm(clientId: string, viewer: Viewer, input: { templateId: string; dueOn?: string }): Promise<void>;
+  /** Withdraws a form the client hasn't started. */
+  withdrawForm(clientId: string, assignmentId: string): Promise<void>;
+  /** The client opened a shared resource (SEC-016: the only column a client may change on it). */
+  markResourceViewed(clientId: string, assignmentId: string): Promise<void>;
+  assignResource(clientId: string, viewer: Viewer, input: { title: string; kind?: string; href: string; note?: string }): Promise<void>;
+  removeResource(clientId: string, assignmentId: string): Promise<void>;
   /** Owner only: practitioners with their publishing permission and credentials (C7b). */
   listPractitioners(): Promise<PractitionerSummary[]>;
   updatePractitioner(id: string, changes: { canPublish: boolean; capabilities: string[] }): Promise<void>;
