@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-02, C7b merged (#26); backlog page rendered from this file._
+_Last updated: 2026-10-02, C7b promoted (#26); backlog page rendered from this file._
 
 ## P0 · Now
 
@@ -76,7 +76,7 @@ _Last updated: 2026-10-02, C7b merged (#26); backlog page rendered from this fil
 
 ## Recently done
 
-- **#26** (2026-10-02): C7b move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission.
+- **#26** (2026-10-02): C7b move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission. Promoted (`dpl_8fqGu5…`).
 - **#25** (2026-10-01): C4c assign and personalize programs; C7 program editor with versioning and the publishing permission. Promoted (`dpl_Djq3uj…`).
 - **#24** (2026-09-30): Wellness Plan goals up to 100; plan editor date fields fixed on iPad. Promoted with C4b (`dpl_9TA6w…`).
 - **#23** (2026-09-29): C4b typed plans (Wellness Plan + service plans), practitioner-only sections, plan log, nutrition gate.
