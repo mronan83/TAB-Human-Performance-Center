@@ -69,8 +69,11 @@ Never print, log or commit token values.
   After a merge, restart the working branch from `main`.
 - **Backlog (owner request 2026-09-28):** `docs/BACKLOG.md` is the single list of remaining work, prioritized
   (P0 now, P1 public launch, P2 My TAB go-live, P3 later) and categorized, with owner actions (A) and Claude's work (C).
-  Every PR updates it. After every approved merge, post the remaining items to the owner: concise, one line each,
-  P0 first.
+  Every PR updates it, including each item's effort and blocker. Don't post the backlog after a merge. After every
+  successful production promotion (owner ruling 2026-10-02), render it with `npm run backlog:html -- --out <file>
+  --release "<what went live>" --deployment <dpl_id>` and republish it to the same "TAB Wellness Collective Backlog"
+  artifact (https://claude.ai/artifact/71B4CYEb4dHdHa71fVwAgg; pass it as `url` from a new session), then send the owner
+  its link.
 - G3 Release — owner approves every production promotion and every production migration.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",
