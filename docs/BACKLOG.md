@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-03, living traceability, architecture and data model pages; gaps found while tracing added (A25, C15 to C19)._
+_Last updated: 2026-10-03, C3b done: private notes, append-only audit log with nightly export, transactional Stripe webhook, secure session cookies._
 
 ## P0 · Now
 
@@ -42,13 +42,13 @@ _Last updated: 2026-10-03, living traceability, architecture and data model page
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| C3b | Portal security hardening, part 2: internal notes in a private schema behind audited functions, audit drain [SEC-019]; secure session cookies, transactional Stripe webhook [SEC-020] | Security | Claude | M | None |
 | C5 | Sign-in plumbing: Site URL and redirects; sign-in and invitation emails through Resend, with Supabase's invite template worded like ours (no personal details, guardrail 5); confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in; staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
 | C16 | My TAB profile: accessibility needs and goals, client-editable (PORTAL-010, TG-5) | Portal | Claude | S | None |
 | C19 | Incident-response runbook: who to call, revoking keys, telling clients; paired with counsel's breach duties (SEC-011, TG-9) | Security | Claude | S | A7 |
+| A26 | At go-live: give the `audit_reader` role a login password, then add the GitHub secrets `SUPABASE_AUDIT_DB_URL` and `AUDIT_EXPORT_PASSPHRASE` (keep the passphrase somewhere safe: it opens the exports) [SEC-019] | Accounts | Owner + Claude | S | A14 |
 | A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | S | None |
-| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | M | C3b, C5, C6, A7, A14 |
+| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | M | C5, C6, A7, A14, A26 |
 | A16 | Pilot with 3–5 existing clients, then open My TAB to everyone | Operations | Owner | L | A15 |
 
 ## P3 · Later or optional
@@ -75,14 +75,15 @@ _Last updated: 2026-10-03, living traceability, architecture and data model page
 
 **A7 and A8 don't need the domain.** Legal review with counsel is usually the longest lead time before launch, and the content is yours to write. Both can start now, in parallel with the name approval.
 
-**The pilot's practitioner tools are done.** With C4, a practitioner can invite a client, assign plans, programs, forms and resources, and record progress reviews. What stands between the demo and A16 is plumbing and paperwork, not features: C3b, C5 and C6 on my side, A7 and A14 on yours. C14 and C13 are improvements, not pilot needs.
+**The pilot's practitioner tools are done.** With C4, a practitioner can invite a client, assign plans, programs, forms and resources, and record progress reviews. What stands between the demo and A16 is plumbing and paperwork, not features: C5 and C6 on my side, A7, A14 and A26 on yours. C14 and C13 are improvements, not pilot needs.
 
-**A15 is the real go-live gate for My TAB.** It needs C3b, C5, C6, A7 and A14 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
+**A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
 
-- **Living documents** (2026-10-03, in review): the traceability page moved into `docs/TRACEABILITY.md` and published in the requested layout; new technical architecture and data model pages; `npm run docs:check` in CI keeps all three in step with the code.
-- **#28** (2026-10-03): C4 invite a client to My TAB (invited and first sign-in tracked), assign and withdraw forms, share and remove resources; clients' opened resources show as viewed. Merged; production build awaits promotion.
+- **C3b** (2026-10-03, in review): internal notes and practitioner-only plan details in a private schema behind audited functions; append-only audit log and a nightly encrypted export (waits on A26); Stripe events in one transaction, with partial refunds flagged for the owner in TAB Practice; `httpOnly`, `secure`, seven-day session cookies.
+- **#29** (2026-10-03): living documents, the traceability page moved into `docs/TRACEABILITY.md` and published in the requested layout; new technical architecture and data model pages; `npm run docs:check` in CI keeps all three in step with the code. Promoted (`dpl_CDWF4…`).
+- **#28** (2026-10-03): C4 invite a client to My TAB (invited and first sign-in tracked), assign and withdraw forms, share and remove resources; clients' opened resources show as viewed. Promoted (`dpl_Hy6P3…`).
 - **#26** (2026-10-02): C7b move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission. Promoted (`dpl_8fqGu5…`).
 - **#25** (2026-10-01): C4c assign and personalize programs; C7 program editor with versioning and the publishing permission. Promoted (`dpl_Djq3uj…`).
 - **#24** (2026-09-30): Wellness Plan goals up to 100; plan editor date fields fixed on iPad. Promoted with C4b (`dpl_9TA6w…`).

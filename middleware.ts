@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { legacyRedirects, legacyPrefixRedirects } from "@/config/redirects";
 import { siteConfig, siteUrl } from "@/config/site";
 import { contentSecurityPolicy } from "@/lib/csp";
+import { sessionCookieOptions } from "@/lib/supabase/cookies";
 
 const LEGACY_HOSTS = ["tabmassage.com", "www.tabmassage.com"];
 
@@ -56,6 +57,7 @@ export async function middleware(req: NextRequest) {
   // Refresh the Supabase session cookie on portal requests.
   let res = next();
   const sb = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookieOptions: sessionCookieOptions,
     cookies: {
       getAll: () => req.cookies.getAll(),
       setAll: (list) => {

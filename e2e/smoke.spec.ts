@@ -277,6 +277,16 @@ test("TAB Practice for the pilot: invite to My TAB, assign a form, share a resou
   await expect(page.getByRole("listitem").filter({ hasText: "Read before Thursday." })).toContainText(", viewed");
 });
 
+test("a partial refund waits for the owner's decision in TAB Practice (C3b, owner ruling 2026-10-03)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice");
+  const panel = page.getByRole("region", { name: "Purchases to review" });
+  await expect(panel).toContainText("Tom Brennan");
+  await expect(panel).toContainText("refunded $100 of $397");
+  await panel.getByRole("button", { name: "Keep access for Tom Brennan" }).click();
+  await expect(page.getByRole("region", { name: "Purchases to review" })).toHaveCount(0);
+});
+
 test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
   test.setTimeout(60_000);
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);

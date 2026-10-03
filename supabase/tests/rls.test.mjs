@@ -43,8 +43,8 @@ insert into auth.users (id,email,email_confirmed_at) values ('${O}','owner@x.com
 update profiles set role='owner' where id='${O}'; update profiles set role='practitioner' where id in ('${P}','${P2}');
 insert into practitioners (id, display_name) values ('${P}','Pat'),('${P2}','Quinn');
 insert into practitioner_assignments (client_id, practitioner_id) values ('${DANA}','${P}');
-insert into session_notes (client_id, practitioner_id, body, visibility) values
- ('${DANA}','${P}','internal note','internal'),('${DANA}','${P}','shared summary','shared');
+insert into session_notes (client_id, practitioner_id, body, visibility) values ('${DANA}','${P}','shared summary','shared');
+insert into private.internal_notes (client_id, practitioner_id, body) values ('${DANA}','${P}','internal note');
 insert into wellness_plans (client_id, title, visible_to_client) values ('${DANA}','Visible plan',true),('${DANA}','Draft plan',false);
 insert into resource_assignments (client_id, resource_ref, title) values ('${DANA}','free-guide','Free guide');
 insert into program_templates (id, slug, title, service, status) values ('${T_DRAFT}','draft-course','Draft course','personal-strength-training','draft'),
@@ -74,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|can only move to a newer published version|Only practitioners can move|Only practitioners can change a client's program|Program not found|A form the client has started stays assigned|Only published forms can be assigned|A form assignment keeps its client|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely/i;
+const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|can only move to a newer published version|Only practitioners can move|Only practitioners can change a client's program|Program not found|A form the client has started stays assigned|Only published forms can be assigned|A form assignment keeps its client|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely|care team can use internal notes|append-only|Only the owner can decide/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -239,13 +239,14 @@ check('only one active Wellness Plan per client', await attempt(() => as(P, `ins
 const MASSAGE = (await one(P, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id, status, visible_to_client, details)
   values ('${DANA}','Massage plan','massage-bodywork','${ANCHOR}','active',true,'{"focus_areas":"upper back"}') returning id`)).id;
 check('service plan owner defaults to the author', (await superuser(`select practitioner_id from wellness_plans where id='${MASSAGE}'`))[0].practitioner_id, P);
-await as(P, `insert into plan_private_details (plan_id, client_id, details) values ('${MASSAGE}','${DANA}','{"contraindications":"practitioner-only note"}')`);
+await as(P, `select save_plan_private_details('${MASSAGE}','${DANA}','{"contraindications":"practitioner-only note"}')`);
 check('client reads shared plan sections', (await as(C1, `select details->>'focus_areas' f from wellness_plans where id='${MASSAGE}'`)).map(r=>r.f), ['upper back']);
-check('client cannot read practitioner-only sections', (await as(C1, 'select details from plan_private_details')).length, 0);
-check('care team reads practitioner-only sections', (await as(P, 'select details->>\'contraindications\' c from plan_private_details')).map(r=>r.c), ['practitioner-only note']);
-check('unassigned practitioner cannot read them', (await as(P2, 'select 1 from plan_private_details')).length, 0);
+await expectDenied('client cannot read practitioner-only sections', () => as(C1, `select * from plan_private_details('${DANA}')`));
+await expectDenied('nor reach the private table directly', () => as(C1, 'select details from private.plan_private_details'));
+check('care team reads practitioner-only sections', (await as(P, `select details->>'contraindications' c from plan_private_details('${DANA}')`)).map(r=>r.c), ['practitioner-only note']);
+await expectDenied('unassigned practitioner cannot read them', () => as(P2, `select 1 from plan_private_details('${DANA}')`));
 check('other client sees none of it', (await as(C2, `select 1 from wellness_plans where id='${MASSAGE}'`)).length, 0);
-await expectDenied('client cannot write practitioner-only sections', () => as(C1, `insert into plan_private_details (plan_id, client_id) values ('${ANCHOR}','${DANA}')`));
+await expectDenied('client cannot write practitioner-only sections', () => as(C1, `select save_plan_private_details('${ANCHOR}','${DANA}','{}')`));
 await expectDenied('client cannot create a plan', () => as(C1, `insert into wellness_plans (client_id, title) values ('${DANA}','Self-made plan')`));
 const SAM_ANCHOR = (await one(O, `insert into wellness_plans (client_id, title) values ('${SAM}','Sam anchor') returning id`)).id;
 await expectDenied("a service plan cannot sit under another client's plan", () => as(O, `insert into wellness_plans (client_id, title, plan_type, parent_plan_id) values ('${DANA}','Crossed','personal-strength-training','${SAM_ANCHOR}')`));
@@ -271,8 +272,8 @@ check('credentialed practitioner writes nutrition plans and entries', (await sup
 await superuser(`update practitioners set capabilities='{}' where id='${P}'`);
 await expectDenied('without the credential a nutrition plan cannot be edited', () => as(P, `update wellness_plans set title='Changed' where id='${NUTRITION}'`));
 await expectDenied('without the credential no nutrition log entries', () => as(P, `insert into plan_entries (plan_id, client_id, body) values ('${NUTRITION}','${DANA}','x')`));
-await expectDenied('nor practitioner-only nutrition sections', () => as(P, `insert into plan_private_details (plan_id, client_id) values ('${NUTRITION}','${DANA}')`));
-await expectDenied('practitioner-only sections cannot be truncated', () => as(O, 'truncate plan_private_details'));
+await expectDenied('nor practitioner-only nutrition sections', () => as(P, `select save_plan_private_details('${NUTRITION}','${DANA}','{}')`));
+await expectDenied('practitioner-only sections cannot be truncated', () => as(O, 'truncate private.plan_private_details'));
 check('plan log and private sections are audited', (await superuser(`select count(distinct table_name)::int n from audit_events where table_name in ('plan_entries','plan_private_details')`))[0].n, 2);
 
 // C4c: assigning and personalizing programs. Published templates only, version pinned by the database,
@@ -434,6 +435,68 @@ check('other clients do not', (await as(C2, `select 1 from resource_assignments 
 await expectDenied('a client cannot share resources with themselves', () => as(C1, `insert into resource_assignments (client_id, resource_ref, title) values ('${DANA}','/x','Self-assigned')`));
 await as(P, `delete from resource_assignments where id='${RA}'`);
 check('the care team removes a shared resource', (await superuser(`select count(*)::int n from resource_assignments where id='${RA}'`))[0].n, 0);
+
+// C3b (SEC-019): internal notes and practitioner-only plan details live in the private schema; staff reach them only
+// through functions that check the care team and audit every read.
+check('the care team reads internal notes through the function', (await as(P, `select body from internal_notes('${DANA}')`)).map(r=>r.body), ['internal note']);
+check('the owner reads them too', (await as(O, `select body from internal_notes('${DANA}')`)).map(r=>r.body), ['internal note']);
+check('reading internal notes is audited', (await superuser(`select count(*)::int n from audit_events where action='read' and table_name='internal_notes' and actor_id='${P}'`))[0].n, 1);
+await expectDenied('a client cannot read internal notes', () => as(C1, `select * from internal_notes('${DANA}')`));
+await expectDenied('nor the private table directly', () => as(C1, 'select body from private.internal_notes'));
+await expectDenied('staff cannot bypass the functions either', () => as(P, 'select body from private.internal_notes'));
+await expectDenied('an unassigned practitioner cannot read them', () => as(P2, `select * from internal_notes('${DANA}')`));
+await expectDenied('staff without two-step verification cannot read them', () => as(P, `select * from internal_notes('${DANA}')`, 'aal1'));
+await expectDenied('nobody signed out can read them', async () => { await db.exec(`set role anon; select set_config('test.uid','',false)`); try { await db.query(`select * from internal_notes('${DANA}')`); } finally { await db.exec('reset role'); } });
+const NOTE = (await one(P, `select add_internal_note('${DANA}', 'second internal note') id`)).id;
+check('a new internal note is stamped with its author', (await superuser(`select practitioner_id from private.internal_notes where id='${NOTE}'`))[0].practitioner_id, P);
+check('and audited', (await superuser(`select count(*)::int n from audit_events where table_name='internal_notes' and action='insert' and record_id='${NOTE}'`))[0].n, 1);
+await expectDenied('a client cannot add internal notes', () => as(C1, `select add_internal_note('${DANA}', 'x')`));
+check('internal notes can no longer go in the shared table', await attempt(() => as(P, `insert into session_notes (client_id, practitioner_id, body, visibility) values ('${DANA}','${P}','x','internal')`)), false);
+check('notes written there are shared by default', (await one(P, `insert into session_notes (client_id, practitioner_id, body) values ('${DANA}','${P}','default note') returning visibility`)).visibility, 'shared');
+check('reading practitioner-only plan details is audited', (await superuser(`select count(*)::int n from audit_events where action='read' and table_name='plan_private_details'`))[0].n > 0, true);
+
+// SEC-019: the audit log is append-only, even for the database owner, and the export role can only read it.
+await expectDenied('the audit log cannot be changed', () => superuser(`update audit_events set action='x' where id=(select min(id) from audit_events)`));
+await expectDenied('or deleted from', () => superuser(`delete from audit_events where id=(select min(id) from audit_events)`));
+await expectDenied('or truncated', () => superuser(`truncate audit_events`));
+await db.exec('set role audit_reader');
+check('the export role reads the audit log', (await attempt(() => db.query('select count(*) from audit_events'))), true);
+check('and nothing else', (await attempt(() => db.query('select count(*) from clients'))), false);
+await db.exec('reset role');
+
+// SEC-020, INT-004: Stripe events apply in one transaction. Owner ruling 2026-10-03: a partial refund keeps access and
+// flags the purchase for the owner.
+const PRODUCT = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb';
+await superuser(`insert into products (id, slug, title, kind, program_template_id, price_cents, currency) values ('${PRODUCT}','course','Course','program','${T_PUB}',9900,'usd')`);
+const stripe = (id, type, obj, session = null) => superuser(`select apply_stripe_event('${id}','${type}','${JSON.stringify(obj)}'::jsonb, ${session ? `'${session}'` : 'null'}) r`).then((r) => r[0].r);
+const ent = async (session) => (await superuser(`select status, needs_review, refunded_cents from entitlements where stripe_checkout_session_id='${session}'`))[0];
+const meta = { client_id: SAM, product_id: PRODUCT };
+await superuser(`delete from client_programs where client_id='${SAM}'`);
+check('a paid checkout grants access', await stripe('evt_1', 'checkout.session.completed', { id: 'cs_1', payment_status: 'paid', customer: 'cus_sam', metadata: meta }), 'applied');
+check('the purchase is active', (await ent('cs_1')).status, 'active');
+check('and the program is assigned', (await superuser(`select source from client_programs where client_id='${SAM}' and template_id='${T_PUB}'`)).map(r=>r.source), ['purchased']);
+check('and the Stripe customer is linked', (await superuser(`select stripe_customer_id from clients where id='${SAM}'`))[0].stripe_customer_id, 'cus_sam');
+check('a repeated event does nothing', await stripe('evt_1', 'checkout.session.completed', { id: 'cs_1', payment_status: 'paid', customer: 'cus_sam', metadata: meta }), 'duplicate');
+check('an unpaid checkout waits', (await stripe('evt_2', 'checkout.session.completed', { id: 'cs_2', payment_status: 'unpaid', metadata: meta }), (await ent('cs_2')).status), 'pending');
+check('until the payment succeeds', (await stripe('evt_3', 'checkout.session.async_payment_succeeded', { id: 'cs_2', payment_status: 'paid', metadata: meta }), (await ent('cs_2')).status), 'active');
+check('a purchased program is assigned once', (await superuser(`select count(*)::int n from client_programs where client_id='${SAM}' and template_id='${T_PUB}'`))[0].n, 1);
+check('an event it cannot apply fails loudly', await attempt(() => stripe('evt_bad', 'checkout.session.completed', { id: 'cs_bad', payment_status: 'paid', metadata: {} })), false);
+check('and is not marked handled, so Stripe retries it', (await superuser(`select count(*)::int n from stripe_events where id='evt_bad'`))[0].n, 0);
+await superuser(`update entitlements set stripe_subscription_id='sub_1' where stripe_checkout_session_id='cs_2'`);
+check('a past-due subscription pauses access', (await stripe('evt_4', 'customer.subscription.updated', { id: 'sub_1', status: 'past_due' }), (await ent('cs_2')).status), 'past_due');
+check('paying resumes it', (await stripe('evt_5', 'customer.subscription.updated', { id: 'sub_1', status: 'active' }), (await ent('cs_2')).status), 'active');
+check('a cancelled subscription ends it', (await stripe('evt_6', 'customer.subscription.deleted', { id: 'sub_1', status: 'canceled' }), (await ent('cs_2')).status), 'cancelled');
+await stripe('evt_7', 'charge.refunded', { id: 'ch_1', amount: 9900, amount_refunded: 2000 }, 'cs_1');
+check('a partial refund keeps access and flags the purchase', await ent('cs_1'), { status: 'active', needs_review: true, refunded_cents: 2000 });
+const FLAGGED = (await superuser(`select id from entitlements where stripe_checkout_session_id='cs_1'`))[0].id;
+await expectDenied('only the owner decides on it', () => as(P, `select resolve_purchase_review('${FLAGGED}', true)`));
+await as(O, `select resolve_purchase_review('${FLAGGED}', false)`);
+check('the owner can keep access', await ent('cs_1'), { status: 'active', needs_review: false, refunded_cents: 2000 });
+check('the decision is stamped', (await superuser(`select reviewed_by from entitlements where id='${FLAGGED}'`))[0].reviewed_by, O);
+await stripe('evt_8', 'charge.refunded', { id: 'ch_1', amount: 9900, amount_refunded: 9900 }, 'cs_1');
+check('a full refund ends access', (await ent('cs_1')).status, 'refunded');
+check('a refund for an unknown purchase fails loudly', await attempt(() => stripe('evt_9', 'charge.refunded', { id: 'ch_2', amount: 100, amount_refunded: 100 }, 'cs_unknown')), false);
+await expectDenied('signed-in people cannot apply Stripe events', () => as(O, `select apply_stripe_event('evt_x','charge.refunded','{}'::jsonb,'cs_1')`));
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

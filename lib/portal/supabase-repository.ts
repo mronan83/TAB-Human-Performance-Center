@@ -8,7 +8,7 @@ import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/s
 import { siteUrl } from "@/config/site";
 import { safeResourceHref } from "./resources";
 import type {
-  Appointment, CheckIn, Client, ClientActivityInput, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
+  Appointment, CheckIn, Client, ClientActivityInput, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition, PurchaseReview,
   Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 import { currentWeekFor, personalizedModules } from "./programs";
@@ -235,7 +235,17 @@ export const supabaseRepository: PortalRepository = {
   async listEntitlements(clientId) {
     const sb = await db();
     const rows = must(await sb.from("entitlements").select("*, products(*)").eq("client_id", clientId)) as Row[];
-    return rows.map((e): Entitlement => ({ id: e.id, status: e.status, startsAt: e.starts_at, endsAt: e.ends_at ?? undefined, product: { id: e.products.id, slug: e.products.slug, title: e.products.title, kind: e.products.kind, active: e.products.active, priceCents: e.products.price_cents ?? undefined } }));
+    return rows.map((e): Entitlement => ({ id: e.id, status: e.status, startsAt: e.starts_at, endsAt: e.ends_at ?? undefined, needsReview: e.needs_review, refundedCents: e.refunded_cents ?? undefined, product: { id: e.products.id, slug: e.products.slug, title: e.products.title, kind: e.products.kind, active: e.products.active, priceCents: e.products.price_cents ?? undefined } }));
+  },
+  async listPurchaseReviews() {
+    const sb = await db();
+    const rows = must(await sb.from("entitlements").select("id, client_id, refunded_cents, clients(full_name), products(title, price_cents)").eq("needs_review", true).order("updated_at")) as Row[];
+    return rows.map((e): PurchaseReview => ({ entitlementId: e.id, clientId: e.client_id, clientName: e.clients?.full_name ?? "Client", product: e.products?.title ?? "Purchase", priceCents: e.products?.price_cents ?? undefined, refundedCents: e.refunded_cents ?? 0 }));
+  },
+  async resolvePurchaseReview(entitlementId, endAccess) {
+    const sb = await db();
+    // Owner only, checked in the database (resolve_purchase_review).
+    must(await sb.rpc("resolve_purchase_review", { p_entitlement: entitlementId, p_end_access: endAccess }));
   },
   async listClients(_viewer: Viewer) {
     const sb = await db();
@@ -244,15 +254,22 @@ export const supabaseRepository: PortalRepository = {
   },
   async listNotes(clientId, includeInternal) {
     const sb = await db();
-    let q = sb.from("session_notes").select("*, practitioners(display_name)").eq("client_id", clientId).order("session_date", { ascending: false });
-    if (!includeInternal) q = q.eq("visibility", "shared");
-    const rows = must(await q) as Row[];
-    return rows.map((n): SessionNote => ({ id: n.id, date: n.session_date, service: n.service ?? undefined, visibility: n.visibility, body: n.body, author: n.practitioners?.display_name ?? "TAB" }));
+    const shared = must(await sb.from("session_notes").select("*, practitioners(display_name)").eq("client_id", clientId).order("session_date", { ascending: false })) as Row[];
+    const notes = shared.map((n): SessionNote => ({ id: n.id, date: n.session_date, service: n.service ?? undefined, visibility: "shared", body: n.body, author: n.practitioners?.display_name ?? "TAB" }));
+    if (!includeInternal) return notes;
+    // SEC-019: internal notes live in the private schema; the function checks the care team and audits the read.
+    const internal = must(await sb.rpc("internal_notes", { p_client: clientId })) as Row[];
+    return [...notes, ...internal.map((n): SessionNote => ({ id: n.id, date: n.session_date, service: n.service ?? undefined, visibility: "internal", body: n.body, author: n.author ?? "TAB" }))]
+      .sort((a, b) => b.date.localeCompare(a.date));
   },
   async addNote(clientId, viewer, note) {
     if (!viewer.practitionerId) throw new Error("Only practitioners can add notes");
     const sb = await db();
-    must(await sb.from("session_notes").insert({ client_id: clientId, practitioner_id: viewer.practitionerId, body: note.body, visibility: note.visibility, service: note.service, session_date: today() }));
+    if (note.visibility === "internal") {
+      must(await sb.rpc("add_internal_note", { p_client: clientId, p_body: note.body, p_service: note.service ?? null, p_session_date: today() }));
+      return;
+    }
+    must(await sb.from("session_notes").insert({ client_id: clientId, practitioner_id: viewer.practitionerId, body: note.body, visibility: "shared", service: note.service, session_date: today() }));
   },
   async listReviews(clientId) {
     const sb = await db();
@@ -276,8 +293,8 @@ export const supabaseRepository: PortalRepository = {
   async listPlans(clientId, { staff }) {
     const sb = await db();
     const rows = must(await sb.from("wellness_plans").select(PLAN_SELECT).eq("client_id", clientId).neq("status", "archived").order("created_at")) as Row[];
-    // Practitioner-only sections: RLS returns nothing to clients; staff load them explicitly.
-    const priv = staff ? (must(await sb.from("plan_private_details").select("plan_id, details").eq("client_id", clientId)) as Row[]) : [];
+    // Practitioner-only sections live in the private schema (SEC-019): staff read them through an audited function.
+    const priv = staff ? (must(await sb.rpc("plan_private_details", { p_client: clientId })) as Row[]) : [];
     return rows.map((r) => mapPlan(r, priv.find((p) => p.plan_id === r.id)));
   },
   async savePlan(clientId, _viewer, input) {
@@ -297,7 +314,7 @@ export const supabaseRepository: PortalRepository = {
       const services = input.planType === "wellness" || input.planType === "nutrition" ? [] : [input.planType];
       id = (must(await sb.from("wellness_plans").insert({ ...fields, client_id: clientId, plan_type: input.planType, parent_plan_id: anchor?.id ?? null, services }).select("id").single()) as Row).id as string;
     }
-    must(await sb.from("plan_private_details").upsert({ plan_id: id, client_id: clientId, details: input.privateDetails }));
+    must(await sb.rpc("save_plan_private_details", { p_plan: id, p_client: clientId, p_details: input.privateDetails ?? {} }));
     if (input.planType === "wellness" && input.goals) {
       const keep = input.goals.map((g) => g.id).filter(Boolean) as string[];
       const del = sb.from("plan_goals").delete().eq("plan_id", id);

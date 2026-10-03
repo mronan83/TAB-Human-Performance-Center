@@ -9,7 +9,8 @@
   "20261002000000_program_assignment.sql",
   "20261003000000_program_editor.sql",
   "20261004000000_program_moves_custom_activities.sql",
-  "20261005000000_client_invites_assignments.sql"
+  "20261005000000_client_invites_assignments.sql",
+  "20261006000000_private_notes_audit_stripe.sql"
  ],
  "tables": [
   {
@@ -302,7 +303,18 @@
      "using": "(current_app_role() = 'owner'::app_role)"
     }
    ],
-   "triggers": []
+   "triggers": [
+    {
+     "name": "audit_events_append_only",
+     "function": "forbid_audit_change",
+     "def": "CREATE TRIGGER audit_events_append_only BEFORE DELETE OR UPDATE ON public.audit_events FOR EACH ROW EXECUTE FUNCTION forbid_audit_change()"
+    },
+    {
+     "name": "audit_events_no_truncate",
+     "function": "forbid_audit_change",
+     "def": "CREATE TRIGGER audit_events_no_truncate BEFORE TRUNCATE ON public.audit_events FOR EACH STATEMENT EXECUTE FUNCTION forbid_audit_change()"
+    }
+   ]
   },
   {
    "name": "check_ins",
@@ -1425,6 +1437,26 @@
      "name": "updated_at",
      "type": "timestamp with time zone",
      "default": "now()"
+    },
+    {
+     "name": "refunded_cents",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "needs_review",
+     "type": "boolean",
+     "default": "false"
+    },
+    {
+     "name": "reviewed_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "reviewed_at",
+     "type": "timestamp with time zone",
+     "nullable": true
     }
    ],
    "constraints": [
@@ -1439,6 +1471,12 @@
      "kind": "foreign key",
      "def": "FOREIGN KEY (product_id) REFERENCES products(id)",
      "ref_table": "products"
+    },
+    {
+     "name": "entitlements_reviewed_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
     },
     {
      "name": "entitlements_pkey",
@@ -2352,102 +2390,6 @@
    ]
   },
   {
-   "name": "plan_private_details",
-   "rls": true,
-   "columns": [
-    {
-     "name": "plan_id",
-     "type": "uuid"
-    },
-    {
-     "name": "client_id",
-     "type": "uuid"
-    },
-    {
-     "name": "details",
-     "type": "jsonb",
-     "default": "'{}'::jsonb"
-    },
-    {
-     "name": "updated_by",
-     "type": "uuid",
-     "nullable": true
-    },
-    {
-     "name": "created_at",
-     "type": "timestamp with time zone",
-     "default": "now()"
-    },
-    {
-     "name": "updated_at",
-     "type": "timestamp with time zone",
-     "default": "now()"
-    }
-   ],
-   "constraints": [
-    {
-     "name": "plan_private_details_client_id_fkey",
-     "kind": "foreign key",
-     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
-     "ref_table": "clients"
-    },
-    {
-     "name": "plan_private_details_plan_id_fkey",
-     "kind": "foreign key",
-     "def": "FOREIGN KEY (plan_id) REFERENCES wellness_plans(id) ON DELETE CASCADE",
-     "ref_table": "wellness_plans"
-    },
-    {
-     "name": "plan_private_details_updated_by_fkey",
-     "kind": "foreign key",
-     "def": "FOREIGN KEY (updated_by) REFERENCES profiles(id)",
-     "ref_table": "profiles"
-    },
-    {
-     "name": "plan_private_details_pkey",
-     "kind": "primary key",
-     "def": "PRIMARY KEY (plan_id)"
-    }
-   ],
-   "indexes": [],
-   "policies": [
-    {
-     "name": "plan_private_staff",
-     "cmd": "ALL",
-     "roles": "{public}",
-     "using": "(is_staff() AND can_access_client(client_id))",
-     "with_check": "(is_staff() AND can_access_client(client_id))"
-    }
-   ],
-   "triggers": [
-    {
-     "name": "plan_private_details_audit",
-     "function": "audit_row",
-     "def": "CREATE TRIGGER plan_private_details_audit AFTER INSERT OR DELETE OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION audit_row()"
-    },
-    {
-     "name": "plan_private_details_author",
-     "function": "stamp_author",
-     "def": "CREATE TRIGGER plan_private_details_author BEFORE INSERT OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION stamp_author('updated_by', 'always')"
-    },
-    {
-     "name": "plan_private_details_nutrition",
-     "function": "guard_nutrition_plan",
-     "def": "CREATE TRIGGER plan_private_details_nutrition BEFORE INSERT OR DELETE OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION guard_nutrition_plan()"
-    },
-    {
-     "name": "plan_private_details_same_client",
-     "function": "guard_same_client",
-     "def": "CREATE TRIGGER plan_private_details_same_client BEFORE INSERT OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION guard_same_client('plan_id', 'wellness_plans')"
-    },
-    {
-     "name": "plan_private_details_updated_at",
-     "function": "set_updated_at",
-     "def": "CREATE TRIGGER plan_private_details_updated_at BEFORE UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
-    }
-   ]
-  },
-  {
    "name": "practitioner_assignments",
    "rls": true,
    "columns": [
@@ -2786,7 +2728,7 @@
      "name": "profiles_id_fkey",
      "kind": "foreign key",
      "def": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE",
-     "ref_table": "users"
+     "ref_table": "auth.users"
     },
     {
      "name": "profiles_pkey",
@@ -3691,7 +3633,7 @@
     {
      "name": "visibility",
      "type": "note_visibility",
-     "default": "'internal'::note_visibility"
+     "default": "'shared'::note_visibility"
     },
     {
      "name": "body",
@@ -3709,6 +3651,11 @@
     }
    ],
    "constraints": [
+    {
+     "name": "session_notes_shared_only",
+     "kind": "check",
+     "def": "CHECK ((visibility = 'shared'::note_visibility))"
+    },
     {
      "name": "session_notes_client_id_fkey",
      "kind": "foreign key",
@@ -4055,6 +4002,190 @@
      "def": "CREATE TRIGGER wellness_plans_updated_at BEFORE UPDATE ON public.wellness_plans FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
     }
    ]
+  },
+  {
+   "name": "private.internal_notes",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "practitioner_id",
+     "type": "uuid"
+    },
+    {
+     "name": "service",
+     "type": "service_slug",
+     "nullable": true
+    },
+    {
+     "name": "session_date",
+     "type": "date",
+     "default": "CURRENT_DATE"
+    },
+    {
+     "name": "appointment_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "body",
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "internal_notes_body_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(body) >= 1) AND (char_length(body) <= 8000)))"
+    },
+    {
+     "name": "internal_notes_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "internal_notes_practitioner_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (practitioner_id) REFERENCES practitioners(id)",
+     "ref_table": "practitioners"
+    },
+    {
+     "name": "internal_notes_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "internal_notes_client",
+     "def": "CREATE INDEX internal_notes_client ON private.internal_notes USING btree (client_id, session_date DESC)"
+    }
+   ],
+   "policies": [],
+   "triggers": [
+    {
+     "name": "internal_notes_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER internal_notes_audit AFTER INSERT OR DELETE OR UPDATE ON private.internal_notes FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "internal_notes_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER internal_notes_author BEFORE INSERT OR UPDATE ON private.internal_notes FOR EACH ROW EXECUTE FUNCTION stamp_author('practitioner_id')"
+    },
+    {
+     "name": "internal_notes_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER internal_notes_updated_at BEFORE UPDATE ON private.internal_notes FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "private.plan_private_details",
+   "rls": true,
+   "columns": [
+    {
+     "name": "plan_id",
+     "type": "uuid"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "details",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "updated_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "plan_private_details_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "plan_private_details_plan_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (plan_id) REFERENCES wellness_plans(id) ON DELETE CASCADE",
+     "ref_table": "wellness_plans"
+    },
+    {
+     "name": "plan_private_details_updated_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (updated_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "plan_private_details_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (plan_id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [],
+   "triggers": [
+    {
+     "name": "plan_private_details_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER plan_private_details_audit AFTER INSERT OR DELETE OR UPDATE ON private.plan_private_details FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "plan_private_details_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER plan_private_details_author BEFORE INSERT OR UPDATE ON private.plan_private_details FOR EACH ROW EXECUTE FUNCTION stamp_author('updated_by', 'always')"
+    },
+    {
+     "name": "plan_private_details_nutrition",
+     "function": "guard_nutrition_plan",
+     "def": "CREATE TRIGGER plan_private_details_nutrition BEFORE INSERT OR DELETE OR UPDATE ON private.plan_private_details FOR EACH ROW EXECUTE FUNCTION guard_nutrition_plan()"
+    },
+    {
+     "name": "plan_private_details_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER plan_private_details_same_client BEFORE INSERT OR UPDATE ON private.plan_private_details FOR EACH ROW EXECUTE FUNCTION guard_same_client('plan_id', 'wellness_plans')"
+    },
+    {
+     "name": "plan_private_details_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER plan_private_details_updated_at BEFORE UPDATE ON private.plan_private_details FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
   }
  ],
  "views": [],
@@ -4140,7 +4271,9 @@
     "active",
     "expired",
     "cancelled",
-    "refunded"
+    "refunded",
+    "pending",
+    "past_due"
    ]
   },
   {
@@ -4292,6 +4425,22 @@
  ],
  "functions": [
   {
+   "name": "add_internal_note",
+   "args": "p_client uuid, p_body text, p_service service_slug, p_session_date date",
+   "returns": "uuid",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "apply_stripe_event",
+   "args": "p_id text, p_type text, p_object jsonb, p_session_id text",
+   "returns": "text",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
    "name": "audit_row",
    "args": "",
    "returns": "trigger",
@@ -4332,6 +4481,13 @@
    "volatility": "stable"
   },
   {
+   "name": "forbid_audit_change",
+   "args": "",
+   "returns": "trigger",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
    "name": "forbid_consent_change",
    "args": "",
    "returns": "trigger",
@@ -4343,6 +4499,14 @@
    "name": "forbid_inquiry_delete",
    "args": "",
    "returns": "trigger",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "grant_stripe_purchase",
+   "args": "p_session jsonb",
+   "returns": "void",
+   "security_definer": true,
    "language": "plpgsql",
    "volatility": "volatile"
   },
@@ -4475,6 +4639,14 @@
    "volatility": "stable"
   },
   {
+   "name": "internal_notes",
+   "args": "p_client uuid",
+   "returns": "TABLE(id uuid, practitioner_id uuid, author text, service service_slug, session_date date, body text, created_at timestamp with time zone)",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
    "name": "is_staff",
    "args": "",
    "returns": "boolean",
@@ -4501,6 +4673,14 @@
    "name": "new_program_version",
    "args": "template uuid",
    "returns": "uuid",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "plan_private_details",
+   "args": "p_client uuid",
+   "returns": "TABLE(plan_id uuid, details jsonb)",
+   "security_definer": true,
    "language": "plpgsql",
    "volatility": "volatile"
   },
@@ -4535,9 +4715,25 @@
    "volatility": "volatile"
   },
   {
+   "name": "resolve_purchase_review",
+   "args": "p_entitlement uuid, p_end_access boolean",
+   "returns": "void",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
    "name": "save_client_activities",
    "args": "program uuid, items jsonb",
    "returns": "void",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "save_plan_private_details",
+   "args": "p_plan uuid, p_client uuid, p_details jsonb",
+   "returns": "void",
+   "security_definer": true,
    "language": "plpgsql",
    "volatility": "volatile"
   },
@@ -4578,6 +4774,14 @@
    "security_definer": true,
    "language": "plpgsql",
    "volatility": "volatile"
+  },
+  {
+   "name": "private.require_care_team",
+   "args": "p_client uuid",
+   "returns": "void",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "stable"
   }
  ]
 }

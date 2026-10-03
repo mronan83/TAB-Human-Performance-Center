@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { requireStaff } from "@/lib/portal";
-import { fmtDate, serviceName, STAGES, weekStartISO } from "@/lib/portal/format";
+import { fmtDate, fmtMoney, serviceName, STAGES, weekStartISO } from "@/lib/portal/format";
 import { PageTitle, Badge } from "@/components/portal/ui";
+import { RowActionButton } from "@/components/portal/interactive";
+import { resolvePurchaseReviewAction } from "../actions";
 
 export default async function PracticeHome({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const { viewer, repo } = await requireStaff();
   const { status } = await searchParams;
-  const all = await repo.listClients(viewer);
+  const [all, reviews] = await Promise.all([repo.listClients(viewer), viewer.role === "owner" ? repo.listPurchaseReviews() : Promise.resolve([])]);
   const clients = status ? all.filter((c) => c.status === status) : all;
   const week = weekStartISO();
   const stats = [
@@ -22,6 +24,26 @@ export default async function PracticeHome({ searchParams }: { searchParams: Pro
       <dl className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (<div key={s.label} className="rounded-[20px] border border-border bg-white p-5"><dt className="text-sm text-text-secondary">{s.label}</dt><dd className="mt-1 font-[family-name:var(--font-display)] text-4xl">{s.value}</dd></div>))}
       </dl>
+      {reviews.length > 0 && (
+        <section aria-labelledby="purchase-reviews" className="mb-8 rounded-[20px] border border-border bg-white p-5">
+          <h2 id="purchase-reviews" className="font-[family-name:var(--font-display)] text-2xl">Purchases to review</h2>
+          <p className="mt-1 text-sm text-text-secondary">Stripe refunded part of these purchases. The client keeps access until you decide.</p>
+          <ul className="mt-4 divide-y divide-border">
+            {reviews.map((r) => (
+              <li key={r.entitlementId} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                <div>
+                  <Link href={`/practice/clients/${r.clientId}`} className="font-semibold text-primary underline-offset-4 hover:underline">{r.clientName}</Link>
+                  <p className="text-sm">{r.product} · refunded {fmtMoney(r.refundedCents)}{r.priceCents ? ` of ${fmtMoney(r.priceCents)}` : ""}</p>
+                </div>
+                <div className="flex gap-2">
+                  <RowActionButton action={resolvePurchaseReviewAction.bind(null, r.entitlementId, false)} label="Keep access" context={`for ${r.clientName}, ${r.product}`} />
+                  <RowActionButton action={resolvePurchaseReviewAction.bind(null, r.entitlementId, true)} label="End access" context={`for ${r.clientName}, ${r.product}`} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <nav aria-label="Filter clients" className="mb-4 flex flex-wrap gap-2">
         {filters.map(([v, l]) => (
           <Link key={l} href={v ? `/practice?status=${v}` : "/practice"} aria-current={(status ?? "") === v ? "page" : undefined}

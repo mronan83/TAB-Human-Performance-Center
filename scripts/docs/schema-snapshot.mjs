@@ -37,40 +37,44 @@ const migrations = fs.readdirSync(migDir).filter((f) => f.endsWith(".sql")).sort
 for (const f of migrations) await db.exec(fs.readFileSync(path.join(migDir, f), "utf8"));
 
 const q = async (sql) => (await db.query(sql)).rows;
+// The schemas the app's data lives in: public (behind row-level security) and private (reachable only through
+// functions, SEC-019). Tables outside public are named with their schema, e.g. private.internal_notes.
+const SCHEMAS = "('public', 'private')";
+const qual = (ns, rel) => `case when ${ns} = 'public' then ${rel}::text else ${ns} || '.' || ${rel} end`;
 const tables = await q(`
-  select c.relname as name, c.relrowsecurity as rls, c.relforcerowsecurity as force_rls, obj_description(c.oid) as comment
+  select ${qual("n.nspname", "c.relname")} as name, c.relrowsecurity as rls, c.relforcerowsecurity as force_rls, obj_description(c.oid) as comment
   from pg_class c join pg_namespace n on n.oid = c.relnamespace
-  where n.nspname = 'public' and c.relkind = 'r' order by c.relname`);
+  where n.nspname in ${SCHEMAS} and c.relkind = 'r' order by n.nspname <> 'public', c.relname`);
 const columns = await q(`
-  select c.table_name as table, c.column_name as name, c.ordinal_position as pos,
+  select ${qual("c.table_schema", "c.table_name")} as table, c.column_name as name, c.ordinal_position as pos,
          case when c.data_type = 'USER-DEFINED' then c.udt_name when c.data_type = 'ARRAY' then substr(c.udt_name, 2) || '[]' else c.data_type end as type,
-         c.is_nullable = 'YES' as nullable, c.column_default as default, col_description(format('public.%I', c.table_name)::regclass, c.ordinal_position) as comment
-  from information_schema.columns c join pg_class k on k.relname = c.table_name and k.relkind = 'r'
-  join pg_namespace n on n.oid = k.relnamespace and n.nspname = 'public'
-  where c.table_schema = 'public' order by c.table_name, c.ordinal_position`);
+         c.is_nullable = 'YES' as nullable, c.column_default as default, col_description(format('%I.%I', c.table_schema, c.table_name)::regclass, c.ordinal_position) as comment
+  from information_schema.columns c join pg_namespace n on n.nspname = c.table_schema
+  join pg_class k on k.relname = c.table_name and k.relnamespace = n.oid and k.relkind = 'r'
+  where c.table_schema in ${SCHEMAS} order by 1, c.ordinal_position`);
 const constraints = await q(`
-  select t.relname as table, con.conname as name, con.contype as kind, pg_get_constraintdef(con.oid) as def,
-         ft.relname as ref_table
+  select ${qual("n.nspname", "t.relname")} as table, con.conname as name, con.contype as kind, pg_get_constraintdef(con.oid) as def,
+         ${qual("fn.nspname", "ft.relname")} as ref_table
   from pg_constraint con join pg_class t on t.oid = con.conrelid join pg_namespace n on n.oid = t.relnamespace
-  left join pg_class ft on ft.oid = con.confrelid
-  where n.nspname = 'public' and con.contype <> 'n' order by t.relname, con.contype, con.conname`);
+  left join pg_class ft on ft.oid = con.confrelid left join pg_namespace fn on fn.oid = ft.relnamespace
+  where n.nspname in ${SCHEMAS} and con.contype <> 'n' order by 1, con.contype, con.conname`);
 const indexes = await q(`
-  select tablename as table, indexname as name, indexdef as def from pg_indexes i
-  where schemaname = 'public' and not exists (select 1 from pg_constraint c where c.conname = i.indexname)
-  order by tablename, indexname`);
+  select ${qual("schemaname", "tablename")} as table, indexname as name, indexdef as def from pg_indexes i
+  where schemaname in ${SCHEMAS} and not exists (select 1 from pg_constraint c where c.conname = i.indexname)
+  order by 1, indexname`);
 const policies = await q(`
-  select tablename as table, policyname as name, cmd, roles::text as roles, permissive, qual as using, with_check
-  from pg_policies where schemaname = 'public' order by tablename, policyname`);
+  select ${qual("schemaname", "tablename")} as table, policyname as name, cmd, roles::text as roles, permissive, qual as using, with_check
+  from pg_policies where schemaname in ${SCHEMAS} order by 1, policyname`);
 const triggers = await q(`
-  select c.relname as table, t.tgname as name, p.proname as function, pg_get_triggerdef(t.oid) as def
+  select ${qual("n.nspname", "c.relname")} as table, t.tgname as name, p.proname as function, pg_get_triggerdef(t.oid) as def
   from pg_trigger t join pg_class c on c.oid = t.tgrelid join pg_namespace n on n.oid = c.relnamespace
   join pg_proc p on p.oid = t.tgfoid
-  where n.nspname = 'public' and not t.tgisinternal order by c.relname, t.tgname`);
+  where n.nspname in ${SCHEMAS} and not t.tgisinternal order by 1, t.tgname`);
 const functions = await q(`
-  select p.proname as name, pg_get_function_identity_arguments(p.oid) as args, pg_get_function_result(p.oid) as returns,
+  select ${qual("n.nspname", "p.proname")} as name, pg_get_function_identity_arguments(p.oid) as args, pg_get_function_result(p.oid) as returns,
          p.prosecdef as security_definer, l.lanname as language, p.provolatile as volatility, obj_description(p.oid) as comment
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace join pg_language l on l.oid = p.prolang
-  where n.nspname = 'public' order by p.proname, args`);
+  where n.nspname in ${SCHEMAS} order by n.nspname <> 'public', p.proname, args`);
 const enums = await q(`
   select t.typname as name, array_agg(e.enumlabel order by e.enumsortorder) as values
   from pg_type t join pg_enum e on e.enumtypid = t.oid join pg_namespace n on n.oid = t.typnamespace

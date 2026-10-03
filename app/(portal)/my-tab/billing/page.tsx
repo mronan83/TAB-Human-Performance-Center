@@ -16,7 +16,7 @@ export default async function BillingPage() {
         <Panel title="Programs and memberships">
           {ents.length === 0 ? <EmptyState title="No active programs or memberships." body="Anything you join online will appear here." /> : (
             <ul className="divide-y divide-border">
-              {ents.map((e) => (<li key={e.id} className="flex items-center justify-between py-3"><div><p className="font-medium">{e.product.title}</p><p className="text-sm text-text-secondary">Since {fmtDate(e.startsAt)}</p></div><Badge tone={e.status === "active" ? "success" : "neutral"}>{e.status}</Badge></li>))}
+              {ents.map((e) => (<li key={e.id} className="flex items-center justify-between py-3"><div><p className="font-medium">{e.product.title}</p><p className="text-sm text-text-secondary">Since {fmtDate(e.startsAt)}</p></div><Badge tone={e.status === "active" ? "success" : "neutral"}>{STATUS_LABEL[e.status] ?? e.status}</Badge></li>))}
             </ul>
           )}
           <form action="/api/billing-portal" method="post" className="mt-5"><button className="btn btn-outline btn-sm">Manage payment methods and receipts</button></form>
@@ -29,3 +29,5 @@ export default async function BillingPage() {
     </>
   );
 }
+
+const STATUS_LABEL: Record<string, string> = { active: "Active", pending: "Awaiting payment", past_due: "Payment overdue", expired: "Ended", cancelled: "Cancelled", refunded: "Refunded" };

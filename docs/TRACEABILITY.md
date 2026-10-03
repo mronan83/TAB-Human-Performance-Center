@@ -160,13 +160,13 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | INT-001 | Timely booking and Client Login links from the site and My TAB | P1 | Must | Verified for booking; Client Login link pending (A5) | F-06, F-26 | smoke |
 | INT-002 | Internal UUID is the identity; Timely, Stripe and portal IDs are mapped fields | P2 | Must | Built | F-20 | — |
 | INT-003 | Stripe portal sessions created server-side; no card data stored | P2 | Must | Partial: built; no Stripe account (A17) | F-29 | — |
-| INT-004 | Stripe webhooks update memberships and packages | P3 | Should | Partial: idempotent webhook built; transactional handling open (C3b) | F-29 | — |
+| INT-004 | Stripe webhooks update memberships and packages | P3 | Should | Verified: each event applies in one transaction; past-due, refunds and unpaid checkouts handled (C3b) | F-29 | rls |
 | INT-005 | Timely to My TAB sync through Zapier, one way | P3 | Could | Planned | F-50 | — |
 | INT-006 | Reconcile duplicate clients before any sync | P3 | Should | Partial: submissions match by email and link on purpose; no Timely or Stripe matching | F-11 | rls |
 
 ## Non-functional requirements
 
-{{nfr.total}} non-functional requirements in three areas: {{nfr.verified}} verified, {{nfr.built}} built without a check, {{nfr.partial}} partial, {{nfr.planned}} planned. The database security gate is the best-proved part of the system: every SEC-016 to SEC-018 rule has a test that fails if it breaks. What's left is mostly the go-live plumbing in C3b, C5 and C6, plus backups (A14).
+{{nfr.total}} non-functional requirements in three areas: {{nfr.verified}} verified, {{nfr.built}} built without a check, {{nfr.partial}} partial, {{nfr.planned}} planned. The database security gate is the best-proved part of the system: every SEC-016 to SEC-018 rule has a test that fails if it breaks. Since C3b, internal notes sit in a private schema behind audited functions and Stripe events apply in one transaction. What's left is mostly the go-live plumbing in C5 and C6, the audit export's secrets (A26) and backups (A14).
 
 ### Security and privacy (SEC)
 
@@ -190,8 +190,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | SEC-016 | Client writes limited to allowed columns; consents insert-only | `guard_client_columns`, `guard_client_update`, form submission guards | P2 | Must | Verified | rls |
 | SEC-017 | Program content readable only when published and entitled | `can_read_program()` on modules and activities | P2 | Must | Verified | rls |
 | SEC-018 | Practitioners confined to their care team; authorship pinned | `can_access_client()`, `stamp_author()`, `guard_same_client()` | P2 | Must | Verified | rls |
-| SEC-019 | Internal notes behind audited functions; audit log drained off-platform | TRUNCATE revoked and audit read-only done; private schema and drain wait on C3b | P2 | Must | Partial | rls |
-| SEC-020 | Secure session cookies; transactional Stripe webhook | Waits on C3b | P2 | Must | Planned | — |
+| SEC-019 | Internal notes behind audited functions; audit log drained off-platform | Private schema reached only through audited functions; append-only audit log; nightly encrypted export built (`.github/workflows/audit-export.yml`) | P2 | Must | Partial: the export runs once its secrets exist (A26) | rls |
+| SEC-020 | Secure session cookies; transactional Stripe webhook | `apply_stripe_event()` in one transaction; `httpOnly`, `secure`, seven-day cookies (`lib/supabase/cookies.ts`) | P2 | Must | Partial: webhook verified; cookie settings have no automated check until C6 | rls |
 | SEC-021 | Supabase-native tests in CI (JWT, MFA level, sign-up, grants) | Today's tests run in an in-process Postgres with stubbed auth; real stack waits on C6 | P2 | Must | Planned | — |
 
 ### Accessibility, SEO, analytics and launch (NFR)
@@ -254,7 +254,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | --- | --- | --- | --- | --- | --- | --- |
 | F-19 | My TAB sign-in and demo sign-in | Partial: real sign-in needs C5 | WEB-020, PORTAL-001, SEC-014, SEC-020 | D-042 | `app/(portal)/my-tab/login/`, `my-tab/auth/callback/route.ts` | smoke |
 | F-20 | Portal data layer and demo mode | Verified | INT-002, SEC-008 | D-042, D-045 | `lib/portal/types.ts`, `mock-repository.ts`, `supabase-repository.ts` | smoke |
-| F-21 | Database security gate (RLS, guards, audit) | Partial: C3b, C6 | SEC-001 to SEC-003, SEC-005, SEC-010, SEC-012, SEC-015 to SEC-019 | D-042, D-060 | `supabase/migrations/` | rls |
+| F-21 | Database security gate (RLS, guards, audit) | Partial: C6, A26 | SEC-001 to SEC-003, SEC-005, SEC-010, SEC-012, SEC-015 to SEC-019 | D-042, D-060 | `supabase/migrations/` | rls |
 | F-22 | Dashboard | Verified (demo) | PORTAL-002 | — | `app/(portal)/my-tab/page.tsx` | smoke |
 | F-23 | My plan | Verified (demo) | PORTAL-003 | — | `my-tab/plan/` | smoke, rls |
 | F-24 | My programs | Partial: no responses or feedback (TG-4) | PORTAL-004 | — | `my-tab/programs/`, `lib/portal/programs.ts` | smoke, rls |
@@ -262,7 +262,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-26 | Appointments | Partial: Client Login link (A5) | PORTAL-006, INT-001 | D-003 | `my-tab/appointments/` | — |
 | F-27 | Forms | Partial: no uploads (SEC-007) | PORTAL-008 | D-054 | `my-tab/forms/` | smoke, rls |
 | F-28 | Resources | Partial: library is the topic list (TG-2) | PORTAL-007 | — | `my-tab/resources/`, `lib/portal/resources.ts` | smoke, a11y, rls |
-| F-29 | Billing (Stripe) | Partial: Stripe account (A17); webhook (C3b) | PORTAL-009, INT-003, INT-004, SEC-020 | D-052 | `my-tab/billing/`, `app/api/checkout/`, `billing-portal/`, `stripe/` | — |
+| F-29 | Billing (Stripe) and purchase reviews | Partial: Stripe account (A17) | PORTAL-009, INT-003, INT-004, SEC-020 | D-052, owner ruling 2026-10-03 | `my-tab/billing/`, `app/api/checkout/`, `billing-portal/`, `stripe/`, `practice/page.tsx` | smoke, rls |
 | F-30 | Profile and consents | Partial: no accessibility needs or goals (TG-5) | PORTAL-008, PORTAL-010, SEC-010 | — | `my-tab/profile/` | rls |
 
 ### TAB Practice (practitioner workspace)
@@ -270,7 +270,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | ID | Feature | Status | Requirements | Decisions | Code | Checks |
 | --- | --- | --- | --- | --- | --- | --- |
 | F-31 | Client list and client page | Partial: basic profile fields (STAFF-002) | STAFF-001, STAFF-002 | D-045 | `app/(portal)/practice/page.tsx`, `practice/clients/[id]/page.tsx` | smoke, a11y, rls |
-| F-32 | Session notes, internal and shared | Partial: private schema (C3b); four-part pattern | PORTAL-011, STAFF-004, SEC-019 | D-042 | `practice/clients/[id]/page.tsx` | smoke, rls |
+| F-32 | Session notes, internal and shared | Partial: the four-part pattern isn't structured | PORTAL-011, STAFF-004, SEC-019 | D-042 | `practice/clients/[id]/page.tsx` | smoke, rls |
 | F-33 | Progress reviews and stage changes | Partial: outcome set differs (TG-1) | PORTAL-012, STAFF-006, STAFF-008 | Step 14 | `practice/clients/[id]/review/` | smoke, a11y, rls |
 | F-34 | Typed plans and plan log | Verified (demo) | PORTAL-011, STAFF-005 | — | `practice/clients/[id]/plans/` | smoke, a11y, rls |
 | F-35 | Program assignment and personalization | Verified (demo) | STAFF-009 | — | `practice/clients/[id]/programs/` | smoke, a11y, rls |
@@ -306,7 +306,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 <!-- chart:status-by-area -->
 
-The weak spot is not security, it is everything nobody wrote a check for. Start and routing, quality and TAB Practice lead, because their checks were written with the code. Security is at 33%, and most of its partial rows wait on C3b, C5 and C6. The public website is the opposite: 9 of its 20 requirements are built and look right, but nothing fails if a later change breaks them. Content (CMS) has no verified requirement because Payload waits until after Phase 1 (A-02).
+The weak spot is not security, it is everything nobody wrote a check for. Start and routing, quality and TAB Practice lead, because their checks were written with the code. Security is at 33%, and most of its partial rows wait on C5, C6 and A26. The public website is the opposite: 9 of its 20 requirements are built and look right, but nothing fails if a later change breaks them. Content (CMS) has no verified requirement because Payload waits until after Phase 1 (A-02).
 
 ### Gaps found while tracing
 
@@ -359,7 +359,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 | A14 Supabase Pro | SEC-009 |
 | A17 Stripe | PORTAL-009, INT-003 |
 | C2 launch day | NFR-007, NFR-010 |
-| C3b hardening part 2 | SEC-019, SEC-020, INT-004 |
+| A26 audit export secrets | SEC-019 |
 | C5 sign-in plumbing | PORTAL-001, SEC-003, SEC-014, SEC-015 |
 | C6 real-stack tests | SEC-021 |
 | C8 Payload CMS | CMS-001 to CMS-005, WEB-015 |
@@ -393,6 +393,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | --- | --- | --- | --- |
 | 2026-10-02 | 1.0 | Created: 7 objectives, 97 requirements, 51 features, 9 gaps, 6 questions | Owner request, 2 Oct 2026. Traced from the repository at `f43beba` plus PR #28 (C4, not yet merged) |
 | 2026-10-03 | 1.1 | Moved from a Claude Doc into `docs/TRACEABILITY.md`, published as an HTML page in the layout the owner asked for; counts now computed from the tables; companion architecture and data model pages added; four one-way feature links fixed; Q-7 raised from the data model review | Owner request, 3 Oct 2026 |
+| 2026-10-03 | 1.2 | C3b: SEC-019 and SEC-020 partial, INT-004 verified; F-21, F-29 and F-32 updated; A26 added | C3b build, owner rulings 2026-10-03 (refunds, audit export, private notes) |
 
 ## Sources
 
