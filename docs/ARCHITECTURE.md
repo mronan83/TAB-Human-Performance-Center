@@ -45,9 +45,11 @@ The application is Next.js 15 (App Router) with React 19, TypeScript and Tailwin
 Supabase Auth holds identities. There is no public sign-up: a practitioner invites a client from the client page in TAB Practice, which sends Supabase's invitation email, and sign-in is an emailed link (`signInWithOtp` with `shouldCreateUser: false`). Both links land on `/my-tab/auth/callback`, which exchanges the code for a session and records the first sign-in (`record_my_tab_sign_in`).
 
 - **Roles.** `profiles.role` is `owner`, `practitioner` or `client`. A staff role counts only in a session verified with two-step verification (`aal2`): `current_app_role()` in the database and `getViewer()` in `lib/portal/index.ts` both apply it (SEC-015). Staff MFA enrolment waits on C5.
+- **Sessions.** Supabase keeps the session in cookies that only the server reads: `httpOnly`, `secure` outside local development, and time-boxed to seven days (`lib/supabase/cookies.ts`, used by `lib/supabase/server.ts` and `middleware.ts`; SEC-020).
 - **Guards in the app.** Every server action calls `requireClient()` or `requireStaff()`. They redirect anyone who shouldn't be there, but they are a convenience: the database decides.
 - **Guards in the database.** Row-level security on every table, using `can_access_client()` (care team only), `my_client_id()`, `is_staff()` and `can_publish_programs()`. Triggers such as `guard_client_update`, `guard_client_columns`, `stamp_author` and `guard_same_client` limit which columns each role may change and pin authorship. The data model page lists every policy.
-- **Service role.** Used only on the server and only where no signed-in role may act: saving website submissions (`lib/inquiry-store.ts`), the Stripe webhook, and sending invitations after the row-level-security-checked update has succeeded.
+- **Private schema.** Internal session notes and practitioner-only plan details live in the `private` schema, which the Data API doesn't expose and signed-in roles can't use. Staff reach them only through `internal_notes()`, `add_internal_note()`, `plan_private_details()` and `save_plan_private_details()`, which check the care team and write an audit row for every read as well as every change (SEC-019).
+- **Service role.** Used only on the server and only where no signed-in role may act: saving website submissions (`lib/inquiry-store.ts`), applying Stripe events (`apply_stripe_event()`, which only the service role may run), and sending invitations after the row-level-security-checked update has succeeded.
 - **Demo mode.** While `portal.dataSource` is `mock`, a demo sign-in sets the `tab_demo_role` cookie (client or practitioner) and every visitor shares one in-memory store (`lib/portal/mock-repository.ts`). Production allows it only while `portalDemoOnProduction` is on and Vercel login protects the site.
 
 ## Server-side logic
@@ -60,7 +62,7 @@ There is no separate application server. Server code runs as Next.js server comp
 | Server actions | `app/(portal)/actions.ts` | Every portal mutation, each behind `requireClient()` or `requireStaff()`, validated with zod before it reaches the repository |
 | Portal repository | `lib/portal/types.ts`, `mock-repository.ts`, `supabase-repository.ts` | The one interface for portal data. The Supabase implementation uses the person's session (`lib/supabase/server.ts`), so row-level security applies to every call |
 | Website submissions | `app/api/inquiry/route.ts` | Spam layers from `lib/spam.ts` (same origin, rate limits, minimum fill time, honeypot, duplicate guard, text screening, Turnstile), then email through Resend and, once storage is on, a row in `inquiries` |
-| Stripe | `app/api/checkout`, `app/api/billing-portal`, `app/api/stripe/webhook`, `lib/stripe.ts` | Checkout and the customer portal are created server-side; the webhook is signature-checked and idempotent through `stripe_events`, and grants or revokes entitlements |
+| Stripe | `app/api/checkout`, `app/api/billing-portal`, `app/api/stripe/webhook`, `lib/stripe.ts` | Checkout and the customer portal are created server-side; the webhook checks the signature, then applies each event in one database transaction (`apply_stripe_event()`): a failure rolls back and answers 500 so Stripe retries. Unpaid checkouts wait for payment, past-due subscriptions pause access, full refunds end it, and partial refunds keep it and flag the purchase for the owner in TAB Practice |
 | Email | `lib/email.ts`, `content/emails.ts` | Resend. Messages name no health details; demo mode and deployments without a key log instead of sending |
 
 ## Key flows
@@ -95,6 +97,7 @@ There is no separate application server. Server code runs as Next.js server comp
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Vercel | The portal's connection to Supabase, with the person's session |
 | `SUPABASE_SERVICE_ROLE_KEY` | Secret | Vercel | Server-only tasks listed under Identity |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Secrets | Vercel | Checkout, the billing portal and the webhook |
+| `SUPABASE_AUDIT_DB_URL`, `AUDIT_EXPORT_PASSPHRASE` | Secrets | GitHub Actions | The nightly audit export: a connection as the read-only `audit_reader` role, and the passphrase that encrypts each file. Added at go-live (A26) |
 | `portal.dataSource`, `portalDemoOnProduction` | Code settings | `config/site.ts` | Demo or Supabase data; demo allowed on production |
 | `forms.storeSubmissions` | Code setting | `config/site.ts` | Saving submissions, on only with Supabase data |
 
@@ -104,17 +107,18 @@ There is no separate application server. Server code runs as Next.js server comp
 - **Tests.** `supabase/tests/rls.test.mjs` applies every migration to PGlite (in-process Postgres) with stub auth and checks each policy and guard as owner, practitioner and client. `e2e/` holds smoke, redirect-map, link-crawl, SEO, header-fit, CSP and WCAG 2.2 AA scans against the production build. `scripts/check-contrast.mjs` checks every token pairing.
 - **Guards on the process.** `.claude/hooks/guard-main.mjs` blocks pushes and writes to `main` and any merge that isn't a squash. Vercel login protects every deployment URL.
 - **Living documents.** The backlog page (`scripts/render-backlog.mjs`) is republished after each promotion. This page, the data model page and the traceability page are built by `scripts/docs/` from `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` and `docs/TRACEABILITY.md`; `npm run docs:check` fails CI when they fall behind the code.
+- **Audit log off the platform.** `.github/workflows/audit-export.yml` runs nightly: it reads the last two days of `audit_events` as `audit_reader`, encrypts them with gpg and commits the file to the `audit-archive` branch, so a compromised database can't erase its own trail (SEC-019). Until the secrets exist (A26) it reports that it is waiting and succeeds.
 - **Backups and monitoring.** None yet: Supabase is on the free plan and production holds no client data. Daily backups with a tested restore (A14, A15) and post-launch monitoring (C2) come before real data.
 
 ## Quality attributes
 
 | Attribute | How the architecture provides it | Where it falls short |
 | --- | --- | --- |
-| Security | Row-level security and guard triggers on every table; staff roles need two-step verification; nonce CSP on portal pages; no public sign-up; Vercel login | Staff MFA enrolment (C5); internal notes not yet in a private schema (C3b); tests run against PGlite, not a real Supabase stack (C6) |
+| Security | Row-level security and guard triggers on every table; staff roles need two-step verification; nonce CSP on portal pages; no public sign-up; Vercel login | Staff MFA enrolment (C5); tests run against PGlite, not a real Supabase stack (C6); the audit export waits for its secrets (A26) |
 | Privacy | No health details by email; analytics off the portal and contact pages; demo data only | No automated check of email content (TG-3); no check that analytics stays off those pages (NFR-005) |
 | Accessibility | WCAG 2.2 AA scans of every public page and the main portal pages in CI; tokens contrast-checked | No manual screen-reader pass yet |
 | Performance | Public pages prebuilt and cached at the edge; portal pages render only what one person needs | Core Web Vitals not measured (NFR-002) |
-| Integrity | Constraints, guard triggers, one-function database operations for version moves and plan saves | Stripe webhook not yet transactional (C3b) |
+| Integrity | Constraints, guard triggers, one-function database operations for version moves, plan saves and Stripe events; an append-only audit log | Plan saves still write the plan and its private details in separate calls |
 | Recoverability | Git holds code and schema; Vercel keeps every build for instant rollback | No database backups until Supabase Pro (A14) |
 | Maintainability | One repository interface, config and content kept out of components, living documents checked in CI | Content edits need a code change until Payload CMS (C8) |
 
@@ -123,7 +127,7 @@ There is no separate application server. Server code runs as Next.js server comp
 | Risk | Consequence | Backlog |
 | --- | --- | --- |
 | Demo portal on the production URL | Anyone with Vercel access shares one demo store; unsafe once a custom domain is attached | C1 (turn it off first) |
-| Portal security gate not complete | Real client data can't go in until internal notes move to a private schema, sessions are hardened and tests run on a real stack | C3b, C6, A15 |
+| Portal security gate not complete | Real client data can't go in until staff MFA enrolment exists, tests run on a real Supabase stack and the audit export runs | C5, C6, A26, A15 |
 | No backups | A database failure after go-live would lose client records | A14, A15 |
 | Rate limits are per server instance | A determined spammer spread across instances gets more attempts than the limits suggest | A18 (Vercel Firewall, declined for now) |
 | Content lives in code | Every copy change is a pull request | C8 |

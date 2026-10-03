@@ -52,10 +52,10 @@ const tlink = (n) => (tableNames.includes(n) ? `<a class="ref" href="#${tableAnc
 const domainsDiagram = () => {
   const W = 236, H = 186, xs = [12, 272, 532], ys = [36, 246, 456];
   const slots = { "Website and integrations": [0, 0], "Care record": [1, 0], "Programs": [2, 0], "Audit": [0, 1], "People and access": [1, 1], "Progress and check-ins": [2, 1], "Commerce and cohorts": [1, 2], "Forms and resources": [2, 2] };
-  const free = [[0, 2]];
+  const free = [[0, 2], [0, 3]];
   domains.filter((d) => !slots[d]).forEach((d, i) => { if (free[i]) slots[d] = free[i]; });
   const center = slots["People and access"];
-  const LINK = { "Care record": "→ clients by client_id", "Programs": "→ clients through client_programs", "Progress and check-ins": "→ clients by client_id", "Forms and resources": "→ clients by client_id", "Commerce and cohorts": "→ clients: entitlements, members", "Website and integrations": "→ clients once a submission is routed", "Audit": "records every change to client data", "People and access": "clients is the hub every domain points to" };
+  const LINK = { "Care record": "→ clients by client_id", "Programs": "→ clients through client_programs", "Progress and check-ins": "→ clients by client_id", "Forms and resources": "→ clients by client_id", "Commerce and cohorts": "→ clients: entitlements, members", "Website and integrations": "→ clients once a submission is routed", "Audit": "records every change to client data", "Private": "→ clients by client_id; functions only", "People and access": "clients is the hub every domain points to" };
   let body = "";
   for (const d of domains) {
     const s = slots[d]; if (!s) continue;

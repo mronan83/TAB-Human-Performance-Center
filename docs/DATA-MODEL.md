@@ -37,8 +37,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | `wellness_plans` | Plans: the client's TAB Wellness Plan and service plans under it (`plan_type`, `parent_plan_id`), with status and review date | The care team; the client sees plans marked visible |
 | `plan_goals` | A plan's goals: why it matters, measure, target, status | As its plan |
 | `plan_entries` | The plan log: dated entries, shared or internal | The care team; the client sees shared entries |
-| `plan_private_details` | Practitioner-only plan details kept apart from the plan the client can see | The care team only |
-| `session_notes` | Notes per session, internal or shared with the client | The care team; the client sees shared notes |
+| `session_notes` | Session notes shared with the client. Internal notes live in `private.internal_notes` | The care team writes; the client reads their own |
 | `progress_reviews` | Progress Reviews: outcome, reflections, summary and next steps for the client, stage | The care team; the client sees shared reviews |
 | `stage_changes` | Every change of TAB Method stage, who made it and from which review. Written by `record_stage_change` only | The care team and the client read |
 | `referrals` | Referrals to another TAB service or outside, with reason and status | The care team; the client reads theirs and accepts or declines |
@@ -76,11 +75,11 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | Table | What it holds | Who reads and writes |
 | --- | --- | --- |
 | `products` | What can be bought online: programs, cohorts, memberships, with Stripe price | Everyone reads active products; staff write |
-| `entitlements` | What a client has bought or been granted, from Stripe or by staff | The client reads their own; written by the Stripe webhook (service role) and staff |
+| `entitlements` | What a client has bought or been granted, from Stripe or by staff; partial refunds flag a purchase for the owner (`needs_review`) | The client reads their own; written by the Stripe webhook (service role) and staff |
 | `cohorts` | A group run of a program with dates and capacity | Everyone signed in reads; staff write |
 | `cohort_members` | Who is in a cohort | The care team; the client reads their own membership |
 | `cohort_meetings` | A cohort's meeting link, kept apart so only members see it | Staff; members only |
-| `stripe_events` | Stripe event IDs already handled, so a repeated webhook does nothing | Service role only (no policies) |
+| `stripe_events` | Stripe event IDs already handled, so a repeated webhook does nothing. Written in the same transaction as the event's changes | Service role only (no policies) |
 
 ### Website and integrations
 
@@ -89,11 +88,18 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | `inquiries` | Start Where You Are and contact submissions: the whole form, flags, the linked client and the routing outcome. Never deleted | Written by the website with the service role. The owner reads all and records routing; a practitioner reads only those linked to their clients |
 | `appointment_refs` | References to Timely appointments, for display in My TAB | The client reads their own; staff write |
 
+### Private
+
+| Table | What it holds | Who reads and writes |
+| --- | --- | --- |
+| `private.internal_notes` | Internal session notes, never shown to the client (SEC-019) | The care team, only through `internal_notes()` and `add_internal_note()`; every read is audited |
+| `private.plan_private_details` | Practitioner-only plan details kept apart from the plan the client can see | The care team, only through `plan_private_details()` and `save_plan_private_details()`; every read is audited |
+
 ### Audit
 
 | Table | What it holds | Who reads and writes |
 | --- | --- | --- |
-| `audit_events` | Who changed which row of a client-data table, when, and which columns. Written by the `audit_row` trigger | The owner reads; nobody can change it |
+| `audit_events` | Who changed which row of a client-data table, when, and which columns, plus every read of private notes. Written by the `audit_row` trigger and the private-notes functions. Append-only | The owner and the `audit_reader` export role read; nobody can change or delete it |
 
 ## Tables | Read from docs/schema.json. Open a card's details for its policies, triggers and keys.
 
@@ -140,6 +146,15 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | `guard_program_content` | Trigger: weeks and activities change only while their version is a draft |
 | `guard_plan_shape` | Trigger: service plans sit under the same client's Wellness Plan |
 | `guard_nutrition_plan` | Trigger: nutrition plans and anything attached to them need the nutrition credential |
+| `internal_notes` | The client's internal session notes, for their care team only; writes an audit row for the read |
+| `add_internal_note` | Adds an internal session note, stamped with its author |
+| `plan_private_details` | The client's practitioner-only plan details, for their care team only; writes an audit row for the read |
+| `save_plan_private_details` | Saves a plan's practitioner-only details; the plan's guards (same client, nutrition credential) still apply |
+| `private.require_care_team` | The check the private-notes functions share: staff on the client's care team, in a two-step-verified session |
+| `forbid_audit_change` | Trigger: the audit log is append-only; updates, deletes and truncation fail |
+| `apply_stripe_event` | Applies one Stripe event in one transaction: grants, pauses, cancels or refunds a purchase, or flags a partial refund. Service role only |
+| `grant_stripe_purchase` | Grants a paid checkout: the purchase, the Stripe customer link and, for a program, its assignment (once) |
+| `resolve_purchase_review` | The owner's decision on a flagged purchase: keep access or end it, stamped with who and when |
 
 ## Enums
 
@@ -153,14 +168,15 @@ Every client-data table carries `client_id`, which is what row-level security ch
 - **Shared or internal.** Session notes, plan entries and progress reviews are internal unless marked shared; clients see shared ones only. `plan_private_details` never reaches the client.
 - **Published programs don't change.** Editing a published program means a new draft version; clients move to it only when their practitioner moves them.
 - **Authorship can't be forged.** Who wrote, assigned, invited or reviewed is stamped from the session.
-- **History is kept.** Consents are insert-only, submissions are never deleted, stage changes are recorded, and every change to client data is audited.
+- **History is kept.** Consents are insert-only, submissions are never deleted, stage changes are recorded, every change to client data is audited, and so is every read of internal notes. The audit log is append-only and copied off Supabase nightly once A26 is done.
+- **Purchases follow Stripe in one step.** Each Stripe event applies whole or not at all, and an event that can't be applied fails loudly so Stripe retries it. A partial refund keeps access until the owner decides (owner ruling 2026-10-03).
 - **Links stay within one client.** A plan, review, form submission or activity log can only point to records of the same client.
 
 ## Security model
 
 <!-- generated:security -->
 
-Row-level security is on for every table. A table with no policy for a role refuses that role entirely; `stripe_events` has no policies, so only the server's service role can use it. Supabase's default grants give `anon` and `authenticated` table access, which is why every rule above lives in a policy or trigger, not in grants. The policies are tested as owner, practitioner, client and signed-out in `supabase/tests/rls.test.mjs`; testing against a real Supabase stack is C6.
+Row-level security is on for every table. A table with no policy for a role refuses that role entirely; `stripe_events` has no policies, so only the server's service role can use it. The `private` schema goes further: signed-in roles have no access to the schema at all, so its tables are reachable only through the functions listed above. Supabase's default grants give `anon` and `authenticated` table access, which is why every rule above lives in a policy or trigger, not in grants. The policies are tested as owner, practitioner, client and signed-out in `supabase/tests/rls.test.mjs`; testing against a real Supabase stack is C6.
 
 ## Local verification
 

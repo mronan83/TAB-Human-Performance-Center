@@ -4,7 +4,7 @@
  */
 import type {
   Activity, Appointment, CheckIn, Client, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate,
-  Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, PractitionerSummary, Product, ProgramAssignmentInput, ProgramDraftInput, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
+  Inquiry, MetricDefinition, Plan, PlanEntry, PortalRepository, PurchaseReview, PractitionerSummary, Product, ProgramAssignmentInput, ProgramDraftInput, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
 } from "./types";
 import { activityMap, currentWeekFor, isActivityInProgram, personalizedModules } from "./programs";
 
@@ -239,7 +239,8 @@ function seed(): Store {
       { type: "marketing_email", label: "News, guides, and events by email", granted: true, required: false, updatedAt: day(-40) },
       { type: "marketing_sms", label: "Occasional text messages", granted: false, required: false },
     ]},
-    entitlements: { [DEMO_CLIENT_ID]: [] },
+    // A partial refund waiting for the owner's decision (C3b), so the review panel in TAB Practice can be tried.
+    entitlements: { [DEMO_CLIENT_ID]: [], "demo-client-tom": [{ id: "ent-tom-cohort", product: products[0], status: "active", startsAt: day(-20), needsReview: true, refundedCents: 10000 }] },
     // Fictional Start and contact submissions for reviewing the owner workflow.
     inquiries: [
       { id: "inq-jordan", reference: "DEMO-3", kind: "start", receivedAt: at(-1, 19), name: "Jordan Price", email: "jordan.price@example.com", phone: "", contactPreference: "email",
@@ -347,6 +348,18 @@ export const mockRepository: PortalRepository = {
   async updateContact(clientId, data) { const c = store.clients.find((x) => x.id === clientId); if (c) Object.assign(c, data); },
   async listProducts() { return clone(products.filter((p) => p.active)); },
   async listEntitlements(clientId) { return clone(store.entitlements[clientId] ?? []); },
+  async listPurchaseReviews() {
+    return Object.entries(store.entitlements).flatMap(([clientId, list]) => list.filter((e) => e.needsReview).map((e): PurchaseReview => ({
+      entitlementId: e.id, clientId, clientName: store.clients.find((c) => c.id === clientId)?.fullName ?? "Client",
+      product: e.product.title, priceCents: e.product.priceCents, refundedCents: e.refundedCents ?? 0,
+    })));
+  },
+  async resolvePurchaseReview(entitlementId, endAccess) {
+    const e = Object.values(store.entitlements).flat().find((x) => x.id === entitlementId && x.needsReview);
+    if (!e) throw new Error("That purchase is not waiting for a decision");
+    e.needsReview = false;
+    if (endAccess) { e.status = "refunded"; e.endsAt = day(0); }
+  },
   async listClients(_viewer: Viewer) { return clone(store.clients); },
   async listNotes(clientId, includeInternal) { return clone((store.notes[clientId] ?? []).filter((n) => includeInternal || n.visibility === "shared")); },
   async addNote(clientId, viewer, note) { (store.notes[clientId] ??= []).unshift({ id: `n${Date.now()}`, date: day(0), author: viewer.name, ...note }); },

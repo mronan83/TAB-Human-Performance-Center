@@ -217,6 +217,20 @@ export async function withdrawFormAction(clientId: string, assignmentId: string,
   return { ok: true, message: "Withdrawn." };
 }
 
+/** The owner's decision on a purchase a partial refund flagged: keep access, or end it (C3b, owner ruling 2026-10-03). */
+export async function resolvePurchaseReviewAction(entitlementId: string, endAccess: boolean, _prev: unknown, _fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  if (viewer.role !== "owner") return { ok: false, message: "Only the owner can decide on a refunded purchase." };
+  try {
+    await repo.resolvePurchaseReview(entitlementId, endAccess);
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "The decision couldn't be saved." };
+  }
+  revalidatePath("/practice");
+  revalidatePath("/my-tab", "layout");
+  return { ok: true, message: endAccess ? "Access ended." : "Access kept." };
+}
+
 /** Shares a resource: a page on this site or an https link, with an optional note (C4). */
 export async function assignResourceAction(clientId: string, _prev: unknown, fd: FormData) {
   const { viewer, repo } = await requireStaff();

@@ -177,7 +177,13 @@ export type StageChange = { id: string; from?: MethodStage; to: MethodStage; cha
 export type Consent = { type: "terms" | "privacy" | "health_info_collection" | "care_coordination" | "marketing_email" | "marketing_sms" | "photo_testimonial"; label: string; granted: boolean; required: boolean; updatedAt?: string };
 
 export type Product = { id: string; slug: string; title: string; description?: string; kind: "program" | "cohort" | "membership" | "package"; service?: ServiceSlug; priceCents?: number; active: boolean };
-export type Entitlement = { id: string; product: Product; status: "active" | "expired" | "cancelled" | "refunded"; startsAt: string; endsAt?: string };
+export type Entitlement = {
+  id: string; product: Product; status: "active" | "pending" | "past_due" | "expired" | "cancelled" | "refunded"; startsAt: string; endsAt?: string;
+  /** Set by a partial Stripe refund: access stays until the owner decides (owner ruling 2026-10-03). */
+  needsReview?: boolean; refundedCents?: number;
+};
+/** A purchase a partial refund flagged for the owner's decision (C3b). */
+export type PurchaseReview = { entitlementId: string; clientId: string; clientName: string; product: string; priceCents?: number; refundedCents: number };
 
 export type Dashboard = {
   client: Client;
@@ -295,6 +301,10 @@ export interface PortalRepository {
   savePlan(clientId: string, viewer: Viewer, input: PlanInput): Promise<string>;
   listPlanEntries(clientId: string, planId: string, includeInternal: boolean): Promise<PlanEntry[]>;
   addPlanEntry(clientId: string, planId: string, viewer: Viewer, entry: { body: string; visibility: "internal" | "shared"; date?: string }): Promise<void>;
+  /** Owner only: purchases a partial refund flagged for a decision (C3b). */
+  listPurchaseReviews(): Promise<PurchaseReview[]>;
+  /** Owner only: end access (counts as refunded) or keep it. */
+  resolvePurchaseReview(entitlementId: string, endAccess: boolean): Promise<void>;
   // Start and contact submissions (owner: all; practitioners: only those linked to assigned clients)
   listInquiries(): Promise<Inquiry[]>;
   getInquiry(id: string): Promise<InquiryDetail | null>;

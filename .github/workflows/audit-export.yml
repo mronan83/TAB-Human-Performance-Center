@@ -1,0 +1,64 @@
+name: Audit log export
+
+# SEC-019 (owner ruling 2026-10-03): a copy of the audit log outside Supabase, so a compromised database can't erase its
+# own trail. Every night the last two days of audit_events (overlapping on purpose) are read with the read-only
+# audit_reader role, encrypted, and committed to the audit-archive branch. Until the owner adds the two secrets at
+# go-live (backlog A26) the job reports that it is waiting and exits successfully.
+#
+# Secrets: SUPABASE_AUDIT_DB_URL (a Postgres connection string for audit_reader on project vpaaeblqndcenftrfrms)
+#          AUDIT_EXPORT_PASSPHRASE (to open a file: gpg --decrypt audit-YYYY-MM-DD.csv.gpg)
+
+on:
+  schedule:
+    - cron: "17 7 * * *" # 07:17 UTC, 3:17 in Michigan
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audit-export
+  cancel-in-progress: false
+
+jobs:
+  export:
+    name: Export the audit log
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      DB_URL: ${{ secrets.SUPABASE_AUDIT_DB_URL }}
+      PASSPHRASE: ${{ secrets.AUDIT_EXPORT_PASSPHRASE }}
+    steps:
+      - name: Check the secrets
+        id: ready
+        run: |
+          if [ -z "$DB_URL" ] || [ -z "$PASSPHRASE" ]; then
+            echo "::notice::Audit export is waiting for SUPABASE_AUDIT_DB_URL and AUDIT_EXPORT_PASSPHRASE (backlog A26)."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Read and encrypt
+        if: steps.ready.outputs.ok == 'true'
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y -qq postgresql-client > /dev/null
+          day=$(date -u +%F)
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -c "\copy (select * from audit_events where occurred_at >= now() - interval '2 days' order by id) to 'audit.csv' with csv header"
+          rows=$(($(wc -l < audit.csv) - 1))
+          echo "Exported $rows audit rows"
+          printf '%s' "$PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --symmetric --cipher-algo AES256 -o "audit-$day.csv.gpg" audit.csv
+          rm audit.csv
+          echo "DAY=$day" >> "$GITHUB_ENV"
+
+      - name: Commit to the audit-archive branch
+        if: steps.ready.outputs.ok == 'true'
+        run: |
+          set -euo pipefail
+          git init -q archive && cd archive
+          git config user.name "audit-export" && git config user.email "audit-export@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git"
+          if git fetch -q --depth 1 origin audit-archive; then git checkout -q -b audit-archive FETCH_HEAD; else git checkout -q --orphan audit-archive; fi
+          mkdir -p audit && mv "../audit-$DAY.csv.gpg" audit/
+          git add audit && git commit -q -m "Audit log export $DAY" && git push -q origin audit-archive
