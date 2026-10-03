@@ -20,6 +20,9 @@ approves at review gates.
 - **Build architecture:** `docs/source/batch-3/ARCHITECTURE.pdf` (governs the build; Step 16 is strategy).
 - **Requirements and traceability:** `docs/requirements-register.md` (WEB/GS/PORTAL/STAFF/CMS/INT/SEC/NFR/DS IDs).
   New decisions raised in a session are recorded there as *proposed register entries* for the owner.
+- **Living documents** (owner requests 2026-10-02 and 2026-10-03): `docs/TRACEABILITY.md` (requirements → features →
+  code → checks), `docs/ARCHITECTURE.md` and `docs/DATA-MODEL.md` (with `docs/schema.json`, built from the migrations by
+  `npm run docs:schema`). `scripts/docs/` renders each into an HTML page in TAB's design tokens. See "Living documents" below.
 - **Source strategy documents:** `docs/source/batch-N/` (Brand Foundation, Steps 13–19, design tokens).
 - Where docs and code disagree, fix the drift in the same PR (R-028); never leave it silent.
 
@@ -74,6 +77,15 @@ Never print, log or commit token values.
   --release "<what went live>" --deployment <dpl_id>` and republish it to the same "TAB Wellness Collective Backlog"
   artifact (https://claude.ai/artifact/71B4CYEb4dHdHa71fVwAgg; pass it as `url` from a new session), then send the owner
   its link.
+- **Living documents (owner request 2026-10-03):** the traceability, technical architecture and data model pages are
+  Claude's to keep accurate and complete. Every PR assesses all three against its change and updates their sources
+  (`docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json`) in the same PR; its
+  description carries a "Living documents" line naming what changed in each, or why nothing needed to. `npm run
+  docs:check` (in CI) fails when the schema snapshot is stale, a requirement, table, function, environment variable,
+  dependency, API route or `lib/` module isn't described, or a feature, gap or question reference doesn't resolve.
+  After every merge, render them with `npm run docs:html -- --out-dir <folder>` and republish each to its artifact
+  (addresses in `docs/living-docs.json`; pass them as `url` from a new session), then confirm to the owner which pages
+  were revised and how, or that each was assessed and needed nothing.
 - G3 Release — owner approves every production promotion and every production migration.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",

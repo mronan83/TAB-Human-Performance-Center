@@ -1,0 +1,4583 @@
+{
+ "generatedBy": "scripts/docs/schema-snapshot.mjs",
+ "migrations": [
+  "20260927000000_my_tab_core.sql",
+  "20260928000000_inquiries.sql",
+  "20260929000000_portal_security_gate.sql",
+  "20260930000000_progress_reviews_stages.sql",
+  "20261001000000_typed_plans.sql",
+  "20261002000000_program_assignment.sql",
+  "20261003000000_program_editor.sql",
+  "20261004000000_program_moves_custom_activities.sql",
+  "20261005000000_client_invites_assignments.sql"
+ ],
+ "tables": [
+  {
+   "name": "activity_logs",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "client_program_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "activity_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "logged_on",
+     "type": "date",
+     "default": "CURRENT_DATE"
+    },
+    {
+     "name": "completed",
+     "type": "boolean",
+     "default": "true"
+    },
+    {
+     "name": "values",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "note",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "client_activity_id",
+     "type": "uuid",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "activity_logs_one_activity",
+     "kind": "check",
+     "def": "CHECK (((activity_id IS NULL) OR (client_activity_id IS NULL)))"
+    },
+    {
+     "name": "activity_logs_activity_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (activity_id) REFERENCES program_activities(id) ON DELETE SET NULL",
+     "ref_table": "program_activities"
+    },
+    {
+     "name": "activity_logs_client_activity_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_activity_id) REFERENCES client_program_activities(id) ON DELETE CASCADE",
+     "ref_table": "client_program_activities"
+    },
+    {
+     "name": "activity_logs_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "activity_logs_client_program_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_program_id) REFERENCES client_programs(id) ON DELETE CASCADE",
+     "ref_table": "client_programs"
+    },
+    {
+     "name": "activity_logs_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "activity_logs_client_id_logged_on_idx",
+     "def": "CREATE INDEX activity_logs_client_id_logged_on_idx ON public.activity_logs USING btree (client_id, logged_on DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "activity_logs_client",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "(client_id = my_client_id())"
+    },
+    {
+     "name": "activity_logs_client_delete",
+     "cmd": "DELETE",
+     "roles": "{public}",
+     "using": "(client_id = my_client_id())"
+    },
+    {
+     "name": "activity_logs_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "activity_logs_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "activity_logs_activity",
+     "function": "guard_activity_log",
+     "def": "CREATE TRIGGER activity_logs_activity BEFORE INSERT OR UPDATE ON public.activity_logs FOR EACH ROW EXECUTE FUNCTION guard_activity_log()"
+    },
+    {
+     "name": "activity_logs_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER activity_logs_audit AFTER INSERT OR DELETE OR UPDATE ON public.activity_logs FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "activity_logs_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER activity_logs_same_client BEFORE INSERT OR UPDATE ON public.activity_logs FOR EACH ROW EXECUTE FUNCTION guard_same_client('client_program_id', 'client_programs')"
+    }
+   ]
+  },
+  {
+   "name": "appointment_refs",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "timely_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "service",
+     "type": "service_slug",
+     "nullable": true
+    },
+    {
+     "name": "starts_at",
+     "type": "timestamp with time zone"
+    },
+    {
+     "name": "location",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "status",
+     "type": "text",
+     "default": "'booked'::text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "appointment_refs_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "appointment_refs_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "appointment_refs_client_id_starts_at_idx",
+     "def": "CREATE INDEX appointment_refs_client_id_starts_at_idx ON public.appointment_refs USING btree (client_id, starts_at)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "appointment_refs_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "appointment_refs_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "appointment_refs_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER appointment_refs_audit AFTER INSERT OR DELETE OR UPDATE ON public.appointment_refs FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    }
+   ]
+  },
+  {
+   "name": "audit_events",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "bigint",
+     "default": "nextval('audit_events_id_seq'::regclass)"
+    },
+    {
+     "name": "occurred_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "actor_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "action",
+     "type": "text"
+    },
+    {
+     "name": "table_name",
+     "type": "text"
+    },
+    {
+     "name": "record_id",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "client_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "changed_columns",
+     "type": "text[]",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "audit_events_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "audit_events_client_id_occurred_at_idx",
+     "def": "CREATE INDEX audit_events_client_id_occurred_at_idx ON public.audit_events USING btree (client_id, occurred_at DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "audit_owner_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)"
+    }
+   ],
+   "triggers": []
+  },
+  {
+   "name": "check_ins",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "week_of",
+     "type": "date"
+    },
+    {
+     "name": "energy",
+     "type": "smallint",
+     "nullable": true
+    },
+    {
+     "name": "sleep_quality",
+     "type": "smallint",
+     "nullable": true
+    },
+    {
+     "name": "stress",
+     "type": "smallint",
+     "nullable": true
+    },
+    {
+     "name": "wins",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "challenges",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "support_needed",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "submitted_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "check_ins_energy_check",
+     "kind": "check",
+     "def": "CHECK (((energy >= 1) AND (energy <= 5)))"
+    },
+    {
+     "name": "check_ins_sleep_quality_check",
+     "kind": "check",
+     "def": "CHECK (((sleep_quality >= 1) AND (sleep_quality <= 5)))"
+    },
+    {
+     "name": "check_ins_stress_check",
+     "kind": "check",
+     "def": "CHECK (((stress >= 1) AND (stress <= 5)))"
+    },
+    {
+     "name": "check_ins_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "check_ins_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    },
+    {
+     "name": "check_ins_client_id_week_of_key",
+     "kind": "unique",
+     "def": "UNIQUE (client_id, week_of)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "check_ins_client_id_week_of_idx",
+     "def": "CREATE INDEX check_ins_client_id_week_of_idx ON public.check_ins USING btree (client_id, week_of DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "check_ins_client",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "(client_id = my_client_id())"
+    },
+    {
+     "name": "check_ins_client_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(client_id = my_client_id())",
+     "with_check": "(client_id = my_client_id())"
+    },
+    {
+     "name": "check_ins_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "check_ins_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "check_ins_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER check_ins_audit AFTER INSERT OR DELETE OR UPDATE ON public.check_ins FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "check_ins_client_columns",
+     "function": "guard_client_columns",
+     "def": "CREATE TRIGGER check_ins_client_columns BEFORE UPDATE ON public.check_ins FOR EACH ROW EXECUTE FUNCTION guard_client_columns('energy', 'sleep_quality', 'stress', 'wins', 'challenges', 'support_needed', 'submitted_at')"
+    }
+   ]
+  },
+  {
+   "name": "client_program_activities",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "client_program_id",
+     "type": "uuid"
+    },
+    {
+     "name": "week",
+     "type": "integer"
+    },
+    {
+     "name": "kind",
+     "type": "activity_kind"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "instructions",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "sort",
+     "type": "integer",
+     "default": "0"
+    },
+    {
+     "name": "created_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "client_program_activities_instructions_check",
+     "kind": "check",
+     "def": "CHECK ((length(instructions) <= 1000))"
+    },
+    {
+     "name": "client_program_activities_title_check",
+     "kind": "check",
+     "def": "CHECK (((length(title) >= 1) AND (length(title) <= 120)))"
+    },
+    {
+     "name": "client_program_activities_week_check",
+     "kind": "check",
+     "def": "CHECK (((week >= 1) AND (week <= 52)))"
+    },
+    {
+     "name": "client_program_activities_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "client_program_activities_client_program_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_program_id) REFERENCES client_programs(id) ON DELETE CASCADE",
+     "ref_table": "client_programs"
+    },
+    {
+     "name": "client_program_activities_created_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (created_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "client_program_activities_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "client_program_activities_client_program_id_week_sort_idx",
+     "def": "CREATE INDEX client_program_activities_client_program_id_week_sort_idx ON public.client_program_activities USING btree (client_program_id, week, sort)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "client_program_activities_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "client_program_activities_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "client_program_activities_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER client_program_activities_audit AFTER INSERT OR DELETE OR UPDATE ON public.client_program_activities FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "client_program_activities_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER client_program_activities_author BEFORE INSERT OR UPDATE ON public.client_program_activities FOR EACH ROW EXECUTE FUNCTION stamp_author('created_by')"
+    },
+    {
+     "name": "client_program_activities_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER client_program_activities_same_client BEFORE INSERT OR UPDATE ON public.client_program_activities FOR EACH ROW EXECUTE FUNCTION guard_same_client('client_program_id', 'client_programs')"
+    },
+    {
+     "name": "client_program_activities_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER client_program_activities_updated_at BEFORE UPDATE ON public.client_program_activities FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "client_programs",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "template_id",
+     "type": "uuid"
+    },
+    {
+     "name": "template_version",
+     "type": "integer",
+     "default": "1"
+    },
+    {
+     "name": "plan_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "source",
+     "type": "client_program_source",
+     "default": "'assigned'::client_program_source"
+    },
+    {
+     "name": "status",
+     "type": "client_program_status",
+     "default": "'active'::client_program_status"
+    },
+    {
+     "name": "personalization",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "started_at",
+     "type": "date",
+     "default": "CURRENT_DATE"
+    },
+    {
+     "name": "completed_at",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "assigned_by",
+     "type": "uuid",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "client_programs_personalization_object",
+     "kind": "check",
+     "def": "CHECK ((jsonb_typeof(personalization) = 'object'::text))"
+    },
+    {
+     "name": "client_programs_assigned_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (assigned_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "client_programs_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "client_programs_plan_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (plan_id) REFERENCES wellness_plans(id) ON DELETE SET NULL",
+     "ref_table": "wellness_plans"
+    },
+    {
+     "name": "client_programs_template_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (template_id) REFERENCES program_templates(id)",
+     "ref_table": "program_templates"
+    },
+    {
+     "name": "client_programs_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "client_programs_client_id_status_idx",
+     "def": "CREATE INDEX client_programs_client_id_status_idx ON public.client_programs USING btree (client_id, status)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "client_programs_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "client_programs_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "client_programs_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER client_programs_audit AFTER INSERT OR DELETE OR UPDATE ON public.client_programs FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "client_programs_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER client_programs_author BEFORE INSERT OR UPDATE ON public.client_programs FOR EACH ROW EXECUTE FUNCTION stamp_author('assigned_by')"
+    },
+    {
+     "name": "client_programs_guard",
+     "function": "guard_client_program",
+     "def": "CREATE TRIGGER client_programs_guard BEFORE INSERT OR UPDATE ON public.client_programs FOR EACH ROW EXECUTE FUNCTION guard_client_program()"
+    },
+    {
+     "name": "client_programs_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER client_programs_same_client BEFORE INSERT OR UPDATE ON public.client_programs FOR EACH ROW EXECUTE FUNCTION guard_same_client('plan_id', 'wellness_plans')"
+    },
+    {
+     "name": "client_programs_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER client_programs_updated_at BEFORE UPDATE ON public.client_programs FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "client_wellness_profiles",
+   "rls": true,
+   "columns": [
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "goals",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "priorities",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "motivations",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "life_stage",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "routines",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "preferences",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "communication_prefs",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "health_summary",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "contraindications",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "updated_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "client_wellness_profiles_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "client_wellness_profiles_updated_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (updated_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "client_wellness_profiles_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (client_id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "client_wellness_profiles_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "client_wellness_profiles_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    },
+    {
+     "name": "wellness_profile_client_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(client_id = my_client_id())",
+     "with_check": "(client_id = my_client_id())"
+    },
+    {
+     "name": "wellness_profile_client_upsert",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "(client_id = my_client_id())"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "client_wellness_profiles_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER client_wellness_profiles_audit AFTER INSERT OR DELETE OR UPDATE ON public.client_wellness_profiles FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "client_wellness_profiles_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER client_wellness_profiles_updated_at BEFORE UPDATE ON public.client_wellness_profiles FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+     "name": "wellness_profiles_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER wellness_profiles_author BEFORE INSERT OR UPDATE ON public.client_wellness_profiles FOR EACH ROW EXECUTE FUNCTION stamp_author('updated_by', 'always')"
+    }
+   ]
+  },
+  {
+   "name": "clients",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "profile_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "full_name",
+     "type": "text"
+    },
+    {
+     "name": "preferred_name",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "email",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "phone",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "date_of_birth",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "status",
+     "type": "client_status",
+     "default": "'prospect'::client_status"
+    },
+    {
+     "name": "method_stage",
+     "type": "method_stage",
+     "default": "'start'::method_stage"
+    },
+    {
+     "name": "primary_practitioner_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "timely_client_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "stripe_customer_id",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "source",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "invited_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "invited_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "activated_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "clients_invited_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (invited_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "clients_primary_practitioner_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (primary_practitioner_id) REFERENCES practitioners(id)",
+     "ref_table": "practitioners"
+    },
+    {
+     "name": "clients_profile_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE SET NULL",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "clients_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    },
+    {
+     "name": "clients_profile_id_key",
+     "kind": "unique",
+     "def": "UNIQUE (profile_id)"
+    },
+    {
+     "name": "clients_stripe_customer_id_key",
+     "kind": "unique",
+     "def": "UNIQUE (stripe_customer_id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "clients_primary_practitioner_id_idx",
+     "def": "CREATE INDEX clients_primary_practitioner_id_idx ON public.clients USING btree (primary_practitioner_id)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "clients_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(id)"
+    },
+    {
+     "name": "clients_self_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(profile_id = auth.uid())",
+     "with_check": "(profile_id = auth.uid())"
+    },
+    {
+     "name": "clients_staff_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(id))"
+    },
+    {
+     "name": "clients_staff_write",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "clients_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER clients_audit AFTER INSERT OR DELETE OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "clients_guard",
+     "function": "guard_client_update",
+     "def": "CREATE TRIGGER clients_guard BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION guard_client_update()"
+    },
+    {
+     "name": "clients_invite_stamp",
+     "function": "stamp_client_invite",
+     "def": "CREATE TRIGGER clients_invite_stamp BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION stamp_client_invite()"
+    },
+    {
+     "name": "clients_stage_history",
+     "function": "record_stage_change",
+     "def": "CREATE TRIGGER clients_stage_history AFTER UPDATE OF method_stage ON public.clients FOR EACH ROW EXECUTE FUNCTION record_stage_change()"
+    },
+    {
+     "name": "clients_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER clients_updated_at BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "cohort_meetings",
+   "rls": true,
+   "columns": [
+    {
+     "name": "cohort_id",
+     "type": "uuid"
+    },
+    {
+     "name": "meeting_url",
+     "type": "text"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "cohort_meetings_cohort_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (cohort_id) REFERENCES cohorts(id) ON DELETE CASCADE",
+     "ref_table": "cohorts"
+    },
+    {
+     "name": "cohort_meetings_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (cohort_id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "cohort_meetings_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(is_staff() OR (EXISTS ( SELECT 1\n   FROM cohort_members m\n  WHERE ((m.cohort_id = cohort_meetings.cohort_id) AND (m.client_id = my_client_id())))))"
+    },
+    {
+     "name": "cohort_meetings_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "cohort_meetings_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER cohort_meetings_audit AFTER INSERT OR DELETE OR UPDATE ON public.cohort_meetings FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "cohort_meetings_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER cohort_meetings_updated_at BEFORE UPDATE ON public.cohort_meetings FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "cohort_members",
+   "rls": true,
+   "columns": [
+    {
+     "name": "cohort_id",
+     "type": "uuid"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "joined_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "cohort_members_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "cohort_members_cohort_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (cohort_id) REFERENCES cohorts(id) ON DELETE CASCADE",
+     "ref_table": "cohorts"
+    },
+    {
+     "name": "cohort_members_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (cohort_id, client_id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "cohort_members_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "cohort_members_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "cohort_members_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER cohort_members_audit AFTER INSERT OR DELETE OR UPDATE ON public.cohort_members FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    }
+   ]
+  },
+  {
+   "name": "cohorts",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "product_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "program_template_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "starts_on",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "ends_on",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "capacity",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "status",
+     "type": "cohort_status",
+     "default": "'planned'::cohort_status"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "cohorts_product_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (product_id) REFERENCES products(id)",
+     "ref_table": "products"
+    },
+    {
+     "name": "cohorts_program_template_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (program_template_id) REFERENCES program_templates(id)",
+     "ref_table": "program_templates"
+    },
+    {
+     "name": "cohorts_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "cohorts_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(auth.uid() IS NOT NULL)"
+    },
+    {
+     "name": "cohorts_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "cohorts_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER cohorts_updated_at BEFORE UPDATE ON public.cohorts FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "consents",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "type",
+     "type": "consent_type"
+    },
+    {
+     "name": "version",
+     "type": "text"
+    },
+    {
+     "name": "granted",
+     "type": "boolean"
+    },
+    {
+     "name": "granted_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "revoked_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "source",
+     "type": "text",
+     "default": "'portal'::text"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "consents_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "consents_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "consents_client_id_type_granted_at_idx",
+     "def": "CREATE INDEX consents_client_id_type_granted_at_idx ON public.consents USING btree (client_id, type, granted_at DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "consents_client_write",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "(client_id = my_client_id())"
+    },
+    {
+     "name": "consents_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "consents_staff_insert",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "consents_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER consents_audit AFTER INSERT OR DELETE OR UPDATE ON public.consents FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "consents_history",
+     "function": "forbid_consent_change",
+     "def": "CREATE TRIGGER consents_history BEFORE DELETE OR UPDATE ON public.consents FOR EACH ROW EXECUTE FUNCTION forbid_consent_change()"
+    },
+    {
+     "name": "consents_stamp",
+     "function": "stamp_consent",
+     "def": "CREATE TRIGGER consents_stamp BEFORE INSERT ON public.consents FOR EACH ROW EXECUTE FUNCTION stamp_consent()"
+    }
+   ]
+  },
+  {
+   "name": "entitlements",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "product_id",
+     "type": "uuid"
+    },
+    {
+     "name": "source",
+     "type": "entitlement_source"
+    },
+    {
+     "name": "stripe_checkout_session_id",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "stripe_subscription_id",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "status",
+     "type": "entitlement_status",
+     "default": "'active'::entitlement_status"
+    },
+    {
+     "name": "starts_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "ends_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "entitlements_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "entitlements_product_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (product_id) REFERENCES products(id)",
+     "ref_table": "products"
+    },
+    {
+     "name": "entitlements_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    },
+    {
+     "name": "entitlements_stripe_checkout_session_id_key",
+     "kind": "unique",
+     "def": "UNIQUE (stripe_checkout_session_id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "entitlements_client_id_status_idx",
+     "def": "CREATE INDEX entitlements_client_id_status_idx ON public.entitlements USING btree (client_id, status)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "entitlements_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "entitlements_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "entitlements_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER entitlements_audit AFTER INSERT OR DELETE OR UPDATE ON public.entitlements FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "entitlements_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER entitlements_updated_at BEFORE UPDATE ON public.entitlements FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "form_assignments",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "template_id",
+     "type": "uuid"
+    },
+    {
+     "name": "due_on",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "assigned_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "form_assignments_assigned_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (assigned_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "form_assignments_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "form_assignments_template_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (template_id) REFERENCES form_templates(id)",
+     "ref_table": "form_templates"
+    },
+    {
+     "name": "form_assignments_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "form_assignments_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "form_assignments_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "form_assignments_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER form_assignments_audit AFTER INSERT OR DELETE OR UPDATE ON public.form_assignments FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "form_assignments_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER form_assignments_author BEFORE INSERT OR UPDATE ON public.form_assignments FOR EACH ROW EXECUTE FUNCTION stamp_author('assigned_by')"
+    },
+    {
+     "name": "form_assignments_guard",
+     "function": "guard_form_assignment",
+     "def": "CREATE TRIGGER form_assignments_guard BEFORE INSERT OR DELETE OR UPDATE ON public.form_assignments FOR EACH ROW EXECUTE FUNCTION guard_form_assignment()"
+    }
+   ]
+  },
+  {
+   "name": "form_submissions",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "template_id",
+     "type": "uuid"
+    },
+    {
+     "name": "assignment_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "answers",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "status",
+     "type": "submission_status",
+     "default": "'draft'::submission_status"
+    },
+    {
+     "name": "submitted_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "reviewed_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "reviewed_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "form_submissions_assignment_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (assignment_id) REFERENCES form_assignments(id) ON DELETE SET NULL",
+     "ref_table": "form_assignments"
+    },
+    {
+     "name": "form_submissions_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "form_submissions_reviewed_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (reviewed_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "form_submissions_template_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (template_id) REFERENCES form_templates(id)",
+     "ref_table": "form_templates"
+    },
+    {
+     "name": "form_submissions_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "form_submissions_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "form_submissions_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    },
+    {
+     "name": "submissions_client_insert",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "(client_id = my_client_id())"
+    },
+    {
+     "name": "submissions_client_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "((client_id = my_client_id()) AND (status = 'draft'::submission_status))",
+     "with_check": "(client_id = my_client_id())"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "form_submissions_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER form_submissions_audit AFTER INSERT OR DELETE OR UPDATE ON public.form_submissions FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "form_submissions_guard",
+     "function": "guard_form_submission",
+     "def": "CREATE TRIGGER form_submissions_guard BEFORE INSERT OR UPDATE ON public.form_submissions FOR EACH ROW EXECUTE FUNCTION guard_form_submission()"
+    },
+    {
+     "name": "form_submissions_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER form_submissions_same_client BEFORE INSERT OR UPDATE ON public.form_submissions FOR EACH ROW EXECUTE FUNCTION guard_same_client('assignment_id', 'form_assignments')"
+    },
+    {
+     "name": "form_submissions_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER form_submissions_updated_at BEFORE UPDATE ON public.form_submissions FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "form_templates",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "slug",
+     "type": "text"
+    },
+    {
+     "name": "version",
+     "type": "integer",
+     "default": "1"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "description",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "service",
+     "type": "service_slug",
+     "nullable": true
+    },
+    {
+     "name": "sensitivity",
+     "type": "form_sensitivity",
+     "default": "'general'::form_sensitivity"
+    },
+    {
+     "name": "schema",
+     "type": "jsonb"
+    },
+    {
+     "name": "status",
+     "type": "publish_status",
+     "default": "'draft'::publish_status"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "form_templates_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    },
+    {
+     "name": "form_templates_slug_version_key",
+     "kind": "unique",
+     "def": "UNIQUE (slug, version)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "forms_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "((auth.uid() IS NOT NULL) AND ((status = 'published'::publish_status) OR is_staff()))"
+    },
+    {
+     "name": "forms_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "form_templates_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER form_templates_updated_at BEFORE UPDATE ON public.form_templates FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "inquiries",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "reference",
+     "type": "text"
+    },
+    {
+     "name": "kind",
+     "type": "inquiry_kind"
+    },
+    {
+     "name": "name",
+     "type": "text"
+    },
+    {
+     "name": "email",
+     "type": "text"
+    },
+    {
+     "name": "phone",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "contact_preference",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "journey",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "help",
+     "type": "text[]",
+     "default": "'{}'::text[]"
+    },
+    {
+     "name": "service_interest",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "outcomes",
+     "type": "text[]",
+     "default": "'{}'::text[]"
+    },
+    {
+     "name": "considerations",
+     "type": "text[]",
+     "default": "'{}'::text[]"
+    },
+    {
+     "name": "delivery",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "availability",
+     "type": "text[]",
+     "default": "'{}'::text[]"
+    },
+    {
+     "name": "found_via",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "topic",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "message",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "consent_contact_at",
+     "type": "timestamp with time zone"
+    },
+    {
+     "name": "marketing_opt_in",
+     "type": "boolean",
+     "default": "false"
+    },
+    {
+     "name": "flags",
+     "type": "text[]",
+     "default": "'{}'::text[]"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "routing_outcome",
+     "type": "routing_outcome",
+     "nullable": true
+    },
+    {
+     "name": "routing_note",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "routed_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "routed_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "inquiries_email_check",
+     "kind": "check",
+     "def": "CHECK ((char_length(email) <= 200))"
+    },
+    {
+     "name": "inquiries_message_check",
+     "kind": "check",
+     "def": "CHECK ((char_length(message) <= 3000))"
+    },
+    {
+     "name": "inquiries_name_check",
+     "kind": "check",
+     "def": "CHECK ((char_length(name) <= 80))"
+    },
+    {
+     "name": "inquiries_phone_check",
+     "kind": "check",
+     "def": "CHECK ((char_length(phone) <= 25))"
+    },
+    {
+     "name": "inquiries_start_has_no_free_text",
+     "kind": "check",
+     "def": "CHECK (((kind = 'contact'::inquiry_kind) OR (message IS NULL)))"
+    },
+    {
+     "name": "inquiries_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL",
+     "ref_table": "clients"
+    },
+    {
+     "name": "inquiries_routed_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (routed_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "inquiries_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    },
+    {
+     "name": "inquiries_reference_key",
+     "kind": "unique",
+     "def": "UNIQUE (reference)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "inquiries_client_id_idx",
+     "def": "CREATE INDEX inquiries_client_id_idx ON public.inquiries USING btree (client_id)"
+    },
+    {
+     "name": "inquiries_created_at_idx",
+     "def": "CREATE INDEX inquiries_created_at_idx ON public.inquiries USING btree (created_at DESC)"
+    },
+    {
+     "name": "inquiries_lower_idx",
+     "def": "CREATE INDEX inquiries_lower_idx ON public.inquiries USING btree (lower(email))"
+    }
+   ],
+   "policies": [
+    {
+     "name": "inquiries_owner_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)"
+    },
+    {
+     "name": "inquiries_owner_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)",
+     "with_check": "(current_app_role() = 'owner'::app_role)"
+    },
+    {
+     "name": "inquiries_practitioner_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "((current_app_role() = 'practitioner'::app_role) AND (client_id IS NOT NULL) AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "inquiries_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER inquiries_audit AFTER INSERT OR DELETE OR UPDATE ON public.inquiries FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "inquiries_guard",
+     "function": "guard_inquiry_update",
+     "def": "CREATE TRIGGER inquiries_guard BEFORE UPDATE ON public.inquiries FOR EACH ROW EXECUTE FUNCTION guard_inquiry_update()"
+    },
+    {
+     "name": "inquiries_no_delete",
+     "function": "forbid_inquiry_delete",
+     "def": "CREATE TRIGGER inquiries_no_delete BEFORE DELETE ON public.inquiries FOR EACH ROW EXECUTE FUNCTION forbid_inquiry_delete()"
+    },
+    {
+     "name": "inquiries_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER inquiries_updated_at BEFORE UPDATE ON public.inquiries FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "metric_definitions",
+   "rls": true,
+   "columns": [
+    {
+     "name": "key",
+     "type": "text"
+    },
+    {
+     "name": "label",
+     "type": "text"
+    },
+    {
+     "name": "unit",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "category",
+     "type": "metric_category"
+    },
+    {
+     "name": "sensitive",
+     "type": "boolean",
+     "default": "false"
+    },
+    {
+     "name": "higher_is_better",
+     "type": "boolean",
+     "nullable": true
+    },
+    {
+     "name": "scale_min",
+     "type": "numeric",
+     "nullable": true
+    },
+    {
+     "name": "scale_max",
+     "type": "numeric",
+     "nullable": true
+    },
+    {
+     "name": "active",
+     "type": "boolean",
+     "default": "true"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "metric_definitions_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (key)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "metrics_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(auth.uid() IS NOT NULL)"
+    },
+    {
+     "name": "metrics_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": []
+  },
+  {
+   "name": "plan_entries",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "plan_id",
+     "type": "uuid"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "entry_date",
+     "type": "date",
+     "default": "CURRENT_DATE"
+    },
+    {
+     "name": "body",
+     "type": "text"
+    },
+    {
+     "name": "visibility",
+     "type": "note_visibility",
+     "default": "'internal'::note_visibility"
+    },
+    {
+     "name": "practitioner_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "plan_entries_body_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(body) >= 1) AND (char_length(body) <= 4000)))"
+    },
+    {
+     "name": "plan_entries_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "plan_entries_plan_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (plan_id) REFERENCES wellness_plans(id) ON DELETE CASCADE",
+     "ref_table": "wellness_plans"
+    },
+    {
+     "name": "plan_entries_practitioner_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (practitioner_id) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "plan_entries_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "plan_entries_plan",
+     "def": "CREATE INDEX plan_entries_plan ON public.plan_entries USING btree (plan_id, entry_date DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "plan_entries_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(can_access_client(client_id) AND (is_staff() OR ((visibility = 'shared'::note_visibility) AND (EXISTS ( SELECT 1\n   FROM wellness_plans p\n  WHERE ((p.id = plan_entries.plan_id) AND p.visible_to_client))))))"
+    },
+    {
+     "name": "plan_entries_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "plan_entries_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER plan_entries_audit AFTER INSERT OR DELETE OR UPDATE ON public.plan_entries FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "plan_entries_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER plan_entries_author BEFORE INSERT OR UPDATE ON public.plan_entries FOR EACH ROW EXECUTE FUNCTION stamp_author('practitioner_id')"
+    },
+    {
+     "name": "plan_entries_nutrition",
+     "function": "guard_nutrition_plan",
+     "def": "CREATE TRIGGER plan_entries_nutrition BEFORE INSERT OR DELETE OR UPDATE ON public.plan_entries FOR EACH ROW EXECUTE FUNCTION guard_nutrition_plan()"
+    },
+    {
+     "name": "plan_entries_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER plan_entries_same_client BEFORE INSERT OR UPDATE ON public.plan_entries FOR EACH ROW EXECUTE FUNCTION guard_same_client('plan_id', 'wellness_plans')"
+    },
+    {
+     "name": "plan_entries_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER plan_entries_updated_at BEFORE UPDATE ON public.plan_entries FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "plan_goals",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "plan_id",
+     "type": "uuid"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "why_it_matters",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "measure",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "metric_key",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "target",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "status",
+     "type": "goal_status",
+     "default": "'active'::goal_status"
+    },
+    {
+     "name": "sort",
+     "type": "integer",
+     "default": "0"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "plan_goals_plan_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (plan_id) REFERENCES wellness_plans(id) ON DELETE CASCADE",
+     "ref_table": "wellness_plans"
+    },
+    {
+     "name": "plan_goals_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "goals_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(EXISTS ( SELECT 1\n   FROM wellness_plans p\n  WHERE ((p.id = plan_goals.plan_id) AND can_access_client(p.client_id) AND (is_staff() OR p.visible_to_client))))"
+    },
+    {
+     "name": "goals_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(EXISTS ( SELECT 1\n   FROM wellness_plans p\n  WHERE ((p.id = plan_goals.plan_id) AND is_staff() AND can_access_client(p.client_id))))",
+     "with_check": "(EXISTS ( SELECT 1\n   FROM wellness_plans p\n  WHERE ((p.id = plan_goals.plan_id) AND is_staff() AND can_access_client(p.client_id))))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "plan_goals_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER plan_goals_audit AFTER INSERT OR DELETE OR UPDATE ON public.plan_goals FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "plan_goals_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER plan_goals_updated_at BEFORE UPDATE ON public.plan_goals FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "plan_private_details",
+   "rls": true,
+   "columns": [
+    {
+     "name": "plan_id",
+     "type": "uuid"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "details",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "updated_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "plan_private_details_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "plan_private_details_plan_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (plan_id) REFERENCES wellness_plans(id) ON DELETE CASCADE",
+     "ref_table": "wellness_plans"
+    },
+    {
+     "name": "plan_private_details_updated_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (updated_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "plan_private_details_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (plan_id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "plan_private_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "plan_private_details_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER plan_private_details_audit AFTER INSERT OR DELETE OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "plan_private_details_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER plan_private_details_author BEFORE INSERT OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION stamp_author('updated_by', 'always')"
+    },
+    {
+     "name": "plan_private_details_nutrition",
+     "function": "guard_nutrition_plan",
+     "def": "CREATE TRIGGER plan_private_details_nutrition BEFORE INSERT OR DELETE OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION guard_nutrition_plan()"
+    },
+    {
+     "name": "plan_private_details_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER plan_private_details_same_client BEFORE INSERT OR UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION guard_same_client('plan_id', 'wellness_plans')"
+    },
+    {
+     "name": "plan_private_details_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER plan_private_details_updated_at BEFORE UPDATE ON public.plan_private_details FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "practitioner_assignments",
+   "rls": true,
+   "columns": [
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "practitioner_id",
+     "type": "uuid"
+    },
+    {
+     "name": "service",
+     "type": "service_slug",
+     "nullable": true
+    },
+    {
+     "name": "active",
+     "type": "boolean",
+     "default": "true"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "practitioner_assignments_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "practitioner_assignments_practitioner_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (practitioner_id) REFERENCES practitioners(id) ON DELETE CASCADE",
+     "ref_table": "practitioners"
+    },
+    {
+     "name": "practitioner_assignments_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (client_id, practitioner_id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "practitioner_assignments_practitioner_id_idx",
+     "def": "CREATE INDEX practitioner_assignments_practitioner_id_idx ON public.practitioner_assignments USING btree (practitioner_id) WHERE active"
+    }
+   ],
+   "policies": [
+    {
+     "name": "assignments_owner",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)",
+     "with_check": "(current_app_role() = 'owner'::app_role)"
+    },
+    {
+     "name": "assignments_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "practitioner_assignments_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER practitioner_assignments_audit AFTER INSERT OR DELETE OR UPDATE ON public.practitioner_assignments FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    }
+   ]
+  },
+  {
+   "name": "practitioners",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid"
+    },
+    {
+     "name": "display_name",
+     "type": "text"
+    },
+    {
+     "name": "credentials",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "bio",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "services",
+     "type": "service_slug[]",
+     "default": "'{}'::service_slug[]"
+    },
+    {
+     "name": "active",
+     "type": "boolean",
+     "default": "true"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "capabilities",
+     "type": "text[]",
+     "default": "'{}'::text[]"
+    },
+    {
+     "name": "can_publish",
+     "type": "boolean",
+     "default": "false"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "practitioners_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (id) REFERENCES profiles(id) ON DELETE CASCADE",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "practitioners_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "practitioners_owner",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)",
+     "with_check": "(current_app_role() = 'owner'::app_role)"
+    },
+    {
+     "name": "practitioners_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(auth.uid() IS NOT NULL)"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "practitioners_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER practitioners_audit AFTER INSERT OR DELETE OR UPDATE ON public.practitioners FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "practitioners_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER practitioners_updated_at BEFORE UPDATE ON public.practitioners FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "products",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "slug",
+     "type": "text"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "description",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "kind",
+     "type": "product_kind"
+    },
+    {
+     "name": "service",
+     "type": "service_slug",
+     "nullable": true
+    },
+    {
+     "name": "program_template_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "stripe_price_id",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "price_cents",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "currency",
+     "type": "text",
+     "default": "'usd'::text"
+    },
+    {
+     "name": "active",
+     "type": "boolean",
+     "default": "false"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "products_program_template_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (program_template_id) REFERENCES program_templates(id)",
+     "ref_table": "program_templates"
+    },
+    {
+     "name": "products_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    },
+    {
+     "name": "products_slug_key",
+     "kind": "unique",
+     "def": "UNIQUE (slug)"
+    },
+    {
+     "name": "products_stripe_price_id_key",
+     "kind": "unique",
+     "def": "UNIQUE (stripe_price_id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "products_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(active OR is_staff())"
+    },
+    {
+     "name": "products_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "products_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER products_updated_at BEFORE UPDATE ON public.products FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "profiles",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid"
+    },
+    {
+     "name": "role",
+     "type": "app_role",
+     "default": "'client'::app_role"
+    },
+    {
+     "name": "full_name",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "preferred_name",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "email",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "timezone",
+     "type": "text",
+     "default": "'America/Detroit'::text"
+    },
+    {
+     "name": "mfa_required",
+     "type": "boolean",
+     "default": "true"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "profiles_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE",
+     "ref_table": "users"
+    },
+    {
+     "name": "profiles_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "profiles_owner_all",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)",
+     "with_check": "(current_app_role() = 'owner'::app_role)"
+    },
+    {
+     "name": "profiles_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "((id = auth.uid()) OR (current_app_role() = 'owner'::app_role) OR ((current_app_role() = 'practitioner'::app_role) AND ((role = ANY (ARRAY['owner'::app_role, 'practitioner'::app_role])) OR (EXISTS ( SELECT 1\n   FROM clients c\n  WHERE ((c.profile_id = profiles.id) AND can_access_client(c.id)))))))"
+    },
+    {
+     "name": "profiles_self_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(id = auth.uid())",
+     "with_check": "(id = auth.uid())"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "profiles_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER profiles_audit AFTER INSERT OR DELETE OR UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "profiles_guard",
+     "function": "guard_profile_update",
+     "def": "CREATE TRIGGER profiles_guard BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION guard_profile_update()"
+    },
+    {
+     "name": "profiles_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER profiles_updated_at BEFORE UPDATE ON public.profiles FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "program_activities",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "module_id",
+     "type": "uuid"
+    },
+    {
+     "name": "kind",
+     "type": "activity_kind"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "instructions",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "prescription",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    },
+    {
+     "name": "sort",
+     "type": "integer",
+     "default": "0"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "source_activity_id",
+     "type": "uuid",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "program_activities_module_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (module_id) REFERENCES program_modules(id) ON DELETE CASCADE",
+     "ref_table": "program_modules"
+    },
+    {
+     "name": "program_activities_source_activity_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (source_activity_id) REFERENCES program_activities(id) ON DELETE SET NULL",
+     "ref_table": "program_activities"
+    },
+    {
+     "name": "program_activities_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "activities_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(EXISTS ( SELECT 1\n   FROM program_modules m\n  WHERE ((m.id = program_activities.module_id) AND can_read_program(m.template_id))))"
+    },
+    {
+     "name": "activities_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "program_activities_guard",
+     "function": "guard_program_content",
+     "def": "CREATE TRIGGER program_activities_guard BEFORE INSERT OR DELETE OR UPDATE ON public.program_activities FOR EACH ROW EXECUTE FUNCTION guard_program_content()"
+    }
+   ]
+  },
+  {
+   "name": "program_modules",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "template_id",
+     "type": "uuid"
+    },
+    {
+     "name": "week",
+     "type": "integer",
+     "default": "1"
+    },
+    {
+     "name": "sort",
+     "type": "integer",
+     "default": "0"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "body_md",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "resource_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "video_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "program_modules_template_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (template_id) REFERENCES program_templates(id) ON DELETE CASCADE",
+     "ref_table": "program_templates"
+    },
+    {
+     "name": "program_modules_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "modules_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_read_program(template_id)"
+    },
+    {
+     "name": "modules_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "program_modules_guard",
+     "function": "guard_program_content",
+     "def": "CREATE TRIGGER program_modules_guard BEFORE INSERT OR DELETE OR UPDATE ON public.program_modules FOR EACH ROW EXECUTE FUNCTION guard_program_content()"
+    },
+    {
+     "name": "program_modules_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER program_modules_updated_at BEFORE UPDATE ON public.program_modules FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "program_templates",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "slug",
+     "type": "text"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "summary",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "service",
+     "type": "service_slug"
+    },
+    {
+     "name": "audience",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "duration_weeks",
+     "type": "integer",
+     "nullable": true
+    },
+    {
+     "name": "delivery",
+     "type": "text[]",
+     "default": "'{in-person,virtual}'::text[]"
+    },
+    {
+     "name": "status",
+     "type": "publish_status",
+     "default": "'draft'::publish_status"
+    },
+    {
+     "name": "version",
+     "type": "integer",
+     "default": "1"
+    },
+    {
+     "name": "created_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "family_id",
+     "type": "uuid"
+    },
+    {
+     "name": "submitted_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "published_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    },
+    {
+     "name": "published_by",
+     "type": "uuid",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "program_templates_created_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (created_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "program_templates_family_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (family_id) REFERENCES program_templates(id)",
+     "ref_table": "program_templates"
+    },
+    {
+     "name": "program_templates_published_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (published_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "program_templates_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "program_templates_family_version",
+     "def": "CREATE UNIQUE INDEX program_templates_family_version ON public.program_templates USING btree (family_id, version)"
+    },
+    {
+     "name": "program_templates_one_draft",
+     "def": "CREATE UNIQUE INDEX program_templates_one_draft ON public.program_templates USING btree (family_id) WHERE (status = 'draft'::publish_status)"
+    },
+    {
+     "name": "program_templates_one_published",
+     "def": "CREATE UNIQUE INDEX program_templates_one_published ON public.program_templates USING btree (family_id) WHERE (status = 'published'::publish_status)"
+    },
+    {
+     "name": "program_templates_slug_version",
+     "def": "CREATE UNIQUE INDEX program_templates_slug_version ON public.program_templates USING btree (slug, version)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "templates_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "((auth.uid() IS NOT NULL) AND ((status = 'published'::publish_status) OR is_staff() OR can_read_program(id)))"
+    },
+    {
+     "name": "templates_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "is_staff()",
+     "with_check": "is_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "program_templates_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER program_templates_audit AFTER INSERT OR DELETE OR UPDATE ON public.program_templates FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "program_templates_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER program_templates_author BEFORE INSERT OR UPDATE ON public.program_templates FOR EACH ROW EXECUTE FUNCTION stamp_author('created_by')"
+    },
+    {
+     "name": "program_templates_guard",
+     "function": "guard_program_template",
+     "def": "CREATE TRIGGER program_templates_guard BEFORE INSERT OR DELETE OR UPDATE ON public.program_templates FOR EACH ROW EXECUTE FUNCTION guard_program_template()"
+    },
+    {
+     "name": "program_templates_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER program_templates_updated_at BEFORE UPDATE ON public.program_templates FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "progress_entries",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "metric_key",
+     "type": "text"
+    },
+    {
+     "name": "value",
+     "type": "numeric"
+    },
+    {
+     "name": "recorded_on",
+     "type": "date",
+     "default": "CURRENT_DATE"
+    },
+    {
+     "name": "source",
+     "type": "entry_source",
+     "default": "'client'::entry_source"
+    },
+    {
+     "name": "note",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "created_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "progress_entries_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "progress_entries_created_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (created_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "progress_entries_metric_key_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (metric_key) REFERENCES metric_definitions(key)",
+     "ref_table": "metric_definitions"
+    },
+    {
+     "name": "progress_entries_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "progress_entries_client_id_metric_key_recorded_on_idx",
+     "def": "CREATE INDEX progress_entries_client_id_metric_key_recorded_on_idx ON public.progress_entries USING btree (client_id, metric_key, recorded_on DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "progress_client",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "((client_id = my_client_id()) AND (source = 'client'::entry_source))"
+    },
+    {
+     "name": "progress_entries_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "progress_entries_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "progress_entries_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER progress_entries_audit AFTER INSERT OR DELETE OR UPDATE ON public.progress_entries FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "progress_entries_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER progress_entries_author BEFORE INSERT OR UPDATE ON public.progress_entries FOR EACH ROW EXECUTE FUNCTION stamp_author('created_by')"
+    }
+   ]
+  },
+  {
+   "name": "progress_reviews",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "plan_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "practitioner_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "review_date",
+     "type": "date"
+    },
+    {
+     "name": "summary_for_client",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "next_steps",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "method_stage",
+     "type": "method_stage",
+     "nullable": true
+    },
+    {
+     "name": "shared",
+     "type": "boolean",
+     "default": "false"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "outcome",
+     "type": "review_outcome",
+     "nullable": true
+    },
+    {
+     "name": "reflections",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "progress_reviews_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "progress_reviews_plan_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (plan_id) REFERENCES wellness_plans(id) ON DELETE SET NULL",
+     "ref_table": "wellness_plans"
+    },
+    {
+     "name": "progress_reviews_practitioner_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (practitioner_id) REFERENCES practitioners(id)",
+     "ref_table": "practitioners"
+    },
+    {
+     "name": "progress_reviews_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "reviews_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(can_access_client(client_id) AND (is_staff() OR shared))"
+    },
+    {
+     "name": "reviews_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "progress_reviews_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER progress_reviews_audit AFTER INSERT OR DELETE OR UPDATE ON public.progress_reviews FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "progress_reviews_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER progress_reviews_author BEFORE INSERT OR UPDATE ON public.progress_reviews FOR EACH ROW EXECUTE FUNCTION stamp_author('practitioner_id')"
+    },
+    {
+     "name": "progress_reviews_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER progress_reviews_same_client BEFORE INSERT OR UPDATE ON public.progress_reviews FOR EACH ROW EXECUTE FUNCTION guard_same_client('plan_id', 'wellness_plans')"
+    },
+    {
+     "name": "progress_reviews_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER progress_reviews_updated_at BEFORE UPDATE ON public.progress_reviews FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "referrals",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "target",
+     "type": "referral_target"
+    },
+    {
+     "name": "to_service",
+     "type": "service_slug",
+     "nullable": true
+    },
+    {
+     "name": "to_name",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "reason",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "status",
+     "type": "referral_status",
+     "default": "'suggested'::referral_status"
+    },
+    {
+     "name": "created_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "referrals_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "referrals_created_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (created_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "referrals_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "referrals_client_respond",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(client_id = my_client_id())",
+     "with_check": "((client_id = my_client_id()) AND (status = ANY (ARRAY['accepted'::referral_status, 'declined'::referral_status])))"
+    },
+    {
+     "name": "referrals_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "referrals_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "referrals_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER referrals_audit AFTER INSERT OR DELETE OR UPDATE ON public.referrals FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "referrals_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER referrals_author BEFORE INSERT OR UPDATE ON public.referrals FOR EACH ROW EXECUTE FUNCTION stamp_author('created_by')"
+    },
+    {
+     "name": "referrals_client_columns",
+     "function": "guard_client_columns",
+     "def": "CREATE TRIGGER referrals_client_columns BEFORE UPDATE ON public.referrals FOR EACH ROW EXECUTE FUNCTION guard_client_columns('status', 'updated_at')"
+    },
+    {
+     "name": "referrals_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER referrals_updated_at BEFORE UPDATE ON public.referrals FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "resource_assignments",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "resource_ref",
+     "type": "text"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "kind",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "note",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "assigned_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "assigned_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "viewed_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "resource_assignments_assigned_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (assigned_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "resource_assignments_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "resource_assignments_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "resource_assignments_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    },
+    {
+     "name": "resource_assignments_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    },
+    {
+     "name": "resources_client_viewed",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(client_id = my_client_id())",
+     "with_check": "(client_id = my_client_id())"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "resource_assignments_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER resource_assignments_audit AFTER INSERT OR DELETE OR UPDATE ON public.resource_assignments FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "resource_assignments_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER resource_assignments_author BEFORE INSERT OR UPDATE ON public.resource_assignments FOR EACH ROW EXECUTE FUNCTION stamp_author('assigned_by')"
+    },
+    {
+     "name": "resource_assignments_client_columns",
+     "function": "guard_client_columns",
+     "def": "CREATE TRIGGER resource_assignments_client_columns BEFORE UPDATE ON public.resource_assignments FOR EACH ROW EXECUTE FUNCTION guard_client_columns('viewed_at')"
+    }
+   ]
+  },
+  {
+   "name": "session_notes",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "practitioner_id",
+     "type": "uuid"
+    },
+    {
+     "name": "service",
+     "type": "service_slug",
+     "nullable": true
+    },
+    {
+     "name": "session_date",
+     "type": "date",
+     "default": "CURRENT_DATE"
+    },
+    {
+     "name": "appointment_ref",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "visibility",
+     "type": "note_visibility",
+     "default": "'internal'::note_visibility"
+    },
+    {
+     "name": "body",
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "session_notes_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "session_notes_practitioner_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (practitioner_id) REFERENCES practitioners(id)",
+     "ref_table": "practitioners"
+    },
+    {
+     "name": "session_notes_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "session_notes_client_id_session_date_idx",
+     "def": "CREATE INDEX session_notes_client_id_session_date_idx ON public.session_notes USING btree (client_id, session_date DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "notes_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(can_access_client(client_id) AND (is_staff() OR (visibility = 'shared'::note_visibility)))"
+    },
+    {
+     "name": "notes_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "session_notes_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER session_notes_audit AFTER INSERT OR DELETE OR UPDATE ON public.session_notes FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "session_notes_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER session_notes_author BEFORE INSERT OR UPDATE ON public.session_notes FOR EACH ROW EXECUTE FUNCTION stamp_author('practitioner_id')"
+    },
+    {
+     "name": "session_notes_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER session_notes_updated_at BEFORE UPDATE ON public.session_notes FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  },
+  {
+   "name": "stage_changes",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "from_stage",
+     "type": "method_stage",
+     "nullable": true
+    },
+    {
+     "name": "to_stage",
+     "type": "method_stage"
+    },
+    {
+     "name": "review_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "changed_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "stage_changes_changed_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (changed_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "stage_changes_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "stage_changes_review_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (review_id) REFERENCES progress_reviews(id) ON DELETE SET NULL",
+     "ref_table": "progress_reviews"
+    },
+    {
+     "name": "stage_changes_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "stage_changes_client",
+     "def": "CREATE INDEX stage_changes_client ON public.stage_changes USING btree (client_id, created_at DESC)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "stage_changes_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "can_access_client(client_id)"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "stage_changes_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER stage_changes_audit AFTER INSERT OR DELETE OR UPDATE ON public.stage_changes FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    }
+   ]
+  },
+  {
+   "name": "stripe_events",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "text"
+    },
+    {
+     "name": "type",
+     "type": "text"
+    },
+    {
+     "name": "received_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "stripe_events_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [],
+   "policies": [],
+   "triggers": []
+  },
+  {
+   "name": "wellness_plans",
+   "rls": true,
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "client_id",
+     "type": "uuid"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "focus",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "services",
+     "type": "service_slug[]",
+     "default": "'{}'::service_slug[]"
+    },
+    {
+     "name": "status",
+     "type": "plan_status",
+     "default": "'draft'::plan_status"
+    },
+    {
+     "name": "visible_to_client",
+     "type": "boolean",
+     "default": "false"
+    },
+    {
+     "name": "start_date",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "review_date",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "created_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "plan_type",
+     "type": "plan_type",
+     "default": "'wellness'::plan_type"
+    },
+    {
+     "name": "parent_plan_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "practitioner_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "details",
+     "type": "jsonb",
+     "default": "'{}'::jsonb"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "wellness_plans_client_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE",
+     "ref_table": "clients"
+    },
+    {
+     "name": "wellness_plans_created_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (created_by) REFERENCES profiles(id)",
+     "ref_table": "profiles"
+    },
+    {
+     "name": "wellness_plans_parent_plan_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (parent_plan_id) REFERENCES wellness_plans(id) ON DELETE SET NULL",
+     "ref_table": "wellness_plans"
+    },
+    {
+     "name": "wellness_plans_practitioner_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (practitioner_id) REFERENCES practitioners(id)",
+     "ref_table": "practitioners"
+    },
+    {
+     "name": "wellness_plans_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "wellness_plans_client_id_status_idx",
+     "def": "CREATE INDEX wellness_plans_client_id_status_idx ON public.wellness_plans USING btree (client_id, status)"
+    },
+    {
+     "name": "wellness_plans_one_active_anchor",
+     "def": "CREATE UNIQUE INDEX wellness_plans_one_active_anchor ON public.wellness_plans USING btree (client_id) WHERE ((plan_type = 'wellness'::plan_type) AND (status = 'active'::plan_status))"
+    },
+    {
+     "name": "wellness_plans_parent",
+     "def": "CREATE INDEX wellness_plans_parent ON public.wellness_plans USING btree (parent_plan_id)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "plans_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(can_access_client(client_id) AND (is_staff() OR visible_to_client))"
+    },
+    {
+     "name": "plans_staff",
+     "cmd": "ALL",
+     "roles": "{public}",
+     "using": "(is_staff() AND can_access_client(client_id))",
+     "with_check": "(is_staff() AND can_access_client(client_id))"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "wellness_plans_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER wellness_plans_audit AFTER INSERT OR DELETE OR UPDATE ON public.wellness_plans FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "wellness_plans_author",
+     "function": "stamp_author",
+     "def": "CREATE TRIGGER wellness_plans_author BEFORE INSERT OR UPDATE ON public.wellness_plans FOR EACH ROW EXECUTE FUNCTION stamp_author('created_by')"
+    },
+    {
+     "name": "wellness_plans_nutrition",
+     "function": "guard_nutrition_plan",
+     "def": "CREATE TRIGGER wellness_plans_nutrition BEFORE INSERT OR DELETE OR UPDATE ON public.wellness_plans FOR EACH ROW EXECUTE FUNCTION guard_nutrition_plan()"
+    },
+    {
+     "name": "wellness_plans_same_client",
+     "function": "guard_same_client",
+     "def": "CREATE TRIGGER wellness_plans_same_client BEFORE INSERT OR UPDATE ON public.wellness_plans FOR EACH ROW EXECUTE FUNCTION guard_same_client('parent_plan_id', 'wellness_plans')"
+    },
+    {
+     "name": "wellness_plans_shape",
+     "function": "guard_plan_shape",
+     "def": "CREATE TRIGGER wellness_plans_shape BEFORE INSERT OR UPDATE ON public.wellness_plans FOR EACH ROW EXECUTE FUNCTION guard_plan_shape()"
+    },
+    {
+     "name": "wellness_plans_updated_at",
+     "function": "set_updated_at",
+     "def": "CREATE TRIGGER wellness_plans_updated_at BEFORE UPDATE ON public.wellness_plans FOR EACH ROW EXECUTE FUNCTION set_updated_at()"
+    }
+   ]
+  }
+ ],
+ "views": [],
+ "enums": [
+  {
+   "name": "activity_kind",
+   "values": [
+    "exercise",
+    "habit",
+    "reflection",
+    "reading",
+    "video",
+    "check_in"
+   ]
+  },
+  {
+   "name": "app_role",
+   "values": [
+    "owner",
+    "practitioner",
+    "client"
+   ]
+  },
+  {
+   "name": "client_program_source",
+   "values": [
+    "assigned",
+    "purchased",
+    "cohort"
+   ]
+  },
+  {
+   "name": "client_program_status",
+   "values": [
+    "active",
+    "paused",
+    "completed",
+    "cancelled"
+   ]
+  },
+  {
+   "name": "client_status",
+   "values": [
+    "prospect",
+    "active",
+    "paused",
+    "alumni"
+   ]
+  },
+  {
+   "name": "cohort_status",
+   "values": [
+    "planned",
+    "enrolling",
+    "running",
+    "completed",
+    "cancelled"
+   ]
+  },
+  {
+   "name": "consent_type",
+   "values": [
+    "terms",
+    "privacy",
+    "health_info_collection",
+    "care_coordination",
+    "marketing_email",
+    "marketing_sms",
+    "photo_testimonial"
+   ]
+  },
+  {
+   "name": "entitlement_source",
+   "values": [
+    "stripe",
+    "manual",
+    "timely"
+   ]
+  },
+  {
+   "name": "entitlement_status",
+   "values": [
+    "active",
+    "expired",
+    "cancelled",
+    "refunded"
+   ]
+  },
+  {
+   "name": "entry_source",
+   "values": [
+    "client",
+    "practitioner"
+   ]
+  },
+  {
+   "name": "form_sensitivity",
+   "values": [
+    "general",
+    "sensitive"
+   ]
+  },
+  {
+   "name": "goal_status",
+   "values": [
+    "active",
+    "achieved",
+    "paused",
+    "dropped"
+   ]
+  },
+  {
+   "name": "inquiry_kind",
+   "values": [
+    "start",
+    "contact"
+   ]
+  },
+  {
+   "name": "method_stage",
+   "values": [
+    "start",
+    "transform",
+    "align",
+    "become",
+    "evolve"
+   ]
+  },
+  {
+   "name": "metric_category",
+   "values": [
+    "physical",
+    "habit",
+    "wellbeing",
+    "health"
+   ]
+  },
+  {
+   "name": "note_visibility",
+   "values": [
+    "internal",
+    "shared"
+   ]
+  },
+  {
+   "name": "plan_status",
+   "values": [
+    "draft",
+    "active",
+    "completed",
+    "archived"
+   ]
+  },
+  {
+   "name": "plan_type",
+   "values": [
+    "wellness",
+    "personal-strength-training",
+    "massage-bodywork",
+    "womens-wellness-coaching",
+    "holistic-life-coaching",
+    "nutrition"
+   ]
+  },
+  {
+   "name": "product_kind",
+   "values": [
+    "program",
+    "cohort",
+    "membership",
+    "package"
+   ]
+  },
+  {
+   "name": "publish_status",
+   "values": [
+    "draft",
+    "published",
+    "retired"
+   ]
+  },
+  {
+   "name": "referral_status",
+   "values": [
+    "suggested",
+    "accepted",
+    "declined",
+    "completed"
+   ]
+  },
+  {
+   "name": "referral_target",
+   "values": [
+    "internal_service",
+    "external_professional"
+   ]
+  },
+  {
+   "name": "review_outcome",
+   "values": [
+    "continue",
+    "adjust",
+    "increase_support",
+    "reduce_frequency",
+    "maintenance"
+   ]
+  },
+  {
+   "name": "routing_outcome",
+   "values": [
+    "book",
+    "discovery",
+    "intake",
+    "more_info",
+    "referral"
+   ]
+  },
+  {
+   "name": "service_slug",
+   "values": [
+    "massage-bodywork",
+    "personal-strength-training",
+    "womens-wellness-coaching",
+    "holistic-life-coaching"
+   ]
+  },
+  {
+   "name": "submission_status",
+   "values": [
+    "draft",
+    "submitted",
+    "reviewed"
+   ]
+  }
+ ],
+ "functions": [
+  {
+   "name": "audit_row",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "can_access_client",
+   "args": "target uuid",
+   "returns": "boolean",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "can_publish_programs",
+   "args": "",
+   "returns": "boolean",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "can_read_program",
+   "args": "template uuid",
+   "returns": "boolean",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "current_app_role",
+   "args": "",
+   "returns": "app_role",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "forbid_consent_change",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "forbid_inquiry_delete",
+   "args": "",
+   "returns": "trigger",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_activity_log",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_client_columns",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_client_program",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_client_update",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_form_assignment",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_form_submission",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_inquiry_update",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_nutrition_plan",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_plan_shape",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_profile_update",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_program_content",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_program_template",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "guard_same_client",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "handle_new_user",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "handle_user_confirmed",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "has_capability",
+   "args": "cap text",
+   "returns": "boolean",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "is_staff",
+   "args": "",
+   "returns": "boolean",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "move_client_program",
+   "args": "program uuid, target uuid",
+   "returns": "integer",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "my_client_id",
+   "args": "",
+   "returns": "uuid",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "new_program_version",
+   "args": "template uuid",
+   "returns": "uuid",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "program_activity_map",
+   "args": "from_template uuid, to_template uuid",
+   "returns": "TABLE(old_id uuid, new_id uuid)",
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
+   "name": "record_my_tab_sign_in",
+   "args": "",
+   "returns": "void",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "record_progress_review",
+   "args": "p_client uuid, p_outcome review_outcome, p_reflections jsonb, p_summary text, p_next_steps text, p_shared boolean, p_stage method_stage",
+   "returns": "boolean",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "record_stage_change",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "save_client_activities",
+   "args": "program uuid, items jsonb",
+   "returns": "void",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "save_program_draft",
+   "args": "template uuid, details jsonb, content jsonb",
+   "returns": "void",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "set_updated_at",
+   "args": "",
+   "returns": "trigger",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "stamp_author",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "stamp_client_invite",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "stamp_consent",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  }
+ ]
+}
