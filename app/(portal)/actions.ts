@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireClient, requireStaff, isMock } from "@/lib/portal";
 import { siteUrl } from "@/config/site";
-import type { Consent, GoalInput, MethodStage, Plan, PlanType, ProgramAction, ReviewOutcome } from "@/lib/portal/types";
+import type { Consent, GoalInput, InviteResult, MethodStage, Plan, PlanType, ProgramAction, ReviewOutcome } from "@/lib/portal/types";
+import { isSafeResourceHref, resourceKinds } from "@/lib/portal/resources";
 import { parseClientActivities, parseProgramDraft } from "@/lib/portal/program-editor";
 import { MAX_PLAN_GOALS, canUsePlanType, planTypes, splitSections } from "@/lib/portal/plan-types";
 import { STAGES } from "@/lib/portal/format";
@@ -164,6 +165,94 @@ export async function saveClientProgramAction(clientId: string, templateId: stri
   revalidatePath(`/practice/clients/${clientId}`);
   revalidatePath("/my-tab", "layout");
   redirect(`/practice/clients/${clientId}/programs/${id}?saved=1`);
+}
+
+const INVITE_MESSAGE: Record<InviteResult, string> = {
+  sent: "Invitation sent. They'll get an email with a link to set up My TAB.",
+  has_account: "They already have a My TAB login. Ask them to sign in at My TAB with their email address.",
+  already_active: "They're already using My TAB.",
+  skipped: "Marked as invited. No email was sent (demo mode, or email isn't set up yet).",
+  failed: "Marked as invited, but the email couldn't be sent. Try again, or let them know directly.",
+};
+
+/** Invites the client to My TAB (C4). Only their care team can (RLS on clients); the database stamps who and when. */
+export async function inviteClientAction(clientId: string, _prev: unknown, _fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  let result: InviteResult;
+  try {
+    result = await repo.inviteClient(clientId, viewer);
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "The invitation couldn't be sent." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  return { ok: result !== "failed", message: INVITE_MESSAGE[result] };
+}
+
+/** Assigns a published form, optionally with a due date (C4). */
+export async function assignFormAction(clientId: string, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const templateId = String(fd.get("templateId") ?? "");
+  if (!(await repo.listFormTemplates()).some((t) => t.id === templateId)) return { ok: false, message: "Choose a form." };
+  const pending = (await repo.listForms(clientId)).some((f) => f.template.id === templateId && (f.status === "not_started" || f.status === "draft"));
+  if (pending) return { ok: false, message: "That form is already waiting for this client." };
+  try {
+    await repo.assignForm(clientId, viewer, { templateId, dueOn: isoDate(fd.get("dueOn")) });
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "The form couldn't be assigned." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  return { ok: true, message: "Form assigned. It's waiting in their My TAB." };
+}
+
+export async function withdrawFormAction(clientId: string, assignmentId: string, _prev: unknown, _fd: FormData) {
+  const { repo } = await requireStaff();
+  try {
+    await repo.withdrawForm(clientId, assignmentId);
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "The form couldn't be withdrawn." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  return { ok: true, message: "Withdrawn." };
+}
+
+/** Shares a resource: a page on this site or an https link, with an optional note (C4). */
+export async function assignResourceAction(clientId: string, _prev: unknown, fd: FormData) {
+  const { viewer, repo } = await requireStaff();
+  const txt = (k: string, max: number) => String(fd.get(k) ?? "").trim().slice(0, max);
+  const title = txt("title", 160);
+  const href = txt("href", 500) || "/resources";
+  if (!title) return { ok: false, message: "Give the resource a title." };
+  if (!isSafeResourceHref(href)) return { ok: false, message: "Use a page on this site (starting with /) or a link starting with https://." };
+  const kind = resourceKinds.find((k) => k === fd.get("kind"));
+  try {
+    await repo.assignResource(clientId, viewer, { title, href, kind, note: txt("note", 500) || undefined });
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "The resource couldn't be shared." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  return { ok: true, message: "Shared. It's in their My TAB resources." };
+}
+
+/** The client opened a resource someone shared with them (shown to the practitioner as viewed). */
+export async function markResourceViewedAction(assignmentId: string) {
+  const { clientId, repo } = await requireClient();
+  await repo.markResourceViewed(clientId, assignmentId);
+  revalidatePath("/my-tab", "layout");
+}
+
+export async function removeResourceAction(clientId: string, assignmentId: string, _prev: unknown, _fd: FormData) {
+  const { repo } = await requireStaff();
+  try {
+    await repo.removeResource(clientId, assignmentId);
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "The resource couldn't be removed." };
+  }
+  revalidatePath(`/practice/clients/${clientId}`);
+  revalidatePath("/my-tab", "layout");
+  return { ok: true, message: "Removed." };
 }
 
 /** Moves a client's program to a newer published version of the same program (C7b, design §3.1 Versioning). */

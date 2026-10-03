@@ -7,9 +7,12 @@ import { programProgress } from "@/lib/portal/programs";
 import { canUsePlanType, planTypes, servicePlanTypes } from "@/lib/portal/plan-types";
 import { PageTitle, Panel, Badge, StageTracker, ProgressBar } from "@/components/portal/ui";
 import { TrendChart } from "@/components/portal/TrendChart";
-import { NoteForm } from "@/components/portal/interactive";
+import { AssignFormForm, InviteForm, NoteForm, RowActionButton, ShareResourceForm } from "@/components/portal/interactive";
+import { removeResourceAction, withdrawFormAction } from "@/app/(portal)/actions";
+import { resourceLibrary } from "@/lib/portal/resources";
 
 const stageLabel = (k?: string) => STAGES.find((s) => s.key === k)?.label ?? k;
+const ACCESS_LABEL = { not_invited: "Not invited", invited: "Invited", active: "Active" } as const;
 const EMAIL_NOTE: Record<string, string> = { sent: "They’ve been emailed.", skipped: "No email was sent (demo mode or email not set up yet).", failed: "The email couldn’t be sent; let them know directly." };
 
 export default async function ClientDetail({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ review?: string; email?: string }> }) {
@@ -23,6 +26,8 @@ export default async function ClientDetail({ params, searchParams }: { params: P
     repo.listReviews(id), repo.listStageChanges(id),
   ]);
   const allPlans = await repo.listPlans(id, { staff: true });
+  const [resources, formTemplates] = await Promise.all([repo.listResources(id), repo.listFormTemplates()]);
+  const access = client.myTab ?? { status: "not_invited" as const };
   const servicePlans = allPlans.filter((p) => p.planType !== "wellness");
   const tracked = metrics.filter((m) => progress.some((p) => p.metricKey === m.key)).slice(0, 3);
   return (
@@ -108,6 +113,14 @@ export default async function ClientDetail({ params, searchParams }: { params: P
           </Panel>
         </div>
         <div className="space-y-6">
+          <Panel title="My TAB access" action={<Badge tone={access.status === "active" ? "success" : access.status === "invited" ? "accent" : "neutral"}>{ACCESS_LABEL[access.status]}</Badge>}>
+            <p className="mb-3 text-sm text-text-secondary">
+              {access.status === "active" ? `Using My TAB since ${fmtDate(access.activatedAt!, { month: "long", day: "numeric", year: "numeric" })}.`
+                : access.status === "invited" ? `Invited${access.invitedAt ? ` ${fmtDate(access.invitedAt, { month: "long", day: "numeric" })}` : ""}; they haven't signed in yet.`
+                : "They can't sign in to My TAB until you invite them."}
+            </p>
+            <InviteForm clientId={id} status={access.status} hasEmail={!!client.email} />
+          </Panel>
           <Panel title="Programs" action={<Link href={`/practice/clients/${id}/programs/new`} className="btn btn-primary btn-sm">Assign program</Link>}>
             <div className="space-y-4">
               {programs.map((p) => (
@@ -134,7 +147,33 @@ export default async function ClientDetail({ params, searchParams }: { params: P
             <ul className="space-y-2 text-sm">{appts.map((a) => <li key={a.id}>{fmtDateTime(a.startsAt)} · {serviceName(a.service)}</li>)}{appts.length === 0 && <li className="text-text-secondary">Nothing scheduled.</li>}</ul>
           </Panel>
           <Panel title="Forms">
-            <ul className="space-y-2 text-sm">{forms.map((f) => <li key={f.template.slug} className="flex justify-between"><span>{f.template.title}</span><Badge tone={f.status === "submitted" ? "success" : "accent"}>{f.status.replace("_", " ")}</Badge></li>)}</ul>
+            <ul className="space-y-3 text-sm">
+              {forms.map((f) => (
+                <li key={f.id ?? f.template.slug} className="flex flex-wrap items-center justify-between gap-2">
+                  <span><span className="font-semibold">{f.template.title}</span>{f.dueOn && f.status === "not_started" && <span className="text-text-secondary"> · due {fmtDate(f.dueOn, { month: "short", day: "numeric" })}</span>}</span>
+                  <span className="flex items-center gap-2">
+                    <Badge tone={f.status === "submitted" || f.status === "reviewed" ? "success" : "accent"}>{f.status.replace("_", " ")}</Badge>
+                    {f.id && f.status === "not_started" && <RowActionButton action={withdrawFormAction.bind(null, id, f.id)} label="Withdraw" context={f.template.title} />}
+                  </span>
+                </li>
+              ))}
+              {forms.length === 0 && <li className="text-text-secondary">No forms yet.</li>}
+            </ul>
+            <div className="mt-5 border-t border-border pt-4"><AssignFormForm clientId={id} templates={formTemplates.map((t) => ({ id: t.id, title: t.title }))} /></div>
+          </Panel>
+          <Panel title="Resources">
+            <ul className="space-y-3 text-sm">
+              {resources.map((r) => (
+                <li key={r.id} className="flex flex-wrap items-start justify-between gap-2">
+                  <span className="min-w-0"><span className="font-semibold">{r.title}</span>{r.kind && <span className="text-text-secondary"> · {r.kind}</span>}
+                    <span className="block text-text-secondary">Shared {fmtDate(r.assignedAt, { month: "short", day: "numeric" })}{r.viewedAt ? ", viewed" : ", not viewed yet"}</span>
+                    {r.note && <span className="block">{r.note}</span>}</span>
+                  <RowActionButton action={removeResourceAction.bind(null, id, r.id)} label="Remove" context={r.title} />
+                </li>
+              ))}
+              {resources.length === 0 && <li className="text-text-secondary">Nothing shared yet.</li>}
+            </ul>
+            <div className="mt-5 border-t border-border pt-4"><ShareResourceForm clientId={id} library={resourceLibrary} /></div>
           </Panel>
         </div>
       </div>

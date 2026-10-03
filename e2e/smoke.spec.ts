@@ -238,6 +238,45 @@ test("team: only the owner grants the publishing permission (C7b)", async ({ pag
   expect(res?.status()).toBeLessThan(500);
 });
 
+test("TAB Practice for the pilot: invite to My TAB, assign a form, share a resource (C4)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-tom");
+  await expect(page.getByText("They can't sign in to My TAB until you invite them.")).toBeVisible();
+  await page.getByRole("button", { name: "Invite to My TAB" }).click();
+  await expect(page.getByRole("status")).toContainText("Marked as invited. No email was sent");
+  await expect(page.getByRole("button", { name: "Send the invitation again" })).toBeVisible();
+
+  await page.goto("/practice/clients/demo-client-dana");
+  await expect(page.getByText(/Using My TAB since/)).toBeVisible();
+  await page.getByLabel("Form", { exact: true }).selectOption({ label: "Your weekly routine" });
+  await page.getByRole("button", { name: "Assign form" }).click();
+  await expect(page.getByText("Form assigned. It's waiting in their My TAB.")).toBeVisible();
+  await page.getByRole("button", { name: "Withdraw Your weekly routine" }).click();
+  await expect(page.getByRole("button", { name: "Withdraw Your weekly routine" })).toHaveCount(0);
+  await page.getByLabel("Form", { exact: true }).selectOption({ label: "Your weekly routine" });
+  await page.getByRole("button", { name: "Assign form" }).click();
+  await expect(page.getByText("Form assigned. It's waiting in their My TAB.")).toBeVisible();
+
+  await page.getByLabel("From the Resources page (optional)").selectOption({ label: "Sleep and recovery" });
+  await expect(page.getByLabel("Title", { exact: true })).toHaveValue("Sleep and recovery");
+  await page.getByLabel("Note to the client (optional)").fill("Read before Thursday.");
+  await page.getByRole("button", { name: "Share resource" }).click();
+  await expect(page.getByText("Shared. It's in their My TAB resources.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove Sleep and recovery" })).toBeVisible();
+
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  await page.goto("/my-tab/forms");
+  await expect(page.getByText("Your weekly routine")).toBeVisible();
+  await page.goto("/my-tab/resources");
+  await page.getByRole("link", { name: /Sleep and recovery/ }).click();
+  // The link records the view, then navigates; /\/resources$/ would already match /my-tab/resources.
+  await page.waitForURL((url) => url.pathname === "/resources");
+
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/clients/demo-client-dana");
+  await expect(page.getByRole("listitem").filter({ hasText: "Read before Thursday." })).toContainText(", viewed");
+});
+
 test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
   test.setTimeout(60_000);
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);

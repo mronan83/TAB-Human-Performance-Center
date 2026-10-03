@@ -13,7 +13,7 @@ The portal runs on demo data (`portal.dataSource = "mock"`) on preview deploymen
 ## Build before go-live (needs no real data)
 Owner rulings, 2026-09-28: GAP-008 closed, **HIPAA does not apply** (proposed D-060 amends D-042: no HIPAA tier or BAA); build now; the Supabase upgrade comes later.
 1. **Security hardening**: SEC-015 to SEC-018 done (the 5 known gaps are closed). Remaining: SEC-019 private-schema notes and audit drain, SEC-020 session cookies and a transactional Stripe webhook.
-2. **Admin tools in TAB Practice**: invite to My TAB (GAP-023), write and edit the plan, record progress reviews, assign resources and forms, publish shared session summaries. Without these, clients sign in to empty screens (RSK-002).
+2. **Admin tools in TAB Practice**: invite to My TAB (GAP-023), write and edit the plan, record progress reviews, assign resources and forms, publish shared session summaries. Without these, clients sign in to empty screens (RSK-002). *Built in demo mode (C4a–C4c, C7, C4; 2026-10-02); session summaries are shared session notes and shared plan-log entries.*
 3. **Sign-in plumbing**: invite confirmation route (token hash), Site URL and redirect allow list, custom SMTP through Resend (Supabase's built-in email is for testing only), staff MFA enrolment screen.
 4. **Supabase-native tests in CI** (SEC-021): JWT, AAL, sign-up and grants against a real Supabase stack.
 

@@ -4,7 +4,9 @@
  * Status: implemented against the schema; verify against a live project before launch.
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseServerClient, createSupabaseServiceClient } from "@/lib/supabase/server";
+import { siteUrl } from "@/config/site";
+import { safeResourceHref } from "./resources";
 import type {
   Appointment, CheckIn, Client, ClientActivityInput, ClientProgram, Consent, Dashboard, Entitlement, FormAssignment, FormTemplate, Inquiry, MetricDefinition,
   Plan, PlanEntry, PortalRepository, Product, ProgramTemplate, ProgressEntry, ResourceAssignment, Review, SessionNote, StageChange, Viewer,
@@ -28,10 +30,15 @@ const CONSENT_LABELS: Record<Consent["type"], { label: string; required: boolean
 };
 const CONSENT_VERSION = "2026-10";
 
+const myTabOf = (r: Row): Client["myTab"] => ({
+  status: r.activated_at ? "active" : r.invited_at || r.profile_id ? "invited" : "not_invited",
+  invitedAt: r.invited_at ?? undefined, activatedAt: r.activated_at ?? undefined,
+});
+
 const mapClient = (r: Row): Client => ({
   id: r.id, fullName: r.full_name, preferredName: r.preferred_name ?? undefined, email: r.email ?? undefined, phone: r.phone ?? undefined,
   status: r.status, methodStage: r.method_stage, services: (r.practitioner_assignments ?? []).map((a: Row) => a.service).filter(Boolean),
-  primaryPractitioner: r.practitioners?.display_name, lastCheckIn: r.check_ins?.[0]?.week_of,
+  primaryPractitioner: r.practitioners?.display_name, lastCheckIn: r.check_ins?.[0]?.week_of, myTab: myTabOf(r),
 });
 
 const mapInquiry = (r: Row): Inquiry => ({
@@ -176,7 +183,7 @@ export const supabaseRepository: PortalRepository = {
   async listResources(clientId) {
     const sb = await db();
     const rows = must(await sb.from("resource_assignments").select("*").eq("client_id", clientId).order("assigned_at", { ascending: false })) as Row[];
-    return rows.map((r): ResourceAssignment => ({ id: r.id, title: r.title, kind: r.kind ?? undefined, note: r.note ?? undefined, href: "/resources" /* no per-resource pages yet (WEB-010) */, assignedAt: r.assigned_at, viewedAt: r.viewed_at ?? undefined }));
+    return rows.map((r): ResourceAssignment => ({ id: r.id, title: r.title, kind: r.kind ?? undefined, note: r.note ?? undefined, href: safeResourceHref(r.resource_ref), assignedAt: r.assigned_at, viewedAt: r.viewed_at ?? undefined }));
   },
   async listForms(clientId) {
     const sb = await db();
@@ -184,7 +191,7 @@ export const supabaseRepository: PortalRepository = {
     const subs = must(await sb.from("form_submissions").select("*").eq("client_id", clientId)) as Row[];
     return assignments.map((a): FormAssignment => {
       const s = subs.find((x) => x.template_id === a.template_id);
-      return { template: mapForm(a.form_templates), dueOn: a.due_on ?? undefined, status: s ? s.status : "not_started", submittedAt: s?.submitted_at ?? undefined, answers: s?.answers };
+      return { id: a.id, template: mapForm(a.form_templates), dueOn: a.due_on ?? undefined, status: s ? s.status : "not_started", submittedAt: s?.submitted_at ?? undefined, answers: s?.answers };
     });
   },
   async getForm(clientId, slug) { return (await this.listForms(clientId)).find((f) => f.template.slug === slug) ?? null; },
@@ -371,6 +378,58 @@ export const supabaseRepository: PortalRepository = {
     const r = must(await sb.from("client_programs").insert({ ...fields, client_id: clientId, template_id: input.templateId, source: "assigned" }).select("id").single()) as Row;
     await saveCustom(sb, r.id, input.customActivities);
     return r.id;
+  },
+  async inviteClient(clientId) {
+    const sb = await db();
+    const c = must(await sb.from("clients").select("email, activated_at").eq("id", clientId).maybeSingle()) as Row | null;
+    if (!c) throw new Error("Client not found");
+    if (c.activated_at) return "already_active";
+    if (!c.email) throw new Error("Add the client's email address first.");
+    // Row-level security decides who may invite: only the care team can stamp the invitation (clients_invite_stamp).
+    const ok = must(await sb.from("clients").update({ invited_at: new Date().toISOString() }).eq("id", clientId).select("id").maybeSingle());
+    if (!ok) throw new Error("Only this client's care team can invite them.");
+    // Then Supabase Auth sends the invitation (its email template is set up with C5; no personal details, guardrail 5).
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) { console.info("[invite] My TAB invitation: not sent (service role not configured)"); return "skipped"; }
+    try {
+      const admin = await createSupabaseServiceClient();
+      const { error } = await admin.auth.admin.inviteUserByEmail(c.email, { redirectTo: `${siteUrl}/my-tab/auth/callback` });
+      if (error) {
+        if (/already|registered|exists/i.test(error.message)) return "has_account";
+        throw error;
+      }
+      return "sent";
+    } catch (err) {
+      console.error("[invite] My TAB invitation: send failed", err);
+      return "failed";
+    }
+  },
+  async listFormTemplates() {
+    const sb = await db();
+    const rows = must(await sb.from("form_templates").select("*").eq("status", "published").order("title")) as Row[];
+    return rows.map(mapForm);
+  },
+  async assignForm(clientId, _viewer, input) {
+    const sb = await db();
+    // RLS (care team) and form_assignments_guard (published forms only) enforce the rules; assigned_by is stamped.
+    must(await sb.from("form_assignments").insert({ client_id: clientId, template_id: input.templateId, due_on: input.dueOn ?? null }));
+  },
+  async withdrawForm(clientId, assignmentId) {
+    const sb = await db();
+    const r = must(await sb.from("form_assignments").delete().eq("id", assignmentId).eq("client_id", clientId).select("id").maybeSingle());
+    if (!r) throw new Error("Form not found, or you can't change it.");
+  },
+  async assignResource(clientId, _viewer, input) {
+    const sb = await db();
+    must(await sb.from("resource_assignments").insert({ client_id: clientId, resource_ref: input.href, title: input.title, kind: input.kind ?? null, note: input.note ?? null }));
+  },
+  async markResourceViewed(clientId, assignmentId) {
+    const sb = await db();
+    must(await sb.from("resource_assignments").update({ viewed_at: new Date().toISOString() }).eq("id", assignmentId).eq("client_id", clientId).is("viewed_at", null));
+  },
+  async removeResource(clientId, assignmentId) {
+    const sb = await db();
+    const r = must(await sb.from("resource_assignments").delete().eq("id", assignmentId).eq("client_id", clientId).select("id").maybeSingle());
+    if (!r) throw new Error("Resource not found, or you can't change it.");
   },
   async moveClientProgram(clientId, programId, _viewer, targetTemplateId) {
     const sb = await db();
