@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-02, C4 done: invite to My TAB, assign forms and resources._
+_Last updated: 2026-10-03, living traceability, architecture and data model pages; gaps found while tracing added (A25, C15 to C19)._
 
 ## P0 · Now
 
@@ -32,6 +32,9 @@ _Last updated: 2026-10-02, C4 done: invite to My TAB, assign forms and resources
 | A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | S | Launch date |
 | A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | S | None |
 | A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | S | A2 |
+| A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
+| C15 | Checks for guardrails that only code review protects today: analytics never loads on `/my-tab`, `/practice` or `/contact` (NFR-005); emails and subjects carry no personal or health details (TG-3); a Start submission gets one next step and shows in TAB Practice (TG-8); every service page keeps its CTA, "not sure?" link and related services (WEB-004 to WEB-007) | Quality | Claude | M | None |
+| C18 | Count the remaining public events, `service_view` and `book_click`, property-less (NFR-006, TG-7) | Analytics | Claude | S | A4 |
 | C1 | Switch-over runbook (first step: set `portalDemoOnProduction` to false before the custom domain is attached): DNS order that keeps Google Workspace email, legacy email forwarding, redirect checks on the live domain, rollback [§7.4, RSK-009] | Launch | Claude | M | A1, A10 |
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
 
@@ -42,6 +45,8 @@ _Last updated: 2026-10-02, C4 done: invite to My TAB, assign forms and resources
 | C3b | Portal security hardening, part 2: internal notes in a private schema behind audited functions, audit drain [SEC-019]; secure session cookies, transactional Stripe webhook [SEC-020] | Security | Claude | M | None |
 | C5 | Sign-in plumbing: Site URL and redirects; sign-in and invitation emails through Resend, with Supabase's invite template worded like ours (no personal details, guardrail 5); confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in; staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
+| C16 | My TAB profile: accessibility needs and goals, client-editable (PORTAL-010, TG-5) | Portal | Claude | S | None |
+| C19 | Incident-response runbook: who to call, revoking keys, telling clients; paired with counsel's breach duties (SEC-011, TG-9) | Security | Claude | S | A7 |
 | A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | S | None |
 | A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | M | C3b, C5, C6, A7, A14 |
 | A16 | Pilot with 3–5 existing clients, then open My TAB to everyone | Operations | Owner | L | A15 |
@@ -57,6 +62,7 @@ _Last updated: 2026-10-02, C4 done: invite to My TAB, assign forms and resources
 | C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude | L | None |
 | C10 | Correct handoff-document references [DIV-03] | Docs | Claude | S | None |
 | C11 | Before paid ads: keep the Meta pixel off `/start` and `/contact` after in-site navigation [GAP-022] | Analytics | Claude | S | Paid ads start |
+| C17 | Generate the CSS tokens from the Design Tokens JSON instead of copying them by hand, keeping the contrast check (DS-001, TG-6) | Design | Claude | S | None |
 | C12 | Pin Node to `22.x` in `package.json` `engines`; `>=22` lets Vercel move to each new major on its own (builds run on 24 today) | Platform | Claude | S | None |
 | A17 | Stripe account, when programs are sold online [D-052] | Accounts | Owner | S | Online sales |
 | A18 | Optional: Vercel Protection Bypass secret (automated preview tests); Vercel Firewall rate limit (declined for now) | Accounts | Owner | S | None |
@@ -75,7 +81,8 @@ _Last updated: 2026-10-02, C4 done: invite to My TAB, assign forms and resources
 
 ## Recently done
 
-- **C4** (on `claude/zealous-davinci-64dima`): invite a client to My TAB (invited and first sign-in tracked), assign and withdraw forms, share and remove resources; clients' opened resources show as viewed.
+- **Living documents** (2026-10-03, in review): the traceability page moved into `docs/TRACEABILITY.md` and published in the requested layout; new technical architecture and data model pages; `npm run docs:check` in CI keeps all three in step with the code.
+- **#28** (2026-10-03): C4 invite a client to My TAB (invited and first sign-in tracked), assign and withdraw forms, share and remove resources; clients' opened resources show as viewed. Merged; production build awaits promotion.
 - **#26** (2026-10-02): C7b move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission. Promoted (`dpl_8fqGu5…`).
 - **#25** (2026-10-01): C4c assign and personalize programs; C7 program editor with versioning and the publishing permission. Promoted (`dpl_Djq3uj…`).
 - **#24** (2026-09-30): Wellness Plan goals up to 100; plan editor date fields fixed on iPad. Promoted with C4b (`dpl_9TA6w…`).

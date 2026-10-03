@@ -14,6 +14,11 @@ struck through, not deleted.
 > the owner logs them. Where this file and the MDR disagree, the MDR governs, and the gap is listed in
 > §7 until reconciled (R-028, documentation drift).
 
+> **Traceability (owner request 2026-10-02).** Each requirement here traces to the features, code and checks that
+> deliver it in [`TRACEABILITY.md`](TRACEABILITY.md), published as the Requirements & Feature Traceability page with its
+> companions [`ARCHITECTURE.md`](ARCHITECTURE.md) and [`DATA-MODEL.md`](DATA-MODEL.md). `npm run docs:check` fails CI
+> when a requirement is added here but not there, or the reverse.
+
 ## Sources
 
 | Code | Document | Covers | Batch | Status in document |

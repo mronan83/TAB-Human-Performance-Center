@@ -1,0 +1,134 @@
+---
+title: TAB Wellness Collective Architecture
+eyebrow: TAB Wellness Collective · Technical architecture
+heading: Technical architecture
+owner: Matthew Ronan
+updated: 2026-10-03
+lede: TAB Wellness Collective is one Next.js application with three faces: the public website, My TAB for clients and TAB Practice for practitioners. The website is prebuilt and served from Vercel's edge; My TAB and TAB Practice render per request on the server and reach Postgres on Supabase with the signed-in person's own session, so row-level security decides what each person sees. Timely keeps scheduling and Stripe keeps payments; the site links to them instead of rebuilding them. Today the portal runs on demo data, behind Vercel login, until the go-live gate (A15).
+---
+
+<!-- Edit this file, not the page. scripts/docs/render-architecture.mjs builds the page (npm run docs:html) and adds an
+     inventory read from the repository. `npm run docs:check` fails CI when an environment variable, runtime
+     dependency, API route or lib/ module exists that this file doesn't mention, so nothing arrives undescribed. -->
+
+## Principles | Each one is a decision on record; together they explain most of what follows.
+
+| Principle | What it means in practice | Decided in |
+| --- | --- | --- |
+| The database is the authority | Row-level security, guard triggers and checks decide who may read or change what. The app presents the rules; it can't bypass them, because portal reads and writes use the person's own session | D-042, SEC-015 to SEC-018 |
+| Systems of record stay where they are | Timely owns scheduling, Stripe owns payments; the site links out and stores only references | D-003, D-052 |
+| Nothing sensitive leaves through email | Emails carry no health details and no personal details in subjects; the details stay in My TAB | D-054, R-027 |
+| Business facts live in config, copy in content | `config/site.ts` holds settings and placeholders; `content/*.ts` holds copy, shaped for Payload CMS later | D-036, A-02 |
+| One repository interface, two implementations | Every portal read and write goes through `PortalRepository`; the demo store and Supabase implement it identically | Phase 2 design |
+| Nothing reaches production unreviewed | Pull requests only, CI on every one, owner approval to merge, a second approval to promote a build that is already built | G2, G3, owner ruling 2026-09-28 |
+| Model for a team, build for one | Roles are owner, practitioner and client; practitioners see only their assigned clients | D-045 |
+| Public pages stay fast and private pages stay private | Public pages are prebuilt and cached; portal pages render per request, are never cached and are never indexed | NFR-009, SEC-013 |
+
+## System context
+
+<!-- diagram:context -->
+
+People reach everything through one Vercel project. The public site needs nothing else at request time. Forms post to `/api/inquiry`, which checks Turnstile and sends email through Resend. My TAB and TAB Practice call Supabase for sign-in and data. Stripe calls back to `/api/stripe/webhook`. Timely is only ever a link.
+
+## Frontend
+
+The application is Next.js 15 (App Router) with React 19, TypeScript and Tailwind CSS 4 (class names joined with `clsx`). Server code validates input with zod; Supabase is reached through `@supabase/ssr` and `@supabase/supabase-js`. Two route groups share one root layout: `app/(site)` for the public website and `app/(portal)` for My TAB (`/my-tab`) and TAB Practice (`/practice`). The routes are listed in the inventory below.
+
+- **Public website.** Static pages built from `content/pages.ts`, `content/services.ts` and `config/site.ts`. Every call to action goes through `components/Cta.tsx`, so booking and Start destinations stay config-driven. Navigation lives in `config/navigation.ts`. The design tokens in `app/globals.css` mirror Design Tokens v1.0 with the D-056 contrast fixes; fonts are self-hosted in `app/fonts`.
+- **Forms.** Start Where You Are and Contact share `components/InquiryForm.tsx` and the schema in `lib/inquiry.ts` (zod). Turnstile is wrapped by `components/Turnstile.tsx`.
+- **My TAB and TAB Practice.** Server components read through `getRepository()` in `lib/portal/index.ts`; mutations are server actions in `app/(portal)/actions.ts`, called from client components in `components/portal/`. Program logic (current week, personalization, progress) is pure code in `lib/portal/programs.ts`, the program editor's parsing in `lib/portal/program-editor.ts`, plan types in `lib/portal/plan-types.ts`, resource links in `lib/portal/resources.ts`, progress-review options in `lib/portal/review.ts` and display formatting in `lib/portal/format.ts`.
+- **Search and sharing.** `lib/seo.ts` builds page metadata, `lib/jsonld.ts` the structured data, `app/sitemap.ts` and `app/robots.ts` the crawl files, `app/manifest.ts` the web app manifest. `lib/links.ts` resolves booking and Client Login links. `lib/placeholders.ts` lists every placeholder for `/launch-checklist` and refuses a launch build while any remain.
+- **Analytics.** `components/Analytics.tsx` loads Plausible on public pages only and never on `/my-tab`, `/practice` or `/contact`; `lib/analytics.ts` holds the property-less Start funnel events (D-057).
+
+## Identity, roles and authority
+
+Supabase Auth holds identities. There is no public sign-up: a practitioner invites a client from the client page in TAB Practice, which sends Supabase's invitation email, and sign-in is an emailed link (`signInWithOtp` with `shouldCreateUser: false`). Both links land on `/my-tab/auth/callback`, which exchanges the code for a session and records the first sign-in (`record_my_tab_sign_in`).
+
+- **Roles.** `profiles.role` is `owner`, `practitioner` or `client`. A staff role counts only in a session verified with two-step verification (`aal2`): `current_app_role()` in the database and `getViewer()` in `lib/portal/index.ts` both apply it (SEC-015). Staff MFA enrolment waits on C5.
+- **Guards in the app.** Every server action calls `requireClient()` or `requireStaff()`. They redirect anyone who shouldn't be there, but they are a convenience: the database decides.
+- **Guards in the database.** Row-level security on every table, using `can_access_client()` (care team only), `my_client_id()`, `is_staff()` and `can_publish_programs()`. Triggers such as `guard_client_update`, `guard_client_columns`, `stamp_author` and `guard_same_client` limit which columns each role may change and pin authorship. The data model page lists every policy.
+- **Service role.** Used only on the server and only where no signed-in role may act: saving website submissions (`lib/inquiry-store.ts`), the Stripe webhook, and sending invitations after the row-level-security-checked update has succeeded.
+- **Demo mode.** While `portal.dataSource` is `mock`, a demo sign-in sets the `tab_demo_role` cookie (client or practitioner) and every visitor shares one in-memory store (`lib/portal/mock-repository.ts`). Production allows it only while `portalDemoOnProduction` is on and Vercel login protects the site.
+
+## Server-side logic
+
+There is no separate application server. Server code runs as Next.js server components, server actions, route handlers and middleware on Vercel.
+
+| Piece | Where | What it does |
+| --- | --- | --- |
+| Middleware | `middleware.ts` | Legacy-domain and legacy-path redirects in one 308 hop; trailing-slash normalization; the Content-Security-Policy from `lib/csp.ts` (a per-request nonce on portal pages); Supabase session refresh and the sign-in redirect for portal pages |
+| Server actions | `app/(portal)/actions.ts` | Every portal mutation, each behind `requireClient()` or `requireStaff()`, validated with zod before it reaches the repository |
+| Portal repository | `lib/portal/types.ts`, `mock-repository.ts`, `supabase-repository.ts` | The one interface for portal data. The Supabase implementation uses the person's session (`lib/supabase/server.ts`), so row-level security applies to every call |
+| Website submissions | `app/api/inquiry/route.ts` | Spam layers from `lib/spam.ts` (same origin, rate limits, minimum fill time, honeypot, duplicate guard, text screening, Turnstile), then email through Resend and, once storage is on, a row in `inquiries` |
+| Stripe | `app/api/checkout`, `app/api/billing-portal`, `app/api/stripe/webhook`, `lib/stripe.ts` | Checkout and the customer portal are created server-side; the webhook is signature-checked and idempotent through `stripe_events`, and grants or revokes entitlements |
+| Email | `lib/email.ts`, `content/emails.ts` | Resend. Messages name no health details; demo mode and deployments without a key log instead of sending |
+
+## Key flows
+
+**Start Where You Are.** The form collects only predefined answers plus name, email and phone. The route checks it, emails TAB and the submitter, and returns a reference. Storage in `inquiries` switches on with the go-live gate.
+
+<!-- diagram:flow-start -->
+
+**Invitation and sign-in.** A practitioner invites a client. The database stamps who invited and when; the server then asks Supabase to send the invitation. The client's link signs them in and records their first sign-in, which TAB Practice shows as active.
+
+<!-- diagram:flow-invite -->
+
+**Change to production.** Every change is a pull request. CI runs the full checks; the owner reviews the Vercel preview and approves; Claude squash-merges. Vercel builds a production deployment that is not yet live; the owner checks it and says "promote", and Claude promotes that exact build. Rollback is promoting the previous one. Database migrations need their own G3 approval.
+
+<!-- diagram:flow-release -->
+
+## Environments and configuration
+
+| Environment | Application | Data | Changes arrive |
+| --- | --- | --- | --- |
+| Local | `next dev`, or `next build` and `next start` for the e2e checks | Demo store; migrations tested in PGlite by `npm run test:rls` | On save |
+| Preview | Vercel preview for each pull request, behind Vercel login, drafts shown | Demo store | When a pull request opens or changes |
+| Production | Vercel production, `tab-wellness-collective.vercel.app`, behind Vercel login until launch | Demo store until A15; then Supabase project `vpaaeblqndcenftrfrms` | On merge it builds; it goes live only when promoted (G3) |
+
+| Setting | Kind | Where it is set | Used for |
+| --- | --- | --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | Public | Vercel | Canonical URLs, sitemap, redirects and auth links |
+| `NEXT_PUBLIC_ALLOW_INDEXING` | Public flag | Vercel | Search indexing; false everywhere until launch (NFR-009) |
+| `NEXT_PUBLIC_SHOW_DRAFTS` | Public flag | Vercel | Draft-copy markers on previews |
+| `RESEND_API_KEY` | Secret | Vercel | Sending form and portal email |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY` | Public key and secret | Vercel | The human check on public forms and the My TAB sign-in |
+| `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | Vercel | The portal's connection to Supabase, with the person's session |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret | Vercel | Server-only tasks listed under Identity |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Secrets | Vercel | Checkout, the billing portal and the webhook |
+| `portal.dataSource`, `portalDemoOnProduction` | Code settings | `config/site.ts` | Demo or Supabase data; demo allowed on production |
+| `forms.storeSubmissions` | Code setting | `config/site.ts` | Saving submissions, on only with Supabase data |
+
+## Delivery, quality and operations
+
+- **Pull requests.** `.github/workflows/ci.yml` runs on every pull request and on `main`: typecheck, the row-level security tests, the contrast check, the documentation check, a production build, the Playwright end-to-end suite and a dependency audit. There are no retries; a failure is a finding.
+- **Tests.** `supabase/tests/rls.test.mjs` applies every migration to PGlite (in-process Postgres) with stub auth and checks each policy and guard as owner, practitioner and client. `e2e/` holds smoke, redirect-map, link-crawl, SEO, header-fit, CSP and WCAG 2.2 AA scans against the production build. `scripts/check-contrast.mjs` checks every token pairing.
+- **Guards on the process.** `.claude/hooks/guard-main.mjs` blocks pushes and writes to `main` and any merge that isn't a squash. Vercel login protects every deployment URL.
+- **Living documents.** The backlog page (`scripts/render-backlog.mjs`) is republished after each promotion. This page, the data model page and the traceability page are built by `scripts/docs/` from `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` and `docs/TRACEABILITY.md`; `npm run docs:check` fails CI when they fall behind the code.
+- **Backups and monitoring.** None yet: Supabase is on the free plan and production holds no client data. Daily backups with a tested restore (A14, A15) and post-launch monitoring (C2) come before real data.
+
+## Quality attributes
+
+| Attribute | How the architecture provides it | Where it falls short |
+| --- | --- | --- |
+| Security | Row-level security and guard triggers on every table; staff roles need two-step verification; nonce CSP on portal pages; no public sign-up; Vercel login | Staff MFA enrolment (C5); internal notes not yet in a private schema (C3b); tests run against PGlite, not a real Supabase stack (C6) |
+| Privacy | No health details by email; analytics off the portal and contact pages; demo data only | No automated check of email content (TG-3); no check that analytics stays off those pages (NFR-005) |
+| Accessibility | WCAG 2.2 AA scans of every public page and the main portal pages in CI; tokens contrast-checked | No manual screen-reader pass yet |
+| Performance | Public pages prebuilt and cached at the edge; portal pages render only what one person needs | Core Web Vitals not measured (NFR-002) |
+| Integrity | Constraints, guard triggers, one-function database operations for version moves and plan saves | Stripe webhook not yet transactional (C3b) |
+| Recoverability | Git holds code and schema; Vercel keeps every build for instant rollback | No database backups until Supabase Pro (A14) |
+| Maintainability | One repository interface, config and content kept out of components, living documents checked in CI | Content edits need a code change until Payload CMS (C8) |
+
+## Risks and technical debt
+
+| Risk | Consequence | Backlog |
+| --- | --- | --- |
+| Demo portal on the production URL | Anyone with Vercel access shares one demo store; unsafe once a custom domain is attached | C1 (turn it off first) |
+| Portal security gate not complete | Real client data can't go in until internal notes move to a private schema, sessions are hardened and tests run on a real stack | C3b, C6, A15 |
+| No backups | A database failure after go-live would lose client records | A14, A15 |
+| Rate limits are per server instance | A determined spammer spread across instances gets more attempts than the limits suggest | A18 (Vercel Firewall, declined for now) |
+| Content lives in code | Every copy change is a pull request | C8 |
+| Major upgrades pending | Next 16, zod 4 and TypeScript 7 drift further the longer they wait | C9 |
+
+## Inventory | Read from the repository when this page was built. Nothing here is written by hand.
+
+<!-- generated:inventory -->
