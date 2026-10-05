@@ -5,7 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import { MethodSteps } from "@/components/MethodSteps";
 import { Cta } from "@/components/Cta";
 
-export const metadata: Metadata = pageMetadata({ title: "The TAB Method", description: "Start where you are. Transform. Adapt. Balance. How TAB personalizes whole-person wellness.", path: "/tab-method" });
+export const metadata: Metadata = pageMetadata({ title: "The TAB Method", description: "Start where you are. Transform. Adapt. Balance. How TAB helps you build capacity for real life.", path: "/tab-method" });
 
 export default function MethodPage() {
   return (

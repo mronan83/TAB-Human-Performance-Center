@@ -14,7 +14,7 @@ export const metadata: Metadata = pageMetadata({
 export default function ServicesPage() {
   return (
     <>
-      <PageHero eyebrow="Services" title="Support for how you feel, move, live, and grow." lead="Each service stands on its own. Together, they form one connected, personalized approach. Start with what fits what you need today.">
+      <PageHero eyebrow="Services" title="Five ways to build capacity." lead="Each service stands on its own. Together they form one integrated approach to strength, recovery, nourishment and the choices that shape your life. Start with what you need today.">
         <Cta kind="start" label="Help me choose" />
       </PageHero>
       <section className="section">

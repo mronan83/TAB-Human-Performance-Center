@@ -1,5 +1,8 @@
 /**
- * Page copy from Step 15 (messaging), Step 16 (homepage story and IA), and Step 14 (TAB Method).
+ * Page copy in the TAB Human Performance Center voice: Brand Foundation v2 (purpose, philosophy, positioning, voice),
+ * the Step 13 pillar definitions and the Step 19 transition wording in docs/source/batch-5, on the Step 14–16 page
+ * structure. Brand guardrail (BF v2 §12): wellness is no longer the master category, and human performance is never
+ * reduced to athletic output. `npm run test:brand` fails on retired names, the old philosophy and wrong pillar counts.
  * Items marked `draft` are temporary and need owner or practitioner review.
  * Structured for migration into Payload globals and collections (D-036).
  */
@@ -11,25 +14,27 @@ export const home = {
     body: "Integrated care and coaching to help you build strength, resilience and the capacity to live fully.",
     image: { src: "/brand/hero-mountain.webp", width: 2000, height: 768 },
   },
+  // Brand Foundation v2 §9 (category definition) and §10 (category line).
   coreIdea: {
-    headline: "Your wellbeing doesn’t happen in pieces. Neither should your care.",
-    body: "Physical comfort affects how you move. Strength shapes confidence and independence. Stress, recovery, habits, responsibilities, and major life changes all influence one another. That’s why TAB brings five areas of support into one connected approach.",
+    headline: "Human performance for real life.",
+    body: "At TAB, human performance isn’t maximum output. It’s how well you function, adapt, recover, connect and act in the life you actually have. Strength, recovery, nourishment, stress and the choices you make each day all affect one another, so TAB brings five areas of support into one integrated approach.",
   },
   pillars: {
-    headline: "Support for how you feel, move, live, and grow.",
+    headline: "Five ways to build capacity.",
     closing:
-      "Start with the service that fits what you need today. As your needs evolve, TAB can help connect other areas of support when they genuinely make sense for your goals.",
+      "Start with the service that fits what you need today. You can use one service or several; we connect them only when that genuinely helps your goals.",
   },
   method: {
     headline: "Start where you are. Transform. Adapt. Balance.",
-    body: "A journey with direction, not a finish line.",
+    body: "Transform what limits you. Adapt to what life asks. Balance what sustains you.",
   },
+  // Brand Foundation v2 §6 (personality) and §10 (experience principle).
   personalization: {
     headline: "Built around people, not programs.",
     points: [
       { title: "We listen first.", body: "Understand before recommending." },
-      { title: "We personalize.", body: "Your plan should fit your life." },
-      { title: "We adapt.", body: "When your needs change, the approach can change too." },
+      { title: "We integrate.", body: "We connect the pieces instead of treating you as separate problems." },
+      { title: "We build ownership.", body: "The goal is agency and self-trust, not dependence on us." },
     ],
   },
   guided: {
@@ -38,11 +43,11 @@ export const home = {
   },
   trust: {
     headline: "Real people. Personal progress.",
-    body: "TAB has supported clients in our community since 2008. The name is new; the commitment to personalized care is not.",
+    body: "TAB has worked with clients in Brighton and Howell since 2008. The name is new; the personal, integrated way we work is not.",
   },
   resources: {
-    headline: "Wellness shouldn’t stop when your appointment ends.",
-    body: "Guides, education, and practical resources to help you understand, prepare, practice, and keep moving forward.",
+    headline: "Support that continues between sessions.",
+    body: "Guides and practical resources to help you understand, prepare, practice and keep building capacity.",
   },
   closing: { headline: "Start where you are.", body: "Wherever you’re starting, we begin by listening." },
 };
@@ -67,7 +72,7 @@ export const method = {
     {
       key: "start",
       name: "Start Where You Are",
-      short: "No judgment. No predefined version of wellness.",
+      short: "No judgment. No predefined program.",
       body: "You don’t need to arrive knowing which service you need or what a complete wellness plan looks like. We begin with where you are, what you need, and where you want to go.",
     },
     {
@@ -99,7 +104,7 @@ export const method = {
     { title: "Start with listening", body: "Understand before recommending." },
     { title: "Personalize the experience", body: "You should never feel processed through a formula." },
     { title: "Explain the why", body: "You understand recommendations and stay an active participant." },
-    { title: "Look at the whole person", body: "Physical wellbeing, habits, responsibilities, and goals are connected." },
+    { title: "Look at the whole person", body: "Your body, habits, responsibilities and goals are connected." },
     { title: "Stay within scope", body: "We know when another qualified professional is better positioned to help." },
     { title: "Measure what matters to you", body: "Not every meaningful outcome shows up on a scale or a stopwatch." },
     { title: "Build ownership, not dependence", body: "The goal is confidence, capability, and agency." },
@@ -107,13 +112,14 @@ export const method = {
 };
 
 export const about = {
-  headline: "Wellness is personal. We think your care should be too.",
+  headline: "Capacity for the life you actually have.",
   sections: [
     {
+      // Brand Foundation v2 §1 (purpose), §9 (category definition); Step 19.3 ("formerly" for the first 90–180 days).
       title: "Why TAB exists",
       body: [
-        "TAB Human Performance Center was created around a simple belief: wellbeing is rarely about just one thing.",
-        "How you feel physically can affect how you move. How you move can influence confidence, independence, and quality of life. Stress, routines, responsibilities, recovery, relationships, and major life changes all shape how well you’re able to care for yourself.",
+        "TAB Human Performance Center, formerly TAB Massage & Fitness, exists to help people build greater capacity for real life: the strength, resilience, adaptability, agency, vitality, connection and self-trust to meet life as it is, recover from what it asks, and act on what matters.",
+        "Human performance at TAB isn’t maximum output or a version of you that never gets tired. It’s how well the whole person functions, adapts, recovers, connects and acts under real-life conditions.",
       ],
     },
     {
@@ -126,13 +132,14 @@ export const about = {
     {
       title: "Transform. Adapt. Balance.",
       body: [
-        "TAB stands for Transform. Adapt. Balance. It’s more than our name—it reflects the way we approach wellness. The process has direction, but there isn’t a finish line.",
+        "TAB stands for Transform. Adapt. Balance. It’s more than our name; it’s how we work. Transform what limits you. Adapt to what life asks. Balance what sustains you.",
+        "The process has direction, but there isn’t a finish line.",
       ],
     },
     {
       title: "Built around people, not programs",
       body: [
-        "Every person comes to TAB with a different body, history, lifestyle, set of responsibilities, and goals. Our role isn’t to fit you into a predefined version of wellness; it’s to help you understand what works for you.",
+        "Every person comes to TAB with a different body, history, lifestyle, set of responsibilities, and goals. Our role isn’t to fit you into a predefined program; it’s to help you understand what works for you.",
         "That may mean one TAB service or several over time. When connections make sense, we help bring the pieces together. When they don’t, we don’t force them.",
       ],
     },
@@ -147,8 +154,10 @@ export const about = {
     headline: "From TAB Massage & Fitness to TAB Human Performance Center",
     draft: true,
     body: [
-      "TAB began in December 2008 as TAB Massage & Fitness, with a holistic approach that already brought together massage, personal training, and coaching.",
-      "Over the years, the work grew beyond “massage and fitness.” TAB Human Performance Center is the name for what TAB has become: a personalized, whole-person approach built on five connected service pillars.",
+      "TAB began in December 2008 as TAB Massage & Fitness in the Brighton and Howell area, with an approach that already brought massage, training and coaching together.",
+      // Step 19.3 transitional messaging.
+      "TAB Massage & Fitness is becoming TAB Human Performance Center. The new name reflects what TAB has grown into: an integrated center helping people build strength, resilience, adaptability and capacity for real life, across five pillars: Massage & Bodywork, Functional Strength, Women’s Wellness, Integrated Nutrition and Holistic Life Coaching.",
+      "Your appointments, history and relationships stay the same.",
       "[PLACEHOLDER: founder story, milestones, and the people behind TAB — to be written with the owner.]",
     ],
   },
@@ -171,17 +180,20 @@ export const about = {
 export const faqs: { q: string; a: string; draft?: boolean }[] = [
   { q: "Do I need to know which service I need?", a: "No. Use Start Where You Are to tell us what you’re looking for, and we’ll help you find the right starting point." },
   { q: "Can I just book a massage?", a: "Absolutely. Start with the service that fits what you need today. Services connect only when that genuinely supports your goals." },
-  { q: "Is TAB Human Performance Center a new company?", a: "No. TAB Massage & Fitness is now TAB Human Performance Center. Your appointments, history, and relationships stay the same." },
-  { q: "Do you offer virtual services?", a: "Yes. Personal strength training and both coaching services are available virtually as well as in person.", draft: true },
+  { q: "Is TAB Human Performance Center a new company?", a: "No. TAB Massage & Fitness is becoming TAB Human Performance Center. Your appointments, history and relationships stay the same." },
+  { q: "What does “human performance” mean at TAB?", a: "Not maximum output or athletic performance. It’s how well you function, adapt, recover, connect and act in your real life, and building more capacity for what matters to you." },
+  { q: "Do I have to use more than one service?", a: "No. You can use one service for as long as it helps. We connect other pillars only when that genuinely supports your goals." },
+  { q: "Do you offer virtual services?", a: "Yes. Functional Strength, Women’s Wellness, Integrated Nutrition and Holistic Life Coaching are available virtually as well as in person. Massage & Bodywork is in person.", draft: true },
   { q: "How do I book, reschedule, or cancel?", a: "Use Book to schedule online. Existing clients can manage appointments through My TAB.", draft: true },
-  { q: "Does TAB provide medical care?", a: "No. TAB provides massage, strength training, and coaching within professional scope, and works alongside your healthcare providers.", draft: false },
+  { q: "Does TAB provide medical care?", a: "No. TAB provides massage and bodywork, strength training, nutrition coaching and life coaching within professional scope, and works alongside your healthcare providers.", draft: false },
 ];
 
 export const resourceClusters = [
   { title: "Massage and recovery", topics: ["Your first massage", "Training recovery", "Prenatal comfort", "Lymphatic drainage basics"] },
   { title: "Strength and capability", topics: ["Beginner strength", "Healthy aging", "Balance and stability", "Building confidence in the gym"] },
   { title: "Women’s wellness", topics: ["Sustainable routines", "Sleep and recovery", "Perimenopause and menopause", "Health advocacy"] },
-  { title: "Life and alignment", topics: ["Priorities", "Boundaries", "Overwhelm", "Values and decisions"] },
+  { title: "Nutrition and fueling", topics: ["Fueling for strength and recovery", "Practical meal structure", "Beyond all-or-nothing eating"] },
+  { title: "Life and agency", topics: ["Priorities", "Boundaries", "Overwhelm", "Values and decisions"] },
   { title: "The TAB Method", topics: ["Starting where you are", "Defining progress", "Maintenance and independence"] },
 ];
 

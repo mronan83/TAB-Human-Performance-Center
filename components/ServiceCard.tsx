@@ -9,7 +9,8 @@ export function ServiceCard({ service, headingLevel = 3 }: { service: Service; h
     <article className="card group flex h-full flex-col p-6 transition-shadow duration-200 hover:shadow-[var(--shadow-md)]">
       <Image src={service.icon} alt="" width={72} height={72} className="h-18 w-18" />
       <p className="text-label mt-6 text-text-secondary">{service.name}</p>
-      <Heading className="mt-2 font-[family-name:var(--font-display)] text-[1.75rem] font-medium leading-tight">{service.headline}</Heading>
+      {/* Five across on the homepage: a smaller headline keeps narrow cards readable; /services has two columns. */}
+      <Heading className={`mt-2 font-[family-name:var(--font-display)] font-semibold ${headingLevel === 2 ? "text-[1.75rem] leading-tight" : "text-[1.25rem] leading-snug"}`}>{service.headline}</Heading>
       <p className="mt-3 flex-1 text-text-secondary">{service.summary}</p>
       <Link href={`/services/${service.path}`} className="mt-6 font-semibold text-primary underline decoration-border-strong underline-offset-4 group-hover:decoration-primary">
         Explore {service.name}

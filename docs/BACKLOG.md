@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-05, rebrand PR 1 (foundations): TAB Human Performance Center name, palette, type, logo, icons and governance._
+_Last updated: 2026-10-05, rebrand PR 2: public copy in the new voice and an automated brand-consistency check._
 
 ## P0 · Now
 
@@ -30,10 +30,10 @@ _Last updated: 2026-10-05, rebrand PR 1 (foundations): TAB Human Performance Cen
 | A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | S | None |
 | A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | S | Launch date |
 | A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | S | None |
-| C20 | Rebrand PR 2, public site: copy in the new voice (Brand Foundation v2, Step 13, scope of practice), Step 19 transition messaging on About and Our Story [D-064, D-065] | Brand | Claude | M | None |
-| C21 | Rebrand PR 3, image library: the 30 stock images from the Step 18 image plan, licensed and optimised, placed by page [DS-007] | Brand | Claude | M | C20 |
+| C21 | Rebrand PR 3, image library: the 30 stock images from the Step 18 image plan, licensed and optimised, placed by page [DS-007] | Brand | Claude | M | None |
 | C22 | Rebrand PR 4, My TAB and TAB Practice restyle to the new identity; no behaviour changes [D-062] | Brand | Claude | M | None |
 | A27 | Decide whether the practitioner workspace keeps the name "TAB Practice" now that "Practice" is retired from the brand name | Decision | Owner | S | None |
+| A28 | Decide whether the client plan keeps the name "TAB Wellness Plan" (DEC-014) now that wellness is no longer the master category; "TAB Plan" would avoid it | Decision | Owner | S | None |
 | A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | S | A2 |
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
 | C15 | Checks for guardrails that only code review protects today: analytics never loads on `/my-tab`, `/practice` or `/contact` (NFR-005); emails and subjects carry no personal or health details (TG-3); a Start submission gets one next step and shows in TAB Practice (TG-8); every service page keeps its CTA, "not sure?" link and related services (WEB-004 to WEB-007) | Quality | Claude | M | None |
@@ -83,7 +83,9 @@ _Last updated: 2026-10-05, rebrand PR 1 (foundations): TAB Human Performance Cen
 
 ## Recently done
 
-- **Rebrand PR 1** (2026-10-05, in review): TAB Human Performance Center name everywhere; approved palette (palette file) with Clay Dark and AA-checked UI values; Montserrat and Spectral self-hosted; the approved logo redraw (horizontal, stacked, symbol; colour, graphite, white, sheen), app icons, favicons, sharing image and five vector service icons; register entries D-061 to D-065 proposed; the homepage hero from the board mock-up (mountain photograph, "More capacity for what matters.", service icon strip), brought forward from PR 2 at the owner's request; the TAB Method stages renamed Transform, Adapt, Balance (migration renames the enum values); the five pillars (new Integrated Nutrition page within the IIN coaching scope, Functional Strength and Women’s Wellness renamed with 308 redirects, internal service keys unchanged, migration adding `integrated-nutrition` to `service_slug`); CLAUDE.md, strategy documents (batch 5) and living documents updated. Closes A9 and A19.
+- **Rebrand PR 2** (2026-10-05, in review): public copy rewritten in the Brand Foundation v2 voice (homepage, services, About, Our Story, FAQ, resources, metadata); service summaries, descriptions and lists from Step 13 and BF §11; pillar count derived from the services; `npm run test:brand` in CI blocks retired names, the old philosophy, old service names and wrong pillar counts. Closes C20.
+
+- **#31 Rebrand PR 1** (2026-10-05): TAB Human Performance Center name everywhere; approved palette (palette file) with Clay Dark and AA-checked UI values; Montserrat and Spectral self-hosted; the approved logo redraw (horizontal, stacked, symbol; colour, graphite, white, sheen), app icons, favicons, sharing image and five vector service icons; register entries D-061 to D-065 proposed; the homepage hero from the board mock-up (mountain photograph, "More capacity for what matters.", service icon strip), brought forward from PR 2 at the owner's request; the TAB Method stages renamed Transform, Adapt, Balance (migration renames the enum values); the five pillars (new Integrated Nutrition page within the IIN coaching scope, Functional Strength and Women’s Wellness renamed with 308 redirects, internal service keys unchanged, migration adding `integrated-nutrition` to `service_slug`); CLAUDE.md, strategy documents (batch 5) and living documents updated. Closes A9 and A19. Promoted 2026-10-05 (`dpl_Dj7fA…`).
 
 - **#30** (2026-10-03): internal notes and practitioner-only plan details in a private schema behind audited functions; append-only audit log and a nightly encrypted export (waits on A26); Stripe events in one transaction, with partial refunds flagged for the owner in TAB Practice; `httpOnly`, `secure`, seven-day session cookies. Promoted 2026-10-05 (`dpl_7aWBr…`).
 - **#29** (2026-10-03): living documents, the traceability page moved into `docs/TRACEABILITY.md` and published in the requested layout; new technical architecture and data model pages; `npm run docs:check` in CI keeps all three in step with the code. Promoted (`dpl_CDWF4…`).

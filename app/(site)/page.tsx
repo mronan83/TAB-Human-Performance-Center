@@ -9,11 +9,14 @@ import { MethodSteps } from "@/components/MethodSteps";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: `${siteConfig.brand.name} | Massage, Strength & Coaching`,
+  title: `${siteConfig.brand.name} | ${siteConfig.brand.categoryLine.replace(/\.$/, "")}`,
   absoluteTitle: true,
-  description: "Massage, strength training and coaching in Brighton and Howell, MI, brought together in one personalized, whole-person approach.",
+  description: "Massage & bodywork, functional strength, women’s wellness, integrated nutrition and life coaching in Brighton and Howell, MI: human performance for real life.",
   path: "/",
 });
+
+// The pillar count comes from the services themselves, so it can't drift from the site (npm run test:brand).
+const PILLAR_COUNT = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven"][services.length] ?? String(services.length);
 
 export default function HomePage() {
   return (
@@ -135,7 +138,7 @@ export default function HomePage() {
             {[
               [`Since ${siteConfig.brand.foundedYear}`, "Serving our community"],
               ["20+ years", "Hands-on practitioner experience"],
-              ["Four", "Connected service pillars"],
+              [PILLAR_COUNT, "Connected service pillars"],
               ["In person & virtual", "Support that fits your life"],
             ].map(([v, l]) => (
               <div key={l} className="flex flex-col rounded-[20px] bg-white p-6">
