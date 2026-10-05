@@ -31,7 +31,6 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | S | Launch date |
 | A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | S | None |
 | C21 | Rebrand PR 3, image library: the 30 stock images from the Step 18 image plan, licensed and optimised, placed by page [DS-007] | Brand | Claude | M | None |
-| C22 | Rebrand PR 4, My TAB and TAB Practice restyle to the new identity; no behaviour changes [D-062] | Brand | Claude | M | None |
 | A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | S | A2 |
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
 | C15 | Checks for guardrails that only code review protects today: analytics never loads on `/my-tab`, `/practice` or `/contact` (NFR-005); emails and subjects carry no personal or health details (TG-3); a Start submission gets one next step and shows in TAB Practice (TG-8); every service page keeps its CTA, "not sure?" link and related services (WEB-004 to WEB-007) | Quality | Claude | M | None |
@@ -81,7 +80,9 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 ## Recently done
 
-- **TAB Performance Plan** (2026-10-05, in review): the client plan renamed from TAB Wellness Plan across My TAB, TAB Practice and the docs (internal keys unchanged); the brand check blocks the old name. Closes A27 (TAB Practice stays) and A28.
+- **Rebrand PR 4, My TAB and TAB Practice restyle** (2026-10-05, in review): sign-in framed by the homepage mountain and purpose line (Spectral) with the stacked lockup on phones; the client's own words and the TAB Method stage lines set in Spectral; the portal's invented status tints replaced by Sage and Ochre tint tokens with contrast checks; "Practice workspace" renamed TAB Practice (A27); `npm run test:brand` now also blocks hex colours in classes and the old workspace name. No behaviour changes. Closes C22.
+
+- **#34 TAB Performance Plan** (2026-10-05): the client plan renamed from TAB Wellness Plan across My TAB, TAB Practice and the docs (internal keys unchanged); the brand check blocks the old name. Closes A27 (TAB Practice stays) and A28.
 
 - **#33 Rebrand PR 2** (2026-10-05): public copy rewritten in the Brand Foundation v2 voice (homepage, services, About, Our Story, FAQ, resources, metadata); service summaries, descriptions and lists from Step 13 and BF §11; pillar count derived from the services; `npm run test:brand` in CI blocks retired names, the old philosophy, old service names and wrong pillar counts. Closes C20.
 

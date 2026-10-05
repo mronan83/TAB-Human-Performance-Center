@@ -21,7 +21,7 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
     <>
       <PageTitle eyebrow={`${client.fullName} · ${def.label}`} title={plan.title}
         action={<Link href={`/practice/clients/${id}`} className="btn btn-outline btn-sm">Back to client</Link>} />
-      {saved && <p role="status" className="mb-6 rounded-xl bg-[#E4EBDD] p-4 font-semibold text-success">Plan saved.{plan.visibleToClient ? " It’s shared with the client in My TAB." : " It isn’t shared with the client yet."}</p>}
+      {saved && <p role="status" className="mb-6 rounded-xl bg-success-soft p-4 font-semibold text-success">Plan saved.{plan.visibleToClient ? " It’s shared with the client in My TAB." : " It isn’t shared with the client yet."}</p>}
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <Panel title="Plan">
           {editable ? <PlanForm clientId={id} planType={plan.planType} plan={plan} /> : <p className="text-text-secondary">{def.label}s can only be edited by a practitioner with the matching credential.</p>}
@@ -30,7 +30,7 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
           {editable && <PlanEntryForm clientId={id} planId={planId} />}
           <ul className="mt-6 space-y-3">
             {entries.map((e) => (
-              <li key={e.id} className={e.visibility === "internal" ? "rounded-xl border border-border bg-bone p-4" : "rounded-xl border border-sage bg-[#F1F3EA] p-4"}>
+              <li key={e.id} className={e.visibility === "internal" ? "rounded-xl border border-border bg-bone p-4" : "rounded-xl border border-sage bg-note-soft p-4"}>
                 <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
                   <span>{fmtDate(e.date, { month: "short", day: "numeric", year: "numeric" })}</span>{e.author && <span>· {e.author}</span>}
                   <Badge tone={e.visibility === "internal" ? "neutral" : "success"}>{e.visibility === "internal" ? "Internal" : "Shared with client"}</Badge>

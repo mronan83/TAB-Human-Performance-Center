@@ -34,7 +34,7 @@ export default async function ClientDetail({ params, searchParams }: { params: P
     <>
       <PageTitle eyebrow="Client" title={client.fullName} lead={[client.email, client.delivery].filter(Boolean).join(" · ")} action={<Badge tone={client.status === "active" ? "success" : "neutral"}>{client.status}</Badge>} />
       {review === "saved" && (
-        <p role="status" className="mb-6 rounded-xl bg-[#E4EBDD] p-4 font-semibold text-success">
+        <p role="status" className="mb-6 rounded-xl bg-success-soft p-4 font-semibold text-success">
           Progress review saved.{email ? ` Stage updated to ${stageLabel(client.methodStage)}. ${EMAIL_NOTE[email] ?? ""}` : ""}
         </p>
       )}
@@ -101,7 +101,7 @@ export default async function ClientDetail({ params, searchParams }: { params: P
             <NoteForm clientId={id} />
             <ul className="mt-6 space-y-3">
               {notes.map((n) => (
-                <li key={n.id} className={n.visibility === "internal" ? "rounded-xl border border-border bg-bone p-4" : "rounded-xl border border-sage bg-[#F1F3EA] p-4"}>
+                <li key={n.id} className={n.visibility === "internal" ? "rounded-xl border border-border bg-bone p-4" : "rounded-xl border border-sage bg-note-soft p-4"}>
                   <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
                     <span>{fmtDate(n.date, { month: "short", day: "numeric", year: "numeric" })}</span>{n.service && <span>· {serviceName(n.service)}</span>}
                     <Badge tone={n.visibility === "internal" ? "neutral" : "success"}>{n.visibility === "internal" ? "Internal" : "Shared with client"}</Badge>

@@ -26,7 +26,7 @@ export default async function ProgramVersionPage({ params, searchParams }: { par
     <>
       <PageTitle eyebrow={`Program library · ${serviceName(program.service)} · version ${program.version}`} title={program.title}
         action={<Link href="/practice/programs" className="btn btn-outline btn-sm">Back to library</Link>} />
-      {done && DONE[done] && <p role="status" className="mb-6 rounded-xl bg-[#E4EBDD] p-4 font-semibold text-success">{DONE[done]}</p>}
+      {done && DONE[done] && <p role="status" className="mb-6 rounded-xl bg-success-soft p-4 font-semibold text-success">{DONE[done]}</p>}
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         <Panel title={program.status === "draft" ? "Edit draft" : "Content"}>
           {program.status === "draft" ? <ProgramEditor key={program.id} program={program} /> : (

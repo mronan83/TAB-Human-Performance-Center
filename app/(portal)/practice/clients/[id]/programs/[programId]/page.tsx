@@ -20,8 +20,8 @@ export default async function ClientProgramPage({ params, searchParams }: { para
     <>
       <PageTitle eyebrow={`${client.fullName} · ${serviceName(program.template.service)}`} title={program.template.title}
         action={<Link href={`/practice/clients/${id}`} className="btn btn-outline btn-sm">Back to client</Link>} />
-      {saved && <p role="status" className="mb-6 rounded-xl bg-[#E4EBDD] p-4 font-semibold text-success">Program saved.{program.status === "active" ? " The client sees it in My TAB with your changes." : ""}</p>}
-      {moved !== undefined && <p role="status" className="mb-6 rounded-xl bg-[#E4EBDD] p-4 font-semibold text-success">Moved to version {program.templateVersion}. {Number(moved) === 1 ? "1 completed activity" : `${Number(moved) || 0} completed activities`} carried over, with your changes for the activities that are still in the program.</p>}
+      {saved && <p role="status" className="mb-6 rounded-xl bg-success-soft p-4 font-semibold text-success">Program saved.{program.status === "active" ? " The client sees it in My TAB with your changes." : ""}</p>}
+      {moved !== undefined && <p role="status" className="mb-6 rounded-xl bg-success-soft p-4 font-semibold text-success">Moved to version {program.templateVersion}. {Number(moved) === 1 ? "1 completed activity" : `${Number(moved) || 0} completed activities`} carried over, with your changes for the activities that are still in the program.</p>}
       <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <Panel title="Program"><ProgramAssignmentForm clientId={id} template={program.template} program={program} plans={plans} /></Panel>
         <Panel title="Progress">

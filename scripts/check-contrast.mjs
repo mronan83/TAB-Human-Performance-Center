@@ -26,6 +26,10 @@ const pairings = [
   // Text on tinted accent fields
   ["text-primary", "accent-soft", TEXT],
   ["secondary-hover", "accent-soft", TEXT], // accent badge
+  ["success", "success-soft", TEXT], // portal confirmations
+  ["text-primary", "success-soft", TEXT],
+  ...["text-primary", "text-secondary"].map((fg) => [fg, "note-soft", TEXT]), // notes shared with the client
+  ["text-primary", "warning-soft", TEXT],
   // White/bone text on filled controls and dark fields
   ...["primary", "primary-hover", "primary-active", "secondary", "secondary-hover", "surface-brand", "graphite"].map(
     (bg) => ["white", bg, TEXT],

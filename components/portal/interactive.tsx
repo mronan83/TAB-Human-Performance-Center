@@ -17,7 +17,7 @@ export function ActivityCheck({ programId, activityId, title, detail, note, done
   const [optimistic, setOptimistic] = useOptimistic(done);
   const [, start] = useTransition();
   return (
-    <label className={clsx("flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors", optimistic ? "border-sage bg-[#F1F3EA]" : "border-border bg-white hover:border-primary")}>
+    <label className={clsx("flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors", optimistic ? "border-sage bg-note-soft" : "border-border bg-white hover:border-primary")}>
       <input type="checkbox" checked={optimistic} className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--color-olive)]"
         onChange={(e) => { const v = e.target.checked; start(async () => { setOptimistic(v); await toggleActivityAction(programId, activityId, v); }); }} />
       <span>
@@ -110,7 +110,7 @@ export function DynamicForm({ template, initial, readOnly }: { template: FormTem
     await submitFormAction(template.slug, answers, final);
     setStatus(final ? "submitted" : "saved");
   };
-  if (status === "submitted") return <div role="status" className="rounded-[20px] bg-[#E4EBDD] p-6 font-semibold text-success">Submitted. Thank you—we’ll review this before your next session.</div>;
+  if (status === "submitted") return <div role="status" className="rounded-[20px] bg-success-soft p-6 font-semibold text-success">Submitted. Thank you—we’ll review this before your next session.</div>;
   return (
     <form noValidate onSubmit={(e) => { e.preventDefault(); save(true); }} className="space-y-10">
       {template.sensitivity === "sensitive" && <p className="rounded-xl bg-accent-soft p-4 text-sm">This form collects confidential health information. Only you and your practitioner can see it.</p>}
@@ -576,7 +576,7 @@ export function LoginForm() {
   const [waitMessage, setWaitMessage] = useState("");
   const { reset } = turnstile;
   useEffect(() => { if (state) reset(); }, [state, reset]); // tokens are single-use
-  if (state?.ok) return <p role="status" className="rounded-[20px] bg-[#E4EBDD] p-5 font-medium text-success">If that email belongs to a TAB client, a sign-in link is on its way. It expires in one hour.</p>;
+  if (state?.ok) return <p role="status" className="rounded-[20px] bg-success-soft p-5 font-medium text-success">If that email belongs to a TAB client, a sign-in link is on its way. It expires in one hour.</p>;
   const error = waitMessage || state?.error;
   return (
     <form

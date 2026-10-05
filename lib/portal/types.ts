@@ -262,7 +262,7 @@ export interface PortalRepository {
   updateContact(clientId: string, data: { preferredName?: string; phone?: string }): Promise<void>;
   listProducts(): Promise<Product[]>;
   listEntitlements(clientId: string): Promise<Entitlement[]>;
-  // Practice workspace
+  // TAB Practice
   listClients(viewer: Viewer): Promise<Client[]>;
   listNotes(clientId: string, includeInternal: boolean): Promise<SessionNote[]>;
   addNote(clientId: string, viewer: Viewer, note: { body: string; visibility: "internal" | "shared"; service?: ServiceSlug }): Promise<void>;

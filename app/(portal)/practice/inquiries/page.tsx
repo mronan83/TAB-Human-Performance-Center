@@ -14,7 +14,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
   const filters = [["", `All (${all.length})`], ["open", `Needs a next step (${needsStep.length})`], ["contact", "Contact messages"]];
   return (
     <>
-      <PageTitle eyebrow="Practice workspace" title="Submissions" lead="Start Where You Are and contact form submissions. Each Start submission ends with one next step." />
+      <PageTitle eyebrow="TAB Practice" title="Submissions" lead="Start Where You Are and contact form submissions. Each Start submission ends with one next step." />
       <nav aria-label="Filter submissions" className="mb-4 flex flex-wrap gap-2">
         {filters.map(([v, l]) => (
           <Link key={v} href={v ? `/practice/inquiries?view=${v}` : "/practice/inquiries"} aria-current={(view ?? "") === v ? "page" : undefined}

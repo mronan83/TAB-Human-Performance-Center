@@ -76,12 +76,12 @@ export default async function MyTabHome() {
 
           <Panel title="Your journey" action={d.plan ? <TextLink href="/my-tab/plan">My plan</TextLink> : undefined}>
             {stageUpdate && (
-              <p role="status" className="mb-4 rounded-xl bg-[#E4EBDD] p-3 text-sm font-semibold text-success">
+              <p role="status" className="mb-4 rounded-xl bg-success-soft p-3 text-sm font-semibold text-success">
                 Your stage was updated to {STAGES.find((s) => s.key === stageUpdate.to)?.label} on {fmtDate(stageUpdate.changedAt, { month: "long", day: "numeric" })}.
               </p>
             )}
             <StageTracker stage={d.client.methodStage} />
-            <p className="mt-3 text-sm text-text-secondary">{STAGES.find((s) => s.key === d.client.methodStage)?.blurb}</p>
+            <p className="text-editorial mt-3 text-[1.0625rem] italic text-text-secondary">{STAGES.find((s) => s.key === d.client.methodStage)?.blurb}</p>
             {d.plan && <p className="mt-5 font-semibold">{d.plan.title}</p>}
             {d.plan?.reviewDate && <p className="mt-1 text-sm text-text-secondary">Progress review {fmtDate(d.plan.reviewDate, { month: "long", day: "numeric" })} · in {daysUntil(d.plan.reviewDate)} days</p>}
           </Panel>

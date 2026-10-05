@@ -36,7 +36,7 @@ export function TextLink({ href, children }: { href: string; children: ReactNode
 }
 
 export function Badge({ tone = "neutral", children }: { tone?: "neutral" | "success" | "warning" | "brand" | "accent"; children: ReactNode }) {
-  const tones = { neutral: "bg-linen text-text-primary", success: "bg-[#E4EBDD] text-success", warning: "bg-[#F6EBD9] text-text-primary", brand: "bg-olive text-white", accent: "bg-accent-soft text-secondary-hover" };
+  const tones = { neutral: "bg-linen text-text-primary", success: "bg-success-soft text-success", warning: "bg-warning-soft text-text-primary", brand: "bg-olive text-white", accent: "bg-accent-soft text-secondary-hover" };
   return <span className={clsx("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tones[tone])}>{children}</span>;
 }
 

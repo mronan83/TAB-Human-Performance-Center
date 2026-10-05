@@ -19,9 +19,9 @@ export default async function ProgramLibrary({ searchParams }: { searchParams: P
   const canPublish = viewer.role === "owner" || !!viewer.canPublish;
   return (
     <>
-      <PageTitle eyebrow="Practice workspace" title="Program library" lead="Reusable programs you can assign to clients or package as products. Any practitioner can write drafts; publishing makes a version available to assign."
+      <PageTitle eyebrow="TAB Practice" title="Program library" lead="Reusable programs you can assign to clients or package as products. Any practitioner can write drafts; publishing makes a version available to assign."
         action={<Link href="/practice/programs/new" className="btn btn-primary btn-sm">New program</Link>} />
-      {done === "discard" && <p role="status" className="mb-6 rounded-xl bg-[#E4EBDD] p-4 font-semibold text-success">Draft discarded.</p>}
+      {done === "discard" && <p role="status" className="mb-6 rounded-xl bg-success-soft p-4 font-semibold text-success">Draft discarded.</p>}
       <p className="mb-6 text-sm text-text-secondary">{canPublish ? "You can publish and retire programs. Drafts submitted for review are marked below." : "Submit a draft for review when it's ready; a practitioner with the publishing permission publishes it."}</p>
       {programs.length === 0 ? <EmptyState title="No programs yet." body="Start one with New program." /> : (
         <div className="grid gap-6 md:grid-cols-2">

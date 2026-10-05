@@ -244,7 +244,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-13 | SEO metadata, sitemap, robots, structured data | Verified | WEB-016, NFR-002, NFR-003, NFR-009 | D-038 | `lib/seo.ts`, `lib/jsonld.ts`, `app/sitemap.ts`, `app/robots.ts` | seo |
 | F-14 | Plausible analytics | Partial: account (A4); Start funnel only (TG-7) | NFR-005, NFR-006 | D-046, D-057 | `components/Analytics.tsx`, `lib/analytics.ts` | — |
 | F-15 | Content-Security-Policy and headers | Verified | SEC-004, SEC-013 | — | `lib/csp.ts`, `middleware.ts`, `next.config.ts` | security |
-| F-16 | Design tokens, fonts and contrast check | Partial: hand-copied tokens (TG-6) | DS-001 to DS-005, NFR-001 | D-062 (proposed; replaces D-053, D-056) | `app/globals.css`, `app/fonts/`, `scripts/check-contrast.mjs` | contrast, a11y |
+| F-16 | Design tokens, fonts and contrast check | Partial: hand-copied tokens (TG-6); the portal's status tints are tokens too, and `npm run test:brand` blocks hex colours in classes | DS-001 to DS-005, NFR-001 | D-062 (proposed; replaces D-053, D-056) | `app/globals.css`, `app/fonts/`, `scripts/check-contrast.mjs` | contrast, a11y |
 | F-17 | Logo, icons, manifest | Built | WEB-018, WEB-019, DS-006 | D-061 (proposed; replaces D-027) | `public/brand/`, `components/Logo.tsx`, `app/manifest.ts` | smoke |
 | F-18 | Launch checklist and draft markers | Verified | — (guardrail 10) | CLAUDE.md guardrail 10 | `app/(site)/launch-checklist/`, `lib/placeholders.ts`, `components/DraftFlag.tsx` | smoke |
 
@@ -396,6 +396,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; TAB Method stages renamed Adapt and Balance (enum values renamed); five pillars (Integrated Nutrition page; Functional Strength and Women’s Wellness renamed, old URLs redirect; `service_slug` gains `integrated-nutrition`); DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
 | 2026-10-05 | 1.4 | Rebrand PR 2: public copy rewritten in the Brand Foundation v2 voice (pillar counts, FAQ, About, Our Story, service lists from Step 13); WEB-014 now checked by `npm run test:brand` | Owner, 2026-10-05: "We can’t have misaligned verbiage and content" |
 | 2026-10-05 | 1.5 | TAB Wellness Plan renamed TAB Performance Plan (PORTAL-003, STAFF-005); TAB Practice keeps its name | Owner rulings A27, A28 |
+| 2026-10-05 | 1.6 | Rebrand PR 4: My TAB and TAB Practice restyled to the new identity (C22); F-16 updated for the portal tint tokens and the colour rule in `npm run test:brand` | Owner request, 2026-10-05 |
 
 ## Sources
 

@@ -20,7 +20,7 @@ export default async function PracticeHome({ searchParams }: { searchParams: Pro
   const filters = [["", "All"], ["active", "Active"], ["prospect", "Prospects"], ["paused", "Paused"], ["alumni", "Alumni"]];
   return (
     <>
-      <PageTitle eyebrow="Practice workspace" title="Clients" />
+      <PageTitle eyebrow="TAB Practice" title="Clients" />
       <dl className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (<div key={s.label} className="rounded-[20px] border border-border bg-white p-5"><dt className="text-sm text-text-secondary">{s.label}</dt><dd className="mt-1 font-[family-name:var(--font-display)] text-4xl">{s.value}</dd></div>))}
       </dl>

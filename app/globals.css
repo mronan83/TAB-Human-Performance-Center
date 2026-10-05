@@ -34,6 +34,10 @@
   --color-secondary-hover: #8E472D;
   --color-accent: #C46A4A; /* decorative only: never text, never behind white text */
   --color-accent-soft: #F5E4DB;
+  /* Status and note fields: tints of palette colours on white (C22), so the portal invents none of its own */
+  --color-success-soft: #E5E8E2; /* Sage at 30%: confirmations */
+  --color-note-soft: #F2F4F1; /* Sage at 15%: notes the client can see */
+  --color-warning-soft: #F4E9DC; /* Ochre at 25% */
   --color-focus: #A75436;
   --color-focus-inverse: #FBF6F1; /* focus ring on olive/graphite/dark fields */
   --color-success: #4F6B4A;
