@@ -57,3 +57,15 @@ def sheen_defs(A,b,gid):
 FLAT={'olive':C['olive'],'clay':C['clay'],'cream':C['sage']}
 DARKAPP={'olive':C['olive'],'clay':C['clay'],'cream':C['linen']}
 def mono(c): return {n:c for n in PARTS}
+
+# --- Corrections to the AI-generated board (owner instruction 2026-10-05: fix spacing and anything else) ---
+# 1. One tracking value for all three descriptor lines (the board set HUMAN wider than the others).
+# 2. Descriptor lines evenly spaced, with HUMAN's cap height aligned to the top of TAB and CENTER on TAB's baseline.
+# 3. Divider centred optically between TAB and the descriptor (the board sat it closer to TAB).
+# 4. Tagline centred under the wordmark (TAB through the end of PERFORMANCE).
+_tab=text_bbox(TAB); _cap=DESC[0]['size']*0.7
+for _d in DESC: _d['track']=4.9
+DESC[0]['base']=_tab[1]+_cap; DESC[2]['base']=_tab[3]; DESC[1]['base']=(DESC[0]['base']+DESC[2]['base'])/2
+_dl=min(text_bbox(d)[0] for d in DESC[:2]); _mid=(_tab[2]+_dl)/2
+DIV=(round(_mid-DIV[2]/2,2),DIV[1],DIV[2],DIV[3])
+_w=max(text_bbox(d)[2] for d in DESC); _tg=text_bbox(TAG); TAG['x0']+=(_tab[0]+_w)/2-(_tg[0]+_tg[2])/2
