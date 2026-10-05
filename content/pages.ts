@@ -11,7 +11,7 @@ export const home = {
   },
   coreIdea: {
     headline: "Your wellbeing doesn’t happen in pieces. Neither should your care.",
-    body: "Physical comfort affects how you move. Strength shapes confidence and independence. Stress, recovery, habits, responsibilities, and major life changes all influence one another. That’s why TAB is a collective: four areas of support, one connected approach.",
+    body: "Physical comfort affects how you move. Strength shapes confidence and independence. Stress, recovery, habits, responsibilities, and major life changes all influence one another. That’s why TAB brings four areas of support into one connected approach.",
   },
   pillars: {
     headline: "Support for how you feel, move, live, and grow.",
@@ -19,7 +19,7 @@ export const home = {
       "Start with the service that fits what you need today. As your needs evolve, TAB can help connect other areas of support when they genuinely make sense for your goals.",
   },
   method: {
-    headline: "Start where you are. Transform. Align. Become.",
+    headline: "Start where you are. Transform. Adapt. Balance.",
     body: "A journey with direction, not a finish line.",
   },
   personalization: {
@@ -110,7 +110,7 @@ export const about = {
     {
       title: "Why TAB exists",
       body: [
-        "TAB Wellness Collective was created around a simple belief: wellbeing is rarely about just one thing.",
+        "TAB Human Performance Center was created around a simple belief: wellbeing is rarely about just one thing.",
         "How you feel physically can affect how you move. How you move can influence confidence, independence, and quality of life. Stress, routines, responsibilities, recovery, relationships, and major life changes all shape how well you’re able to care for yourself.",
       ],
     },
@@ -122,9 +122,9 @@ export const about = {
       ],
     },
     {
-      title: "Transform. Align. Become.",
+      title: "Transform. Adapt. Balance.",
       body: [
-        "TAB stands for Transform. Align. Become. It’s more than our name—it reflects the way we approach wellness. The process has direction, but there isn’t a finish line.",
+        "TAB stands for Transform. Adapt. Balance. It’s more than our name—it reflects the way we approach wellness. The process has direction, but there isn’t a finish line.",
       ],
     },
     {
@@ -142,11 +142,11 @@ export const about = {
     },
   ],
   story: {
-    headline: "From TAB Massage & Fitness to TAB Wellness Collective",
+    headline: "From TAB Massage & Fitness to TAB Human Performance Center",
     draft: true,
     body: [
       "TAB began in December 2008 as TAB Massage & Fitness, with a holistic approach that already brought together massage, personal training, and coaching.",
-      "Over the years, the work grew beyond “massage and fitness.” TAB Wellness Collective is the name for what TAB has become: a personalized, whole-person practice built on four connected service pillars.",
+      "Over the years, the work grew beyond “massage and fitness.” TAB Human Performance Center is the name for what TAB has become: a personalized, whole-person approach built on four connected service pillars.",
       "[PLACEHOLDER: founder story, milestones, and the people behind TAB — to be written with the owner.]",
     ],
   },
@@ -169,7 +169,7 @@ export const about = {
 export const faqs: { q: string; a: string; draft?: boolean }[] = [
   { q: "Do I need to know which service I need?", a: "No. Use Start Where You Are to tell us what you’re looking for, and we’ll help you find the right starting point." },
   { q: "Can I just book a massage?", a: "Absolutely. Start with the service that fits what you need today. Services connect only when that genuinely supports your goals." },
-  { q: "Is TAB Wellness Collective a new company?", a: "No. TAB Massage & Fitness is now TAB Wellness Collective. Your appointments, history, and relationships stay the same." },
+  { q: "Is TAB Human Performance Center a new company?", a: "No. TAB Massage & Fitness is now TAB Human Performance Center. Your appointments, history, and relationships stay the same." },
   { q: "Do you offer virtual services?", a: "Yes. Personal strength training and both coaching services are available virtually as well as in person.", draft: true },
   { q: "How do I book, reschedule, or cancel?", a: "Use Book to schedule online. Existing clients can manage appointments through My TAB.", draft: true },
   { q: "Does TAB provide medical care?", a: "No. TAB provides massage, strength training, and coaching within professional scope, and works alongside your healthcare providers.", draft: false },
@@ -197,7 +197,7 @@ export const legal = {
     title: "Accessibility",
     draft: false,
     body: [
-      "TAB Wellness Collective is committed to an accessible website and client portal. We design and test to the Web Content Accessibility Guidelines (WCAG) 2.2, level AA.",
+      "TAB Human Performance Center is committed to an accessible website and client portal. We design and test to the Web Content Accessibility Guidelines (WCAG) 2.2, level AA.",
       "If anything on this site is hard to use, email us and we’ll help and fix it.",
     ],
   },

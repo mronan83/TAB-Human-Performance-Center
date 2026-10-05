@@ -21,8 +21,8 @@ export async function sendStageUpdatedEmail(to: string | undefined, name: string
     return "skipped";
   }
   const html = `<p style="${FONT};font-size:15px">${esc(e.greeting(name))}</p><p style="${FONT};font-size:15px">${esc(e.body)}</p>`
-    + `<p><a href="${esc(link)}" style="${FONT};font-size:15px;color:#5A6046;font-weight:bold">${esc(e.cta)}</a></p>`
-    + `<p style="${FONT};font-size:13px;color:#575B53">${esc(e.footer)}</p>`;
+    + `<p><a href="${esc(link)}" style="${FONT};font-size:15px;color:#4A5A44;font-weight:bold">${esc(e.cta)}</a></p>`
+    + `<p style="${FONT};font-size:13px;color:#5A5953">${esc(e.footer)}</p>`;
   try {
     const { error } = await new Resend(key).emails.send({ from: siteConfig.forms.fromAddress, to, subject: e.subject, html, text });
     if (error) throw new Error(error.message);

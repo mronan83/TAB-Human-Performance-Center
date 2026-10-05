@@ -53,7 +53,7 @@ export default async function ServicePage({ params }: Props) {
       </section>
 
       {/* Who it's for / what you gain */}
-      <section className="section bg-sand">
+      <section className="section bg-linen">
         <div className="container-page grid gap-8 md:grid-cols-2">
           <div className="rounded-[20px] bg-white p-8">
             <h2 className="text-h2">Who it’s for</h2>
@@ -94,7 +94,7 @@ export default async function ServicePage({ params }: Props) {
               </div>
             ))}
           </div>
-          <blockquote className="mt-14 max-w-3xl font-[family-name:var(--font-display)] text-3xl italic leading-snug">“{s.anchor}”</blockquote>
+          <blockquote className="mt-14 max-w-3xl font-[family-name:var(--font-serif)] text-3xl italic leading-snug">“{s.anchor}”</blockquote>
         </div>
       </section>
 
@@ -111,12 +111,12 @@ export default async function ServicePage({ params }: Props) {
               </li>
             ))}
           </ol>
-          <p className="mt-8 rounded-[20px] bg-sand p-6 text-sm text-text-secondary"><strong className="text-text-primary">Scope of care. </strong>{s.scopeNote}</p>
+          <p className="mt-8 rounded-[20px] bg-linen p-6 text-sm text-text-secondary"><strong className="text-text-primary">Scope of care. </strong>{s.scopeNote}</p>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="section bg-sand" id="faq">
+      <section className="section bg-linen" id="faq">
         <div className="container-prose">
           <h2 className="text-h1">Questions</h2>
           <div className="mt-8"><FaqList items={s.faqs} /></div>
@@ -140,7 +140,7 @@ export default async function ServicePage({ params }: Props) {
         </div>
       </section>
 
-      <section className="on-dark section bg-charcoal text-white">
+      <section className="on-dark section bg-graphite text-white">
         <div className="container-prose text-center">
           <h2 className="text-display-lg">Start where you are.</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
@@ -154,5 +154,5 @@ export default async function ServicePage({ params }: Props) {
 }
 
 function Dot() {
-  return <span aria-hidden className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-terracotta" />;
+  return <span aria-hidden className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-clay" />;
 }

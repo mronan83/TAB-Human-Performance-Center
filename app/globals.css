@@ -1,48 +1,49 @@
 @import "tailwindcss";
 
-/* TAB Wellness Collective — Canonical Design Tokens v1.0 (D-053), amended for WCAG 2.2 AA contrast
-   (owner-approved 2026-09-28, proposed D-056; register CON-011). Do not change values here without
-   updating the token document; `npm run test:contrast` checks every permitted pairing.
+/* TAB Human Performance Center design tokens: the approved palette (palette file, owner ruling 2026-10-05) plus
+   Clay Dark from Step 18, with derived UI values chosen for WCAG 2.2 AA (proposed D-062; replaces D-053/D-056).
+   Do not change values here without updating the register; `npm run test:contrast` checks every permitted pairing.
    Fonts are loaded in app/layout.tsx via next/font. */
 @theme {
   /* Palette */
-  --color-sand: #EDE7DC;
-  --color-linen: #DCCFBD;
-  --color-sage: #97A07C;
-  --color-olive: #5A6046;
-  --color-terracotta: #C0784C;
-  --color-terracotta-deep: #A65E39; /* D-056: was #A85F3A; 4.51:1 on cream */
-  --color-charcoal: #252724;
-  --color-cream: #F8F5EF;
+  --color-bone: #FBF6F1;
+  --color-linen: #E8E3D9;
+  --color-sage: #A7B39F; /* decorative only: never text, never behind white text */
+  --color-olive: #4A5A44; /* Deep Olive */
+  --color-clay: #C46A4A; /* decorative only: never text, never behind white text */
+  --color-clay-dark: #A75436; /* accessible accent: 4.93:1 on bone */
+  --color-ochre: #D4A574; /* decorative only */
+  --color-graphite: #2E2E2E;
   --color-white: #FFFFFF;
 
   /* Semantic roles */
-  --color-background: #F8F5EF;
+  --color-background: #FBF6F1;
   --color-surface: #FFFFFF;
-  --color-surface-muted: #EDE7DC;
-  --color-surface-warm: #DCCFBD;
-  --color-surface-brand: #5A6046;
-  --color-text-primary: #252724;
-  --color-text-secondary: #575B53; /* D-056: was #5E625A; passes on linen */
-  --color-border: #CFC6B8;
-  --color-border-strong: #A99D8C; /* decorative dividers only */
-  --color-border-input: #8D8375; /* D-056: form-field and control boundaries, >= 3:1 */
-  --color-primary: #5A6046;
-  --color-primary-hover: #484D38;
-  --color-primary-active: #3D4130;
-  --color-secondary: #A65E39;
-  --color-secondary-hover: #8F5034;
-  --color-accent: #C0784C; /* decorative only: never text, never behind white text */
-  --color-accent-soft: #F1DED2;
-  --color-focus: #A65E39;
-  --color-focus-inverse: #F8F5EF; /* D-056: focus ring on olive/charcoal/dark fields */
+  --color-surface-muted: #E8E3D9;
+  --color-surface-warm: #E8E3D9;
+  --color-surface-brand: #4A5A44;
+  --color-text-primary: #2E2E2E;
+  --color-text-secondary: #5A5953; /* 5.49:1 on linen */
+  --color-border: #D8D2C6;
+  --color-border-strong: #ABA597; /* decorative dividers only */
+  --color-border-input: #858075; /* form-field and control boundaries, >= 3:1 */
+  --color-primary: #4A5A44;
+  --color-primary-hover: #3E4C39;
+  --color-primary-active: #33402F;
+  --color-secondary: #A75436;
+  --color-secondary-hover: #8E472D;
+  --color-accent: #C46A4A; /* decorative only: never text, never behind white text */
+  --color-accent-soft: #F5E4DB;
+  --color-focus: #A75436;
+  --color-focus-inverse: #FBF6F1; /* focus ring on olive/graphite/dark fields */
   --color-success: #4F6B4A;
-  --color-warning: #96672E; /* D-056: was #9A6A2F */
+  --color-warning: #85601F;
   --color-danger: #9B403C;
 
-  /* Fonts */
-  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-manrope), "Manrope", "Helvetica Neue", Arial, sans-serif;
+  /* Fonts: Montserrat for headings, body and UI; Spectral for editorial accents (Step 18.4) */
+  --font-display: var(--font-montserrat), "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --font-sans: var(--font-montserrat), "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: var(--font-spectral), "Spectral", Georgia, "Times New Roman", serif;
 
   /* Radius */
   --radius-sm: 8px;
@@ -84,8 +85,8 @@
   }
   h1, h2, .display {
     font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.015em;
+    font-weight: 700;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
   h3, h4 { font-family: var(--font-sans); font-weight: 600; text-wrap: balance; }
@@ -96,7 +97,7 @@
     outline-offset: 3px;
     border-radius: 4px;
   }
-  /* Dark fields (charcoal, olive): the terracotta ring falls below 3:1, so switch to cream (D-056). */
+  /* Dark fields (graphite, olive): the clay-dark ring falls below 3:1, so switch to bone. */
   .on-dark :focus-visible { outline-color: var(--color-focus-inverse); }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
@@ -109,10 +110,11 @@
   .section { padding-block: 64px; }
   @media (min-width: 1024px) { .section { padding-block: 96px; } }
 
-  .text-display-xl { font-family: var(--font-display); font-size: clamp(2.75rem, 6vw, 4.5rem); line-height: 1; font-weight: 500; letter-spacing: -0.02em; }
-  .text-display-lg { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 3.5rem); line-height: 1; font-weight: 500; letter-spacing: -0.02em; }
-  .text-h1 { font-family: var(--font-display); font-size: clamp(2.25rem, 4.5vw, 3rem); line-height: 1.08; font-weight: 500; }
-  .text-h2 { font-family: var(--font-display); font-size: clamp(1.875rem, 3.5vw, 2.25rem); line-height: 1.12; font-weight: 500; }
+  .text-display-xl { font-family: var(--font-display); font-size: clamp(2.25rem, 5vw, 3.75rem); line-height: 1.05; font-weight: 700; letter-spacing: -0.025em; }
+  .text-display-lg { font-family: var(--font-display); font-size: clamp(2rem, 4.5vw, 3rem); line-height: 1.05; font-weight: 700; letter-spacing: -0.025em; }
+  .text-h1 { font-family: var(--font-display); font-size: clamp(2rem, 4vw, 2.75rem); line-height: 1.12; font-weight: 700; letter-spacing: -0.02em; }
+  .text-h2 { font-family: var(--font-display); font-size: clamp(1.625rem, 3vw, 2rem); line-height: 1.18; font-weight: 700; letter-spacing: -0.015em; }
+  .text-editorial { font-family: var(--font-serif); font-weight: 400; }
   .text-h3 { font-size: 1.75rem; line-height: 1.2; font-weight: 600; }
   .text-h4 { font-size: 1.375rem; line-height: 1.25; font-weight: 600; }
   .text-body-lg { font-size: 1.125rem; line-height: 1.6; }

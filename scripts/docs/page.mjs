@@ -1,7 +1,7 @@
 /**
  * Shared renderer for the living documentation pages (traceability, technical architecture, data model).
  * Each page has a Markdown source in docs/ that is the only place its written content is edited; this module turns
- * that source into one self-contained HTML page in TAB Wellness Collective's design tokens (app/globals.css).
+ * that source into one self-contained HTML page in TAB Human Performance Center's design tokens (app/globals.css).
  *
  * Markdown supported: front matter (key: value between --- lines), ## sections (become the contents rail), ### headings,
  * paragraphs, "- " lists, tables, and directives on a line of their own: <!-- name args -->, which the page script
@@ -198,15 +198,15 @@ export const figure = (svgHtml, caption) => `<figure class="chart"><div class="s
 const CSS = `
 /* Layout: a contents rail beside one reading column, as in the backlog page; tables and diagrams scroll inside the column.
    Palette: TAB Design Tokens v1.0 with the D-056 contrast fixes (app/globals.css). Olive leads; Deep Terracotta marks
-   what needs attention. Cormorant Garamond for headings, Manrope for text, IBM Plex Mono for IDs and code. */
+   what needs attention. Montserrat for headings and text, IBM Plex Mono for IDs and code. */
 :root {
-  --bg: #F8F5EF; --surface: #FFFFFF; --surface-2: #EDE7DC; --ink: #252724; --muted: #575B53;
-  --line: #DCD4C6; --line-strong: #A99D8C; --brand: #5A6046; --on-brand: #F8F5EF; --accent: #A65E39; --accent-bg: #F1DED2;
+  --bg: #FBF6F1; --surface: #FFFFFF; --surface-2: #E8E3D9; --ink: #2E2E2E; --muted: #5A5953;
+  --line: #D8D2C6; --line-strong: #ABA597; --brand: #4A5A44; --on-brand: #FBF6F1; --accent: #A75436; --accent-bg: #F5E4DB;
   --good: #46623F; --good-bg: #E2EADA; --warn: #85561B; --warn-bg: #F5E6CC; --plan: #4C5A66; --plan-bg: #E3E8EB;
   --quiet-bg: #ECE8E0; --zone: #F1ECE3;
-  --seg-v: #5A6046; --seg-b: #97A07C; --seg-p: #D7C29A; --seg-pl: #ECE8E0;
-  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --font-ui: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+  --seg-v: #4A5A44; --seg-b: #A7B39F; --seg-p: #D4A574; --seg-pl: #ECE8E0;
+  --font-display: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
@@ -229,8 +229,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 code { font-family: var(--font-mono); font-size: 0.82em; background: var(--surface-2); padding: 0.05em 0.35em; border-radius: 3px; overflow-wrap: anywhere; }
 a.code { text-decoration: none; } a.code code { border-bottom: 1px dotted var(--line-strong); }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 600; color: var(--ink); text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(2.3rem, 5vw, 3.3rem); line-height: 1.02; letter-spacing: -0.01em; }
-h2 { font-size: 1.85rem; line-height: 1.12; padding-top: 10px; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.08; letter-spacing: -0.02em; font-weight: 700; }
+h2 { font-size: 1.45rem; line-height: 1.2; padding-top: 10px; font-weight: 700; letter-spacing: -0.01em; }
 h3 { font-size: 1.32rem; line-height: 1.2; margin-top: 10px; }
 p { margin: 0; max-width: 74ch; }
 section > ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 78ch; }
@@ -241,7 +241,7 @@ section > ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-widt
 .lede { font-size: 1.1rem; max-width: 72ch; }
 .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; display: grid; min-width: 128px; }
-.stat .n { font-family: var(--font-display); font-size: 2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .n { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .stat .n small { font-family: var(--font-ui); font-size: 0.85rem; color: var(--muted); font-weight: 600; }
 .stat .l { font-size: 0.82rem; color: var(--muted); }
 .siblings { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.9rem; }
@@ -375,7 +375,7 @@ export function page(o) {
     .filter(([k]) => L[k] && k !== o.key).map(([k, t]) => `<a href="${L[k]}" target="_blank" rel="noopener">${t}</a>`);
   return `<title>${esc(o.title)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>${CSS}${o.css ?? ""}</style>
 <div class="page">
 <header class="hero">

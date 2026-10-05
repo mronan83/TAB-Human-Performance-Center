@@ -31,10 +31,10 @@ export default function HomePage() {
             </div>
           </div>
           <div aria-hidden="true" className="relative mx-auto w-full max-w-md">
-            <div className="aspect-[4/5] rounded-t-full bg-sand p-10 pt-16">
-              <div className="flex h-full flex-col items-center justify-center rounded-t-full border border-linen bg-cream/70">
-                <Image src="/brand/symbol.svg" alt="" width={1130} height={958} className="w-3/5" priority unoptimized />
-                <p className="mt-6 font-[family-name:var(--font-display)] text-2xl italic text-olive">Start where you are.</p>
+            <div className="aspect-[4/5] rounded-t-full bg-linen p-10 pt-16">
+              <div className="flex h-full flex-col items-center justify-center rounded-t-full border border-linen bg-bone/70">
+                <Image src="/brand/symbol.svg" alt="" width={146} height={128} className="w-3/5" priority unoptimized />
+                <p className="mt-6 font-[family-name:var(--font-serif)] text-2xl italic text-olive">Start where you are.</p>
               </div>
             </div>
             {/* PLACEHOLDER: replace with an authentic session photo when available. */}
@@ -43,7 +43,7 @@ export default function HomePage() {
       </section>
 
       {/* 2. Core idea */}
-      <section className="section bg-sand">
+      <section className="section bg-linen">
         <div className="container-prose text-center">
           <h2 className="text-h1">{home.coreIdea.headline}</h2>
           <p className="text-body-lg mt-6 text-text-secondary">{home.coreIdea.body}</p>
@@ -65,7 +65,7 @@ export default function HomePage() {
       </section>
 
       {/* 4. The TAB Method */}
-      <section className="section bg-sand">
+      <section className="section bg-linen">
         <div className="container-page">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div className="max-w-2xl">
@@ -111,7 +111,7 @@ export default function HomePage() {
       </section>
 
       {/* 7. Trust */}
-      <section className="section bg-sand">
+      <section className="section bg-linen">
         <div className="container-page grid gap-10 md:grid-cols-2 md:items-center">
           <div>
             <h2 className="text-h1">{home.trust.headline}</h2>
@@ -148,7 +148,7 @@ export default function HomePage() {
       )}
 
       {/* 9. Closing CTA */}
-      <section className="on-dark section bg-charcoal text-white">
+      <section className="on-dark section bg-graphite text-white">
         <div className="container-prose text-center">
           <h2 className="text-display-lg">{home.closing.headline}</h2>
           <p className="text-body-lg mt-5 text-white/80">{home.closing.body}</p>

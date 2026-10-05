@@ -39,7 +39,7 @@ export function PortalNav({ items, variant }: { items: PortalNavItem[]; variant:
           {items.map((i) => (
             <li key={i.href}>
               <Link href={i.href} aria-current={active(i.href) ? "page" : undefined}
-                className={clsx("flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.9375rem] font-medium transition-colors", active(i.href) ? "bg-sand text-primary" : "text-text-secondary hover:bg-cream hover:text-text-primary")}>
+                className={clsx("flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.9375rem] font-medium transition-colors", active(i.href) ? "bg-linen text-primary" : "text-text-secondary hover:bg-bone hover:text-text-primary")}>
                 <Icon name={i.icon} className="h-5 w-5" />{i.label}
               </Link>
             </li>

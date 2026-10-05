@@ -36,7 +36,7 @@ export function TextLink({ href, children }: { href: string; children: ReactNode
 }
 
 export function Badge({ tone = "neutral", children }: { tone?: "neutral" | "success" | "warning" | "brand" | "accent"; children: ReactNode }) {
-  const tones = { neutral: "bg-sand text-text-primary", success: "bg-[#E4EBDD] text-success", warning: "bg-[#F6EBD9] text-text-primary", brand: "bg-olive text-white", accent: "bg-accent-soft text-secondary-hover" };
+  const tones = { neutral: "bg-linen text-text-primary", success: "bg-[#E4EBDD] text-success", warning: "bg-[#F6EBD9] text-text-primary", brand: "bg-olive text-white", accent: "bg-accent-soft text-secondary-hover" };
   return <span className={clsx("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold", tones[tone])}>{children}</span>;
 }
 
@@ -45,7 +45,7 @@ export function ProgressBar({ value, label }: { value: number; label: string }) 
   return (
     <div>
       <div className="mb-1 flex justify-between text-sm"><span className="text-text-secondary">{label}</span><span className="font-semibold">{pct}%</span></div>
-      <div className="h-2 rounded-full bg-sand" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
+      <div className="h-2 rounded-full bg-linen" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
         <div className="h-2 rounded-full bg-sage transition-[width] duration-300" style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -59,7 +59,7 @@ export function StageTracker({ stage }: { stage: MethodStage }) {
     <ol className="grid grid-cols-5 gap-2" aria-label="Your TAB Method stage">
       {STAGES.map((s, i) => (
         <li key={s.key} aria-current={i === idx ? "step" : undefined}>
-          <div className={clsx("h-1.5 rounded-full", i <= idx ? "bg-olive" : "bg-sand")} />
+          <div className={clsx("h-1.5 rounded-full", i <= idx ? "bg-olive" : "bg-linen")} />
           <p className={clsx("mt-2 text-xs leading-tight", i === idx ? "font-semibold text-text-primary" : "text-text-secondary")}>{s.label}</p>
         </li>
       ))}

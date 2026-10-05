@@ -105,7 +105,7 @@ export async function POST(req: Request) {
   rows.push(["News and events by email", d.marketingOptIn ? "Yes" : "No"]);
 
   const table = `<table cellpadding="6" style="${FONT};font-size:14px">${rows
-    .map(([k, v]) => `<tr><td style="color:#575B53;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
+    .map(([k, v]) => `<tr><td style="color:#5A5953;vertical-align:top">${esc(k)}</td><td>${esc(v)}</td></tr>`)
     .join("")}</table>`;
   const plain = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
   // The contact message goes to TAB only; the submitter's copy never repeats it (RSK-011).
@@ -122,7 +122,7 @@ export async function POST(req: Request) {
   const savedNote = stored ? `Saved in TAB Practice → Submissions (reference ${ref}).` : "";
   const staffNotes = [flagNote, healthFlag, routing, savedNote].filter(Boolean);
   const html = `<h2 style="font-family:Georgia,serif">${esc(subject)}</h2>${table}${messageHtml}${staffNotes
-    .map((n) => `<p style="${FONT};font-size:13px;color:#575B53">${esc(n)}</p>`)
+    .map((n) => `<p style="${FONT};font-size:13px;color:#5A5953">${esc(n)}</p>`)
     .join("")}`;
   const text = [plain, message && `Message:\n${message}`, ...staffNotes].filter(Boolean).join("\n\n");
   const to = isStart ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
@@ -138,7 +138,7 @@ export async function POST(req: Request) {
       : "We’ve received your message and will get back to you soon. For your privacy, we don’t repeat your message in this email."
   }`;
   const outro = "If you didn’t send this, you can ignore this email. We’ll ask about anything health-related privately, so please don’t reply with medical details.";
-  const copyHtml = `<p style="${FONT};font-size:15px">${esc(intro)}</p>${table}<p style="${FONT};font-size:13px;color:#575B53">${esc(outro)}</p>`;
+  const copyHtml = `<p style="${FONT};font-size:15px">${esc(intro)}</p>${table}<p style="${FONT};font-size:13px;color:#5A5953">${esc(outro)}</p>`;
   const copyText = [intro, plain, outro].join("\n\n");
 
   /** Delivered (stored or emailed to TAB): only now does a repeat count as a duplicate. */

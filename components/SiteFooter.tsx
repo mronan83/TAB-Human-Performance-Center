@@ -13,7 +13,7 @@ export function SiteFooter() {
   const account = accountLink();
   const practitioner = practitionerLink();
   return (
-    <footer className="on-dark mt-24 bg-charcoal text-white">
+    <footer className="on-dark mt-24 bg-graphite text-white">
       <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo variant="horizontal" tone="white" className="h-16 w-auto" />

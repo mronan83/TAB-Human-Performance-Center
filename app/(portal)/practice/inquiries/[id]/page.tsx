@@ -53,7 +53,7 @@ export default async function InquiryDetail({ params }: { params: Promise<{ id: 
         <div className="space-y-6">
           <Panel title="What they told us">
             {i.flags.length > 0 && (
-              <p className="mb-5 rounded-xl bg-sand p-4">
+              <p className="mb-5 rounded-xl bg-linen p-4">
                 <span className="font-semibold">Possible spam:</span> {i.flags.map((f) => flagLabels[f as SpamFlag] ?? f).join("; ")}. No copy was emailed to this address.
               </p>
             )}

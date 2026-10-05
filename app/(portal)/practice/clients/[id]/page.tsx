@@ -70,7 +70,7 @@ export default async function ClientDetail({ params, searchParams }: { params: P
               <>
                 <p className="font-semibold">{plan.title}</p>
                 {plan.focus && <p className="text-text-secondary">{plan.focus}</p>}
-                <ul className="mt-4 space-y-2">{plan.goals.map((g) => <li key={g.id} className="flex items-start justify-between gap-3 rounded-xl bg-cream p-3"><span>{g.title}</span><Badge>{g.target ?? g.status}</Badge></li>)}</ul>
+                <ul className="mt-4 space-y-2">{plan.goals.map((g) => <li key={g.id} className="flex items-start justify-between gap-3 rounded-xl bg-bone p-3"><span>{g.title}</span><Badge>{g.target ?? g.status}</Badge></li>)}</ul>
                 {plan.reviewDate && <p className="mt-4 text-sm text-text-secondary">Next review {fmtDate(plan.reviewDate, { month: "long", day: "numeric" })}</p>}
               </>
             ) : (
@@ -101,7 +101,7 @@ export default async function ClientDetail({ params, searchParams }: { params: P
             <NoteForm clientId={id} />
             <ul className="mt-6 space-y-3">
               {notes.map((n) => (
-                <li key={n.id} className={n.visibility === "internal" ? "rounded-xl border border-border bg-cream p-4" : "rounded-xl border border-sage bg-[#F1F3EA] p-4"}>
+                <li key={n.id} className={n.visibility === "internal" ? "rounded-xl border border-border bg-bone p-4" : "rounded-xl border border-sage bg-[#F1F3EA] p-4"}>
                   <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
                     <span>{fmtDate(n.date, { month: "short", day: "numeric", year: "numeric" })}</span>{n.service && <span>· {serviceName(n.service)}</span>}
                     <Badge tone={n.visibility === "internal" ? "neutral" : "success"}>{n.visibility === "internal" ? "Internal" : "Shared with client"}</Badge>

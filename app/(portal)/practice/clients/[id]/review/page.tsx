@@ -21,7 +21,7 @@ export default async function ProgressReviewPage({ params }: { params: Promise<{
           <Panel title="Current stage"><StageTracker stage={client.methodStage} /></Panel>
           <Panel title="When we started, you wanted to…">
             {plan?.goals.length ? (
-              <ul className="space-y-2">{plan.goals.map((g) => <li key={g.id} className="rounded-xl bg-cream p-3"><p className="font-semibold">{g.title}</p>{g.whyItMatters && <p className="text-sm text-text-secondary">{g.whyItMatters}</p>}</li>)}</ul>
+              <ul className="space-y-2">{plan.goals.map((g) => <li key={g.id} className="rounded-xl bg-bone p-3"><p className="font-semibold">{g.title}</p>{g.whyItMatters && <p className="text-sm text-text-secondary">{g.whyItMatters}</p>}</li>)}</ul>
             ) : <p className="text-text-secondary">No plan goals recorded yet. Start with what they hoped for when they began.</p>}
           </Panel>
         </div>

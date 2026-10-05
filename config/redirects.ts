@@ -1,5 +1,5 @@
 /**
- * Legacy tabmassage.com → TAB Wellness Collective redirect map (Step 17.7, Step 19.3, D-040).
+ * Legacy tabmassage.com → TAB Human Performance Center redirect map (Step 17.7, Step 19.3, D-040).
  * Built from a crawl of the live tabmassage.com sitemaps on 2026-09-27 (64 URLs).
  * Keys are legacy paths without trailing slash; values are new destinations.
  * Applied as permanent (308) redirects in middleware.ts in a single hop (no chains).

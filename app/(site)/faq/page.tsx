@@ -7,7 +7,7 @@ import { PageHero } from "@/components/PageHero";
 import { FaqList } from "@/components/FaqList";
 import { faqJsonLd } from "@/lib/jsonld";
 
-export const metadata: Metadata = pageMetadata({ title: "FAQ", description: "Answers to common questions about TAB Wellness Collective.", path: "/faq" });
+export const metadata: Metadata = pageMetadata({ title: "FAQ", description: "Answers to common questions about TAB Human Performance Center.", path: "/faq" });
 
 export default function FaqPage() {
   const jsonLd = faqJsonLd(faqs); // reviewed answers only (NFR-003)

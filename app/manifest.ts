@@ -6,11 +6,11 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: siteConfig.brand.name,
     short_name: "TAB",
-    description: "Whole-person wellness for stronger bodies and fuller lives.",
+    description: siteConfig.brand.tagline,
     start_url: "/",
     display: "standalone",
-    background_color: "#F8F5EF",
-    theme_color: "#5A6046",
+    background_color: "#FBF6F1",
+    theme_color: "#4A5A44",
     icons: [
       { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },

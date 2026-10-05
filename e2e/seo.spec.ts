@@ -17,7 +17,7 @@ test("every sitemap page loads with a title, description, canonical and share ta
       ogTitle: document.querySelector('meta[property="og:title"]')?.getAttribute("content") ?? "",
       h1s: document.querySelectorAll("main h1").length,
     }));
-    expect(meta.title, path).toContain("TAB Wellness Collective");
+    expect(meta.title, path).toContain("TAB Human Performance Center");
     expect(meta.description.length, `${path} description`).toBeGreaterThan(40);
     expect(meta.description.length, `${path} description`).toBeLessThanOrEqual(160);
     expect(meta.canonical, path).toBe(path === "/" ? siteUrl : `${siteUrl}${path}`);

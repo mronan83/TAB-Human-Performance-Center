@@ -58,7 +58,7 @@ export function SiteHeader() {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
 
   return (
-    <header ref={headerRef} onBlur={closeWhenFocusLeaves(() => setOpen(false))} className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur">
+    <header ref={headerRef} onBlur={closeWhenFocusLeaves(() => setOpen(false))} className="sticky top-0 z-40 border-b border-border bg-bone/95 backdrop-blur">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2">
         Skip to content
       </a>
@@ -76,7 +76,7 @@ export function SiteHeader() {
                     aria-expanded={openMenu === item.href}
                     aria-controls={`menu-${item.label}`}
                     onClick={() => setOpenMenu(openMenu === item.href ? null : item.href)}
-                    className={clsx("whitespace-nowrap rounded-full px-3 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")}
+                    className={clsx("whitespace-nowrap rounded-full px-2.5 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")}
                   >
                     {item.label}
                     <span aria-hidden className="ml-1 inline-block text-xs">▾</span>
@@ -84,7 +84,7 @@ export function SiteHeader() {
                   <ul id={`menu-${item.label}`} hidden={openMenu !== item.href} className="absolute left-0 top-full mt-2 w-72 rounded-[20px] border border-border bg-white p-2 shadow-[var(--shadow-md)]">
                     {item.children.map((c) => (
                       <li key={c.label}>
-                        <Link href={c.href} className="block rounded-xl px-4 py-3 text-[0.9375rem] hover:bg-sand" aria-current={pathname === c.href ? "page" : undefined}>
+                        <Link href={c.href} className="block rounded-xl px-4 py-3 text-[0.9375rem] hover:bg-linen" aria-current={pathname === c.href ? "page" : undefined}>
                           {c.label}
                         </Link>
                       </li>
@@ -93,7 +93,7 @@ export function SiteHeader() {
                 </li>
               ) : (
                 <li key={item.href}>
-                  <Link href={item.href} className={clsx("whitespace-nowrap rounded-full px-3 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")} aria-current={isActive(item.href) ? "page" : undefined}>
+                  <Link href={item.href} className={clsx("whitespace-nowrap rounded-full px-2.5 py-2 text-[0.9375rem] font-medium hover:text-primary", isActive(item.href) && "text-primary")} aria-current={isActive(item.href) ? "page" : undefined}>
                     {item.label}
                   </Link>
                 </li>
@@ -103,7 +103,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 min-[80rem]:flex">
-          <SmartLink href={account.href} external={account.external} className="whitespace-nowrap px-3 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>
+          <SmartLink href={account.href} external={account.external} className="whitespace-nowrap px-2.5 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>
           <Cta kind="book" label="Book" variant="outline" size="sm" className="whitespace-nowrap" />
           <Cta kind="start" label="Start Where You Are" size="sm" className="whitespace-nowrap" />
         </div>
@@ -113,7 +113,7 @@ export function SiteHeader() {
         </button>
       </div>
 
-      <nav id="mobile-nav" hidden={!open} aria-label="Primary" className="border-t border-border bg-cream min-[80rem]:hidden">
+      <nav id="mobile-nav" hidden={!open} aria-label="Primary" className="border-t border-border bg-bone min-[80rem]:hidden">
           <ul className="container-page flex flex-col py-4">
             {primaryNav.map((item) => (
               <li key={item.href} className="border-b border-border/60 py-2">

@@ -8,27 +8,31 @@ import { assertLaunchReady } from "@/lib/placeholders";
 if (indexingAllowed) assertLaunchReady();
 
 // Self-hosted (app/fonts, SIL Open Font License): the Google Fonts latin files, so builds never fetch from Google.
-// next/font/google broke CI on 2026-09-28 when Google served font URLs it couldn't parse. Both are variable fonts.
-const cormorant = localFont({
+// next/font/google broke CI on 2026-09-28 when Google served font URLs it couldn't parse. Montserrat is a variable font.
+const montserrat = localFont({
+  src: [{ path: "./fonts/montserrat-latin.woff2", weight: "400 800", style: "normal" }],
+  variable: "--font-montserrat",
+  display: "swap",
+  adjustFontFallback: "Arial",
+});
+// Editorial accent face (Step 18.4): subheads, pull quotes, selected campaign lines.
+const spectral = localFont({
   src: [
-    { path: "./fonts/cormorant-garamond-latin.woff2", weight: "500 600", style: "normal" },
-    { path: "./fonts/cormorant-garamond-italic-latin.woff2", weight: "500 600", style: "italic" },
+    { path: "./fonts/spectral-400-latin.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/spectral-500-latin.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/spectral-italic-latin.woff2", weight: "400", style: "italic" },
   ],
-  variable: "--font-cormorant",
+  variable: "--font-spectral",
   display: "swap",
   adjustFontFallback: "Times New Roman",
-});
-const manrope = localFont({
-  src: [{ path: "./fonts/manrope-latin.woff2", weight: "400 700", style: "normal" }],
-  variable: "--font-manrope",
-  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: `${siteConfig.brand.name} | Massage, Strength & Coaching`, template: `%s | ${siteConfig.brand.name}` },
   description:
-    "TAB Wellness Collective brings massage, personal strength training, women’s wellness coaching, and holistic life coaching together in one personalized, whole-person approach.",
+    "TAB Human Performance Center helps you build the strength, resilience, adaptability and self-trust to meet real life, with massage, strength training and coaching in one integrated approach.",
   applicationName: siteConfig.brand.name,
   openGraph: {
     siteName: siteConfig.brand.name,
@@ -47,11 +51,11 @@ export const metadata: Metadata = {
   ...(indexingAllowed ? {} : { robots: { index: false, follow: false } }),
 };
 
-export const viewport: Viewport = { themeColor: "#5A6046" };
+export const viewport: Viewport = { themeColor: "#4A5A44" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${manrope.variable}`}>
+    <html lang="en" className={`${montserrat.variable} ${spectral.variable}`}>
       <body>
         {children}
       </body>

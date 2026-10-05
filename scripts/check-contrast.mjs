@@ -3,7 +3,7 @@
 //
 // Reads the color custom properties from the @theme block in app/globals.css and checks every
 // pairing the design system permits. Add a pairing here before using a new text/background or
-// UI-boundary combination in a component. Terracotta and Sage are decorative only and therefore
+// UI-boundary combination in a component. Clay, Sage and Ochre are decorative only and therefore
 // never appear as text or behind white text below.
 
 import { readFileSync } from "node:fs";
@@ -26,11 +26,11 @@ const pairings = [
   // Text on tinted accent fields
   ["text-primary", "accent-soft", TEXT],
   ["secondary-hover", "accent-soft", TEXT], // accent badge
-  // White/cream text on filled controls and dark fields
-  ...["primary", "primary-hover", "primary-active", "secondary", "secondary-hover", "surface-brand", "charcoal"].map(
+  // White/bone text on filled controls and dark fields
+  ...["primary", "primary-hover", "primary-active", "secondary", "secondary-hover", "surface-brand", "graphite"].map(
     (bg) => ["white", bg, TEXT],
   ),
-  ["cream", "surface-brand", TEXT],
+  ["bone", "surface-brand", TEXT],
   // Links and interactive text
   ...["background", "surface", "surface-muted"].map((bg) => ["primary", bg, TEXT]),
   ...["background", "surface"].map((bg) => ["secondary", bg, TEXT]),
@@ -40,7 +40,7 @@ const pairings = [
   ...["background", "surface", "surface-muted"].map((bg) => ["border-input", bg, UI]),
   // Focus indicators: default ring on light fields, inverse ring on dark fields
   ...["background", "surface", "surface-muted"].map((bg) => ["focus", bg, UI]),
-  ...["surface-brand", "primary", "charcoal"].map((bg) => ["focus-inverse", bg, UI]),
+  ...["surface-brand", "primary", "graphite"].map((bg) => ["focus-inverse", bg, UI]),
 ];
 
 const luminance = (hex) => {

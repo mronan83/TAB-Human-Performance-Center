@@ -99,7 +99,7 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Book Massage & Bodywork", kind: "book" },
     secondaryCta: { label: "Find the Right Starting Point", kind: "start" },
-    icon: "/brand/icons/massage-bodywork.png",
+    icon: "/brand/icons/massage-bodywork.svg",
   },
   {
     slug: "personal-strength-training",
@@ -160,7 +160,7 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Schedule a Strength Consultation", kind: "book" },
     secondaryCta: { label: "Find Your Starting Point", kind: "start" },
-    icon: "/brand/icons/personal-strength-training.png",
+    icon: "/brand/icons/functional-strength.svg",
   },
   {
     slug: "womens-wellness-coaching",
@@ -222,7 +222,7 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Schedule a Wellness Conversation", kind: "book" },
     secondaryCta: { label: "Find Your Starting Point", kind: "start" },
-    icon: "/brand/icons/womens-wellness-coaching.png",
+    icon: "/brand/icons/womens-wellness.svg",
   },
   {
     slug: "holistic-life-coaching",
@@ -277,7 +277,7 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Schedule a Coaching Conversation", kind: "book" },
     secondaryCta: { label: "Start with What Matters", kind: "start" },
-    icon: "/brand/icons/holistic-life-coaching.png",
+    icon: "/brand/icons/holistic-life-coaching.svg",
   },
 ];
 

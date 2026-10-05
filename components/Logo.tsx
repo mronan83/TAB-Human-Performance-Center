@@ -3,24 +3,25 @@ import Link from "next/link";
 import { siteConfig } from "@/config/site";
 
 /**
- * The logo is artwork, never live type (tokens §11, D-039). Files are the vector package in /public/brand
- * (originals in docs/source/batch-4/vector-logo-package). Step 18 §18.2 logo family:
- * - horizontal: header/portal workhorse with the philosophy line
- * - horizontal-compact: horizontal without the philosophy line, for small header sizes
- * - stacked: primary signature for centred, formal first-impression moments
- * - symbol: icon, avatar and accent uses
- * - wordmark: TAB only, once the full brand is established
- * `tone` selects the reversed (white) or one-colour charcoal version; colour is the default (Step 18 §18.9).
+ * The logo is artwork, never live type (D-039; Step 18.4). Files in /public/brand are the approved redraw of the
+ * TAB Human Performance Center board (owner baseline 2026-10-05, proposed D-061; sources in design/logo-redraw).
+ * - horizontal: primary lockup with the philosophy line (Transform. Adapt. Balance.)
+ * - horizontal-compact: horizontal without the philosophy line, for header sizes
+ * - stacked: symbol above TAB with the descriptor beneath, for centred, formal moments
+ * - stacked-compact: stacked without the philosophy line
+ * - symbol: app icon, avatar and accent uses
+ * `tone`: colour (flat, the master), white (reversed), graphite (one colour), sheen (the board's gradients, for large
+ * digital uses such as the hero), dark (symbol for dark fields, linen lower form).
  */
-type Variant = "horizontal" | "horizontal-compact" | "stacked" | "symbol" | "wordmark";
-type Tone = "color" | "white" | "charcoal";
+type Variant = "horizontal" | "horizontal-compact" | "stacked" | "stacked-compact" | "symbol";
+type Tone = "color" | "white" | "graphite" | "sheen" | "dark";
 
 const ART: Record<Variant, { file: string; tones: Tone[]; width: number; height: number }> = {
-  horizontal: { file: "logo-horizontal", tones: ["color", "white", "charcoal"], width: 1800, height: 520 },
-  "horizontal-compact": { file: "logo-horizontal-compact", tones: ["color"], width: 1700, height: 420 },
-  stacked: { file: "logo-stacked", tones: ["color", "white", "charcoal"], width: 1200, height: 1380 },
-  symbol: { file: "symbol", tones: ["color", "white", "charcoal"], width: 1130, height: 958 },
-  wordmark: { file: "wordmark", tones: ["color"], width: 854, height: 317 },
+  horizontal: { file: "logo-horizontal", tones: ["color", "white", "graphite", "sheen"], width: 670, height: 141 },
+  "horizontal-compact": { file: "logo-horizontal-compact", tones: ["color", "white", "graphite"], width: 670, height: 132 },
+  stacked: { file: "logo-stacked", tones: ["color", "white", "graphite"], width: 324, height: 403 },
+  "stacked-compact": { file: "logo-stacked-compact", tones: ["color"], width: 324, height: 372 },
+  symbol: { file: "symbol", tones: ["color", "white", "graphite", "sheen", "dark"], width: 146, height: 128 },
 };
 
 export function Logo({
@@ -55,7 +56,7 @@ export function Logo({
 export function HomeLogoLink() {
   return (
     <Link href="/" className="flex items-center" aria-label={`${siteConfig.brand.name} home`}>
-      <Logo className="h-12 w-auto lg:h-14" decorative priority />
+      <Logo className="h-11 w-auto" decorative priority />
     </Link>
   );
 }

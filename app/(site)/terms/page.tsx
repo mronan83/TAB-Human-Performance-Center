@@ -5,7 +5,7 @@ import { PageHero } from "@/components/PageHero";
 import { DraftFlag } from "@/components/DraftFlag";
 
 const doc = legal.terms;
-export const metadata: Metadata = pageMetadata({ title: doc.title, description: "Terms of use for the TAB Wellness Collective website.", path: "/terms" });
+export const metadata: Metadata = pageMetadata({ title: doc.title, description: "Terms of use for the TAB Human Performance Center website.", path: "/terms" });
 
 export default function Page() {
   return (

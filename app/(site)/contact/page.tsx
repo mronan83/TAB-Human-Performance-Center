@@ -5,7 +5,7 @@ import { siteConfig } from "@/config/site";
 import { PageHero } from "@/components/PageHero";
 import { InquiryForm } from "@/components/InquiryForm";
 
-export const metadata: Metadata = pageMetadata({ title: "Contact", description: "Questions about booking, services or gift cards? Contact TAB Wellness Collective in Brighton and Howell, MI.", path: "/contact" });
+export const metadata: Metadata = pageMetadata({ title: "Contact", description: "Questions about booking, services or gift cards? Contact TAB Human Performance Center in Brighton and Howell, MI.", path: "/contact" });
 
 export default function ContactPage() {
   const { contact } = siteConfig;

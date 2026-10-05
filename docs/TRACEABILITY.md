@@ -1,6 +1,6 @@
 ---
-title: TAB Wellness Collective Traceability
-eyebrow: TAB Wellness Collective · Requirements
+title: TAB Human Performance Center Traceability
+eyebrow: TAB Human Performance Center · Requirements
 heading: Requirements & Feature Traceability
 owner: Matthew Ronan
 updated: 2026-10-03
@@ -59,7 +59,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Objective | Where it is stated | Served by |
 | --- | --- | --- | --- |
-| BO-1 | Complete the rebrand from TAB Massage & Fitness to TAB Wellness Collective without losing existing clients, search ranking or bookings | Step 17, Step 19, DEC-015, DEC-019 | WEB, NFR, DS |
+| BO-1 | Complete the rebrand from TAB Massage & Fitness to TAB Human Performance Center without losing existing clients, search ranking or bookings | Step 17, Step 19, DEC-015, DEC-019 | WEB, NFR, DS |
 | BO-2 | Help a prospective client understand TAB and choose the right starting point, with low pressure and one clear next step | Step 14, Step 16 §16.0, DEC-004 | WEB, GS |
 | BO-3 | Grow locally and virtually, across all adult segments including older adults | D-043, D-049, Step 16 §16.8 | WEB, NFR, CMS |
 | BO-4 | Give each client one place for their TAB relationship: plan, programs, progress, resources, forms, appointments, billing | Step 16 §16.5 | PORTAL |
@@ -95,8 +95,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-014 | Public copy follows the Step 15 voice rules | P1 | Must | Built | F-02 to F-05 | — |
 | WEB-015 | Transition announcement with a start and end date | P1 | Must | Partial: dated expiry in config; editable once the CMS lands (C8) | F-01 | — |
 | WEB-016 | Organization structured data names the former name during transition | P1 | Must | Built | F-13 | — |
-| WEB-017 | Our Story: TAB Massage & Fitness (2008) to TAB Wellness Collective | P1 | Should | Partial: placeholder copy (A8) | F-04 | — |
-| WEB-018 | Service icons as light navigational markers | P1 | Could | Partial: artwork pending (A19) | F-03, F-17 | — |
+| WEB-017 | Our Story: TAB Massage & Fitness (2008) to TAB Human Performance Center | P1 | Should | Partial: placeholder copy (A8) | F-04 | — |
+| WEB-018 | Service icons as light navigational markers | P1 | Could | Built: vector icons in the board colours and graphite | F-03, F-17 | — |
 | WEB-019 | Favicons, touch, PWA and share icons, light and dark | P1 | Should | Built | F-17 | — |
 | WEB-020 | Client Login goes to Timely until My TAB launches | P1 | Must | Verified (demo portal on production by owner ruling) | F-01, F-19 | smoke |
 
@@ -214,11 +214,11 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | ID | Requirement | How it is enforced | Phase | Priority | Status | Verified by |
 | --- | --- | --- | --- | --- | --- | --- |
 | DS-001 | Token JSON is the single source; CSS generated from it, never hand-copied | Tokens are hand-copied into `app/globals.css`, with the D-056 contrast fixes (TG-6) | P1 | Should | Partial | contrast |
-| DS-002 | Cormorant Garamond for display, Manrope for UI, both self-hosted | `next/font/local` in `app/fonts`; the CSP blocks third-party fonts | P1 | Must | Verified | security |
+| DS-002 | Montserrat for headings and UI, Spectral for editorial accents, both self-hosted | `next/font/local` in `app/fonts`; the CSP blocks third-party fonts | P1 | Must | Verified | security |
 | DS-003 | Uppercase label style used sparingly | `.text-label` | P1 | Could | Built | — |
-| DS-004 | Olive primary button, terracotta-deep secondary | `.btn-primary`, `.btn-secondary` | P1 | Must | Built | — |
+| DS-004 | Deep Olive primary button, Clay Dark secondary | `.btn-primary`, `.btn-secondary` | P1 | Must | Built | — |
 | DS-005 | Every colour pairing in use meets WCAG 2.2 AA, checked in CI | Contrast check over the token pairings | P1 | Must | Verified | contrast |
-| DS-006 | Production SVG logos for every lockup, light and reversed, plus a small symbol | Vector package installed; designer fixes pending (A9, A19) | P1 | Must | Partial | — |
+| DS-006 | Production SVG logos for every lockup, light and reversed, plus a small symbol | Approved redraw installed: horizontal, stacked and symbol in colour, graphite, white and sheen; favicon set and app icons | P1 | Must | Built | — |
 | DS-007 | Real people and places, natural light; no before-and-after imagery | Photo placeholders until real photos arrive (A8) | P1 | Should | Partial | — |
 
 ## Feature inventory
@@ -231,7 +231,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | --- | --- | --- | --- | --- | --- | --- |
 | F-01 | Site header, footer, transition banner | Partial: footer facts (A6) | WEB-001, WEB-012, WEB-015, WEB-020, NFR-001 | D-038, D-050 | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `TransitionBanner.tsx`, `config/navigation.ts` | header, smoke, a11y |
 | F-02 | Homepage | Partial: trust content and photos (A8) | WEB-002, WEB-003, WEB-013, WEB-014, CMS-005, DS-007 | D-050 | `app/(site)/page.tsx`, `content/pages.ts` | links, a11y |
-| F-03 | Services landing and service pages | Partial: 14 draft FAQs (A8), icons (A19) | WEB-002, WEB-004 to WEB-007, WEB-014, WEB-018 | D-050, Step 15 §15.8 | `app/(site)/services/`, `content/services.ts` | links, seo, a11y |
+| F-03 | Services landing and service pages | Partial: 14 draft FAQs (A8) | WEB-002, WEB-004 to WEB-007, WEB-014, WEB-018 | D-050, Step 15 §15.8 | `app/(site)/services/`, `content/services.ts` | links, seo, a11y |
 | F-04 | TAB Method, About, Our Story, Team | Partial: founder story, bio, photos (A8) | WEB-002, WEB-008, WEB-009, WEB-014, WEB-017 | D-027 | `app/(site)/tab-method/`, `about/` | links, a11y |
 | F-05 | Resources, FAQ, Events | Partial: topic list only (TG-2) | WEB-002, WEB-010, WEB-014 | D-036 | `app/(site)/resources/`, `faq/`, `events/` | links, a11y |
 | F-06 | Book page | Verified | WEB-002, WEB-011, GS-006, INT-001 | D-003 | `app/(site)/book/`, `components/Cta.tsx` | smoke, links |
@@ -244,8 +244,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-13 | SEO metadata, sitemap, robots, structured data | Verified | WEB-016, NFR-002, NFR-003, NFR-009 | D-038 | `lib/seo.ts`, `lib/jsonld.ts`, `app/sitemap.ts`, `app/robots.ts` | seo |
 | F-14 | Plausible analytics | Partial: account (A4); Start funnel only (TG-7) | NFR-005, NFR-006 | D-046, D-057 | `components/Analytics.tsx`, `lib/analytics.ts` | — |
 | F-15 | Content-Security-Policy and headers | Verified | SEC-004, SEC-013 | — | `lib/csp.ts`, `middleware.ts`, `next.config.ts` | security |
-| F-16 | Design tokens, fonts and contrast check | Partial: hand-copied tokens (TG-6) | DS-001 to DS-005, NFR-001 | D-053, D-056 | `app/globals.css`, `app/fonts/`, `scripts/check-contrast.mjs` | contrast, a11y |
-| F-17 | Logo, icons, manifest | Partial: lockup fix (A9), vectors (A19) | WEB-018, WEB-019, DS-006 | D-027 | `public/brand/`, `components/Logo.tsx`, `app/manifest.ts` | smoke |
+| F-16 | Design tokens, fonts and contrast check | Partial: hand-copied tokens (TG-6) | DS-001 to DS-005, NFR-001 | D-062 (proposed; replaces D-053, D-056) | `app/globals.css`, `app/fonts/`, `scripts/check-contrast.mjs` | contrast, a11y |
+| F-17 | Logo, icons, manifest | Built | WEB-018, WEB-019, DS-006 | D-061 (proposed; replaces D-027) | `public/brand/`, `components/Logo.tsx`, `app/manifest.ts` | smoke |
 | F-18 | Launch checklist and draft markers | Verified | — (guardrail 10) | CLAUDE.md guardrail 10 | `app/(site)/launch-checklist/`, `lib/placeholders.ts`, `components/DraftFlag.tsx` | smoke |
 
 ### My TAB (client portal)
@@ -338,7 +338,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 
 ### Built but unchecked
 
-{{req.built}} requirements are built with no check: WEB-003 to WEB-008, WEB-014, WEB-016, WEB-019, GS-006, INT-002, PORTAL-005, STAFF-001, SEC-004, NFR-005, DS-003 and DS-004. Two checks would cover the riskiest of them in a day; both are in C15:
+{{req.built}} requirements are built with no check: WEB-003 to WEB-008, WEB-014, WEB-016, WEB-018, WEB-019, GS-006, INT-002, PORTAL-005, STAFF-001, SEC-004, NFR-005, DS-003, DS-004 and DS-006. Two checks would cover the riskiest of them in a day; both are in C15:
 
 - **Analytics exclusion (NFR-005).** A test that Plausible never loads on `/my-tab`, `/practice` or `/contact`. This is a guardrail (6), and today only code review protects it.
 - **Service-page anatomy (WEB-004 to WEB-007).** A test that every service page has its direct CTA, its "not sure?" link to `/start`, and only the related services set in `content/services.ts`.
@@ -355,7 +355,6 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 | A6 business facts | WEB-012 |
 | A7 legal pages | guardrail 4 privacy condition, so A15 |
 | A8 content | WEB-009, WEB-010, WEB-013, WEB-017, DS-007 |
-| A9, A19 designer | DS-006, WEB-018 |
 | A14 Supabase Pro | SEC-009 |
 | A17 Stripe | PORTAL-009, INT-003 |
 | C2 launch day | NFR-007, NFR-010 |
@@ -394,15 +393,16 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-02 | 1.0 | Created: 7 objectives, 97 requirements, 51 features, 9 gaps, 6 questions | Owner request, 2 Oct 2026. Traced from the repository at `f43beba` plus PR #28 (C4, not yet merged) |
 | 2026-10-03 | 1.1 | Moved from a Claude Doc into `docs/TRACEABILITY.md`, published as an HTML page in the layout the owner asked for; counts now computed from the tables; companion architecture and data model pages added; four one-way feature links fixed; Q-7 raised from the data model review | Owner request, 3 Oct 2026 |
 | 2026-10-03 | 1.2 | C3b: SEC-019 and SEC-020 partial, INT-004 verified; F-21, F-29 and F-32 updated; A26 added | C3b build, owner rulings 2026-10-03 (refunds, audit export, private notes) |
+| 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
 
 ## Sources
 
 - **Requirements register:** `docs/requirements-register.md` (requirement IDs and full wording, decisions, gaps, risks).
 - **Decision record:** `docs/source/batch-3/TAB_Wellness_Collective_Master_Decision_Risk_Architecture_Record.md` (D-, R-, A- IDs).
 - **Build architecture:** `docs/source/batch-3/ARCHITECTURE.pdf`.
-- **Strategy documents:** `docs/source/batch-1/` to `batch-3/` (Brand Foundation, Steps 13 to 19, Design Tokens v1.0).
+- **Strategy documents:** `docs/source/batch-1/` to `batch-3/` (Brand Foundation, Steps 13 to 19, Design Tokens v1.0), superseded for brand, naming, pillars, identity and transition by `batch-5/` (TAB Human Performance Center).
 - **Portal design:** `docs/PHASE2.md` and `docs/design/plans-programs-stages.md`, including the as-built sections.
-- **Backlog:** `docs/BACKLOG.md`, published as the TAB Wellness Collective Backlog page after each promotion.
+- **Backlog:** `docs/BACKLOG.md`, published as the TAB Human Performance Center Backlog page after each promotion.
 - **Operating rules and guardrails:** `CLAUDE.md`.
 - **Checks:** `e2e/*.spec.ts`, `supabase/tests/rls.test.mjs`, `scripts/check-contrast.mjs`, `.github/workflows/ci.yml`.
 - **Code:** `app/`, `components/`, `lib/`, `config/`, `content/`, `supabase/migrations/`.

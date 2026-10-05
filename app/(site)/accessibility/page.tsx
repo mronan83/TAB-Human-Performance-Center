@@ -6,7 +6,7 @@ import { PageHero } from "@/components/PageHero";
 import { DraftFlag } from "@/components/DraftFlag";
 
 const doc = legal.accessibility;
-export const metadata: Metadata = pageMetadata({ title: doc.title, description: "How TAB Wellness Collective makes its website and services accessible, and how to ask for support or report a barrier.", path: "/accessibility" });
+export const metadata: Metadata = pageMetadata({ title: doc.title, description: "How TAB Human Performance Center makes its website and services accessible, and how to ask for support or report a barrier.", path: "/accessibility" });
 
 export default function Page() {
   return (
