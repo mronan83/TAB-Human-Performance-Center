@@ -11,7 +11,7 @@ approves at review gates.
 - Five equally weighted service pillars (proposed D-065, replaces D-050): Massage & Bodywork, Functional Strength,
   Women's Wellness, Integrated Nutrition, Holistic Life Coaching.
 - Philosophy: **Transform. Adapt. Balance.** Purpose line: "Build the capacity to live fully." Category line: "Human
-  performance for real life." Primary CTA: **Start Where You Are**. The five My TAB stages are unchanged.
+  performance for real life." Primary CTA: **Start Where You Are**. TAB Method stages: Start Where You Are, Transform, Adapt, Balance, Evolve.
 - Growth is both local and virtual (D-043), for all adult segments including older adults (D-049).
 
 ## Sources of truth

@@ -12,8 +12,8 @@ export const daysUntil = (d: string) => Math.ceil((new Date(d.length === 10 ? d 
 
 export const STAGES: { key: MethodStage; label: string; blurb: string }[] = [
   { key: "start", label: "Start where you are", blurb: "Understanding where you are and what matters." },
-  { key: "transform", label: "Transform", blurb: "Creating meaningful change." },
-  { key: "align", label: "Align", blurb: "Bringing the pieces together." },
-  { key: "become", label: "Become", blurb: "Building confidence and ownership." },
-  { key: "evolve", label: "Evolve", blurb: "Adapting as life changes." },
+  { key: "transform", label: "Transform", blurb: "Changing what limits you." },
+  { key: "adapt", label: "Adapt", blurb: "Responding to what life asks." },
+  { key: "balance", label: "Balance", blurb: "Sustaining what matters." },
+  { key: "evolve", label: "Evolve", blurb: "Growing as life changes." },
 ];

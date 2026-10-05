@@ -11,7 +11,8 @@
   "20261004000000_program_moves_custom_activities.sql",
   "20261005000000_client_invites_assignments.sql",
   "20261006000000_private_notes_audit_stripe.sql",
-  "20261007000000_integrated_nutrition_service.sql"
+  "20261007000000_integrated_nutrition_service.sql",
+  "20261008000000_method_stages_adapt_balance.sql"
  ],
  "tables": [
   {
@@ -4312,8 +4313,8 @@
    "values": [
     "start",
     "transform",
-    "align",
-    "become",
+    "adapt",
+    "balance",
     "evolve"
    ]
   },

@@ -151,9 +151,9 @@ function seed(): Store {
   const dana: Client = { id: DEMO_CLIENT_ID, fullName: "Dana Whitfield", preferredName: "Dana", email: "dana@example.com", phone: "", status: "active", methodStage: "transform", services: ["personal-strength-training", "womens-wellness-coaching", "massage-bodywork"], primaryPractitioner: "Your TAB practitioner", delivery: "Either", lastCheckIn: weekStart(-1),
     myTab: { status: "active", invitedAt: day(-42), activatedAt: day(-41) } };
   const others: Client[] = [
-    { id: "demo-client-marcus", fullName: "Marcus Lee", email: "marcus.lee@example.com", myTab: { status: "invited", invitedAt: day(-2) }, status: "active", methodStage: "align", services: ["personal-strength-training"], delivery: "In person", lastCheckIn: weekStart(0) },
+    { id: "demo-client-marcus", fullName: "Marcus Lee", email: "marcus.lee@example.com", myTab: { status: "invited", invitedAt: day(-2) }, status: "active", methodStage: "adapt", services: ["personal-strength-training"], delivery: "In person", lastCheckIn: weekStart(0) },
     { id: "demo-client-ruth", fullName: "Ruth Alvarez", status: "active", methodStage: "start", services: ["massage-bodywork"], delivery: "In person" },
-    { id: "demo-client-keisha", fullName: "Keisha Morgan", status: "paused", methodStage: "become", services: ["holistic-life-coaching"], delivery: "Virtual", lastCheckIn: weekStart(-4) },
+    { id: "demo-client-keisha", fullName: "Keisha Morgan", status: "paused", methodStage: "balance", services: ["holistic-life-coaching"], delivery: "Virtual", lastCheckIn: weekStart(-4) },
     { id: "demo-client-tom", fullName: "Tom Brennan", email: "tom.brennan@example.com", status: "prospect", methodStage: "start", services: [], delivery: "Either" },
   ];
   const progress: ProgressEntry[] = [];

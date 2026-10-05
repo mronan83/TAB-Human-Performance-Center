@@ -86,7 +86,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-005 | One reusable 10-part service-page template | P1 | Must | Built | F-03 | — |
 | WEB-006 | Every service page offers a direct CTA and a "not sure?" path to `/start` | P1 | Must | Built | F-03 | — |
 | WEB-007 | Related services only where the link is genuine | P1 | Should | Built | F-03 | — |
-| WEB-008 | TAB Method page: Start Where You Are, Transform, Align, Become | P1 | Must | Built | F-04 | — |
+| WEB-008 | TAB Method page: Start Where You Are, Transform, Adapt, Balance | P1 | Must | Built | F-04 | — |
 | WEB-009 | About, Our Story and Team pages | P1 | Must | Partial: founder story, bio and photos are placeholders (A8) | F-04 | — |
 | WEB-010 | Resources hub: articles, guides, events, FAQ | P1 | Should | Partial: topic list and FAQ only; events switched off (TG-2, A8) | F-05 | — |
 | WEB-011 | `/book` offers two paths: Timely booking or `/start` | P1 | Must | Verified | F-06 | smoke |
@@ -393,7 +393,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-02 | 1.0 | Created: 7 objectives, 97 requirements, 51 features, 9 gaps, 6 questions | Owner request, 2 Oct 2026. Traced from the repository at `f43beba` plus PR #28 (C4, not yet merged) |
 | 2026-10-03 | 1.1 | Moved from a Claude Doc into `docs/TRACEABILITY.md`, published as an HTML page in the layout the owner asked for; counts now computed from the tables; companion architecture and data model pages added; four one-way feature links fixed; Q-7 raised from the data model review | Owner request, 3 Oct 2026 |
 | 2026-10-03 | 1.2 | C3b: SEC-019 and SEC-020 partial, INT-004 verified; F-21, F-29 and F-32 updated; A26 added | C3b build, owner rulings 2026-10-03 (refunds, audit export, private notes) |
-| 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; five pillars (Integrated Nutrition page; Functional Strength and Women’s Wellness renamed, old URLs redirect; `service_slug` gains `integrated-nutrition`); DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
+| 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; TAB Method stages renamed Adapt and Balance (enum values renamed); five pillars (Integrated Nutrition page; Functional Strength and Women’s Wellness renamed, old URLs redirect; `service_slug` gains `integrated-nutrition`); DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
 
 ## Sources
 

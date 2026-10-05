@@ -60,9 +60,9 @@ export const start = {
 
 export const method = {
   intro:
-    "The TAB Method is a personalized, whole-person approach that helps you understand where you are, create meaningful change, bring the different parts of your wellbeing into better alignment, and build the confidence and consistency to carry that progress forward.",
+    "The TAB Method is a personalized, whole-person approach that helps you understand where you are, change what limits you, build the ability to respond to what life asks, and balance effort and recovery so your progress lasts.",
   statement:
-    "Start where you are. Transform what needs to change. Align your wellbeing with the life you want to live. Become stronger, more confident, and more capable of moving forward.",
+    "Start where you are. Transform what limits you. Adapt to what life asks. Balance what sustains you.",
   steps: [
     {
       key: "start",
@@ -73,20 +73,20 @@ export const method = {
     {
       key: "transform",
       name: "Transform",
-      short: "Create meaningful change.",
-      body: "Transform doesn’t mean a dramatic makeover. It means meaningful movement from where you are now—reducing persistent tension, returning to strength training, establishing healthier routines, or simply feeling more like yourself again.",
+      short: "Change what limits you.",
+      body: "Transform doesn’t mean a dramatic makeover. It means changing the patterns, capabilities or conditions that are holding you back: reducing persistent tension, returning to strength training, establishing workable routines, or simply feeling more like yourself again.",
     },
     {
-      key: "align",
-      name: "Align",
-      short: "Bring the pieces together.",
-      body: "Once change is underway, we help connect what you’re doing with what you actually need: training with recovery, goals with responsibilities, habits with priorities, and more than one TAB service when it makes sense.",
+      key: "adapt",
+      name: "Adapt",
+      short: "Respond to what life asks.",
+      body: "Once change is underway, we build your ability to respond to stress, challenge, change and new demands without breaking down or starting over: training that progresses with you, recovery that keeps up, and more than one TAB service when it makes sense.",
     },
     {
-      key: "become",
-      name: "Become",
-      short: "Build confidence, capability, and ownership.",
-      body: "Become isn’t a finish line. It’s greater ownership: understanding what works for you, how to maintain progress, how to adjust when circumstances change, and when extra support is useful.",
+      key: "balance",
+      name: "Balance",
+      short: "Sustain what matters.",
+      body: "Balance isn’t a finish line. It’s recalibrating between effort and recovery, doing and resting, structure and flexibility, with the ownership to know what works for you, how to maintain progress, and when extra support is useful.",
     },
     {
       key: "evolve",

@@ -66,7 +66,7 @@ test("progress review: the practitioner confirms a stage change and the client s
 
   await page.getByLabel("What has changed? What feels better or easier?").fill("Three sessions most weeks; stairs feel easier.");
   await page.getByLabel("Adjust approach").check();
-  await page.getByLabel("TAB Method stage", { exact: true }).selectOption("align");
+  await page.getByLabel("TAB Method stage", { exact: true }).selectOption("adapt");
   // Changing the stage needs the practitioner to confirm the conversation with the client.
   await page.getByRole("button", { name: "Save review and update stage" }).click();
   await expect(page).toHaveURL(/\/review$/);
@@ -75,13 +75,13 @@ test("progress review: the practitioner confirms a stage change and the client s
   await page.getByRole("button", { name: "Save review and update stage" }).click();
 
   await expect(page).toHaveURL(/\/practice\/clients\/demo-client-dana\?review=saved/);
-  await expect(page.getByRole("status")).toContainText("Stage updated to Align");
+  await expect(page.getByRole("status")).toContainText("Stage updated to Adapt");
   await expect(page.getByText("You’re ready to bring strength, sleep and recovery together.")).toBeVisible();
 
   await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
   await page.goto("/my-tab");
-  await expect(page.getByRole("status").filter({ hasText: "Your stage was updated to Align" })).toBeVisible();
-  await expect(page.locator('[aria-current="step"]')).toContainText("Align");
+  await expect(page.getByRole("status").filter({ hasText: "Your stage was updated to Adapt" })).toBeVisible();
+  await expect(page.locator('[aria-current="step"]')).toContainText("Adapt");
 });
 
 test("plans: a practitioner creates and shares a service plan; the client sees only what's shared (design §2)", async ({ page, context, baseURL }) => {

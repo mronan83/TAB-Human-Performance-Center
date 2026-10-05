@@ -323,7 +323,7 @@ export const services: Service[] = [
     method: {
       transform: "Change patterns and choices that limit agency.",
       adapt: "Build flexibility when life changes.",
-      balance: "Align time, energy, relationships, priorities and recovery.",
+      balance: "Bring time, energy, relationships, priorities and recovery into balance.",
     },
     anchor: "Turn insight into agency and action.",
     whatToExpect: [
