@@ -30,7 +30,7 @@ export default async function PlanDetailPage({ params, searchParams }: { params:
           {editable && <PlanEntryForm clientId={id} planId={planId} />}
           <ul className="mt-6 space-y-3">
             {entries.map((e) => (
-              <li key={e.id} className={e.visibility === "internal" ? "rounded-xl border border-border bg-cream p-4" : "rounded-xl border border-sage bg-[#F1F3EA] p-4"}>
+              <li key={e.id} className={e.visibility === "internal" ? "rounded-xl border border-border bg-bone p-4" : "rounded-xl border border-sage bg-[#F1F3EA] p-4"}>
                 <div className="mb-1 flex flex-wrap items-center gap-2 text-sm text-text-secondary">
                   <span>{fmtDate(e.date, { month: "short", day: "numeric", year: "numeric" })}</span>{e.author && <span>· {e.author}</span>}
                   <Badge tone={e.visibility === "internal" ? "neutral" : "success"}>{e.visibility === "internal" ? "Internal" : "Shared with client"}</Badge>

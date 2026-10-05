@@ -91,7 +91,7 @@ export function ProgramEditor({ program }: { program?: ProgramTemplate }) {
               const actx = `${ctx}, activity ${ai + 1}`;
               const free = prescriptionKeys.filter((key) => !a.rx.some((r) => r.key === key));
               return (
-                <div key={a.key} className="space-y-3 rounded-xl bg-cream p-4">
+                <div key={a.key} className="space-y-3 rounded-xl bg-bone p-4">
                   <div className="grid gap-3 md:grid-cols-[10rem_1fr] [&>div]:min-w-0">
                     <div><label htmlFor={`${a.key}-kind`} className="field-label">Type<span className="sr-only"> ({actx})</span></label>
                       <select id={`${a.key}-kind`} value={a.kind} onChange={(e) => setActivity(wi, ai, { kind: e.target.value as Activity["kind"] })} className="field-input">

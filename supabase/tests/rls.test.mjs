@@ -221,15 +221,15 @@ check('review author is the signed-in practitioner', (await superuser(`select di
 check('client sees own stage history', (await as(C1, 'select to_stage from stage_changes')).map(r=>r.to_stage), ['transform']);
 check('other client sees no stage history', (await as(C2, 'select to_stage from stage_changes')).length, 0);
 await expectDenied('client cannot record a review or change their own stage', () => as(C1, review('evolve')));
-await expectDenied('unassigned practitioner cannot record a review', () => as(P2, review('align')));
-await expectDenied('staff without two-step verification cannot record a review', () => as(P, review('align'), 'aal1'));
+await expectDenied('unassigned practitioner cannot record a review', () => as(P2, review('adapt')));
+await expectDenied('staff without two-step verification cannot record a review', () => as(P, review('adapt'), 'aal1'));
 await expectDenied('nobody writes stage history directly', () => as(O, `insert into stage_changes (client_id, to_stage) values ('${DANA}','evolve')`));
 await expectDenied('stage history cannot be edited', () => as(O, `update stage_changes set to_stage='evolve'`));
 await expectDenied('stage history cannot be deleted', () => as(O, 'delete from stage_changes'));
 check('stage unchanged by denied attempts', await stageOf(), 'transform');
-await as(O, `update clients set method_stage='align' where id='${DANA}'`);
+await as(O, `update clients set method_stage='adapt' where id='${DANA}'`);
 check('a direct stage edit is still recorded', await superuser(`select from_stage, to_stage, review_id from stage_changes where client_id='${DANA}' order by created_at, to_stage desc`),
-  [{ from_stage: 'start', to_stage: 'transform', review_id: (await superuser(`select review_id from stage_changes where to_stage='transform'`))[0].review_id }, { from_stage: 'transform', to_stage: 'align', review_id: null }]);
+  [{ from_stage: 'start', to_stage: 'transform', review_id: (await superuser(`select review_id from stage_changes where to_stage='transform'`))[0].review_id }, { from_stage: 'transform', to_stage: 'adapt', review_id: null }]);
 check('stage changes are audited', (await superuser(`select count(*)::int n from audit_events where table_name='stage_changes'`))[0].n, 2);
 
 // C4b: typed plans. Practitioner-only sections and internal log entries never reach the client; nutrition is gated.

@@ -1,10 +1,10 @@
 ---
-title: TAB Wellness Collective Architecture
-eyebrow: TAB Wellness Collective · Technical architecture
+title: TAB Human Performance Center Architecture
+eyebrow: TAB Human Performance Center · Technical architecture
 heading: Technical architecture
 owner: Matthew Ronan
 updated: 2026-10-03
-lede: TAB Wellness Collective is one Next.js application with three faces: the public website, My TAB for clients and TAB Practice for practitioners. The website is prebuilt and served from Vercel's edge; My TAB and TAB Practice render per request on the server and reach Postgres on Supabase with the signed-in person's own session, so row-level security decides what each person sees. Timely keeps scheduling and Stripe keeps payments; the site links to them instead of rebuilding them. Today the portal runs on demo data, behind Vercel login, until the go-live gate (A15).
+lede: TAB Human Performance Center is one Next.js application with three faces: the public website, My TAB for clients and TAB Practice for practitioners. The website is prebuilt and served from Vercel's edge; My TAB and TAB Practice render per request on the server and reach Postgres on Supabase with the signed-in person's own session, so row-level security decides what each person sees. Timely keeps scheduling and Stripe keeps payments; the site links to them instead of rebuilding them. Today the portal runs on demo data, behind Vercel login, until the go-live gate (A15).
 ---
 
 <!-- Edit this file, not the page. scripts/docs/render-architecture.mjs builds the page (npm run docs:html) and adds an
@@ -34,7 +34,7 @@ People reach everything through one Vercel project. The public site needs nothin
 
 The application is Next.js 15 (App Router) with React 19, TypeScript and Tailwind CSS 4 (class names joined with `clsx`). Server code validates input with zod; Supabase is reached through `@supabase/ssr` and `@supabase/supabase-js`. Two route groups share one root layout: `app/(site)` for the public website and `app/(portal)` for My TAB (`/my-tab`) and TAB Practice (`/practice`). The routes are listed in the inventory below.
 
-- **Public website.** Static pages built from `content/pages.ts`, `content/services.ts` and `config/site.ts`. Every call to action goes through `components/Cta.tsx`, so booking and Start destinations stay config-driven. Navigation lives in `config/navigation.ts`. The design tokens in `app/globals.css` mirror Design Tokens v1.0 with the D-056 contrast fixes; fonts are self-hosted in `app/fonts`.
+- **Public website.** Static pages built from `content/pages.ts`, `content/services.ts` and `config/site.ts`. Every call to action goes through `components/Cta.tsx`, so booking and Start destinations stay config-driven. Navigation lives in `config/navigation.ts`. Each service in `content/services.ts` has an internal key (`slug`: database enums, portal plans, booking links), which never changes, and a public URL segment (`path`); a renamed pillar redirects from its old URL in `config/redirects.ts`. The design tokens in `app/globals.css` carry the approved TAB Human Performance Center palette with AA-checked UI values (proposed D-062; `npm run test:contrast`); Montserrat and Spectral are self-hosted in `app/fonts`. Logo, icon and favicon artwork lives in `public/brand/` and `public/`, drawn through `components/Logo.tsx`; its sources and fitting scripts are in `design/logo-redraw/` (proposed D-061).
 - **Forms.** Start Where You Are and Contact share `components/InquiryForm.tsx` and the schema in `lib/inquiry.ts` (zod). Turnstile is wrapped by `components/Turnstile.tsx`.
 - **My TAB and TAB Practice.** Server components read through `getRepository()` in `lib/portal/index.ts`; mutations are server actions in `app/(portal)/actions.ts`, called from client components in `components/portal/`. Program logic (current week, personalization, progress) is pure code in `lib/portal/programs.ts`, the program editor's parsing in `lib/portal/program-editor.ts`, plan types in `lib/portal/plan-types.ts`, resource links in `lib/portal/resources.ts`, progress-review options in `lib/portal/review.ts` and display formatting in `lib/portal/format.ts`.
 - **Search and sharing.** `lib/seo.ts` builds page metadata, `lib/jsonld.ts` the structured data, `app/sitemap.ts` and `app/robots.ts` the crawl files, `app/manifest.ts` the web app manifest. `lib/links.ts` resolves booking and Client Login links. `lib/placeholders.ts` lists every placeholder for `/launch-checklist` and refuses a launch build while any remain.

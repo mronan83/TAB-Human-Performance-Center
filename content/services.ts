@@ -1,5 +1,7 @@
 /**
- * Service pillars (D-028, Step 13), headlines and CTAs (Step 15.6/15.7), page modules (Step 16.4).
+ * Service pillars: the five pillars of TAB Human Performance Center (proposed D-065; Step 13 in docs/source/batch-5),
+ * headlines and CTAs (Step 15.6/15.7), page modules (Step 16.4). `slug` is the internal key (database enums, portal
+ * plans, booking links) and never changes; `path` is the public URL segment (renamed pillars redirect, config/redirects.ts).
  * This file is structured to map 1:1 onto a Payload `services` collection (D-036) later.
  * FAQ answers marked `draft: true` are temporary copy for practitioner review.
  */
@@ -8,12 +10,14 @@ export type ServiceSlug =
   | "massage-bodywork"
   | "personal-strength-training"
   | "womens-wellness-coaching"
+  | "integrated-nutrition"
   | "holistic-life-coaching";
 
 export type Faq = { q: string; a: string; draft?: boolean };
 
 export type Service = {
   slug: ServiceSlug;
+  path: string;
   name: string;
   shortName: string;
   headline: string;
@@ -24,7 +28,8 @@ export type Service = {
   gains: string[];
   approachLead: string;
   approach: string[];
-  method: { transform: string; align: string; become: string };
+  /** Step 13 "Transform / Adapt / Balance lens" for this pillar. */
+  method: { transform: string; adapt: string; balance: string };
   anchor: string;
   focusAreas?: { title: string; body: string }[];
   whatToExpect: { title: string; body: string }[];
@@ -38,6 +43,7 @@ export type Service = {
 export const services: Service[] = [
   {
     slug: "massage-bodywork",
+    path: "massage-bodywork",
     name: "Massage & Bodywork",
     metaDescription: "Personalized massage and bodywork in Brighton and Howell, MI: relaxation, recovery, prenatal and lymphatic care, adapted to how your body feels.",
     shortName: "Massage",
@@ -71,11 +77,11 @@ export const services: Service[] = [
       "Sessions may range from relaxation and therapeutic bodywork to prenatal massage, recovery-focused work, manual lymphatic drainage, and supportive massage for people managing chronic health conditions.",
     ],
     method: {
-      transform: "Help change how the body feels by addressing tension, stress, discomfort, recovery needs, and physical restrictions.",
-      align: "Support movement, recovery, body awareness, lymphatic health, and greater physical balance based on your circumstances.",
-      become: "Create a stronger foundation for living, moving, recovering, and feeling more comfortable in your body through every stage of life.",
+      transform: "Address tension, restrictions and recovery needs.",
+      adapt: "Improve the body’s ability to respond and recover.",
+      balance: "Recalibrate effort, restoration and physical demand.",
     },
-    anchor: "Your body’s needs change. Your care should be able to change with them.",
+    anchor: "Restore capacity so the body has more room to move, recover and respond.",
     focusAreas: [
       { title: "Relaxation and everyday tension", body: "Unwind stress and ease the tension that builds up in daily life." },
       { title: "Training recovery", body: "Support recovery from strength training, sport, and physically demanding work." },
@@ -99,12 +105,13 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Book Massage & Bodywork", kind: "book" },
     secondaryCta: { label: "Find the Right Starting Point", kind: "start" },
-    icon: "/brand/icons/massage-bodywork.png",
+    icon: "/brand/icons/massage-bodywork.svg",
   },
   {
     slug: "personal-strength-training",
-    name: "Personal Strength Training",
-    metaDescription: "Individualized strength training in Brighton and Howell, MI, or virtually, built around your abilities, goals and everyday life.",
+    path: "functional-strength",
+    name: "Functional Strength",
+    metaDescription: "Functional strength training in Brighton and Howell, MI, or virtually, built around your abilities, goals and everyday life.",
     shortName: "Strength",
     headline: "Build strength for the way you want to live.",
     summary:
@@ -128,17 +135,17 @@ export const services: Service[] = [
       "A clearer understanding of how to train effectively",
       "Sustainable exercise habits and measurable progress toward your goals",
     ],
-    approachLead: "Personal strength training at TAB starts with the person, not the workout.",
+    approachLead: "Functional strength training at TAB starts with the person, not the workout.",
     approach: [
       "We consider where you are today, what you want your body to be capable of, what gets in the way, and what kind of training realistically fits your life.",
       "Programs are individualized and progressively adapted as strength, confidence, movement quality, and goals change—especially for people who don’t identify as “gym people.”",
     ],
     method: {
-      transform: "Create meaningful change in strength, movement, confidence, and physical capability through individualized, progressive training.",
-      align: "Build a training approach that aligns movement, goals, abilities, lifestyle, recovery, and the activities that matter most to you.",
-      become: "Develop the strength, confidence, knowledge, and consistency to be more capable in everyday life.",
+      transform: "Build strength, movement skill and confidence.",
+      adapt: "Progressively respond to changing loads and demands.",
+      balance: "Match challenge with recovery and sustainable progression.",
     },
-    anchor: "Strength is not just about what you can lift. It’s about what your body allows you to do.",
+    anchor: "Build strength that transfers to real life.",
     focusAreas: [
       { title: "New to strength", body: "A supportive start with the fundamentals, at your pace." },
       { title: "Returning after time away", body: "Rebuild capacity and confidence without starting from zero." },
@@ -160,11 +167,12 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Schedule a Strength Consultation", kind: "book" },
     secondaryCta: { label: "Find Your Starting Point", kind: "start" },
-    icon: "/brand/icons/personal-strength-training.png",
+    icon: "/brand/icons/functional-strength.svg",
   },
   {
     slug: "womens-wellness-coaching",
-    name: "Women’s Wellness Coaching",
+    path: "womens-wellness",
+    name: "Women’s Wellness",
     metaDescription: "Women’s wellness coaching in Brighton and Howell, MI, or virtually: practical support for your health, habits, stress and life’s transitions.",
     shortName: "Women’s Wellness",
     headline: "Wellness that adapts to your life.",
@@ -191,17 +199,17 @@ export const services: Service[] = [
       "A practical plan for turning intentions into everyday behaviors",
     ],
     approachLead:
-      "Women’s wellness coaching at TAB starts with the whole person—not a checklist of symptoms, habits, or expectations.",
+      "Women’s Wellness at TAB starts with the whole person—not a checklist of symptoms, habits, or expectations.",
     approach: [
       "Coaching is collaborative rather than prescriptive: we help you identify what matters, understand what may be getting in the way, and create strategies that fit your real life.",
       "Needs shift through pregnancy, postpartum, perimenopause, menopause, caregiving years, and other transitions. Rather than treating those as problems to “fix,” coaching helps you adapt and make informed choices.",
     ],
     method: {
-      transform: "Identify patterns, habits, and circumstances that may no longer support your wellbeing, and create meaningful, realistic change.",
-      align: "Bring routines, priorities, movement, recovery, and self-care into better alignment with your current needs and stage of life.",
-      become: "Build the confidence, awareness, consistency, and self-advocacy to take greater ownership of your wellbeing.",
+      transform: "Change patterns or routines that no longer fit.",
+      adapt: "Respond to changing life stages and circumstances.",
+      balance: "Recalibrate priorities, support, movement, recovery and self-care.",
     },
-    anchor: "Wellness should adapt to your life—not require your life to revolve around wellness.",
+    anchor: "Build the capacity to adapt as life and the body change.",
     focusAreas: [
       { title: "Perimenopause and menopause", body: "Lifestyle support for energy, sleep, stress, movement, and routines through midlife change." },
       { title: "Pregnancy and postpartum", body: "Practical, supportive habits for a demanding season, within appropriate scope." },
@@ -222,10 +230,65 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Schedule a Wellness Conversation", kind: "book" },
     secondaryCta: { label: "Find Your Starting Point", kind: "start" },
-    icon: "/brand/icons/womens-wellness-coaching.png",
+    icon: "/brand/icons/womens-wellness.svg",
+  },
+  {
+    slug: "integrated-nutrition",
+    path: "integrated-nutrition",
+    name: "Integrated Nutrition",
+    metaDescription: "Practical nutrition coaching in Brighton and Howell, MI, or virtually, connecting what you eat to energy, strength, recovery and real life.",
+    shortName: "Nutrition",
+    headline: "Nourishment that works with your real life.",
+    summary:
+      "Practical nutrition coaching that connects nourishment to energy, strength, recovery, stress and everyday life.",
+    description:
+      "Practical nutrition coaching that connects nourishment to energy, strength, recovery, stress, lifestyle, preferences and the realities of everyday life. The focus is workable routines, not rigid rules or another diet.",
+    whoItsFor: [
+      "People who want to eat in a way that supports strength and recovery",
+      "People overwhelmed by conflicting nutrition advice",
+      "People rebuilding consistency after restrictive or all-or-nothing approaches",
+      "People seeking practical meal structure, fueling habits and better energy",
+      "Clients whose training, recovery and nutrition need to work together",
+    ],
+    gains: [
+      "More consistent nourishment",
+      "Improved energy and recovery support",
+      "Greater confidence with food decisions",
+      "Practical meal and fueling routines",
+      "Less all-or-nothing thinking",
+      "Better integration with strength, recovery and life",
+    ],
+    approachLead: "Integrated Nutrition at TAB starts with how you actually live, train, recover and eat.",
+    approach: [
+      "We look at your routines, preferences, energy, training and recovery together, then build fueling habits that fit your life rather than handing you a rigid plan.",
+      "Because it sits alongside strength, massage and coaching at TAB, nutrition can be coordinated with the rest of your support when that genuinely helps.",
+    ],
+    method: {
+      transform: "Replace unhelpful food patterns with workable routines.",
+      adapt: "Adjust fueling to training, stress, life stage and changing demands.",
+      balance: "Create nourishment that is effective without becoming rigid or obsessive.",
+    },
+    anchor: "Nourish capacity without making food another full-time job.",
+    whatToExpect: [
+      { title: "Conversation", body: "We start with your current routines, preferences, schedule, training and goals." },
+      { title: "Your plan", body: "Practical meal structure and fueling habits, built together rather than handed to you." },
+      { title: "Check-ins", body: "We adjust as your training, stress and life change." },
+    ],
+    // Scope (Step 15 §15.8; plans design ruling 2026-09-29): nutrition coaching within an IIN health-coach scope.
+    scopeNote:
+      "Integrated Nutrition is nutrition coaching, not medical nutrition therapy. It does not diagnose or treat medical conditions or eating disorders, or prescribe diets for them. Those needs stay with your physician or a registered dietitian, and we’ll help you find the right professional.",
+    faqs: [
+      { q: "Will you give me a meal plan?", a: "We build practical meal structure and routines with you rather than a rigid plan to follow. Diets for medical conditions stay with your physician or a registered dietitian.", draft: true },
+      { q: "Can nutrition coaching work alongside strength training?", a: "Yes. Fueling, training and recovery work best together, and we can coordinate them when that helps your goals.", draft: true },
+      { q: "Can we work together virtually?", a: "Yes. Nutrition coaching is available virtually and in person.", draft: true },
+    ],
+    primaryCta: { label: "Schedule a Nutrition Conversation", kind: "book" },
+    secondaryCta: { label: "Find Your Starting Point", kind: "start" },
+    icon: "/brand/icons/integrated-nutrition.svg",
   },
   {
     slug: "holistic-life-coaching",
+    path: "holistic-life-coaching",
     name: "Holistic Life Coaching",
     metaDescription: "Holistic life coaching in Brighton and Howell, MI, or virtually, to bring more clarity, balance and practical next steps to the life you want.",
     shortName: "Life Coaching",
@@ -258,11 +321,11 @@ export const services: Service[] = [
       "Coaching is collaborative and practical. Accountability is part of the process, and it should feel supportive rather than punitive.",
     ],
     method: {
-      transform: "Recognize patterns, assumptions, habits, or circumstances that are no longer serving you and create meaningful change.",
-      align: "Bring your choices, routines, priorities, relationships, and use of time into closer alignment with what matters most.",
-      become: "Build the confidence, self-awareness, resilience, and consistency to keep growing into the life you want to create.",
+      transform: "Change patterns and choices that limit agency.",
+      adapt: "Build flexibility when life changes.",
+      balance: "Bring time, energy, relationships, priorities and recovery into balance.",
     },
-    anchor: "Meaningful change starts when the way you live begins to align with what matters most to you.",
+    anchor: "Turn insight into agency and action.",
     whatToExpect: [
       { title: "Clarify", body: "We start with what feels out of alignment and what you want to be different." },
       { title: "Plan", body: "Together we build realistic steps that fit your responsibilities and energy." },
@@ -277,8 +340,11 @@ export const services: Service[] = [
     ],
     primaryCta: { label: "Schedule a Coaching Conversation", kind: "book" },
     secondaryCta: { label: "Start with What Matters", kind: "start" },
-    icon: "/brand/icons/holistic-life-coaching.png",
+    icon: "/brand/icons/holistic-life-coaching.svg",
   },
 ];
 
 export const getService = (slug: string) => services.find((s) => s.slug === slug);
+/** Find a service by its public URL segment (`/services/[path]`). */
+export const getServiceByPath = (path: string) => services.find((s) => s.path === path);
+export const serviceHref = (s: Service) => `/services/${s.path}`;

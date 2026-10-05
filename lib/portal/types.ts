@@ -3,7 +3,7 @@ import type { ServiceSlug } from "@/content/services";
 import type { RoutingOutcome } from "@/lib/inquiry";
 
 export type Role = "owner" | "practitioner" | "client";
-export type MethodStage = "start" | "transform" | "align" | "become" | "evolve";
+export type MethodStage = "start" | "transform" | "adapt" | "balance" | "evolve";
 
 /** `staffVerified` is false for a staff sign-in without two-step verification (SEC-015): the database then grants no staff access. */
 export type Viewer = { userId: string; role: Role; name: string; clientId?: string; practitionerId?: string; staffVerified?: boolean; capabilities?: string[];

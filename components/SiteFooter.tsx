@@ -13,7 +13,7 @@ export function SiteFooter() {
   const account = accountLink();
   const practitioner = practitionerLink();
   return (
-    <footer className="on-dark mt-24 bg-charcoal text-white">
+    <footer className="on-dark mt-24 bg-graphite text-white">
       <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Logo variant="horizontal" tone="white" className="h-16 w-auto" />
@@ -37,7 +37,7 @@ export function SiteFooter() {
           )}
         </div>
         <FooterCol title="Explore" links={footerNav.explore} />
-        <FooterCol title="Services" links={services.map((s) => ({ label: s.name, href: `/services/${s.slug}` }))} />
+        <FooterCol title="Services" links={services.map((s) => ({ label: s.name, href: `/services/${s.path}` }))} />
         <div className="space-y-10">
           <FooterCol title="Get started" links={footerNav.getStarted} extra={[
             <SmartLink key="account" href={account.href} external={account.external} className="text-white/85 hover:text-white">{account.label}</SmartLink>,

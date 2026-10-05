@@ -45,7 +45,7 @@ export default async function MyTabHome() {
       {d.checkInDue && (
         <div className="flex flex-col items-start justify-between gap-4 on-dark rounded-[20px] bg-olive p-6 text-white md:flex-row md:items-center">
           <div><p className="text-h4">Your weekly check-in is ready</p><p className="text-white/85">Two minutes to reflect on energy, sleep, stress, and wins.</p></div>
-          <Link href="/my-tab/progress#check-in" className="btn bg-white text-olive hover:bg-cream">Check in</Link>
+          <Link href="/my-tab/progress#check-in" className="btn bg-white text-olive hover:bg-bone">Check in</Link>
         </div>
       )}
 
@@ -93,7 +93,7 @@ export default async function MyTabHome() {
           <div className="space-y-5">
             {d.programs.map((p) => {
               return (
-                <Link key={p.id} href={`/my-tab/programs/${p.id}`} className="block rounded-xl p-2 -m-2 hover:bg-cream">
+                <Link key={p.id} href={`/my-tab/programs/${p.id}`} className="block rounded-xl p-2 -m-2 hover:bg-bone">
                   <div className="mb-2 flex items-center justify-between"><span className="font-semibold">{p.template.title}</span><Badge>Week {p.currentWeek}{p.template.durationWeeks ? ` of ${p.template.durationWeeks}` : ""}</Badge></div>
                   <ProgressBar value={programProgress(p)} label="Completed" />
                 </Link>

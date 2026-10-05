@@ -6,7 +6,7 @@ import { DraftFlag } from "@/components/DraftFlag";
 import { services } from "@/content/services";
 
 const doc = legal.policies;
-export const metadata: Metadata = pageMetadata({ title: doc.title, description: "Client policies for TAB Wellness Collective, including booking, cancellations and the scope of our services.", path: "/policies" });
+export const metadata: Metadata = pageMetadata({ title: doc.title, description: "Client policies for TAB Human Performance Center, including booking, cancellations and the scope of our services.", path: "/policies" });
 
 export default function Page() {
   return (

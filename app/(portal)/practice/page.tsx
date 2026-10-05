@@ -55,7 +55,7 @@ export default async function PracticeHome({ searchParams }: { searchParams: Pro
           <thead className="border-b border-border text-sm text-text-secondary"><tr><th className="px-5 py-3 font-semibold">Client</th><th className="px-5 py-3 font-semibold">Status</th><th className="px-5 py-3 font-semibold">Stage</th><th className="px-5 py-3 font-semibold">Services</th><th className="px-5 py-3 font-semibold">Last check-in</th></tr></thead>
           <tbody>
             {clients.map((c) => (
-              <tr key={c.id} className="border-b border-border last:border-0 hover:bg-cream">
+              <tr key={c.id} className="border-b border-border last:border-0 hover:bg-bone">
                 <td className="px-5 py-4"><Link href={`/practice/clients/${c.id}`} className="font-semibold text-primary underline-offset-4 hover:underline">{c.fullName}</Link><p className="text-sm text-text-secondary">{c.delivery}</p></td>
                 <td className="px-5 py-4"><Badge tone={c.status === "active" ? "success" : c.status === "prospect" ? "accent" : "neutral"}>{c.status}</Badge></td>
                 <td className="px-5 py-4 text-sm">{STAGES.find((s) => s.key === c.methodStage)?.label}</td>

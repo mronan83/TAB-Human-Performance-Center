@@ -1,5 +1,5 @@
 /**
- * TAB Wellness Collective — site configuration.
+ * TAB Human Performance Center: site configuration.
  *
  * Everything the business may need to change without touching page code
  * lives here. Values marked `PLACEHOLDER` are temporary and must be replaced
@@ -28,16 +28,17 @@ const portalDemoOnProduction = true;
 
 export const siteConfig = {
   brand: {
-    name: "TAB Wellness Collective", // D-020, D-038: always the full name in metadata and listings
-    shortName: "TAB", // conversational only; never "TAB Wellness"
-    philosophy: "Transform. Align. Become.",
-    tagline: "Whole-person wellness for stronger bodies and fuller lives.",
+    name: "TAB Human Performance Center", // proposed D-063 (replaces D-038): always the full name in metadata and listings
+    shortName: "TAB", // conversational only; never "TAB Human Performance" or "TAB HPC" in public copy
+    philosophy: "Transform. Adapt. Balance.", // proposed D-064: TAB stands for Transform. Adapt. Balance.
+    tagline: "Build the capacity to live fully.", // Brand Foundation v2 §10: primary purpose line
+    categoryLine: "Human performance for real life.",
     legacyName: "TAB Massage & Fitness",
     foundedYear: 2008, // Step 17: documented history since December 2008
-    /** Step 19: "formerly TAB Massage & Fitness" shown for 90–180 days after launch. */
+    /** Step 19.3 transitional messaging, shown for 90–180 days after launch. */
     transitionNotice: {
       enabled: true,
-      text: "TAB Massage & Fitness is now TAB Wellness Collective. Same commitment. A broader expression of what TAB has become.",
+      text: "TAB Massage & Fitness is becoming TAB Human Performance Center.",
       hideAfter: "2027-06-30", // ISO date; notice disappears automatically after this date
     },
   },
@@ -80,6 +81,7 @@ export const siteConfig = {
       "massage-bodywork": null as Maybe<string>,
       "personal-strength-training": null as Maybe<string>,
       "womens-wellness-coaching": null as Maybe<string>,
+      "integrated-nutrition": null as Maybe<string>,
       "holistic-life-coaching": null as Maybe<string>,
     },
     giftCardsUrl: null as Maybe<string>, // PLACEHOLDER: shown in footer when set
@@ -98,7 +100,7 @@ export const siteConfig = {
     startRecipient: "info@tabwellnesscollective.com",
     contactRecipient: "info@tabwellnesscollective.com",
     /** Must be a verified sender domain in Resend. */
-    fromAddress: "TAB Wellness Collective <no-reply@tabwellnesscollective.com>",
+    fromAddress: "TAB Human Performance Center <no-reply@tabwellnesscollective.com>", // sending domain unchanged until the new domain is chosen
     /**
      * Owner ruling 2026-09-28 (DIV-05, proposed D-058): the whole form is saved in the database, kept
      * indefinitely, and linked to the client record. It is written only while the portal runs on Supabase,

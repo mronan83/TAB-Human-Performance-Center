@@ -18,46 +18,59 @@ export const metadata = pageMetadata({
 export default function HomePage() {
   return (
     <>
-      {/* 1. Hero */}
-      <section className="overflow-hidden">
-        <div className="container-page grid items-center gap-12 py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
-          <div>
-            <p className="text-label text-secondary">{siteConfig.brand.philosophy}</p>
-            <h1 className="text-display-xl mt-5">{home.hero.headline}</h1>
-            <p className="text-body-lg mt-6 max-w-xl text-text-secondary">{home.hero.body}</p>
+      {/* 1. Hero: the mountain photograph from the approved board, a graphite scrim for AA contrast on the text side */}
+      <section className="on-dark relative isolate overflow-hidden bg-graphite text-white">
+        <Image
+          src={home.hero.image.src}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-20 object-cover object-[70%_50%]"
+        />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-graphite/85 via-graphite/60 to-graphite/5 max-md:bg-graphite/60" />
+        <div className="container-page py-24 md:py-32 lg:py-40">
+          <div className="max-w-xl">
+            <h1 className="text-display-xl font-[family-name:var(--font-serif)] !font-medium !tracking-normal">{home.hero.headline}</h1>
+            <p className="text-body-lg mt-6 max-w-lg text-white/90">{home.hero.body}</p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Cta kind="start" label="Start Where You Are" />
-              <Cta kind="link" href="/services" label="Explore Services" variant="outline" />
+              <Cta kind="link" href="/services" label="Explore Services" variant="outline-light" />
             </div>
-          </div>
-          <div aria-hidden="true" className="relative mx-auto w-full max-w-md">
-            <div className="aspect-[4/5] rounded-t-full bg-sand p-10 pt-16">
-              <div className="flex h-full flex-col items-center justify-center rounded-t-full border border-linen bg-cream/70">
-                <Image src="/brand/symbol.svg" alt="" width={1130} height={958} className="w-3/5" priority unoptimized />
-                <p className="mt-6 font-[family-name:var(--font-display)] text-2xl italic text-olive">Start where you are.</p>
-              </div>
-            </div>
-            {/* PLACEHOLDER: replace with an authentic session photo when available. */}
           </div>
         </div>
       </section>
 
+      {/* Service icons under the hero, as on the board's website mock-up */}
+      <nav aria-label="Services" className="border-b border-border bg-surface">
+        <ul className="container-page flex flex-wrap justify-center gap-y-6 py-8">
+          {services.map((s) => (
+            <li key={s.slug} className="basis-1/2 px-2 sm:basis-1/3 lg:basis-1/5">
+              <Link href={`/services/${s.path}`} className="group flex flex-col items-center gap-3 rounded-lg p-2 text-center">
+                <Image src={s.icon} alt="" width={64} height={64} className="h-16 w-16" />
+                <span className="text-label text-text-primary group-hover:text-primary">{s.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
       {/* 2. Core idea */}
-      <section className="section bg-sand">
+      <section className="section bg-linen">
         <div className="container-prose text-center">
           <h2 className="text-h1">{home.coreIdea.headline}</h2>
           <p className="text-body-lg mt-6 text-text-secondary">{home.coreIdea.body}</p>
         </div>
       </section>
 
-      {/* 3. Four pillars */}
+      {/* 3. Five pillars (proposed D-065) */}
       <section className="section">
         <div className="container-page">
           <div className="max-w-2xl">
-            <p className="text-label text-secondary">Four areas of support</p>
+            <p className="text-label text-secondary">Five areas of support</p>
             <h2 className="text-h1 mt-3">{home.pillars.headline}</h2>
           </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {services.map((s) => (<ServiceCard key={s.slug} service={s} />))}
           </div>
           <p className="mt-10 max-w-3xl text-text-secondary">{home.pillars.closing}</p>
@@ -65,7 +78,7 @@ export default function HomePage() {
       </section>
 
       {/* 4. The TAB Method */}
-      <section className="section bg-sand">
+      <section className="section bg-linen">
         <div className="container-page">
           <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div className="max-w-2xl">
@@ -111,7 +124,7 @@ export default function HomePage() {
       </section>
 
       {/* 7. Trust */}
-      <section className="section bg-sand">
+      <section className="section bg-linen">
         <div className="container-page grid gap-10 md:grid-cols-2 md:items-center">
           <div>
             <h2 className="text-h1">{home.trust.headline}</h2>
@@ -148,7 +161,7 @@ export default function HomePage() {
       )}
 
       {/* 9. Closing CTA */}
-      <section className="on-dark section bg-charcoal text-white">
+      <section className="on-dark section bg-graphite text-white">
         <div className="container-prose text-center">
           <h2 className="text-display-lg">{home.closing.headline}</h2>
           <p className="text-body-lg mt-5 text-white/80">{home.closing.body}</p>

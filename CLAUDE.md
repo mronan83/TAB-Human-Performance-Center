@@ -1,16 +1,17 @@
-# TAB Wellness Collective — operating rules for Claude
+# TAB Human Performance Center: operating rules for Claude
 
-Public website, My TAB client portal and practitioner workspace for TAB Wellness Collective.
+Public website, My TAB client portal and practitioner workspace for TAB Human Performance Center.
 Claude acts as principal engineer, tester and deployment manager; the owner (Matthew Ronan)
 approves at review gates.
 
 ## Business context
 - TAB Massage & Fitness (since December 2008, Brighton/Howell area, Michigan; one owner-practitioner,
-  20+ years) is becoming **TAB Wellness Collective**.
-- Four equally weighted service pillars (D-050): Massage & Bodywork, Personal Strength Training,
-  Women's Wellness Coaching, Holistic Life Coaching.
-- Philosophy: **Transform. Align. Become.** Tagline: "Whole-person wellness for stronger bodies and
-  fuller lives." Primary CTA: **Start Where You Are**.
+  20+ years) is becoming **TAB Human Performance Center** (rebrand 2026-10-05, `docs/source/batch-5/`; it replaces the
+  earlier "TAB Wellness Collective" name, and "Practice" from the HPP documents is not used).
+- Five equally weighted service pillars (proposed D-065, replaces D-050): Massage & Bodywork, Functional Strength,
+  Women's Wellness, Integrated Nutrition, Holistic Life Coaching.
+- Philosophy: **Transform. Adapt. Balance.** Purpose line: "Build the capacity to live fully." Category line: "Human
+  performance for real life." Primary CTA: **Start Where You Are**. TAB Method stages: Start Where You Are, Transform, Adapt, Balance, Evolve.
 - Growth is both local and virtual (D-043), for all adult segments including older adults (D-049).
 
 ## Sources of truth
@@ -23,7 +24,8 @@ approves at review gates.
 - **Living documents** (owner requests 2026-10-02 and 2026-10-03): `docs/TRACEABILITY.md` (requirements → features →
   code → checks), `docs/ARCHITECTURE.md` and `docs/DATA-MODEL.md` (with `docs/schema.json`, built from the migrations by
   `npm run docs:schema`). `scripts/docs/` renders each into an HTML page in TAB's design tokens. See "Living documents" below.
-- **Source strategy documents:** `docs/source/batch-N/` (Brand Foundation, Steps 13–19, design tokens).
+- **Source strategy documents:** `docs/source/batch-N/` (Brand Foundation, Steps 13–19, design tokens). Batch 5 (TAB Human
+  Performance Center) supersedes the brand, naming, pillar, identity and transition content of batches 1–4.
 - Where docs and code disagree, fix the drift in the same PR (R-028); never leave it silent.
 
 ## Cloud accounts — hard rules
@@ -74,7 +76,7 @@ Never print, log or commit token values.
   (P0 now, P1 public launch, P2 My TAB go-live, P3 later) and categorized, with owner actions (A) and Claude's work (C).
   Every PR updates it, including each item's effort and blocker. Don't post the backlog after a merge. After every
   successful production promotion (owner ruling 2026-10-02), render it with `npm run backlog:html -- --out <file>
-  --release "<what went live>" --deployment <dpl_id>` and republish it to the same "TAB Wellness Collective Backlog"
+  --release "<what went live>" --deployment <dpl_id>` and republish it to the same backlog
   artifact (https://claude.ai/artifact/71B4CYEb4dHdHa71fVwAgg; pass it as `url` from a new session), then send the owner
   its link.
 - **Living documents (owner request 2026-10-03):** the traceability, technical architecture and data model pages are
@@ -97,14 +99,16 @@ Never print, log or commit token values.
 - Never push directly to `main` or run a production migration without G3 approval.
 
 ## Non-negotiable product guardrails
-1. **Name:** always "TAB Wellness Collective" in full in metadata, listings and legal text. Never
-   "TAB Wellness". "TAB" alone is fine conversationally (D-038).
-2. **Logo is artwork.** Never recreate it in fonts. Use files in `public/brand/` (vector masters
-   from the external designer replace the PNGs when they arrive, D-027).
-3. **Design tokens** in `app/globals.css` mirror Design Tokens v1.0 (D-053) as amended by the
-   owner-approved contrast fixes (proposed D-056; see `docs/requirements-register.md` CON-011). Don't
-   invent colors. White text only on Olive, Deep Terracotta or Charcoal. Terracotta `#C0784C` and
-   Sage `#97A07C` are decorative only: never text, never behind white text.
+1. **Name:** always "TAB Human Performance Center" in full in metadata, listings and legal text (proposed D-063). Never
+   "TAB Wellness Collective", "TAB Human Performance Practice" or "TAB HPC" in public copy. "TAB" alone is fine
+   conversationally.
+2. **Logo is artwork.** Never recreate it in live type. Use the approved files in `public/brand/` (proposed D-061; the
+   owner-approved redraw, sources in `design/logo-redraw/`). Flat colour is the master; the sheen versions are for large
+   digital uses only.
+3. **Design tokens** in `app/globals.css` follow the approved TAB Human Performance Center palette (proposed D-062):
+   Graphite, Deep Olive, Sage, Clay, Clay Dark, Ochre, Linen, Bone. Don't invent colors. White text only on Deep Olive,
+   Clay Dark or Graphite. Clay `#C46A4A`, Sage `#A7B39F` and Ochre `#D4A574` are decorative only: never text, never
+   behind white text. Montserrat for headings, body and UI; Spectral for editorial accents.
 4. **Health data (D-042, amended by the owner's ruling of 2026-09-28 that HIPAA does not apply; proposed D-060):**
    My TAB is still a sensitive-data system. Do not connect production client data until the portal security gate
    is met (SEC-015–SEC-021: 0 known gaps in `npm run test:rls`, staff MFA enforced), Supabase is on a paid plan with

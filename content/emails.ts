@@ -8,5 +8,5 @@ export const stageUpdatedEmail = {
   greeting: (name: string) => `Hi ${name},`,
   body: "Your TAB practitioner has updated your stage in My TAB. Sign in to My TAB to see the details and what comes next.",
   cta: "Sign in to My TAB",
-  footer: "You're receiving this because you're a TAB Wellness Collective client. Please don't reply with health details; we'll talk privately.",
+  footer: "You're receiving this because you're a TAB Human Performance Center client. Please don't reply with health details; we'll talk privately.",
 } as const;

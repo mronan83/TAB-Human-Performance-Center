@@ -1,6 +1,6 @@
 import { method } from "@/content/pages";
 
-/** Start Where You Are → Transform → Align → Become → Evolve (D-029). */
+/** Start Where You Are → Transform → Adapt → Balance → Evolve (D-029, renamed for Transform. Adapt. Balance., proposed D-064). */
 export function MethodSteps({ compact = false, headingLevel = 3 }: { compact?: boolean; headingLevel?: 2 | 3 }) {
   const Heading = headingLevel === 2 ? "h2" : "h3";
   const steps = compact ? method.steps.slice(0, 4) : method.steps;

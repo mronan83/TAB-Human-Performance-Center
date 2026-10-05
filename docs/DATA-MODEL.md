@@ -1,6 +1,6 @@
 ---
-title: TAB Wellness Collective Data Model
-eyebrow: TAB Wellness Collective · Data model
+title: TAB Human Performance Center Data Model
+eyebrow: TAB Human Performance Center · Data model
 heading: Data model
 owner: Matthew Ronan
 updated: 2026-10-03

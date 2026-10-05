@@ -9,7 +9,7 @@ type Props = {
   label: string;
   href?: string;
   service?: ServiceSlug;
-  variant?: "primary" | "secondary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "outline-light";
   size?: "md" | "sm";
   className?: string;
 };

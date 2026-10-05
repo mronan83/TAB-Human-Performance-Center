@@ -25,7 +25,7 @@ export function TrendChart({ metric, entries, target }: { metric: MetricDefiniti
       <svg viewBox={`0 0 ${W} ${H}`} className="mt-2 w-full" role="img" aria-label={summary}>
         <line x1={P} x2={W - P} y1={H - P} y2={H - P} stroke="var(--color-border)" />
         <polyline fill="none" stroke="var(--color-olive)" strokeWidth={2.5} strokeLinejoin="round" strokeLinecap="round" points={pts.map((p, i) => `${x(i)},${y(p.value)}`).join(" ")} />
-        {pts.map((p, i) => (<circle key={p.recordedOn + i} cx={x(i)} cy={y(p.value)} r={i === pts.length - 1 ? 4.5 : 3} fill={i === pts.length - 1 ? "var(--color-terracotta-deep)" : "var(--color-olive)"} />))}
+        {pts.map((p, i) => (<circle key={p.recordedOn + i} cx={x(i)} cy={y(p.value)} r={i === pts.length - 1 ? 4.5 : 3} fill={i === pts.length - 1 ? "var(--color-clay-dark)" : "var(--color-olive)"} />))}
       </svg>
       <figcaption className="mt-1 flex justify-between text-xs text-text-secondary">
         <span>{fmtDate(pts[0].recordedOn)}</span>{target && <span>Target: {target}</span>}<span>{fmtDate(pts.at(-1)!.recordedOn)}</span>

@@ -116,19 +116,19 @@ const release = args.release
   : "";
 
 // ---- Page -------------------------------------------------------------------------------------------------------------
-const html = `<title>TAB Wellness Collective Backlog</title>
+const html = `<title>TAB Human Performance Center Backlog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
 /* Layout: a contents rail beside one reading column; the priority-by-effort grid first, then one table per priority.
    Palette: TAB Design Tokens v1.0 (app/globals.css). Yours = Deep Terracotta, Claude's = Olive. */
 :root {
-  --bg: #F8F5EF; --surface: #FFFFFF; --surface-2: #EDE7DC; --ink: #252724; --muted: #575B53;
-  --line: #DCD4C6; --line-strong: #A99D8C; --brand: #5A6046; --on-brand: #F8F5EF; --focus: #A65E39;
-  --owner: #A65E39; --owner-bg: #F1DED2; --claude: #5A6046; --claude-bg: #E4E7D9; --both: #575B53; --both-bg: #EDE7DC;
-  --good: #4F6B4A; --good-bg: #E4EBDD; --warn: #96672E;
-  --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --font-ui: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+  --bg: #FBF6F1; --surface: #FFFFFF; --surface-2: #E8E3D9; --ink: #2E2E2E; --muted: #5A5953;
+  --line: #D8D2C6; --line-strong: #ABA597; --brand: #4A5A44; --on-brand: #FBF6F1; --focus: #A75436;
+  --owner: #A75436; --owner-bg: #F5E4DB; --claude: #4A5A44; --claude-bg: #E4E7D9; --both: #5A5953; --both-bg: #E8E3D9;
+  --good: #4F6B4A; --good-bg: #E4EBDD; --warn: #85601F;
+  --font-display: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
@@ -148,15 +148,15 @@ a { color: var(--brand); text-underline-offset: 3px; }
 a:focus-visible, button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
 code { font-family: var(--font-mono); font-size: 0.82em; background: var(--surface-2); padding: 0.05em 0.35em; border-radius: 3px; overflow-wrap: anywhere; }
 h1, h2 { font-family: var(--font-display); font-weight: 600; color: var(--ink); text-wrap: balance; margin: 0; }
-h1 { font-size: clamp(2.2rem, 5vw, 3.2rem); line-height: 1.02; letter-spacing: -0.01em; }
-h2 { font-size: 1.65rem; line-height: 1.15; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+h1 { font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1.08; letter-spacing: -0.02em; font-weight: 700; }
+h2 { font-size: 1.4rem; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
 p { margin: 0; max-width: 72ch; }
 .eyebrow { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .hero { display: grid; gap: 12px; }
 .meta, .note, .source { color: var(--muted); font-size: 0.9rem; }
 .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; display: grid; min-width: 128px; }
-.stat .n { font-family: var(--font-display); font-size: 2rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat .n { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .stat .l { font-size: 0.82rem; color: var(--muted); }
 .release { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; display: grid; gap: 4px; max-width: 80ch; }
 .layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 36px; align-items: start; }
@@ -249,7 +249,7 @@ a.mx-chip:hover { border-color: var(--focus); }
 </style>
 <div class="page">
 <header class="hero">
-  <p class="eyebrow">TAB Wellness Collective · Backlog</p>
+  <p class="eyebrow">TAB Human Performance Center · Backlog</p>
   <h1>What's left before launch</h1>
   <p class="meta">From <code>docs/BACKLOG.md</code> at <a href="${REPO}/commit/${esc(sha)}" target="_blank" rel="noopener"><code>${esc(sha)}</code></a>${updated ? ` · last updated ${md(updated)}` : ""}</p>
   <div class="stats">${stats.map(([n, l]) => `<div class="stat"><span class="n">${n}</span><span class="l">${l}</span></div>`).join("")}</div>

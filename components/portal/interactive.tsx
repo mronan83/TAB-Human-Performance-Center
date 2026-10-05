@@ -228,7 +228,7 @@ export function ProgressReviewForm({ clientId, clientName, currentStage }: { cli
           {STAGES.map((s) => <option key={s.key} value={s.key}>{s.label}{s.key === currentStage ? " (current)" : ""}</option>)}
         </select>
         {changing && (
-          <div className="mt-3 rounded-xl border border-border-strong bg-cream p-4">
+          <div className="mt-3 rounded-xl border border-border-strong bg-bone p-4">
             <p className="text-sm">This moves {clientName} from <strong>{label(currentStage)}</strong> to <strong>{label(stage)}</strong>. They&rsquo;ll see it on their My TAB dashboard and get an email that their stage has been updated.</p>
             <label className="mt-3 flex items-start gap-2 text-sm font-semibold"><input type="checkbox" name="discussed" required className="mt-0.5 h-4 w-4 accent-[var(--color-olive)]" /> I&rsquo;ve discussed this stage change with {clientName}.</label>
           </div>
@@ -266,7 +266,7 @@ export function PlanForm({ clientId, planType, plan }: { clientId: string; planT
       {planType === "wellness" && <GoalsEditor initial={plan?.goals ?? []} />}
       {shared.map((sec) => section(sec, plan?.details[sec.key]))}
       {priv.length > 0 && (
-        <fieldset className="space-y-4 rounded-xl border border-border-strong bg-cream p-4">
+        <fieldset className="space-y-4 rounded-xl border border-border-strong bg-bone p-4">
           <legend className="px-1 font-semibold">Practitioner-only</legend>
           <p className="text-sm text-text-secondary">Never shown to the client.</p>
           {priv.map((sec) => section(sec, plan?.privateDetails?.[sec.key]))}
@@ -359,7 +359,7 @@ export function ProgramAssignmentForm({ clientId, template, program, plans }: { 
           {m.activities.map((a) => {
             const x = adj[a.id];
             return (
-              <div key={a.id} className="rounded-xl bg-cream p-4">
+              <div key={a.id} className="rounded-xl bg-bone p-4">
                 <p className="font-semibold">{KIND_LABEL[a.kind]}: {a.title}</p>
                 {a.instructions && <p className="text-sm text-text-secondary">{a.instructions}</p>}
                 <label className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" name={`skip:${a.id}`} defaultChecked={!!x?.skip} className="h-4 w-4 accent-[var(--color-olive)]" /> Skip for this client<span className="sr-only"> ({a.title})</span></label>
@@ -400,7 +400,7 @@ function ClientActivitiesEditor({ weeks, initial }: { weeks: number[]; initial: 
       {rows.map((r, i) => {
         const ctx = `added activity ${i + 1}`;
         return (
-          <div key={r.key} className="space-y-3 rounded-xl bg-cream p-4">
+          <div key={r.key} className="space-y-3 rounded-xl bg-bone p-4">
             <div className="grid gap-3 md:grid-cols-[7rem_10rem_1fr] [&>div]:min-w-0">
               <div><label htmlFor={`custom-${r.key}-week`} className="field-label">Week<span className="sr-only"> ({ctx})</span></label>
                 <select id={`custom-${r.key}-week`} value={r.week} onChange={(e) => set(i, { week: Number(e.target.value) })} className="field-input">

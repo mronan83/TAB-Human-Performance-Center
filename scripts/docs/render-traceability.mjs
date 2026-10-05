@@ -135,7 +135,7 @@ const out = page({
   eyebrow: doc.front.eyebrow,
   heading: doc.front.heading,
   meta: `As of ${esc(doc.front.updated)} · ${esc(doc.front.owner)} · from <code>${FILE}</code> at <a href="${REPO}/commit/${esc(commit)}" target="_blank" rel="noopener"><code>${esc(commit)}</code></a>`,
-  lede: inline(`TAB Wellness Collective's ${req.total} requirements trace to ${features.length} features, the decisions behind them, and the checks that prove them. ${req.verified} (${pct(req.verified, req.total)}) are verified by a check that fails if they break; ${req.built} more are built with nothing to catch a regression. My TAB and TAB Practice are verified against the demo build only, until the go-live gate (A15). Start with the open questions and the gaps found while tracing.`, ctx),
+  lede: inline(`TAB Human Performance Center's ${req.total} requirements trace to ${features.length} features, the decisions behind them, and the checks that prove them. ${req.verified} (${pct(req.verified, req.total)}) are verified by a check that fails if they break; ${req.built} more are built with nothing to catch a regression. My TAB and TAB Practice are verified against the demo build only, until the go-live gate (A15). Start with the open questions and the gaps found while tracing.`, ctx),
   stats: [[req.total, "requirements"], [req.verified, "verified by a check", pct(req.verified, req.total)], [features.length, "features"], [openGaps, "gaps found"], [questions.length, "open questions"]],
   note: `This page is generated from <code>${FILE}</code>, which is where requirements are edited and versioned. CI fails if it falls out of step with the requirements register.`,
   sections,

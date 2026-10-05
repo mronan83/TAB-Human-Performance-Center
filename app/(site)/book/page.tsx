@@ -8,7 +8,7 @@ import { PageHero } from "@/components/PageHero";
 import { SmartLink } from "@/components/SmartLink";
 import { Cta } from "@/components/Cta";
 
-export const metadata: Metadata = pageMetadata({ title: "Book", description: "Book massage, strength training, or a coaching conversation with TAB Wellness Collective.", path: "/book" });
+export const metadata: Metadata = pageMetadata({ title: "Book", description: "Book massage, strength training, or a coaching conversation with TAB Human Performance Center.", path: "/book" });
 
 /** Two paths (Step 16.4): know what you need → book; not sure → Start Where You Are. Booking stays in Timely (D-003). */
 export default function BookPage() {

@@ -39,7 +39,7 @@ export default async function ProgramVersionPage({ params, searchParams }: { par
                     {m.body && <p className="mt-1 text-sm text-text-secondary">{m.body}</p>}
                     <ul className="mt-3 space-y-2">
                       {m.activities.map((a) => (
-                        <li key={a.id} className="rounded-lg bg-cream p-3">
+                        <li key={a.id} className="rounded-lg bg-bone p-3">
                           <p><span className="font-semibold">{kindLabel(a.kind)}:</span> {a.title}</p>
                           {a.instructions && <p className="text-sm text-text-secondary">{a.instructions}</p>}
                           {a.prescription && Object.keys(a.prescription).length > 0 && <p className="text-sm">{Object.entries(a.prescription).map(([key, v]) => `${key} ${v}`).join(" · ")}</p>}

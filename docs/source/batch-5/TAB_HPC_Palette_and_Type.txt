@@ -1,0 +1,16 @@
+TAB Human Performance Center — Approved Board Palette
+Graphite   #2E2E2E
+Deep Olive #4A5A44
+Sage       #A7B39F
+Clay       #C46A4A
+Ochre      #D4A574
+Linen      #E8E3D9
+Bone       #FBF6F1
+
+Typography shown on approved board:
+Headings: Montserrat
+Subheadings & accents: Spectral
+
+Brand:
+TAB Human Performance Center
+Transform. Adapt. Balance.

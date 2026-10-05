@@ -31,7 +31,7 @@ export default async function InquiriesPage({ searchParams }: { searchParams: Pr
             </thead>
             <tbody>
               {list.map((i) => (
-                <tr key={i.id} className="border-b border-border last:border-0 hover:bg-cream">
+                <tr key={i.id} className="border-b border-border last:border-0 hover:bg-bone">
                   <td className="px-5 py-4">
                     <Link href={`/practice/inquiries/${i.id}`} className="font-semibold text-primary underline-offset-4 hover:underline">{i.name}</Link>
                     <p className="text-sm text-text-secondary">{i.kind === "start" ? "Start Where You Are" : "Contact message"}</p>

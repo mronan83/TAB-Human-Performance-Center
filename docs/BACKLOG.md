@@ -8,13 +8,13 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-03, C3b done: private notes, append-only audit log with nightly export, transactional Stripe webhook, secure session cookies._
+_Last updated: 2026-10-05, rebrand PR 1 (foundations): TAB Human Performance Center name, palette, type, logo, icons and governance._
 
 ## P0 · Now
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| A1 | Register `tabwellnesscollective.com` and `.net` once the name is officially approved (owner, 2026-09-28). Still unregistered at the registry on 2026-09-28 [RSK-007] | Accounts | Owner | S | Name approval |
+| A1 | Choose and register the domain for TAB Human Performance Center (name approved 2026-10-05; `tabwellnesscollective.com` is no longer needed). Email addresses and the canonical URL in `config/site.ts` still use the old domain as placeholders until then [RSK-007] | Accounts | Owner | S | None |
 
 ## P1 · Public-site launch
 
@@ -27,10 +27,13 @@ _Last updated: 2026-10-03, C3b done: private notes, append-only audit log with n
 | A6 | Business facts: address, phone, hours, map link, gift cards link (15 placeholders in `config/site.ts`) [GAP-003, GAP-020] | Content | Owner | S | None |
 | A7 | Legal pages with counsel: privacy (Plausible, forms, My TAB), terms, cancellation. Also confirm the duties that remain without HIPAA: breach notification, record retention [GAP-010] | Legal | Owner + counsel | L | None |
 | A8 | Content: founder story, bio, photos, the 14 draft service FAQs [GAP-012] | Content | Owner | M | None |
-| A9 | Designer fix: horizontal-lockup descriptor legibility (launch-blocking) [DS-006] | Brand | Owner (designer) | S | None |
 | A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | S | None |
 | A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | S | Launch date |
 | A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | S | None |
+| C20 | Rebrand PR 2, public site: copy in the new voice (Brand Foundation v2, Step 13, scope of practice), Step 19 transition messaging on About and Our Story [D-064, D-065] | Brand | Claude | M | None |
+| C21 | Rebrand PR 3, image library: the 30 stock images from the Step 18 image plan, licensed and optimised, placed by page [DS-007] | Brand | Claude | M | C20 |
+| C22 | Rebrand PR 4, My TAB and TAB Practice restyle to the new identity; no behaviour changes [D-062] | Brand | Claude | M | None |
+| A27 | Decide whether the practitioner workspace keeps the name "TAB Practice" now that "Practice" is retired from the brand name | Decision | Owner | S | None |
 | A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | S | A2 |
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
 | C15 | Checks for guardrails that only code review protects today: analytics never loads on `/my-tab`, `/practice` or `/contact` (NFR-005); emails and subjects carry no personal or health details (TG-3); a Start submission gets one next step and shows in TAB Practice (TG-8); every service page keeps its CTA, "not sure?" link and related services (WEB-004 to WEB-007) | Quality | Claude | M | None |
@@ -67,11 +70,10 @@ _Last updated: 2026-10-03, C3b done: private notes, append-only audit log with n
 | A17 | Stripe account, when programs are sold online [D-052] | Accounts | Owner | S | Online sales |
 | A18 | Optional: Vercel Protection Bypass secret (automated preview tests); Vercel Firewall rate limit (declined for now) | Accounts | Owner | S | None |
 | A21 | Optional: delete the five blank Sensitive `NEXT_PUBLIC_*` variables in Vercel (site URL, indexing, Turnstile site key, Supabase URL and anon key) so they can be re-added as Config when they get values | Accounts | Owner | S | None |
-| A19 | Designer extras: service-icon vectors, print cleanup [DS-006] | Brand | Owner (designer) | M | None |
 
 ## Notes on sequencing
 
-**A1 gates the launch path.** A2, A3, A4, C1, C2 and C5 all wait on the domain, and the domain waits on the name approval. Nothing else on this page unblocks as much.
+**A1 gates the launch path.** A2, A3, A4, C1, C2 and C5 all wait on the domain. The name was approved on 2026-10-05, so the domain can be chosen now. Nothing else on this page unblocks as much.
 
 **A7 and A8 don't need the domain.** Legal review with counsel is usually the longest lead time before launch, and the content is yours to write. Both can start now, in parallel with the name approval.
 
@@ -81,7 +83,9 @@ _Last updated: 2026-10-03, C3b done: private notes, append-only audit log with n
 
 ## Recently done
 
-- **C3b** (2026-10-03, in review): internal notes and practitioner-only plan details in a private schema behind audited functions; append-only audit log and a nightly encrypted export (waits on A26); Stripe events in one transaction, with partial refunds flagged for the owner in TAB Practice; `httpOnly`, `secure`, seven-day session cookies.
+- **Rebrand PR 1** (2026-10-05, in review): TAB Human Performance Center name everywhere; approved palette (palette file) with Clay Dark and AA-checked UI values; Montserrat and Spectral self-hosted; the approved logo redraw (horizontal, stacked, symbol; colour, graphite, white, sheen), app icons, favicons, sharing image and five vector service icons; register entries D-061 to D-065 proposed; the homepage hero from the board mock-up (mountain photograph, "More capacity for what matters.", service icon strip), brought forward from PR 2 at the owner's request; the TAB Method stages renamed Transform, Adapt, Balance (migration renames the enum values); the five pillars (new Integrated Nutrition page within the IIN coaching scope, Functional Strength and Women’s Wellness renamed with 308 redirects, internal service keys unchanged, migration adding `integrated-nutrition` to `service_slug`); CLAUDE.md, strategy documents (batch 5) and living documents updated. Closes A9 and A19.
+
+- **#30** (2026-10-03): internal notes and practitioner-only plan details in a private schema behind audited functions; append-only audit log and a nightly encrypted export (waits on A26); Stripe events in one transaction, with partial refunds flagged for the owner in TAB Practice; `httpOnly`, `secure`, seven-day session cookies. Promoted 2026-10-05 (`dpl_7aWBr…`).
 - **#29** (2026-10-03): living documents, the traceability page moved into `docs/TRACEABILITY.md` and published in the requested layout; new technical architecture and data model pages; `npm run docs:check` in CI keeps all three in step with the code. Promoted (`dpl_CDWF4…`).
 - **#28** (2026-10-03): C4 invite a client to My TAB (invited and first sign-in tracked), assign and withdraw forms, share and remove resources; clients' opened resources show as viewed. Promoted (`dpl_Hy6P3…`).
 - **#26** (2026-10-02): C7b move a client to a newer program version (progress and personalization carried over), client-only activities, Team page for the publishing permission. Promoted (`dpl_8fqGu5…`).

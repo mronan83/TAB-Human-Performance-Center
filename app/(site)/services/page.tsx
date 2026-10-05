@@ -7,7 +7,7 @@ import { Cta } from "@/components/Cta";
 
 export const metadata: Metadata = pageMetadata({
   title: "Services",
-  description: "Massage & Bodywork, Personal Strength Training, Women’s Wellness Coaching, and Holistic Life Coaching: four connected areas of support.",
+  description: "Massage & Bodywork, Functional Strength, Women’s Wellness, Integrated Nutrition and Holistic Life Coaching: five connected areas of support.",
   path: "/services",
 });
 

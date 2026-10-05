@@ -14,6 +14,6 @@ export default async function MyTabLayout({ children }: { children: React.ReactN
   }
   const viewer = await getViewer();
   const onSignIn = (await headers()).get("x-tab-path") === "/my-tab/login";
-  if (!viewer || !viewer.clientId || onSignIn) return <main id="main" className="min-h-dvh bg-sand">{children}</main>;
+  if (!viewer || !viewer.clientId || onSignIn) return <main id="main" className="min-h-dvh bg-linen">{children}</main>;
   return <PortalShell viewer={viewer} area="client">{children}</PortalShell>;
 }

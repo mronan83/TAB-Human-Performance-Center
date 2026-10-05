@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 export function PageHero({ eyebrow, title, lead, children }: { eyebrow?: string; title: string; lead?: string; children?: ReactNode }) {
   return (
-    <section className="border-b border-border bg-sand">
+    <section className="border-b border-border bg-linen">
       <div className="container-page py-16 lg:py-24">
         {eyebrow && <p className="text-label text-primary">{eyebrow}</p>}
         <h1 className="text-h1 mt-3 max-w-3xl">{title}</h1>
