@@ -399,6 +399,8 @@ test("header menus: Escape returns focus, focus-out closes (WEB-001, NFR-001)", 
   await expect(page.locator("#menu-Services")).toBeHidden();
   await expect(trigger).toBeFocused();
   await page.keyboard.press("Enter");
-  for (let i = 0; i < 6; i++) await page.keyboard.press("Tab");
+  // Tab through every link in the menu, then once more: focus leaves the menu and it closes.
+  const links = await page.locator("#menu-Services a").count();
+  for (let i = 0; i <= links; i++) await page.keyboard.press("Tab");
   await expect(page.locator("#menu-Services")).toBeHidden();
 });

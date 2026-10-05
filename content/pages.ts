@@ -13,7 +13,7 @@ export const home = {
   },
   coreIdea: {
     headline: "Your wellbeing doesn’t happen in pieces. Neither should your care.",
-    body: "Physical comfort affects how you move. Strength shapes confidence and independence. Stress, recovery, habits, responsibilities, and major life changes all influence one another. That’s why TAB brings four areas of support into one connected approach.",
+    body: "Physical comfort affects how you move. Strength shapes confidence and independence. Stress, recovery, habits, responsibilities, and major life changes all influence one another. That’s why TAB brings five areas of support into one connected approach.",
   },
   pillars: {
     headline: "Support for how you feel, move, live, and grow.",
@@ -148,7 +148,7 @@ export const about = {
     draft: true,
     body: [
       "TAB began in December 2008 as TAB Massage & Fitness, with a holistic approach that already brought together massage, personal training, and coaching.",
-      "Over the years, the work grew beyond “massage and fitness.” TAB Human Performance Center is the name for what TAB has become: a personalized, whole-person approach built on four connected service pillars.",
+      "Over the years, the work grew beyond “massage and fitness.” TAB Human Performance Center is the name for what TAB has become: a personalized, whole-person approach built on five connected service pillars.",
       "[PLACEHOLDER: founder story, milestones, and the people behind TAB — to be written with the owner.]",
     ],
   },

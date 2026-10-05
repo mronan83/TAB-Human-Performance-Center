@@ -37,7 +37,7 @@ export function SiteFooter() {
           )}
         </div>
         <FooterCol title="Explore" links={footerNav.explore} />
-        <FooterCol title="Services" links={services.map((s) => ({ label: s.name, href: `/services/${s.slug}` }))} />
+        <FooterCol title="Services" links={services.map((s) => ({ label: s.name, href: `/services/${s.path}` }))} />
         <div className="space-y-10">
           <FooterCol title="Get started" links={footerNav.getStarted} extra={[
             <SmartLink key="account" href={account.href} external={account.external} className="text-white/85 hover:text-white">{account.label}</SmartLink>,

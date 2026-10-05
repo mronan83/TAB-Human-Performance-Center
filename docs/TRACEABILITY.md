@@ -63,7 +63,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | BO-2 | Help a prospective client understand TAB and choose the right starting point, with low pressure and one clear next step | Step 14, Step 16 §16.0, DEC-004 | WEB, GS |
 | BO-3 | Grow locally and virtually, across all adult segments including older adults | D-043, D-049, Step 16 §16.8 | WEB, NFR, CMS |
 | BO-4 | Give each client one place for their TAB relationship: plan, programs, progress, resources, forms, appointments, billing | Step 16 §16.5 | PORTAL |
-| BO-5 | Let practitioners deliver the TAB Method across the four pillars as one care team, modelled for a team and built for one | Step 14, D-045, D-050 | STAFF |
+| BO-5 | Let practitioners deliver the TAB Method across the five pillars as one care team, modelled for a team and built for one | Step 14, D-045, D-065 (proposed) | STAFF |
 | BO-6 | Earn and keep trust: sensitive data protected, scope of practice respected, no health details by email | DEC-010, D-042, D-054, Step 15 §15.8 | SEC, NFR, PORTAL |
 | BO-7 | Keep Timely and Stripe as the systems of record for scheduling and payments; link to them, don't rebuild them | DEC-006, D-003, D-052 | INT, PORTAL |
 
@@ -134,7 +134,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | --- | --- | --- | --- | --- | --- | --- |
 | STAFF-001 | One client record in three layers: profile, service record, TAB journey | P2 | Must | Built | F-31 | — |
 | STAFF-002 | TAB Client Profile with the Step 14 fields | P2 | Should | Partial: basic fields only | F-31 | — |
-| STAFF-003 | Service-specific intakes for all four pillars | P2 | Should | Planned (CON-002) | F-48 | — |
+| STAFF-003 | Service-specific intakes for all five pillars | P2 | Should | Planned (CON-002) | F-48 | — |
 | STAFF-004 | Session notes: status, intervention, response, next step; internal apart from shared | P2 | Must | Partial: internal and shared verified; the four-part pattern isn't structured | F-32 | rls |
 | STAFF-005 | Author the Wellness Plan with the client | P2 | Must | Verified | F-34 | smoke, rls |
 | STAFF-006 | Progress reviews with the "does the approach still fit?" decision | P2 | Must | Verified | F-33, F-46 | smoke, rls |
@@ -229,9 +229,9 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Feature | Status | Requirements | Decisions | Code | Checks |
 | --- | --- | --- | --- | --- | --- | --- |
-| F-01 | Site header, footer, transition banner | Partial: footer facts (A6) | WEB-001, WEB-012, WEB-015, WEB-020, NFR-001 | D-038, D-050 | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `TransitionBanner.tsx`, `config/navigation.ts` | header, smoke, a11y |
-| F-02 | Homepage | Partial: trust content and photos (A8) | WEB-002, WEB-003, WEB-013, WEB-014, CMS-005, DS-007 | D-050 | `app/(site)/page.tsx`, `content/pages.ts` | links, a11y |
-| F-03 | Services landing and service pages | Partial: 14 draft FAQs (A8) | WEB-002, WEB-004 to WEB-007, WEB-014, WEB-018 | D-050, Step 15 §15.8 | `app/(site)/services/`, `content/services.ts` | links, seo, a11y |
+| F-01 | Site header, footer, transition banner | Partial: footer facts (A6) | WEB-001, WEB-012, WEB-015, WEB-020, NFR-001 | D-063, D-065 (proposed) | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `TransitionBanner.tsx`, `config/navigation.ts` | header, smoke, a11y |
+| F-02 | Homepage | Partial: trust content and photos (A8) | WEB-002, WEB-003, WEB-013, WEB-014, CMS-005, DS-007 | D-064, D-065 (proposed) | `app/(site)/page.tsx`, `content/pages.ts` | links, a11y |
+| F-03 | Services landing and service pages | Partial: 14 draft FAQs (A8) | WEB-002, WEB-004 to WEB-007, WEB-014, WEB-018 | D-065 (proposed), Step 15 §15.8 | `app/(site)/services/`, `content/services.ts` | links, seo, a11y |
 | F-04 | TAB Method, About, Our Story, Team | Partial: founder story, bio, photos (A8) | WEB-002, WEB-008, WEB-009, WEB-014, WEB-017 | D-027 | `app/(site)/tab-method/`, `about/` | links, a11y |
 | F-05 | Resources, FAQ, Events | Partial: topic list only (TG-2) | WEB-002, WEB-010, WEB-014 | D-036 | `app/(site)/resources/`, `faq/`, `events/` | links, a11y |
 | F-06 | Book page | Verified | WEB-002, WEB-011, GS-006, INT-001 | D-003 | `app/(site)/book/`, `components/Cta.tsx` | smoke, links |
@@ -297,7 +297,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-45 | Sign-in plumbing and staff MFA | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
-| F-48 | Service intakes for the four pillars | Planned | STAFF-003 | not yet on the backlog |
+| F-48 | Service intakes for the five pillars | Planned | STAFF-003 | not yet on the backlog |
 | F-49 | Referrals and handoffs | Planned | STAFF-007 | not yet on the backlog |
 | F-50 | Timely sync | Planned | INT-005 | not scheduled; Timely has no public API (D-003) |
 | F-51 | Post-launch monitoring | Planned | NFR-010 | C2 |
@@ -393,7 +393,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-02 | 1.0 | Created: 7 objectives, 97 requirements, 51 features, 9 gaps, 6 questions | Owner request, 2 Oct 2026. Traced from the repository at `f43beba` plus PR #28 (C4, not yet merged) |
 | 2026-10-03 | 1.1 | Moved from a Claude Doc into `docs/TRACEABILITY.md`, published as an HTML page in the layout the owner asked for; counts now computed from the tables; companion architecture and data model pages added; four one-way feature links fixed; Q-7 raised from the data model review | Owner request, 3 Oct 2026 |
 | 2026-10-03 | 1.2 | C3b: SEC-019 and SEC-020 partial, INT-004 verified; F-21, F-29 and F-32 updated; A26 added | C3b build, owner rulings 2026-10-03 (refunds, audit export, private notes) |
-| 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
+| 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; five pillars (Integrated Nutrition page; Functional Strength and Women’s Wellness renamed, old URLs redirect; `service_slug` gains `integrated-nutrition`); DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
 
 ## Sources
 

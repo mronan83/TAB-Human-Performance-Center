@@ -81,6 +81,7 @@ export const siteConfig = {
       "massage-bodywork": null as Maybe<string>,
       "personal-strength-training": null as Maybe<string>,
       "womens-wellness-coaching": null as Maybe<string>,
+      "integrated-nutrition": null as Maybe<string>,
       "holistic-life-coaching": null as Maybe<string>,
     },
     giftCardsUrl: null as Maybe<string>, // PLACEHOLDER: shown in footer when set

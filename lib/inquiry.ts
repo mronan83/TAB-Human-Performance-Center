@@ -40,8 +40,9 @@ export const helpOptions = [
 /** "Which service are you interested in?" (S14 §14.4.1, one choice). */
 export const serviceOptions = [
   { value: "massage-bodywork", label: "Massage & Bodywork" },
-  { value: "personal-strength-training", label: "Personal Strength Training" },
-  { value: "womens-wellness-coaching", label: "Women’s Wellness Coaching" },
+  { value: "personal-strength-training", label: "Functional Strength" },
+  { value: "womens-wellness-coaching", label: "Women’s Wellness" },
+  { value: "integrated-nutrition", label: "Integrated Nutrition" },
   { value: "holistic-life-coaching", label: "Holistic Life Coaching" },
   { value: "not-sure", label: "I’m not sure" },
 ] as const;

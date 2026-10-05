@@ -26,7 +26,7 @@ export default function TeamPage() {
                 <p className="text-text-secondary">{m.role} · {m.credentials}</p>
                 <p className="mt-4">{m.bio}</p>
                 <ul className="mt-4 flex flex-wrap gap-2">
-                  {m.services.map((slug) => { const s = getService(slug); return s ? (<li key={slug}><Link href={`/services/${slug}`} className="rounded-full bg-linen px-3 py-1 text-sm">{s.name}</Link></li>) : null; })}
+                  {m.services.map((slug) => { const s = getService(slug); return s ? (<li key={slug}><Link href={`/services/${s.path}`} className="rounded-full bg-linen px-3 py-1 text-sm">{s.name}</Link></li>) : null; })}
                 </ul>
               </div>
             </article>

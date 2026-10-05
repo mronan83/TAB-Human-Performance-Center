@@ -20,7 +20,7 @@ export default function FaqPage() {
           <FaqList items={faqs} />
           <h2 className="text-h2 mt-16">Service questions</h2>
           <ul className="mt-6 space-y-3">
-            {services.map((s) => (<li key={s.slug}><Link className="font-semibold text-primary underline underline-offset-4" href={`/services/${s.slug}#faq`}>{s.name} FAQ</Link></li>))}
+            {services.map((s) => (<li key={s.slug}><Link className="font-semibold text-primary underline underline-offset-4" href={`/services/${s.path}#faq`}>{s.name} FAQ</Link></li>))}
           </ul>
         </div>
       </section>

@@ -96,7 +96,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 |---|---|---|---|
 | WEB-001 | Primary nav: Home, Services, The TAB Method, About, Resources. Persistent actions: Start Where You Are (primary), Book, My TAB. *(2026-09-28: Home item and an "All services" link added; Escape returns focus, menus close on focus-out; full nav from 80rem (1280px at default text size), Menu button below. Header items never wrap; the row keeps ~57px headroom at default text for Safari/Windows rendering, and larger default text switches to the Menu button. `e2e/header.spec.ts` checks 16/20/24px defaults and fails CI if a new nav item eats the headroom)* | S16 §16.2 | P1 |
 | WEB-002 | Sitemap and URLs as specified (19 routes: `/`, `/services` + 4 service pages, `/tab-method`, `/about`, `/about/our-story`, `/about/team`, `/resources`, `/resources/articles`, `/resources/guides`, `/events`, `/faq`, `/start`, `/book`, `/contact`, `/my-tab`). | S16 §16.2 | P1 |
-| WEB-003 | Homepage follows the approved nine-section sequence: Hero → Core idea → Four pillars → TAB Method → Personalization → Guided conversion → Proof/trust → Resources → Closing invitation. | S16 §16.3 | P1 |
+| WEB-003 | Homepage follows the approved nine-section sequence: Hero → Core idea → Four pillars → TAB Method → Personalization → Guided conversion → Proof/trust → Resources → Closing invitation. *(2026-10-05: "Four pillars" is now five, proposed D-065; the hero follows the approved board mock-up.)* | S16 §16.3 | P1 |
 | WEB-004 | Services landing page headed "Support for how you feel, move, live, and grow." presenting pillars as independently valuable and optionally connected. | S16 §16.2 | P1 |
 | WEB-005 | One reusable service-page template (10-part anatomy) with service-specific modules per pillar. | S16 §16.4, S15 §15.6 | P1 |
 | WEB-006 | Every service page offers a direct CTA **and** a "not sure?" path to `/start`. | S16 §16.4 | P1 |
@@ -157,7 +157,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 |---|---|---|---|
 | STAFF-001 | Shared client record in three layers: Client Profile, Service Record, TAB Journey. | S14 §14.3 | P2 |
 | STAFF-002 | TAB Client Profile (S14 §14.4.2), including internal "current TAB relationship" fields. | S14 §14.4.2 | P2 |
-| STAFF-003 | Service-specific intakes for all four pillars with field-level specs from S14 §14.4.3, each with consent / scope acknowledgement. (See CON-002.) | S14 §14.4.3 | P2 |
+| STAFF-003 | Service-specific intakes for all four pillars with field-level specs from S14 §14.4.3, each with consent / scope acknowledgement. (See CON-002.) *(2026-10-05: five pillars, adding Integrated Nutrition, proposed D-065.)* | S14 §14.4.3 | P2 |
 | STAFF-004 | Session documentation pattern: Current status → Intervention/experience → Client response → Next step. Internal notes are separate from shared summaries. | S14 §14.3, S16 §16.5 | P2 |
 | STAFF-005 | Author the Wellness Plan together with the client. | S14 §14.4.4 | P2 |
 | STAFF-006 | Capture progress reviews (S14 §14.4.5) including the "does the approach still fit?" decision. | S14 §14.4.5 | P2 |
@@ -280,7 +280,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 | GAP-015 | Analytics tool: Plausible vs Matomo vs GA4. | P1 | Engineering proposal |
 | GAP-016 | Where client records and session notes live today (Timely, paper, other) and what, if anything, migrates. | P2 | Owner |
 | GAP-017 | Target launch date. S19 plans relative to T-8 weeks but sets no date. | Planning | Owner |
-| GAP-018 | Legacy offerings outside the four pillars: yoga, nutrition, sports injury rehab, small-group training / LifeQuest, chair/corporate massage, cupping, youth programs, remote training. Which continue? This drives redirect destinations and service-page content. | P1 | Owner |
+| GAP-018 | Legacy offerings outside the four pillars: yoga, nutrition, sports injury rehab, small-group training / LifeQuest, chair/corporate massage, cupping, youth programs, remote training. Which continue? This drives redirect destinations and service-page content. *(2026-10-05: nutrition is now a pillar, Integrated Nutrition, proposed D-065; `/nutrition` redirects to its page.)* | P1 | Owner |
 | GAP-019 | Access for cutover: host DNS panel for tabmassage.com (nameservers at `SUPERCP.COM`), GoDaddy registrar, Google Workspace admin (to add the new domain and aliases), Search Console. | P1 launch | Owner |
 | GAP-020 | Gift cards: the legacy site sells them. Will they continue, and through what (Timely vouchers, Stripe, other)? S16 lists "Gift Cards if offered". | P1 | Owner |
 | GAP-021 | URLs for the legal pages are not defined in S16. Proposed: `/privacy`, `/terms`, `/accessibility`, `/policies/cancellation`. | P1 | Engineering proposal |

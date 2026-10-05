@@ -10,7 +10,8 @@
   "20261003000000_program_editor.sql",
   "20261004000000_program_moves_custom_activities.sql",
   "20261005000000_client_invites_assignments.sql",
-  "20261006000000_private_notes_audit_stripe.sql"
+  "20261006000000_private_notes_audit_stripe.sql",
+  "20261007000000_integrated_nutrition_service.sql"
  ],
  "tables": [
   {
@@ -4411,6 +4412,7 @@
     "massage-bodywork",
     "personal-strength-training",
     "womens-wellness-coaching",
+    "integrated-nutrition",
     "holistic-life-coaching"
    ]
   },

@@ -11,8 +11,9 @@ export const primaryNav: NavItem[] = [
     children: [
       { label: "All services", href: "/services" },
       { label: "Massage & Bodywork", href: "/services/massage-bodywork" },
-      { label: "Personal Strength Training", href: "/services/personal-strength-training" },
-      { label: "Women’s Wellness Coaching", href: "/services/womens-wellness-coaching" },
+      { label: "Functional Strength", href: "/services/functional-strength" },
+      { label: "Women’s Wellness", href: "/services/womens-wellness" },
+      { label: "Integrated Nutrition", href: "/services/integrated-nutrition" },
       { label: "Holistic Life Coaching", href: "/services/holistic-life-coaching" },
     ],
   },

@@ -43,10 +43,10 @@ export default function HomePage() {
 
       {/* Service icons under the hero, as on the board's website mock-up */}
       <nav aria-label="Services" className="border-b border-border bg-surface">
-        <ul className="container-page grid grid-cols-2 gap-x-4 gap-y-6 py-8 sm:grid-cols-4">
+        <ul className="container-page flex flex-wrap justify-center gap-y-6 py-8">
           {services.map((s) => (
-            <li key={s.slug}>
-              <Link href={`/services/${s.slug}`} className="group flex flex-col items-center gap-3 rounded-lg p-2 text-center">
+            <li key={s.slug} className="basis-1/2 px-2 sm:basis-1/3 lg:basis-1/5">
+              <Link href={`/services/${s.path}`} className="group flex flex-col items-center gap-3 rounded-lg p-2 text-center">
                 <Image src={s.icon} alt="" width={64} height={64} className="h-16 w-16" />
                 <span className="text-label text-text-primary group-hover:text-primary">{s.name}</span>
               </Link>
@@ -63,14 +63,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. Four pillars */}
+      {/* 3. Five pillars (proposed D-065) */}
       <section className="section">
         <div className="container-page">
           <div className="max-w-2xl">
-            <p className="text-label text-secondary">Four areas of support</p>
+            <p className="text-label text-secondary">Five areas of support</p>
             <h2 className="text-h1 mt-3">{home.pillars.headline}</h2>
           </div>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {services.map((s) => (<ServiceCard key={s.slug} service={s} />))}
           </div>
           <p className="mt-10 max-w-3xl text-text-secondary">{home.pillars.closing}</p>

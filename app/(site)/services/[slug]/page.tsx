@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getService, services } from "@/content/services";
+import { getServiceByPath, services } from "@/content/services";
 import { Cta } from "@/components/Cta";
 import { FaqList } from "@/components/FaqList";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonld";
@@ -11,23 +11,23 @@ import { pageMetadata } from "@/lib/seo";
 type Props = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
-  return services.map((s) => ({ slug: s.slug }));
+  return services.map((s) => ({ slug: s.path }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const s = getService((await params).slug);
+  const s = getServiceByPath((await params).slug);
   if (!s) return {};
   // Owner ruling 2026-09-28: no location in titles; it stays in descriptions and structured data (ASM-006).
-  return pageMetadata({ title: s.name, description: s.metaDescription, path: `/services/${s.slug}` });
+  return pageMetadata({ title: s.name, description: s.metaDescription, path: `/services/${s.path}` });
 }
 
 /** Service-page template (Step 16.4): hero, who it's for, how we help, TAB Method, what to expect, scope, FAQ, related, CTA. */
 export default async function ServicePage({ params }: Props) {
-  const s = getService((await params).slug);
+  const s = getServiceByPath((await params).slug);
   if (!s) notFound();
   const related = services.filter((x) => x.slug !== s.slug);
   // Structured data (NFR-003, S16 §16.4): Service + breadcrumb; FAQ markup only for reviewed, visible answers.
-  const jsonLd = [serviceJsonLd(s), breadcrumbJsonLd([{ name: "Services", path: "/services" }, { name: s.name, path: `/services/${s.slug}` }]), faqJsonLd(s.faqs)].filter(Boolean);
+  const jsonLd = [serviceJsonLd(s), breadcrumbJsonLd([{ name: "Services", path: "/services" }, { name: s.name, path: `/services/${s.path}` }]), faqJsonLd(s.faqs)].filter(Boolean);
 
   return (
     <>
@@ -85,9 +85,9 @@ export default async function ServicePage({ params }: Props) {
       {/* TAB Method applied */}
       <section className="on-dark section bg-olive text-white">
         <div className="container-page">
-          <h2 className="text-label text-white/90">The TAB Method, applied</h2>
+          <h2 className="text-label text-white/90">Transform. Adapt. Balance.</h2>
           <div className="mt-8 grid gap-8 md:grid-cols-3">
-            {(["transform", "align", "become"] as const).map((k) => (
+            {(["transform", "adapt", "balance"] as const).map((k) => (
               <div key={k} className="border-t border-white/30 pt-6">
                 <h3 className="font-[family-name:var(--font-display)] text-3xl font-medium capitalize">{k}</h3>
                 <p className="mt-3 text-white/85">{s.method[k]}</p>
@@ -130,7 +130,7 @@ export default async function ServicePage({ params }: Props) {
           <ul className="mt-8 grid gap-4 md:grid-cols-3">
             {related.map((r) => (
               <li key={r.slug}>
-                <Link href={`/services/${r.slug}`} className="card flex items-center gap-4 p-5 hover:shadow-[var(--shadow-md)]">
+                <Link href={`/services/${r.path}`} className="card flex items-center gap-4 p-5 hover:shadow-[var(--shadow-md)]">
                   <Image src={r.icon} alt="" width={56} height={56} />
                   <span className="font-semibold">{r.name}</span>
                 </Link>

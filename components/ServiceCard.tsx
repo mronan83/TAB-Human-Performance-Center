@@ -11,7 +11,7 @@ export function ServiceCard({ service, headingLevel = 3 }: { service: Service; h
       <p className="text-label mt-6 text-text-secondary">{service.name}</p>
       <Heading className="mt-2 font-[family-name:var(--font-display)] text-[1.75rem] font-medium leading-tight">{service.headline}</Heading>
       <p className="mt-3 flex-1 text-text-secondary">{service.summary}</p>
-      <Link href={`/services/${service.slug}`} className="mt-6 font-semibold text-primary underline decoration-border-strong underline-offset-4 group-hover:decoration-primary">
+      <Link href={`/services/${service.path}`} className="mt-6 font-semibold text-primary underline decoration-border-strong underline-offset-4 group-hover:decoration-primary">
         Explore {service.name}
       </Link>
     </article>

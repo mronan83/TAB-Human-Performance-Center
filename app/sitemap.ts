@@ -10,6 +10,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   return [
     ...pages.map((p) => ({ url: `${siteUrl}${p}`, lastModified: now })),
-    ...services.map((s) => ({ url: `${siteUrl}/services/${s.slug}`, lastModified: now })),
+    ...services.map((s) => ({ url: `${siteUrl}/services/${s.path}`, lastModified: now })),
   ];
 }

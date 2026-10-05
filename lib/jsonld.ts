@@ -25,7 +25,7 @@ export function organizationJsonLd() {
     areaServed: areaServed(),
     foundingDate: String(brand.foundedYear),
     sameAs: Object.values(social).filter(Boolean),
-    makesOffer: services.map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s.name, url: `${siteUrl}/services/${s.slug}` } })),
+    makesOffer: services.map((s) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s.name, url: `${siteUrl}/services/${s.path}` } })),
   };
 }
 
@@ -37,7 +37,7 @@ export function serviceJsonLd(s: Service) {
     name: s.name,
     serviceType: s.name,
     description: s.metaDescription,
-    url: `${siteUrl}/services/${s.slug}`,
+    url: `${siteUrl}/services/${s.path}`,
     provider: { "@id": ORG_ID },
     areaServed: areaServed(),
   };
