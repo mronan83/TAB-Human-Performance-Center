@@ -30,7 +30,7 @@ const spectral = localFont({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: { default: `${siteConfig.brand.name} | Massage, Strength & Coaching`, template: `%s | ${siteConfig.brand.name}` },
+  title: { default: `${siteConfig.brand.name} | ${siteConfig.brand.categoryLine.replace(/\.$/, "")}`, template: `%s | ${siteConfig.brand.name}` },
   description:
     "TAB Human Performance Center helps you build the strength, resilience, adaptability and self-trust to meet real life, with massage, strength training and coaching in one integrated approach.",
   applicationName: siteConfig.brand.name,

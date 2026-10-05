@@ -99,7 +99,9 @@ Never print, log or commit token values.
 - Never push directly to `main` or run a production migration without G3 approval.
 
 ## Non-negotiable product guardrails
-1. **Name:** always "TAB Human Performance Center" in full in metadata, listings and legal text (proposed D-063). Never
+1. **Name:** always "TAB Human Performance Center" in full in metadata, listings and legal text (proposed D-063).
+   `npm run test:brand` (CI) fails on retired names, the old philosophy or stage names, old service names and wrong
+   pillar counts; fix the copy, never the check, unless the check is wrong. Never
    "TAB Wellness Collective", "TAB Human Performance Practice" or "TAB HPC" in public copy. "TAB" alone is fine
    conversationally.
 2. **Logo is artwork.** Never recreate it in live type. Use the approved files in `public/brand/` (proposed D-061; the
@@ -158,7 +160,7 @@ Never print, log or commit token values.
   only assigned clients.
 
 ## Checks before every push
-`npm run typecheck`, `npm run build`, `npm run test:rls`, then `npm run test:e2e` (Playwright smoke, redirect-map,
+`npm run typecheck`, `npm run test:brand`, `npm run build`, `npm run test:rls`, then `npm run test:e2e` (Playwright smoke, redirect-map,
 link-crawl, SEO, header-fit, CSP and WCAG 2.2 AA scans against the production build; no retries). CI runs the same on every PR.
 
 ## Secrets

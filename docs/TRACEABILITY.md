@@ -92,7 +92,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-011 | `/book` offers two paths: Timely booking or `/start` | P1 | Must | Verified | F-06 | smoke |
 | WEB-012 | Footer with legal, accessibility, policies, location, hours, contact | P1 | Must | Partial: address, phone and hours are placeholders (A6) | F-01 | links |
 | WEB-013 | Trust content with consent metadata; no invented testimonials | P1 | Should | Partial: waits on real content (A8) | F-02 | — |
-| WEB-014 | Public copy follows the Step 15 voice rules | P1 | Must | Built | F-02 to F-05 | — |
+| WEB-014 | Public copy follows the Brand Foundation v2 voice and the Step 15 avoid-lists | P1 | Must | Built | F-02 to F-05 | brand |
 | WEB-015 | Transition announcement with a start and end date | P1 | Must | Partial: dated expiry in config; editable once the CMS lands (C8) | F-01 | — |
 | WEB-016 | Organization structured data names the former name during transition | P1 | Must | Built | F-13 | — |
 | WEB-017 | Our Story: TAB Massage & Fitness (2008) to TAB Human Performance Center | P1 | Should | Partial: placeholder copy (A8) | F-04 | — |
@@ -338,7 +338,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 
 ### Built but unchecked
 
-{{req.built}} requirements are built with no check: WEB-003 to WEB-008, WEB-014, WEB-016, WEB-018, WEB-019, GS-006, INT-002, PORTAL-005, STAFF-001, SEC-004, NFR-005, DS-003, DS-004 and DS-006. Two checks would cover the riskiest of them in a day; both are in C15:
+{{req.built}} requirements are built with no check: WEB-003 to WEB-008, WEB-016, WEB-018, WEB-019, GS-006, INT-002, PORTAL-005, STAFF-001, SEC-004, NFR-005, DS-003, DS-004 and DS-006. Two checks would cover the riskiest of them in a day; both are in C15:
 
 - **Analytics exclusion (NFR-005).** A test that Plausible never loads on `/my-tab`, `/practice` or `/contact`. This is a guardrail (6), and today only code review protects it.
 - **Service-page anatomy (WEB-004 to WEB-007).** A test that every service page has its direct CTA, its "not sure?" link to `/start`, and only the related services set in `content/services.ts`.
@@ -394,6 +394,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-03 | 1.1 | Moved from a Claude Doc into `docs/TRACEABILITY.md`, published as an HTML page in the layout the owner asked for; counts now computed from the tables; companion architecture and data model pages added; four one-way feature links fixed; Q-7 raised from the data model review | Owner request, 3 Oct 2026 |
 | 2026-10-03 | 1.2 | C3b: SEC-019 and SEC-020 partial, INT-004 verified; F-21, F-29 and F-32 updated; A26 added | C3b build, owner rulings 2026-10-03 (refunds, audit export, private notes) |
 | 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; TAB Method stages renamed Adapt and Balance (enum values renamed); five pillars (Integrated Nutrition page; Functional Strength and Women’s Wellness renamed, old URLs redirect; `service_slug` gains `integrated-nutrition`); DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
+| 2026-10-05 | 1.4 | Rebrand PR 2: public copy rewritten in the Brand Foundation v2 voice (pillar counts, FAQ, About, Our Story, service lists from Step 13); WEB-014 now checked by `npm run test:brand` | Owner, 2026-10-05: "We can’t have misaligned verbiage and content" |
 
 ## Sources
 

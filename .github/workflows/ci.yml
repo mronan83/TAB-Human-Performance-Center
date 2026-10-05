@@ -38,6 +38,10 @@ jobs:
       - name: Design-token contrast (WCAG 2.2 AA)
         run: npm run test:contrast
 
+      # Retired names, the old philosophy and wrong pillar counts (owner, 2026-10-05: no misaligned verbiage)
+      - name: Brand consistency
+        run: npm run test:brand
+
       # Traceability, architecture and data model pages in step with the code (CLAUDE.md "Living documents")
       - name: Living documents
         run: npm run docs:check

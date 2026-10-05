@@ -29,7 +29,7 @@ const portalDemoOnProduction = true;
 export const siteConfig = {
   brand: {
     name: "TAB Human Performance Center", // proposed D-063 (replaces D-038): always the full name in metadata and listings
-    shortName: "TAB", // conversational only; never "TAB Human Performance" or "TAB HPC" in public copy
+    shortName: "TAB", // conversational only; never shortened or abbreviated otherwise in public copy
     philosophy: "Transform. Adapt. Balance.", // proposed D-064: TAB stands for Transform. Adapt. Balance.
     tagline: "Build the capacity to live fully.", // Brand Foundation v2 §10: primary purpose line
     categoryLine: "Human performance for real life.",
