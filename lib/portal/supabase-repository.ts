@@ -299,7 +299,7 @@ export const supabaseRepository: PortalRepository = {
   },
   async savePlan(clientId, _viewer, input) {
     const sb = await db();
-    // RLS and triggers enforce the rules: care team only, one active Wellness Plan, service plans under it, nutrition gate.
+    // RLS and triggers enforce the rules: care team only, one active Performance Plan, service plans under it, nutrition gate.
     const fields = {
       title: input.title, focus: input.focus ?? null, status: input.status, visible_to_client: input.visibleToClient,
       start_date: input.startDate ?? null, review_date: input.reviewDate ?? null, details: input.details,
@@ -310,7 +310,7 @@ export const supabaseRepository: PortalRepository = {
     } else {
       const anchor = input.planType === "wellness" ? null
         : (must(await sb.from("wellness_plans").select("id").eq("client_id", clientId).eq("plan_type", "wellness").eq("status", "active").maybeSingle()) as Row | null);
-      if (input.planType !== "wellness" && !anchor) throw new Error("Create the Wellness Plan first.");
+      if (input.planType !== "wellness" && !anchor) throw new Error("Create the Performance Plan first.");
       const services = input.planType === "wellness" || input.planType === "nutrition" ? [] : [input.planType];
       id = (must(await sb.from("wellness_plans").insert({ ...fields, client_id: clientId, plan_type: input.planType, parent_plan_id: anchor?.id ?? null, services }).select("id").single()) as Row).id as string;
     }

@@ -65,7 +65,7 @@ in the Word files are extracted under `docs/source/batch-N/assets/`.
 | DEC-011 | Delivery is phased: public rebrand site first, portal second, without a later replatform. | S16 §16.9 |
 | DEC-012 | Journey governance / KPI layer is not required for launch. | S14 §14.0, §14.5 |
 | DEC-013 | Proceed with **TAB Wellness Collective** as the working, preferred name — status *conditional* until trademark counsel and the Michigan entity/assumed-name filing are complete. *(Superseded 2026-10-05 by proposed D-063.)* | S17 §17.11 |
-| DEC-014 | Naming architecture: official **TAB Wellness Collective**; shorthand **TAB**; **My TAB**, **The TAB Method**, **TAB Wellness Plan**, **TAB Resources**. Never use "TAB Wellness" as public shorthand. Full name in all titles, structured data and listings. *(2026-10-05: official name is now TAB Human Performance Center, proposed D-063; the other names are unchanged.)* | S17 §17.6, §17.9 |
+| DEC-014 | Naming architecture: official **TAB Wellness Collective**; shorthand **TAB**; **My TAB**, **The TAB Method**, **TAB Wellness Plan**, **TAB Resources**. Never use "TAB Wellness" as public shorthand. Full name in all titles, structured data and listings. *(2026-10-05: official name is now TAB Human Performance Center, proposed D-063; the other names are unchanged.)* *(2026-10-05: the TAB Wellness Plan is renamed **TAB Performance Plan** (owner ruling, A28); TAB Practice keeps its name (A27).)* | S17 §17.6, §17.9 |
 | DEC-015 | Canonical domain `tabwellnesscollective.com`; `tabmassage.com` retained indefinitely with per-URL 301/308 redirects (no blanket homepage redirect); My TAB stays under the primary domain (`/my-tab` or `my.` subdomain). | S17 §17.7, S19 §19.3 |
 | DEC-016 | Visual identity locked: Concept 2 rooted-growth symbol + Concept 3 TAB wordmark; logo family = stacked, horizontal, wordmark-only, symbol badge, reversed. Full lockup at first impression; reduced marks only once the brand is established. | S18 §18.1–18.2 |
 | DEC-017 | Design tokens v1.0.0 are canonical: palette, Cormorant Garamond (display) + Manrope (sans), type scale, 4px spacing, radii, shadows, layout, breakpoints, motion. The logo is custom artwork and must not be recreated from the fonts. *(Superseded 2026-10-05 by proposed D-062: TAB Human Performance Center palette and Montserrat + Spectral.)* | TOK |
@@ -140,7 +140,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 |---|---|---|---|
 | PORTAL-001 | Secure login with strong authentication / MFA available to clients. | S16 §16.5, §16.6 | P2 |
 | PORTAL-002 | Home dashboard: welcome + current focus, next appointment, TAB Method stage indicator (lightweight, not gamified), plan summary, current program / next activity, next review, assigned resources, quick actions. | S16 §16.5 | P2 |
-| PORTAL-003 | My Plan shows the TAB Wellness Plan (S14 §14.4.4 fields), framed as "the plan we created together". | S14 §14.4.4, S16 §16.5 | P2 |
+| PORTAL-003 | My Plan shows the TAB Wellness Plan (S14 §14.4.4 fields), framed as "the plan we created together". *(Renamed TAB Performance Plan, 2026-10-05.)* | S14 §14.4.4, S16 §16.5 | P2 |
 | PORTAL-004 | My Programs: assigned activities (exercise, habit, worksheet, reflection, video, reading, check-in) with client responses and practitioner feedback. | S16 §16.5 | P2 |
 | PORTAL-005 | My Progress: original and current goal, progress reviews, milestones, qualitative wins, optional measures, reflections. Must not become a scoreboard. | S16 §16.5 | P2 |
 | PORTAL-006 | My Appointments links / deep-links to Timely Client Login; no rebuilt scheduling at launch. | S16 §16.5 | P2 |
@@ -159,7 +159,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 | STAFF-002 | TAB Client Profile (S14 §14.4.2), including internal "current TAB relationship" fields. | S14 §14.4.2 | P2 |
 | STAFF-003 | Service-specific intakes for all four pillars with field-level specs from S14 §14.4.3, each with consent / scope acknowledgement. (See CON-002.) *(2026-10-05: five pillars, adding Integrated Nutrition, proposed D-065.)* | S14 §14.4.3 | P2 |
 | STAFF-004 | Session documentation pattern: Current status → Intervention/experience → Client response → Next step. Internal notes are separate from shared summaries. | S14 §14.3, S16 §16.5 | P2 |
-| STAFF-005 | Author the Wellness Plan together with the client. | S14 §14.4.4 | P2 |
+| STAFF-005 | Author the Wellness Plan together with the client. *(Now the Performance Plan, 2026-10-05.)* | S14 §14.4.4 | P2 |
 | STAFF-006 | Capture progress reviews (S14 §14.4.5) including the "does the approach still fit?" decision. | S14 §14.4.5 | P2 |
 | STAFF-007 | Cross-service referral / handoff with the four-box summary (Context, Goal, Progress, Next), recorded client consent, and receiving-practitioner actions. | S14 §14.4.6 | P2 |
 | STAFF-008 | Record the continuation outcome: Continue / Maintain / Independent / Shift / Pause / Return. | S14 §14.4.7 | P2 |
@@ -410,4 +410,6 @@ Source: `docs/source/batch-5/` (Brand Foundation v2, Steps 13, 18, 19, stock ima
 | Service pillars | Brand Foundation v2 §11 and Step 13 | *Proposed D-065 (replaces D-050):* five equally weighted pillars: Massage & Bodywork, Functional Strength, Women’s Wellness, Integrated Nutrition, Holistic Life Coaching. Integrated Nutrition is nutrition coaching within the IIN health-coach scope, delivered by Tricia Ronan (see the plans design ruling above; counsel confirms the Michigan boundary, A7). Built in rebrand PR 2. |
 | Service icons | "I like both" | Both colourways are approved: the board's colours (Deep Olive, Sage for Women’s Wellness, Ochre for Integrated Nutrition) and graphite. Icons always appear with their service name, so the lighter lines meet WCAG 1.4.11. |
 | Board errors | "please correct spacing, spelling, and anything else" | One descriptor tracking value, even line spacing aligned to TAB, centred divider and tagline; the board's "Aiign" caption is "Align" in site copy. |
+| Practitioner workspace name (A27) | "leave it as is" | **TAB Practice** keeps its name; "Practice" is retired only from the brand name. |
+| Client plan name (A28) | "TAB Performance Plan" | *Proposed register entry (amends DEC-014):* the client plan is the **TAB Performance Plan** ("Performance Plan" for short). Internal keys are unchanged (`plan_type` `wellness`, table `wellness_plans`); `npm run test:brand` blocks the old name. |
 

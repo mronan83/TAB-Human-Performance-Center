@@ -65,7 +65,7 @@ export default async function ClientDetail({ params, searchParams }: { params: P
               </ul>
             ) : <p className="text-text-secondary">No reviews yet.</p>}
           </Panel>
-          <Panel title="Plans" action={plan ? <Link href={`/practice/clients/${id}/plans/${plan.id}`} className="btn btn-outline btn-sm">Edit Wellness Plan</Link> : undefined}>
+          <Panel title="Plans" action={plan ? <Link href={`/practice/clients/${id}/plans/${plan.id}`} className="btn btn-outline btn-sm">Edit Performance Plan</Link> : undefined}>
             {plan ? (
               <>
                 <p className="font-semibold">{plan.title}</p>
@@ -74,7 +74,7 @@ export default async function ClientDetail({ params, searchParams }: { params: P
                 {plan.reviewDate && <p className="mt-4 text-sm text-text-secondary">Next review {fmtDate(plan.reviewDate, { month: "long", day: "numeric" })}</p>}
               </>
             ) : (
-              <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-text-secondary">No active Wellness Plan yet.</p><Link href={`/practice/clients/${id}/plans/new?type=wellness`} className="btn btn-primary btn-sm">Create Wellness Plan</Link></div>
+              <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-text-secondary">No active Performance Plan yet.</p><Link href={`/practice/clients/${id}/plans/new?type=wellness`} className="btn btn-primary btn-sm">Create Performance Plan</Link></div>
             )}
             {servicePlans.length > 0 && (
               <ul className="mt-6 divide-y divide-border border-t border-border">

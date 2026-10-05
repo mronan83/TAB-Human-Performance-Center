@@ -34,7 +34,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 
 | Table | What it holds | Who reads and writes |
 | --- | --- | --- |
-| `wellness_plans` | Plans: the client's TAB Wellness Plan and service plans under it (`plan_type`, `parent_plan_id`), with status and review date | The care team; the client sees plans marked visible |
+| `wellness_plans` | Plans: the client's TAB Performance Plan (`plan_type` `wellness`) and service plans under it (`plan_type`, `parent_plan_id`), with status and review date | The care team; the client sees plans marked visible |
 | `plan_goals` | A plan's goals: why it matters, measure, target, status | As its plan |
 | `plan_entries` | The plan log: dated entries, shared or internal | The care team; the client sees shared entries |
 | `session_notes` | Session notes shared with the client. Internal notes live in `private.internal_notes` | The care team writes; the client reads their own |
@@ -144,7 +144,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | `guard_client_program` | Trigger: an assignment keeps its client and moves only to a newer published version of the same program |
 | `guard_program_template` | Trigger: published versions are immutable; publishing needs the permission; versions stay in one family |
 | `guard_program_content` | Trigger: weeks and activities change only while their version is a draft |
-| `guard_plan_shape` | Trigger: service plans sit under the same client's Wellness Plan |
+| `guard_plan_shape` | Trigger: service plans sit under the same client's Performance Plan |
 | `guard_nutrition_plan` | Trigger: nutrition plans and anything attached to them need the nutrition credential |
 | `internal_notes` | The client's internal session notes, for their care team only; writes an audit row for the read |
 | `add_internal_note` | Adds an internal session note, stamped with its author |

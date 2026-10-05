@@ -10,7 +10,7 @@ export type PlanSection = { key: string; label: string; hint?: string; private?:
 export type PlanTypeDef = { label: string; short: string; capability?: "nutrition"; sections: PlanSection[] };
 
 export const planTypes: Record<PlanType, PlanTypeDef> = {
-  wellness: { label: "TAB Wellness Plan", short: "Wellness Plan", sections: [] },
+  wellness: { label: "TAB Performance Plan", short: "Performance Plan", sections: [] },
   "personal-strength-training": {
     label: "Strength plan", short: "Strength",
     sections: [
@@ -62,7 +62,7 @@ export const planTypes: Record<PlanType, PlanTypeDef> = {
   },
 };
 
-/** Most goals a Wellness Plan can hold (owner request 2026-09-29). */
+/** Most goals a Performance Plan can hold (owner request 2026-09-29). */
 export const MAX_PLAN_GOALS = 100;
 
 export const servicePlanTypes = (Object.keys(planTypes) as PlanType[]).filter((t) => t !== "wellness");

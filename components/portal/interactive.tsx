@@ -245,7 +245,7 @@ export function ProgressReviewForm({ clientId, clientName, currentStage }: { cli
   );
 }
 
-/** Plan editor (design §2.4). Wellness Plans carry focus and goals; service plans carry their type's sections. */
+/** Plan editor (design §2.4). Performance Plans carry focus and goals; service plans carry their type's sections. */
 export function PlanForm({ clientId, planType, plan }: { clientId: string; planType: PlanType; plan?: Plan }) {
   const [state, action, pending] = useActionState(savePlanAction.bind(null, clientId, plan?.id ?? null, planType), null);
   const def = planTypes[planType];
@@ -287,7 +287,7 @@ export function PlanForm({ clientId, planType, plan }: { clientId: string; planT
   );
 }
 
-/** Wellness Plan goals: starts with the plan's goals (or one empty row) and adds rows up to MAX_PLAN_GOALS. */
+/** Performance Plan goals: starts with the plan's goals (or one empty row) and adds rows up to MAX_PLAN_GOALS. */
 function GoalsEditor({ initial }: { initial: Goal[] }) {
   const [rows, setRows] = useState<{ key: string; goal?: Goal }[]>(() =>
     initial.length ? initial.slice(0, MAX_PLAN_GOALS).map((goal) => ({ key: goal.id, goal })) : [{ key: "new-0" }]);

@@ -61,6 +61,6 @@ See `CLAUDE.md` for decisions, guardrails, and next steps.
 
 ## Accounts and deployment
 
-Hosting is the Vercel project `tab-wellness-collective` in the owner's personal team; data is the Supabase org
+Hosting is the Vercel project `tab-human-performance-center` (formerly `tab-wellness-collective`; production address `tab-wellness-collective.vercel.app` until the domain is chosen) in the owner's personal team; data is the Supabase org
 `TAB Wellness Collective` (account, repository and project names were kept through the rebrand). `main` is the production branch; every PR gets a Vercel preview. See
 `CLAUDE.md` for account guardrails and review gates (G1 design, G2 PR, G3 release).

@@ -117,7 +117,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | --- | --- | --- | --- | --- | --- | --- |
 | PORTAL-001 | Secure sign-in, MFA available to clients | P2 | Must | Partial: email-link sign-in, sign-up off; client MFA and invitation links wait on C5 | F-19, F-45 | smoke |
 | PORTAL-002 | Home dashboard: focus, next appointment, stage, plan, program, resources | P2 | Must | Verified | F-22 | smoke, a11y |
-| PORTAL-003 | My Plan shows the TAB Wellness Plan "we created together" | P2 | Must | Verified | F-23 | smoke, rls |
+| PORTAL-003 | My Plan shows the TAB Performance Plan "we created together" | P2 | Must | Verified | F-23 | smoke, rls |
 | PORTAL-004 | My Programs: activities with client responses and practitioner feedback | P2 | Must | Partial: personalized activities and check-off verified; responses and feedback not built (TG-4) | F-24 | smoke, rls |
 | PORTAL-005 | My Progress: goals, reviews, wins, optional measures; never a scoreboard | P2 | Should | Built | F-25 | — |
 | PORTAL-006 | Appointments link to Timely Client Login | P2 | Must | Partial: the Client Login link isn't supplied yet (A5) | F-26 | — |
@@ -136,7 +136,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | STAFF-002 | TAB Client Profile with the Step 14 fields | P2 | Should | Partial: basic fields only | F-31 | — |
 | STAFF-003 | Service-specific intakes for all five pillars | P2 | Should | Planned (CON-002) | F-48 | — |
 | STAFF-004 | Session notes: status, intervention, response, next step; internal apart from shared | P2 | Must | Partial: internal and shared verified; the four-part pattern isn't structured | F-32 | rls |
-| STAFF-005 | Author the Wellness Plan with the client | P2 | Must | Verified | F-34 | smoke, rls |
+| STAFF-005 | Author the Performance Plan with the client | P2 | Must | Verified | F-34 | smoke, rls |
 | STAFF-006 | Progress reviews with the "does the approach still fit?" decision | P2 | Must | Verified | F-33, F-46 | smoke, rls |
 | STAFF-007 | Cross-service referral and handoff with consent | P2 | Should | Planned: table exists, no screens | F-49 | rls |
 | STAFF-008 | Record the continuation outcome (Continue, Maintain, Independent, Shift, Pause, Return) | P2 | Should | Partial: review outcomes use a different set (TG-1) | F-33 | — |
@@ -395,6 +395,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-03 | 1.2 | C3b: SEC-019 and SEC-020 partial, INT-004 verified; F-21, F-29 and F-32 updated; A26 added | C3b build, owner rulings 2026-10-03 (refunds, audit export, private notes) |
 | 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; TAB Method stages renamed Adapt and Balance (enum values renamed); five pillars (Integrated Nutrition page; Functional Strength and Women’s Wellness renamed, old URLs redirect; `service_slug` gains `integrated-nutrition`); DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
 | 2026-10-05 | 1.4 | Rebrand PR 2: public copy rewritten in the Brand Foundation v2 voice (pillar counts, FAQ, About, Our Story, service lists from Step 13); WEB-014 now checked by `npm run test:brand` | Owner, 2026-10-05: "We can’t have misaligned verbiage and content" |
+| 2026-10-05 | 1.5 | TAB Wellness Plan renamed TAB Performance Plan (PORTAL-003, STAFF-005); TAB Practice keeps its name | Owner rulings A27, A28 |
 
 ## Sources
 

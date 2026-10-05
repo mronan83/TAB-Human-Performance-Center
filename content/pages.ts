@@ -73,7 +73,7 @@ export const method = {
       key: "start",
       name: "Start Where You Are",
       short: "No judgment. No predefined program.",
-      body: "You don’t need to arrive knowing which service you need or what a complete wellness plan looks like. We begin with where you are, what you need, and where you want to go.",
+      body: "You don’t need to arrive knowing which service you need or what a complete plan looks like. We begin with where you are, what you need, and where you want to go.",
     },
     {
       key: "transform",
