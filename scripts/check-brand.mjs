@@ -27,6 +27,7 @@ const RULES = [
   { name: "old philosophy", re: /Transform\W+Align|Align\W+Become/i },
   { name: "old stage name", re: /\b(?:Align|Become)\b/ },
   { name: "old service name", re: /Personal Strength Training/i },
+  { name: "retired plan name (now TAB Performance Plan)", re: /(?<!Women['’]s )Wellness Plan/i },
   { name: "old service name", re: /Wellness Coaching/i },
   { name: "old master category", re: /whole-person wellness|stronger bodies and fuller lives/i },
   { name: "wrong coaching count", re: /\bboth coaching\b/i },

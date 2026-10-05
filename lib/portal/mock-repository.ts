@@ -496,8 +496,8 @@ export const mockRepository: PortalRepository = {
     const nutrition = input.planType === "nutrition" || existing?.planType === "nutrition";
     if (nutrition && !viewer.capabilities?.includes("nutrition")) throw new Error("Nutrition plans need the nutrition coaching credential.");
     const anchor = store.plans.find((p) => p.clientId === clientId && p.planType === "wellness" && p.status === "active" && p.id !== input.id);
-    if (input.planType === "wellness" && input.status === "active" && anchor) throw new Error("This client already has an active Wellness Plan.");
-    if (input.planType !== "wellness" && !anchor && !existing?.parentPlanId) throw new Error("Create the Wellness Plan first.");
+    if (input.planType === "wellness" && input.status === "active" && anchor) throw new Error("This client already has an active Performance Plan.");
+    if (input.planType !== "wellness" && !anchor && !existing?.parentPlanId) throw new Error("Create the Performance Plan first.");
     const plan: Plan = {
       id: existing?.id ?? `plan-${Date.now()}`, clientId, planType: input.planType, parentPlanId: input.planType === "wellness" ? undefined : existing?.parentPlanId ?? anchor?.id,
       visibleToClient: input.visibleToClient, details: input.details, privateDetails: input.privateDetails, title: input.title, focus: input.focus,

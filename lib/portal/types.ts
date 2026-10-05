@@ -66,7 +66,7 @@ export type PlanInput = {
   reviewDate?: string;
   details: Record<string, string>;
   privateDetails: Record<string, string>;
-  /** Wellness Plan only: the full goal list (goals not listed are removed). */
+  /** Performance Plan only: the full goal list (goals not listed are removed). */
   goals?: GoalInput[];
 };
 
@@ -297,7 +297,7 @@ export interface PortalRepository {
   listStageChanges(clientId: string): Promise<StageChange[]>;
   /** Every plan for the client: staff get drafts and practitioner-only sections; clients get what RLS shows them. */
   listPlans(clientId: string, opts: { staff: boolean }): Promise<Plan[]>;
-  /** Creates or updates a plan. Service plans are attached to the client's Wellness Plan. Returns the plan id. */
+  /** Creates or updates a plan. Service plans are attached to the client's Performance Plan. Returns the plan id. */
   savePlan(clientId: string, viewer: Viewer, input: PlanInput): Promise<string>;
   listPlanEntries(clientId: string, planId: string, includeInternal: boolean): Promise<PlanEntry[]>;
   addPlanEntry(clientId: string, planId: string, viewer: Viewer, entry: { body: string; visibility: "internal" | "shared"; date?: string }): Promise<void>;

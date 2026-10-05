@@ -119,7 +119,7 @@ test("programs: a practitioner assigns and personalizes a program; the client se
   await page.getByRole("link", { name: "Assign program" }).click();
   await page.getByRole("link", { name: "Choose Rest & Reset" }).click();
   await expect(page.locator("main h1")).toHaveText("Assign Rest & Reset");
-  await page.getByLabel("Supports plan").selectOption({ label: "Wellness Plan: Stronger, steadier, and back in routine" });
+  await page.getByLabel("Supports plan").selectOption({ label: "Performance Plan: Stronger, steadier, and back in routine" });
   await page.getByLabel("Note to the client").fill("Start small: evenings first, then bedtime.");
   await page.getByLabel("Skip for this client (Read: Why sleep changes in midlife)").check();
   await page.getByLabel("Frequency (Screens off 30 minutes before bed)").fill("2 nights");
@@ -287,7 +287,7 @@ test("a partial refund waits for the owner's decision in TAB Practice (C3b, owne
   await expect(page.getByRole("region", { name: "Purchases to review" })).toHaveCount(0);
 });
 
-test("Wellness Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
+test("Performance Plan goals: start with one, add and remove rows, up to 100 (owner request 2026-09-29)", async ({ page, context, baseURL }) => {
   test.setTimeout(60_000);
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
   await page.goto("/practice/clients/demo-client-ruth/plans/new?type=wellness");

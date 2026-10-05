@@ -48,7 +48,7 @@ test("portal: demo sign-in and progress review meet WCAG 2.2 AA", async ({ page,
   await page.goto("/practice/clients/demo-client-dana/plans/plan-dana-massage");
   await scan(page, "/practice/clients/…/plans/… (service plan editor)");
   await page.goto("/practice/clients/demo-client-dana/plans/plan-dana");
-  await scan(page, "/practice/clients/…/plans/… (Wellness Plan editor)");
+  await scan(page, "/practice/clients/…/plans/… (Performance Plan editor)");
   await page.goto("/practice/clients/demo-client-dana/programs/new");
   await scan(page, "/practice/clients/…/programs/new (choose a program)");
   await page.goto("/practice/clients/demo-client-dana/programs/cp-strength");

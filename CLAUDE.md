@@ -34,7 +34,7 @@ Only these accounts may be used for this project:
 
 | Service  | Allowed                                                                 |
 |----------|-------------------------------------------------------------------------|
-| Vercel   | Team `mronan83's projects` (`team_A8TfHlLyTc2toipq0WsMVKvK`), **only** project `tab-wellness-collective` (`prj_djrXZfNVt5JmpqUK7w4CjegZSwmf`) |
+| Vercel   | Team `mronan83's projects` (`team_A8TfHlLyTc2toipq0WsMVKvK`), **only** project `tab-human-performance-center` (`prj_djrXZfNVt5JmpqUK7w4CjegZSwmf`; renamed from `tab-wellness-collective` by the owner on 2026-10-05, same ID) |
 | Supabase | Org `TAB Wellness Collective` (`zkzjplwevlkpufogkdmh`)                  |
 |          | Project `vpaaeblqndcenftrfrms` ("TAB Wellness Collective Website", us-east-1) |
 
