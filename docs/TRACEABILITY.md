@@ -393,7 +393,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-02 | 1.0 | Created: 7 objectives, 97 requirements, 51 features, 9 gaps, 6 questions | Owner request, 2 Oct 2026. Traced from the repository at `f43beba` plus PR #28 (C4, not yet merged) |
 | 2026-10-03 | 1.1 | Moved from a Claude Doc into `docs/TRACEABILITY.md`, published as an HTML page in the layout the owner asked for; counts now computed from the tables; companion architecture and data model pages added; four one-way feature links fixed; Q-7 raised from the data model review | Owner request, 3 Oct 2026 |
 | 2026-10-03 | 1.2 | C3b: SEC-019 and SEC-020 partial, INT-004 verified; F-21, F-29 and F-32 updated; A26 added | C3b build, owner rulings 2026-10-03 (refunds, audit export, private notes) |
-| 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
+| 2026-10-05 | 1.3 | Rebrand to TAB Human Performance Center: name throughout; homepage hero from the board mock-up; DS-002, DS-004 and DS-006 restated for the new identity; WEB-018 and DS-006 built; F-16 and F-17 point at proposed D-061 and D-062; A9 and A19 closed | Owner rulings 2026-10-05 (rebrand baseline), rebrand PR 1 |
 
 ## Sources
 

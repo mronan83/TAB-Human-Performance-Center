@@ -18,29 +18,42 @@ export const metadata = pageMetadata({
 export default function HomePage() {
   return (
     <>
-      {/* 1. Hero */}
-      <section className="overflow-hidden">
-        <div className="container-page grid items-center gap-12 py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
-          <div>
-            <p className="text-label text-secondary">{siteConfig.brand.philosophy}</p>
-            <h1 className="text-display-xl mt-5">{home.hero.headline}</h1>
-            <p className="text-body-lg mt-6 max-w-xl text-text-secondary">{home.hero.body}</p>
+      {/* 1. Hero: the mountain photograph from the approved board, a graphite scrim for AA contrast on the text side */}
+      <section className="on-dark relative isolate overflow-hidden bg-graphite text-white">
+        <Image
+          src={home.hero.image.src}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-20 object-cover object-[70%_50%]"
+        />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-graphite/85 via-graphite/60 to-graphite/5 max-md:bg-graphite/60" />
+        <div className="container-page py-24 md:py-32 lg:py-40">
+          <div className="max-w-xl">
+            <h1 className="text-display-xl font-[family-name:var(--font-serif)] !font-medium !tracking-normal">{home.hero.headline}</h1>
+            <p className="text-body-lg mt-6 max-w-lg text-white/90">{home.hero.body}</p>
             <div className="mt-9 flex flex-wrap gap-3">
               <Cta kind="start" label="Start Where You Are" />
-              <Cta kind="link" href="/services" label="Explore Services" variant="outline" />
+              <Cta kind="link" href="/services" label="Explore Services" variant="outline-light" />
             </div>
-          </div>
-          <div aria-hidden="true" className="relative mx-auto w-full max-w-md">
-            <div className="aspect-[4/5] rounded-t-full bg-linen p-10 pt-16">
-              <div className="flex h-full flex-col items-center justify-center rounded-t-full border border-linen bg-bone/70">
-                <Image src="/brand/symbol.svg" alt="" width={146} height={128} className="w-3/5" priority unoptimized />
-                <p className="mt-6 font-[family-name:var(--font-serif)] text-2xl italic text-olive">Start where you are.</p>
-              </div>
-            </div>
-            {/* PLACEHOLDER: replace with an authentic session photo when available. */}
           </div>
         </div>
       </section>
+
+      {/* Service icons under the hero, as on the board's website mock-up */}
+      <nav aria-label="Services" className="border-b border-border bg-surface">
+        <ul className="container-page grid grid-cols-2 gap-x-4 gap-y-6 py-8 sm:grid-cols-4">
+          {services.map((s) => (
+            <li key={s.slug}>
+              <Link href={`/services/${s.slug}`} className="group flex flex-col items-center gap-3 rounded-lg p-2 text-center">
+                <Image src={s.icon} alt="" width={64} height={64} className="h-16 w-16" />
+                <span className="text-label text-text-primary group-hover:text-primary">{s.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       {/* 2. Core idea */}
       <section className="section bg-linen">

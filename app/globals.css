@@ -133,6 +133,9 @@
   .btn-secondary:hover { background: var(--color-secondary-hover); }
   .btn-outline { background: transparent; color: var(--color-text-primary); border: 1px solid var(--color-border-input); }
   .btn-outline:hover { border-color: var(--color-primary); color: var(--color-primary); }
+  /* On photography and dark fields (the hero): white text and border over a graphite scrim. */
+  .btn-outline-light { background: transparent; color: #fff; border: 1px solid rgba(255, 255, 255, 0.85); }
+  .btn-outline-light:hover { background: rgba(255, 255, 255, 0.12); }
   .btn-sm { min-height: 40px; padding: 8px 18px; font-size: 0.875rem; }
 
   .card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }

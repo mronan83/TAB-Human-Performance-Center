@@ -6,8 +6,10 @@
 
 export const home = {
   hero: {
-    headline: "Whole-person wellness, built around you.",
-    body: "TAB brings massage, strength, wellness, and coaching together in one personalized approach to help you feel better, move better, live stronger, and grow with intention.",
+    // Brand Foundation v2 §10 (homepage H1) and the approved board's website mock-up (docs/source/batch-5).
+    headline: "More capacity for what matters.",
+    body: "Integrated care and coaching to help you build strength, resilience and the capacity to live fully.",
+    image: { src: "/brand/hero-mountain.webp", width: 2000, height: 768 },
   },
   coreIdea: {
     headline: "Your wellbeing doesn’t happen in pieces. Neither should your care.",
