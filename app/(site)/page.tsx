@@ -170,11 +170,12 @@ export default function HomePage() {
 
       {/* 9. Closing CTA */}
       <section className="on-dark section relative isolate overflow-hidden bg-graphite text-white">
-        {/* Library photograph (C21): the path forward, under a graphite scrim: white text stays above 5.2:1 even over a white pixel */}
-        <Image src={images.pathSunrise.src} alt="" fill sizes="100vw" className="-z-20 object-cover" style={{ objectPosition: images.pathSunrise.focal }} />
-        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-graphite/70" />
+        {/* Library photograph (C21): layered ridges at sunrise, echoing the hero (owner, 2026-10-06). The scrim is darkest behind
+            the text (white body text measured at 4.5:1 or better) and lighter at the edges so the warm light shows. */}
+        <Image src={images.balanceLayers.src} alt="" fill sizes="100vw" className="-z-20 object-cover" style={{ objectPosition: "50% 60%" }} />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_100%_80%_at_50%_50%,color-mix(in_srgb,var(--color-graphite)_74%,transparent),color-mix(in_srgb,var(--color-graphite)_45%,transparent))] lg:bg-[radial-gradient(ellipse_55%_75%_at_50%_50%,color-mix(in_srgb,var(--color-graphite)_74%,transparent),color-mix(in_srgb,var(--color-graphite)_30%,transparent))]" />
         <div className="container-prose text-center">
-          <h2 className="text-display-lg">{home.closing.headline}</h2>
+          <h2 className="text-display-lg font-[family-name:var(--font-serif)] !font-medium !tracking-normal">{home.closing.headline}</h2>
           <p className="text-body-lg mt-5 text-white">{home.closing.body}</p>
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <Cta kind="start" label="Start Where You Are" variant="secondary" />

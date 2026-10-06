@@ -1,9 +1,7 @@
 import { Resend } from "resend";
 import { siteConfig, siteUrl } from "@/config/site";
 import { stageUpdatedEmail } from "@/content/emails";
-
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
-const FONT = "font-family:Arial,sans-serif";
+import { renderEmail } from "@/lib/email-template";
 
 export type EmailResult = "sent" | "skipped" | "failed";
 
@@ -20,11 +18,12 @@ export async function sendStageUpdatedEmail(to: string | undefined, name: string
     console.info("[email] stage updated: not sent", opts.demo ? "(demo mode)" : !to ? "(no email on file)" : "(RESEND_API_KEY not set)");
     return "skipped";
   }
-  const html = `<p style="${FONT};font-size:15px">${esc(e.greeting(name))}</p><p style="${FONT};font-size:15px">${esc(e.body)}</p>`
-    + `<p><a href="${esc(link)}" style="${FONT};font-size:15px;color:#4A5A44;font-weight:bold">${esc(e.cta)}</a></p>`
-    + `<p style="${FONT};font-size:13px;color:#5A5953">${esc(e.footer)}</p>`;
+  const { html, attachments } = renderEmail({
+    preheader: e.preheader, eyebrow: e.eyebrow, heading: e.heading, paragraphs: [e.greeting(name), e.body],
+    cta: { label: e.cta, href: link }, footnote: e.footer,
+  });
   try {
-    const { error } = await new Resend(key).emails.send({ from: siteConfig.forms.fromAddress, to, subject: e.subject, html, text });
+    const { error } = await new Resend(key).emails.send({ from: siteConfig.forms.fromAddress, to, subject: e.subject, html, text, attachments });
     if (error) throw new Error(error.message);
     return "sent";
   } catch (err) {
