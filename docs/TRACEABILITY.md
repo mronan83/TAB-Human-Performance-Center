@@ -295,7 +295,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
 | F-44 | Payload CMS | Planned | CMS-001 to CMS-005 | C8 (after Phase 1, A-02) |
-| F-45 | Sign-in plumbing: auth URLs and invitation emails (staff MFA built in F-53) | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
+| F-45 | Sign-in plumbing: invitation-link check left (auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53) | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
 | F-48 | Service intakes for the five pillars | Planned | STAFF-003 | not yet on the backlog |
@@ -404,6 +404,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.10 | Branded email layout for Start, contact and My TAB emails (GS-004 emails now send; A2 closed) | Owner feedback, 2026-10-06 |
 | 2026-10-06 | 1.11 | Business facts on the site (WEB-012 built, gift cards aside); privacy policy and terms drafted for review (A7); launch targeted 1 November (GAP-017); stock photography confirmed for launch | Owner rulings 2026-10-06 |
 | 2026-10-06 | 1.12 | C23: owner Settings page and real staff sign-in with two-step verification (F-53); SEC-015's enrolment screen built; F-45 narrowed to auth URLs and invitation emails; `app_settings` added to the data model | Owner request and design approval, 2026-10-06 (proposed D-067) |
+| 2026-10-06 | 1.13 | Production database set up and owner signed in with two-step verification (G3); Supabase sign-in, invitation and security emails branded (`content/auth-emails.ts`); F-45 narrowed to the invitation-link check | Owner approvals and request, 2026-10-06 |
 
 ## Sources
 

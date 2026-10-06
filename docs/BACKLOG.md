@@ -43,13 +43,13 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| C5 | Sign-in plumbing: Site URL and redirects; sign-in and invitation emails through Resend, with Supabase's invite template worded like ours (no personal details, guardrail 5); confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in; staff MFA enrolment is built (C23) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
+| C5 | Sign-in plumbing. **Done 2026-10-06:** Site URL and redirect allow-list, Supabase email through Resend SMTP (owner), staff MFA enrolment (C23); branded sign-in, invitation and security emails **in review**. **Left:** confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in, before the first real client invitation [SEC-014, SEC-015] | Portal | Claude | S | — |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
 | C16 | My TAB profile: accessibility needs and goals, client-editable (PORTAL-010, TG-5) | Portal | Claude | S | None |
 | C19 | Incident-response runbook: who to call, revoking keys, telling clients; paired with counsel's breach duties (SEC-011, TG-9) | Security | Claude | S | A7 |
 | A26 | At go-live: give the `audit_reader` role a login password, then add the GitHub secrets `SUPABASE_AUDIT_DB_URL` and `AUDIT_EXPORT_PASSPHRASE` (keep the passphrase somewhere safe: it opens the exports) [SEC-019] | Accounts | Owner + Claude | S | A14 |
 | A14 | Supabase Pro, for daily backups ("later") [SEC-009] | Accounts | Owner | S | None |
-| A15 | G3: approve the production database setup; owner account with MFA; tested backup restore [SEC-009] | Release | Owner + Claude | M | C5, C6, A7, A14, A26 |
+| A15 | G3: ~~approve the production database setup; owner account with MFA~~ (done 2026-10-06); tested backup restore [SEC-009] | Release | Owner + Claude | M | C5, C6, A7, A14, A26 |
 | A16 | Pilot with 3–5 existing clients, then open My TAB to everyone | Operations | Owner | L | A15 |
 
 ## P3 · Later or optional
@@ -80,6 +80,10 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Branded sign-in emails** (2026-10-06, in review): the 13 emails Supabase sends (sign-in link, My TAB invitation, verification code, security notices) now use the website emails' layout and wording; sender name is the full business name. Owner request: "update the email templates that are sent out of supabase with our brand".
+
+- **Production database and owner sign-in** (2026-10-06, G3 approved by the owner): 13 migrations applied to the production database (38 tables, row-level security on all), auth URLs set, sign-ups off; owner account created; Supabase email moved to Resend (owner); owner signed in and enrolled an authenticator app. No client data.
 
 - **Owner Settings** (2026-10-06, in review, C23): TAB Practice → Settings, where the owner turns the client portal on or off (Live only once the go-live gate is met), the transition banner and the Start form; staff sign-in with an emailed link and an authenticator app; the settings table lets only the two-step-verified owner change anything and logs every change. Owner request: "I don't have to ask you to turn the portal on or off".
 
