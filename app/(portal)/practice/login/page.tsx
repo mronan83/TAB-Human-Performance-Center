@@ -3,6 +3,7 @@ import { getViewer, isDemoSignIn } from "@/lib/portal";
 import { LoginForm } from "@/components/portal/interactive";
 import { PasswordSignInForm } from "@/components/portal/StaffAuth";
 import { SignInFrame } from "@/components/portal/SignInFrame";
+import { PASSKEYS_AVAILABLE } from "@/lib/staff-auth";
 
 export const metadata = { title: "TAB Practice sign-in", robots: { index: false, follow: false } };
 
@@ -24,7 +25,7 @@ export default async function PracticeLoginPage({ searchParams }: { searchParams
   return (
     <SignInFrame>
       <h1 className="text-h2 mt-8 text-center lg:mt-0 lg:text-left">TAB Practice sign-in</h1>
-      <p className="mb-8 mt-2 text-center text-text-secondary lg:text-left">Sign in with your email and password. Then confirm it’s you with your passkey or authenticator app.</p>
+      <p className="mb-8 mt-2 text-center text-text-secondary lg:text-left">Sign in with your email and password. Then confirm it’s you with {PASSKEYS_AVAILABLE ? "your passkey or authenticator app" : "the code from your authenticator app"}.</p>
       {e && ERRORS[e] && <p role="alert" className="mb-4 rounded-xl bg-accent-soft p-3 text-sm">{ERRORS[e]}</p>}
       <PasswordSignInForm />
       <details className="mt-8 rounded-[20px] border border-border bg-white p-5">

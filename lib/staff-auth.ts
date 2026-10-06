@@ -40,6 +40,13 @@ export async function isBreachedPassword(password: string): Promise<boolean> {
   }
 }
 
+/**
+ * Passkeys as the second step. Off: Supabase's hosted service refuses to switch on WebAuthn MFA ("Enabling of MFA with
+ * WebAuthn not currently supported", 2026-10-06), though its client library supports it. The code is ready; turn this
+ * on, and the two Supabase settings (`mfa_web_authn_enroll_enabled`, `mfa_web_authn_verify_enabled`), when it does.
+ */
+export const PASSKEYS_AVAILABLE = false;
+
 /** Staff sessions end 30 days after sign-in, however active (idle sessions already end after 7: lib/supabase/cookies.ts). */
 export const STAFF_SESSION_MAX_DAYS = 30;
 
