@@ -50,7 +50,7 @@ Supabase Auth holds identities. There is no public sign-up: a practitioner invit
 - **Guards in the database.** Row-level security on every table, using `can_access_client()` (care team only), `my_client_id()`, `is_staff()` and `can_publish_programs()`. Triggers such as `guard_client_update`, `guard_client_columns`, `stamp_author` and `guard_same_client` limit which columns each role may change and pin authorship. The data model page lists every policy.
 - **Private schema.** Internal session notes and practitioner-only plan details live in the `private` schema, which the Data API doesn't expose and signed-in roles can't use. Staff reach them only through `internal_notes()`, `add_internal_note()`, `plan_private_details()` and `save_plan_private_details()`, which check the care team and write an audit row for every read as well as every change (SEC-019).
 - **Service role.** Used only on the server and only where no signed-in role may act: saving website submissions (`lib/inquiry-store.ts`), applying Stripe events (`apply_stripe_event()`, which only the service role may run), and sending invitations after the row-level-security-checked update has succeeded.
-- **Demo mode.** While `portal.dataSource` is `mock`, a demo sign-in sets the `tab_demo_role` cookie (client or practitioner) and every visitor shares one in-memory store (`lib/portal/mock-repository.ts`). Production allows it only while `portalDemoOnProduction` is on and Vercel login protects the site.
+- **Demo mode.** While `portal.dataSource` is `mock`, a demo sign-in sets the `tab_demo_role` cookie (client or practitioner) and every visitor shares one in-memory store (`lib/portal/mock-repository.ts`). Production allows it only while `portalDemoOnProduction` is on and Vercel login protects the site; it is off from the switch-over (2026-10-06, `docs/runbooks/switch-over.md`), so production shows the interim My TAB page and previews keep the demo. The owner Settings page (C23, proposed D-067) will replace the constant with an Off / Demo / Live setting.
 
 ## Server-side logic
 
@@ -89,7 +89,7 @@ There is no separate application server. Server code runs as Next.js server comp
 
 | Setting | Kind | Where it is set | Used for |
 | --- | --- | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Public | Vercel | Canonical URLs, sitemap, redirects and auth links |
+| `NEXT_PUBLIC_SITE_URL` | Public | Vercel | Canonical URLs, sitemap, redirects and auth links (`https://www.tabhumanperformance.com`, proposed D-066) |
 | `NEXT_PUBLIC_ALLOW_INDEXING` | Public flag | Vercel | Search indexing; false everywhere until launch (NFR-009) |
 | `NEXT_PUBLIC_SHOW_DRAFTS` | Public flag | Vercel | Draft-copy markers on previews |
 | `RESEND_API_KEY` | Secret | Vercel | Sending form and portal email |

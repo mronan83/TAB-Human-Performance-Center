@@ -93,9 +93,11 @@ Never print, log or commit token values.
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",
   Claude promotes that exact deployment (no rebuild) and confirms. Rollback is promoting the previous one.
   Vercel's automatic aliases (`…-mronan83s-projects.vercel.app`, `…-git-main-…`) always follow the newest build;
-  only `tab-wellness-collective.vercel.app` (and the custom domain at launch) is held until promotion.
-- Vercel login (SSO) protects every deployment URL, including `tab-wellness-collective.vercel.app` (set to "all"
-  2026-09-28, after the default left that address public). Keep it on while the demo portal runs on production.
+  only `tab-human-performance-center.vercel.app` (the old `tab-wellness-collective.vercel.app` redirects to it since the
+  project rename) and the custom domains (proposed D-066; `docs/runbooks/switch-over.md`) are held until promotion.
+- Vercel login (SSO) protects every deployment URL, including `tab-human-performance-center.vercel.app` and the custom
+  domains (set to "all" 2026-09-28, after the default left that address public). It changes to Standard only at public
+  launch (switch-over Phase B, G3); the demo portal is off on production from 2026-10-06.
 - Never push directly to `main` or run a production migration without G3 approval.
 
 ## Non-negotiable product guardrails

@@ -11,8 +11,8 @@ Most changes need no code. Edit a file, commit, and Vercel redeploys.
 | `booking.timelyClientLoginUrl` | "Client login" and appointment management | Placeholder |
 | `booking.giftCardsUrl` | Footer gift card link (hidden until set) | Placeholder |
 | `social.*` | Footer links, structured data | Legacy TAB Massage accounts; update after renaming |
-| `forms.startRecipient`, `forms.contactRecipient` | Where form emails go | info@tabwellnesscollective.com |
-| `forms.fromAddress` | Sender (must be verified in Resend) | no-reply@tabwellnesscollective.com |
+| `forms.startRecipient`, `forms.contactRecipient` | Where form emails go | info@tabhumanperformance.com |
+| `forms.fromAddress` | Sender (must be verified in Resend) | no-reply@tabhumanperformance.com |
 | `analytics.plausibleDomain` | Plausible analytics | Off |
 | `analytics.metaPixelId`, `googleTagManagerId` | Only when paid ads start (D-015) | Off |
 | `features.resources/events/team/testimonials` | Show or hide sections and nav items | resources, team on |

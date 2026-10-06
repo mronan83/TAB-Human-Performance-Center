@@ -14,13 +14,12 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| A1 | Choose and register the domain for TAB Human Performance Center (name approved 2026-10-05; `tabwellnesscollective.com` is no longer needed). Email addresses and the canonical URL in `config/site.ts` still use the old domain as placeholders until then [RSK-007] | Accounts | Owner | S | None |
 
 ## P1 · Public-site launch
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| A2 | Resend account and its DNS records. Until then the forms can't send [D-005] | Accounts | Owner | S | A1 |
+| A2 | Resend: create the account, add `tabhumanperformance.com` and send Claude the DNS records it lists; add `RESEND_API_KEY` (Sensitive, Production) in Vercel. Until then the forms can't send [D-005, runbook Phase A step 4] | Accounts | Owner | S | None |
 | A3 | Turnstile keys: real keys for Production, test keys for Preview [SEC-013] | Accounts | Owner | S | A1 |
 | A4 | Plausible account for the domain (Start funnel counts) [GAP-015, D-057] | Accounts | Owner | S | A1 |
 | A5 | Timely Client Login link [WEB-020] | Content | Owner | S | None |
@@ -34,7 +33,10 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
 | C15 | Checks for guardrails that only code review protects today: analytics never loads on `/my-tab`, `/practice` or `/contact` (NFR-005); emails and subjects carry no personal or health details (TG-3); a Start submission gets one next step and shows in TAB Practice (TG-8); every service page keeps its CTA, "not sure?" link and related services (WEB-004 to WEB-007) | Quality | Claude | M | None |
 | C18 | Count the remaining public events, `service_view` and `book_click`, property-less (NFR-006, TG-7) | Analytics | Claude | S | A4 |
-| C1 | Switch-over runbook (first step: set `portalDemoOnProduction` to false before the custom domain is attached): DNS order that keeps Google Workspace email, legacy email forwarding, redirect checks on the live domain, rollback [§7.4, RSK-009] | Launch | Claude | M | A1, A10 |
+| C1 | Switch-over, `docs/runbooks/switch-over.md`. Phase A (private attach: demo portal off, new domain in config, domains attached behind Vercel login, Resend DNS) in progress; Phase B (public launch: protection to Standard, indexing, GoDaddy web records for tabmassage.com, checks) waits on content and A13 [§7.4, RSK-009, proposed D-066] (G3) | Launch | Claude | M | A2, A8, A13 |
+| C23 | Owner Settings page in TAB Practice: client portal Off / Demo / Live (Live locked until guardrail 4's gate), transition banner, Start form open/closed, booking links, feature flags; settings table with owner-only RLS and audit; real staff sign-in with two-step verification on production [proposed D-067] (production migration: G3) | Portal | Claude | L | C1 Phase A |
+| A29 | Google Workspace: start DKIM authentication; rename users to `@tabhumanperformance.com` (old addresses stay as aliases); add `info@tabhumanperformance.com` for the website forms; keep `tabmassage.com` in Workspace [runbook, Email] | Accounts | Owner | S | None |
+| C24 | Tighten DMARC on `tabhumanperformance.com` to `quarantine`, then `reject`, one week after DKIM is authenticating and mail flows | Accounts | Claude | S | A29 |
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
 
 ## P2 · My TAB go-live (`CLAUDE.md` guardrail 4)
@@ -78,6 +80,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Domains and email** (2026-10-06): `tabhumanperformance.com` (owner) plus `tabhumanperformancecenter.com`, `tabhpc.com` and `tabhp.com` registered at Vercel; Google Workspace verification, MX, SPF, DKIM and DMARC (monitoring) published for the main domain; the other three locked against mail. Closes A1 and RSK-007.
 
 - **Rebrand PR 3, image library** (2026-10-06, in review): the 30 images from the batch-5 stock library, resized, slightly desaturated and saved as WebP (4.6 MB in all), catalogued in `content/images.ts` with source, licence, focal point and placement. 17 placed: a hero and a "How we help" image on every service page, About and TAB Method heroes, a Transform / Adapt / Balance band on the TAB Method page, and the homepage core idea and closing band. 13 held in reserve with a reason each; #10 is not used (a political flag in frame). Closes C21.
 

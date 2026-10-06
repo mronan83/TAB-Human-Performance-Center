@@ -6,7 +6,7 @@
 |---|---|
 | Phase 1 public website | Built. Temporary content and placeholders, all driven by config. |
 | Legacy redirects | Built. All 64 tabmassage.com URLs map in one 308 hop. |
-| Start Where You Are form | Built. Emails info@tabwellnesscollective.com via Resend. |
+| Start Where You Are form | Built. Emails info@tabhumanperformance.com via Resend. |
 | Phase 2 My TAB portal | UI complete on demo data. Supabase schema, security policies, and repository built; not yet connected to a live project. |
 | Payments (digital products) | Stripe Checkout, customer portal, and webhook built; needs keys and prices. |
 

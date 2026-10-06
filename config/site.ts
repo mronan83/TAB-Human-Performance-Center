@@ -19,12 +19,12 @@ export const isProductionDeployment = deploymentEnv === "production";
 const portalDataSource = "mock" as "mock" | "supabase";
 
 /**
- * Owner ruling 2026-09-28 ("Production URL"): demo My TAB and TAB Practice on the production deployment. Safe only
- * while production is private (Vercel login on every *.vercel.app URL, no custom domain, indexing off): demo mode has
- * no real login and one in-memory store shared by every visitor. Turn this off before a custom domain is attached;
- * the launch gate (lib/placeholders.ts) refuses to build a launch while it is on.
+ * Demo My TAB and TAB Practice on the production deployment (owner ruling 2026-09-28), now off: the switch-over runbook
+ * (docs/runbooks/switch-over.md, C1) turns it off before the custom domain is attached, because demo mode has no real
+ * login and one in-memory store shared by every visitor. Previews keep the demo. The owner settings page (C23,
+ * approved 2026-10-06) replaces this constant with an Off / Demo / Live setting.
  */
-const portalDemoOnProduction = true;
+const portalDemoOnProduction = false;
 
 export const siteConfig = {
   brand: {
@@ -53,7 +53,7 @@ export const siteConfig = {
   },
 
   contact: {
-    email: "info@tabwellnesscollective.com",
+    email: "info@tabhumanperformance.com",
     phone: null as Maybe<string>, // PLACEHOLDER: e.g. "(517) 555-0100"
     address: {
       street: null as Maybe<string>, // PLACEHOLDER
@@ -97,10 +97,10 @@ export const siteConfig = {
 
   forms: {
     /** Start Where You Are submissions are emailed here (owner direction, 2026-09-27). */
-    startRecipient: "info@tabwellnesscollective.com",
-    contactRecipient: "info@tabwellnesscollective.com",
+    startRecipient: "info@tabhumanperformance.com",
+    contactRecipient: "info@tabhumanperformance.com",
     /** Must be a verified sender domain in Resend. */
-    fromAddress: "TAB Human Performance Center <no-reply@tabwellnesscollective.com>", // sending domain unchanged until the new domain is chosen
+    fromAddress: "TAB Human Performance Center <no-reply@tabhumanperformance.com>", // verified in Resend (D-005); domain decision proposed D-066
     /**
      * Owner ruling 2026-09-28 (DIV-05, proposed D-058): the whole form is saved in the database, kept
      * indefinitely, and linked to the client record. It is written only while the portal runs on Supabase,
@@ -113,7 +113,7 @@ export const siteConfig = {
 
   /** D-046: Plausible on public pages; ad pixels only when paid ads start, never in My TAB. */
   analytics: {
-    plausibleDomain: null as Maybe<string>, // e.g. "tabwellnesscollective.com"
+    plausibleDomain: null as Maybe<string>, // e.g. "tabhumanperformance.com"
     metaPixelId: null as Maybe<string>, // set only when paid ads begin (D-015)
     googleTagManagerId: null as Maybe<string>, // set with Timely Innovate upgrade (D-015)
   },
@@ -146,7 +146,7 @@ export type SiteConfig = typeof siteConfig;
 
 // `||`, not `??`: a variable defined but left blank in Vercel must fall back too, or `new URL("")` breaks the build.
 export const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") || "https://www.tabwellnesscollective.com";
+  process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "") || "https://www.tabhumanperformance.com"; // proposed D-066
 
 /**
  * Search indexing is off until launch (NFR-009, Step 19.3). Set NEXT_PUBLIC_ALLOW_INDEXING=true only on
