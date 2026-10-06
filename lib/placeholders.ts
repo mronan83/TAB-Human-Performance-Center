@@ -1,6 +1,7 @@
 import { siteConfig } from "@/config/site";
 import { about, legal, faqs } from "@/content/pages";
 import { services } from "@/content/services";
+import { techniques } from "@/content/massage-techniques";
 import { privacyPolicy, termsOfUse } from "@/content/legal";
 
 /** `optional` items never block launch; every other open item fails the launch gate below. */
@@ -31,6 +32,7 @@ export function launchChecklist(): ChecklistItem[] {
     { area: "Analytics", item: "Website counts switched on in production (site_stats migration and the server key)", where: "Supabase migration 20261011000000; Vercel env → SUPABASE_SERVICE_ROLE_KEY", done: c.analytics.firstParty && !!process.env.SUPABASE_SERVICE_ROLE_KEY, optional: true },
     { area: "Content", item: "Our Story written with owner", where: "content/pages.ts → about.story", done: !about.story.draft },
     { area: "Content", item: "Team bios, credentials, photos", where: "content/pages.ts → about.team", done: !about.team.draft },
+    { area: "Content", item: "Massage techniques reviewed: TAB's training confirmed for each of the nine", where: "content/massage-techniques.ts → draft, reviewNote", done: techniques.every((t) => !t.draft) },
     { area: "Content", item: "Service FAQ answers reviewed", where: "content/services.ts → faqs", done: services.every((s) => s.faqs.every((f) => !f.draft)) },
     { area: "Content", item: "General FAQ reviewed", where: "content/pages.ts → faqs", done: faqs.every((f) => !f.draft) },
     // Owner ruling 2026-10-06 (A8): "What you have is fine" — the stock library is accepted for launch.

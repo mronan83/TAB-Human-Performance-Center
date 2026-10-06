@@ -20,6 +20,7 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
 | A6 | Business facts: the gift cards link (Timely) is the last one; address, phone, hours and map link were set 2026-10-06 [GAP-003, GAP-020] | Content | Owner | S | None |
+| C29 | **In review.** Massage techniques guide: eleven techniques (the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports massage; training confirmed by the owner) at `/services/massage-bodywork/techniques`, linked from the Massage page; the old page redirects there; relaxation no longer listed as an offering (TAB doesn't offer Swedish/relaxation). Next pillars follow the same pattern if wanted [WEB-005] | Content | Claude | M | None |
 | A8 | Content: founder story, bio and the 14 draft service FAQs. Stock photography is fine for launch (owner, 2026-10-06) [GAP-012] | Content | Owner | M | None |
 | A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | S | None |
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |

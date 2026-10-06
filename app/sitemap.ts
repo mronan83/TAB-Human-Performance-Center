@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { siteUrl } from "@/config/site";
 import { siteFeatures } from "@/lib/settings";
 import { services } from "@/content/services";
+import { techniquesPage } from "@/content/massage-techniques";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const features = await siteFeatures();
@@ -13,5 +14,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...pages.map((p) => ({ url: `${siteUrl}${p}`, lastModified: now })),
     ...services.map((s) => ({ url: `${siteUrl}/services/${s.path}`, lastModified: now })),
+    { url: `${siteUrl}${techniquesPage.path}`, lastModified: now },
   ];
 }

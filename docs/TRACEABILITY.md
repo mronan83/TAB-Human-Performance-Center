@@ -231,7 +231,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | --- | --- | --- | --- | --- | --- | --- |
 | F-01 | Site header, footer, transition banner | Partial: footer facts (A6) | WEB-001, WEB-012, WEB-015, WEB-020, NFR-001 | D-063, D-065 (proposed) | `components/SiteHeader.tsx`, `SiteFooter.tsx`, `TransitionBanner.tsx`, `config/navigation.ts` | header, smoke, a11y |
 | F-02 | Homepage | Partial: trust content and photos (A8) | WEB-002, WEB-003, WEB-013, WEB-014, CMS-005, DS-007 | D-064, D-065 (proposed) | `app/(site)/page.tsx`, `content/pages.ts` | links, a11y |
-| F-03 | Services landing and service pages | Partial: 14 draft FAQs (A8) | WEB-002, WEB-004 to WEB-007, WEB-014, WEB-018 | D-065 (proposed), Step 15 §15.8 | `app/(site)/services/`, `content/services.ts` | links, seo, a11y |
+| F-03 | Services landing and service pages; the massage techniques guide (eleven techniques, `/services/massage-bodywork/techniques`) | Partial: 14 draft FAQs (A8) | WEB-002, WEB-004 to WEB-007, WEB-014, WEB-018 | D-065 (proposed), Step 15 §15.8 | `app/(site)/services/`, `content/services.ts`, `content/massage-techniques.ts`, `components/Techniques.tsx` | links, seo, a11y, guardrails |
 | F-04 | TAB Method, About, Our Story, Team | Partial: founder story, bio, photos (A8) | WEB-002, WEB-008, WEB-009, WEB-014, WEB-017 | D-027 | `app/(site)/tab-method/`, `about/` | links, a11y |
 | F-05 | Resources, FAQ, Events | Partial: topic list only (TG-2) | WEB-002, WEB-010, WEB-014 | D-036 | `app/(site)/resources/`, `faq/`, `events/` | links, a11y |
 | F-06 | Book page | Verified | WEB-002, WEB-011, GS-006, INT-001 | D-003 | `app/(site)/book/`, `components/Cta.tsx` | smoke, links |
@@ -413,6 +413,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.21 | Status refresh after the production release: F-53 part 2 and F-45 (C5) live; Contact added to the About menu (F-01, `config/navigation.ts`) | Owner request 2026-10-06: "the contact us page needs to be part of the about drop down" |
 | 2026-10-06 | 1.22 | F-54: staff sign in with a password, then a passkey or the authenticator code; staff sessions end 30 days after sign-in (SEC-015, SEC-020) | Owner ruling 2026-10-06, proposed D-068 |
 | 2026-10-06 | 1.23 | F-54 live except passkeys: Supabase refused to switch on WebAuthn MFA, so the passkey screens are hidden (`PASSKEYS_AVAILABLE`) until it does (C28) | Release 2026-10-06 |
+| 2026-10-06 | 1.24 | F-03: massage techniques guide (eleven: the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports); linked from Massage & Bodywork; the old Introduction to Massage page redirects to it; relaxation no longer listed as an offering | Owner request and answers 2026-10-06 |
 
 ## Sources
 

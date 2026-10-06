@@ -34,6 +34,8 @@ export type Service = {
   method: { transform: string; adapt: string; balance: string };
   anchor: string;
   focusAreas?: { title: string; body: string }[];
+  /** A techniques guide under this service (Massage & Bodywork: content/massage-techniques.ts). */
+  techniques?: boolean;
   whatToExpect: { title: string; body: string }[];
   scopeNote: string;
   faqs: Faq[];
@@ -49,13 +51,13 @@ export const services: Service[] = [
     slug: "massage-bodywork",
     path: "massage-bodywork",
     name: "Massage & Bodywork",
-    metaDescription: "Personalized massage and bodywork in Brighton and Howell, MI: relaxation, recovery, prenatal and lymphatic care, adapted to how your body feels.",
+    metaDescription: "Personalized massage and bodywork in Brighton and Howell, MI: recovery, sports, prenatal and lymphatic care, adapted to how your body feels.",
     shortName: "Massage",
     headline: "Care for how your body feels, moves, and recovers.",
     summary:
       "Restore capacity: comfort, movement, recovery, body awareness and physical adaptability.",
     description:
-      "Personalized massage and bodywork that supports comfort, movement, recovery, relaxation, body awareness and physical adaptability. From everyday tension and training recovery to prenatal massage, post-surgical support, manual lymphatic drainage and comfort-focused care during chronic illness, each session is adapted to your needs, circumstances and goals.",
+      "Personalized massage and bodywork that supports comfort, movement, recovery, body awareness and physical adaptability. From everyday tension and training recovery to prenatal massage, post-surgical support, manual lymphatic drainage and comfort-focused care during chronic illness, each session is adapted to your needs, circumstances and goals.",
     whoItsFor: [
       "Everyday tension, soreness and restricted movement",
       "Exercise and strength-training recovery",
@@ -77,7 +79,7 @@ export const services: Service[] = [
       "Massage and bodywork at TAB are personalized around the individual—not just the appointment type.",
     approach: [
       "We consider how you feel, move, recover, and function, along with your current health circumstances, goals, and stage of life.",
-      "Sessions may range from relaxation and therapeutic bodywork to prenatal massage, recovery-focused work, manual lymphatic drainage, and supportive massage for people managing chronic health conditions.",
+      "Sessions may range from therapeutic bodywork and sports massage to prenatal massage, recovery-focused work, manual lymphatic drainage, and supportive massage for people managing chronic health conditions.",
     ],
     method: {
       transform: "Address tension, restrictions and recovery needs.",
@@ -86,13 +88,14 @@ export const services: Service[] = [
     },
     anchor: "Restore capacity so the body has more room to move, recover and respond.",
     focusAreas: [
-      { title: "Relaxation and everyday tension", body: "Unwind stress and ease the tension that builds up in daily life." },
+      { title: "Everyday tension and stress", body: "Ease the tension and strain that build up in daily life and work." },
       { title: "Training recovery", body: "Support recovery from strength training, sport, and physically demanding work." },
       { title: "Prenatal and postpartum", body: "Comfort-focused care adapted to pregnancy and the months after." },
       { title: "Post-surgical support", body: "Gentle, appropriate care when you have medical clearance to begin." },
       { title: "Manual lymphatic drainage", body: "Light, specialized technique to support healthy lymphatic movement." },
       { title: "Chronic illness comfort", body: "Supportive care designed around changing health needs and energy." },
     ],
+    techniques: true,
     whatToExpect: [
       { title: "Before", body: "A short intake covers what brings you in, relevant health information, and your preferences for pressure and focus." },
       { title: "During", body: "Your session is adapted to how you feel today. You can adjust pressure, positioning, or focus at any time." },

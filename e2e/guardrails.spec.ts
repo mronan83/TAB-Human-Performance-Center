@@ -5,6 +5,7 @@ import { buildInquiryEmails, type InquiryAnswers } from "../lib/inquiry-emails";
 import { authEmails } from "../content/auth-emails";
 import { stageUpdatedEmail } from "../content/emails";
 import { services } from "../content/services";
+import { PRESSURE_LEVELS, techniqueGroups, techniques } from "../content/massage-techniques";
 import { bookingHref } from "../lib/links";
 import { LINK_TYPES, readEmailLink } from "../lib/supabase/email-link";
 import { PASSWORD_MIN, STAFF_SESSION_MAX_DAYS, fromBase64Url, passkeyOptionsToJSON, passkeyRelyingParty, passwordProblem, sessionStartedAt, staffSessionExpired, toBase64Url } from "../lib/staff-auth";
@@ -200,4 +201,34 @@ test("Sign-in & security is in every staff menu and stays empty in the demo (pro
   await expect(page.locator("main h1")).toHaveText("Sign-in & security");
   await expect(page.getByText("passwords and passkeys apply to real TAB Practice accounts only")).toBeVisible();
   await expect(page.getByRole("link", { name: "Sign-in & security" }).first()).toBeVisible();
+});
+
+test("massage techniques: eleven, with lymphatic, prenatal and sports; no Swedish; no treatment claims; unconfirmed ones flagged (guardrails 8 and 10)", () => {
+  expect(techniques).toHaveLength(11);
+  for (const slug of ["lymphatic-drainage", "prenatal", "sports-massage"]) expect(techniques.map((t) => t.slug)).toContain(slug);
+  expect(new Set(techniques.map((t) => t.slug)).size).toBe(11);
+  // TAB doesn't offer Swedish or relaxation massage (owner, 2026-10-06).
+  expect(JSON.stringify(techniques)).not.toMatch(/swedish|relaxation/i);
+  for (const t of techniques) {
+    expect(techniqueGroups.map((g) => g.key), t.slug).toContain(t.group);
+    expect(PRESSURE_LEVELS, t.slug).toContain(t.pressure);
+    expect(t.oftenChosenFor.length, t.slug).toBeGreaterThan(0);
+    const copy = [t.summary, t.feelsLike, ...t.oftenChosenFor, t.goodToKnow ?? ""].join(" ");
+    // Massage supports comfort, movement and recovery; it never claims to diagnose, treat or cure (Step 15 §15.8).
+    expect(copy, t.slug).not.toMatch(/\b(cure[sd]?|heal[sd]?|diagnos\w*|treats?|treatment|disease|detox\w*|toxins?)\b/i);
+    if (t.draft) expect(t.reviewNote, `${t.slug} needs a review note while in draft`).toBeTruthy();
+  }
+});
+
+test("the techniques guide: every technique has a card, the Massage page links to each, and the old page redirects (owner request 2026-10-06)", async ({ page, request }) => {
+  await page.goto("/services/massage-bodywork/techniques");
+  await expect(page.locator("main h1")).toHaveText("Massage techniques");
+  for (const t of techniques) await expect(page.locator(`article#${t.slug} h3`)).toContainText(t.name);
+  await expect(page.getByRole("region", { name: "Massage techniques at a glance" }).getByRole("row")).toHaveCount(12);
+  await page.goto("/services/massage-bodywork");
+  for (const t of techniques) await expect(page.locator(`a[href="/services/massage-bodywork/techniques#${t.slug}"]`)).toHaveCount(1);
+  expect((await request.get("/services/functional-strength/techniques")).status()).toBe(404);
+  const old = await request.get("/introduction-to-massage/", { maxRedirects: 0 });
+  expect(old.status()).toBe(308);
+  expect(old.headers().location).toContain("/services/massage-bodywork/techniques");
 });
