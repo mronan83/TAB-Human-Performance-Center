@@ -219,7 +219,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | DS-004 | Deep Olive primary button, Clay Dark secondary | `.btn-primary`, `.btn-secondary` | P1 | Must | Built | — |
 | DS-005 | Every colour pairing in use meets WCAG 2.2 AA, checked in CI | Contrast check over the token pairings | P1 | Must | Verified | contrast |
 | DS-006 | Production SVG logos for every lockup, light and reversed, plus a small symbol | Approved redraw installed: horizontal, stacked and symbol in colour, graphite, white and sheen; favicon set and app icons | P1 | Must | Built | — |
-| DS-007 | Real people and places, natural light; no before-and-after imagery | Photo placeholders until real photos arrive (A8) | P1 | Should | Partial | — |
+| DS-007 | Real people and places, natural light; no before-and-after imagery | Stock library (C21): the 30 curated Pexels images in `content/images.ts`, 17 placed (homepage, About, TAB Method, every service page), all decorative and never shown as TAB's people or facility; TAB's own team, facility and proof photography still to come (A8) | P1 | Should | Partial | a11y |
 
 ## Feature inventory
 
@@ -397,6 +397,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-05 | 1.4 | Rebrand PR 2: public copy rewritten in the Brand Foundation v2 voice (pillar counts, FAQ, About, Our Story, service lists from Step 13); WEB-014 now checked by `npm run test:brand` | Owner, 2026-10-05: "We can’t have misaligned verbiage and content" |
 | 2026-10-05 | 1.5 | TAB Wellness Plan renamed TAB Performance Plan (PORTAL-003, STAFF-005); TAB Practice keeps its name | Owner rulings A27, A28 |
 | 2026-10-05 | 1.6 | Rebrand PR 4: My TAB and TAB Practice restyled to the new identity (C22); F-16 updated for the portal tint tokens and the colour rule in `npm run test:brand` | Owner request, 2026-10-05 |
+| 2026-10-06 | 1.7 | Rebrand PR 3: stock image library placed by page (C21); DS-007 updated | Owner request, 2026-10-05 |
 
 ## Sources
 

@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMetadata({ title: "About", description: "W
 export default function AboutPage() {
   return (
     <>
-      <PageHero eyebrow="About TAB" title={about.headline}>
+      <PageHero eyebrow="About TAB" title={about.headline} image="morningMountains">
         <Link href="/about/our-story" className="btn btn-outline">Our story</Link>
       </PageHero>
       <section className="section">

@@ -2,10 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { home } from "@/content/pages";
 import { services } from "@/content/services";
+import { images } from "@/content/images";
 import { siteConfig } from "@/config/site";
 import { Cta } from "@/components/Cta";
 import { ServiceCard } from "@/components/ServiceCard";
 import { MethodSteps } from "@/components/MethodSteps";
+import { Photo } from "@/components/Photo";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -60,9 +62,12 @@ export default function HomePage() {
 
       {/* 2. Core idea */}
       <section className="section bg-linen">
-        <div className="container-prose text-center">
-          <h2 className="text-h1">{home.coreIdea.headline}</h2>
-          <p className="text-body-lg mt-6 text-text-secondary">{home.coreIdea.body}</p>
+        <div className="container-page grid items-center gap-10 md:grid-cols-2 lg:gap-16">
+          <div>
+            <h2 className="text-h1">{home.coreIdea.headline}</h2>
+            <p className="text-body-lg mt-6 text-text-secondary">{home.coreIdea.body}</p>
+          </div>
+          <Photo name="movementStudio" aspect="aspect-[4/5]" sizes="(min-width: 768px) 50vw, 100vw" className="mx-auto w-full max-w-md" />
         </div>
       </section>
 
@@ -164,10 +169,13 @@ export default function HomePage() {
       )}
 
       {/* 9. Closing CTA */}
-      <section className="on-dark section bg-graphite text-white">
+      <section className="on-dark section relative isolate overflow-hidden bg-graphite text-white">
+        {/* Library photograph (C21): the path forward, under a graphite scrim: white text stays above 5.2:1 even over a white pixel */}
+        <Image src={images.pathSunrise.src} alt="" fill sizes="100vw" className="-z-20 object-cover" style={{ objectPosition: images.pathSunrise.focal }} />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-graphite/70" />
         <div className="container-prose text-center">
           <h2 className="text-display-lg">{home.closing.headline}</h2>
-          <p className="text-body-lg mt-5 text-white/80">{home.closing.body}</p>
+          <p className="text-body-lg mt-5 text-white">{home.closing.body}</p>
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <Cta kind="start" label="Start Where You Are" variant="secondary" />
             <Cta kind="book" label="Book" variant="outline" className="!border-white/50 !text-white hover:!border-white" />

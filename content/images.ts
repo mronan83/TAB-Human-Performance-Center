@@ -1,0 +1,61 @@
+/**
+ * Website stock image library (C21): the 30 images curated in docs/source/batch-5/09_TAB_HPC_Website_Stock_Image_Library.md,
+ * resized to 2000px on the long edge, saturation reduced 8% (the library's deployment standards) and saved as WebP in
+ * public/images/library/. Shaped as a Payload CMS media collection (D-036).
+ *
+ * Licence: Pexels licence (https://www.pexels.com/license/): free commercial use and modification, no attribution
+ * required. The rules that come with it, from the library and guardrail 10: stock never stands in for TAB's own
+ * practitioners, clients or facility; never implies that a recognisable person endorses TAB or has a condition. So every
+ * image is decorative (empty alt), and none is used for team, facility or proof. Replace homepage, team, facility and
+ * proof imagery with TAB's own photography as soon as practical.
+ *
+ * `placed` names where an image is used; `reserved` says why one isn't, yet.
+ */
+export type LibraryImage = {
+  n: number;
+  src: string;
+  width: number;
+  height: number;
+  /** CSS object-position for cropped placements. */
+  focal: string;
+  subject: string;
+  use: string;
+  source: string;
+  placed?: string;
+  reserved?: string;
+};
+
+export const images = {
+  trailSunrise: { n: 1, src: "/images/library/01-mountain-trail-sunrise.webp", width: 1333, height: 2000, focal: "50% 70%", subject: "Scenic mountain trail at sunrise", use: "Home hero (library); placed as The TAB Method hero", source: "https://www.pexels.com/photo/scenic-mountain-trail-at-sunrise-nature-s-serenity-34030927/", placed: "/tab-method hero" },
+  morningMountains: { n: 2, src: "/images/library/02-morning-mountains.webp", width: 2000, height: 1333, focal: "50% 50%", subject: "Warm morning mountain landscape", use: "Home, point of view; placed on About, the point-of-view page, to keep the homepage from three landscapes", source: "https://www.pexels.com/photo/a-morning-mountain-landscape-18914129/", placed: "/about hero" },
+  movementStudio: { n: 3, src: "/images/library/03-movement-studio.webp", width: 1333, height: 2000, focal: "50% 60%", subject: "Natural-light movement studio", use: "Home/About, integrated center. Lifestyle context, never shown as TAB’s facility", source: "https://www.pexels.com/photo/yoga-session-with-natural-light-in-modern-studio-29720739/", placed: "/ core idea" },
+  pathSunrise: { n: 4, src: "/images/library/04-mountain-path-sunrise.webp", width: 1333, height: 2000, focal: "50% 62%", subject: "Mountain pathway at sunrise", use: "Home, closing call to action", source: "https://www.pexels.com/photo/scenic-mountain-pathway-at-sunrise-32852521/", placed: "/ closing call to action" },
+  massageDetail: { n: 5, src: "/images/library/05-massage-detail.webp", width: 1333, height: 2000, focal: "50% 35%", subject: "Natural-light massage detail", use: "Massage & Bodywork hero", source: "https://www.pexels.com/photo/person-laying-down-and-receiving-massage-10006578/", placed: "/services/massage-bodywork hero" },
+  shoulderMassage: { n: 6, src: "/images/library/06-shoulder-massage.webp", width: 2000, height: 1333, focal: "50% 50%", subject: "Therapist providing shoulder massage", use: "Massage, personalized care", source: "https://www.pexels.com/photo/a-massage-therapist-massaging-a-client-5793681/", reserved: "Alternate to the massage hero; kept for Resources (Massage and recovery)." },
+  prenatalMassage: { n: 7, src: "/images/library/07-prenatal-massage.webp", width: 2000, height: 1333, focal: "50% 50%", subject: "Prenatal massage session", use: "Massage, prenatal. Prenatal service context only", source: "https://www.pexels.com/photo/pregnant-woman-relaxing-in-a-massage-parlour-19666196/", reserved: "Prenatal context only; waits for prenatal-specific content." },
+  assistedStretch: { n: 8, src: "/images/library/08-assisted-stretch.webp", width: 2000, height: 1333, focal: "50% 60%", subject: "Assisted stretching on a massage table", use: "Massage, mobility and bodywork", source: "https://www.pexels.com/photo/a-woman-in-white-top-and-black-leggings-lying-on-a-massage-table-5794009/", placed: "/services/massage-bodywork how we help" },
+  trainerDumbbells: { n: 9, src: "/images/library/09-trainer-dumbbells.webp", width: 2000, height: 1333, focal: "62% 50%", subject: "Trainer guiding a client with dumbbells", use: "Functional Strength hero", source: "https://www.pexels.com/photo/man-and-woman-with-dumbbells-6496085/", placed: "/services/functional-strength hero" },
+  trainerGym: { n: 10, src: "/images/library/10-trainer-gym.webp", width: 1333, height: 2000, focal: "50% 60%", subject: "Woman training with a personal trainer", use: "Functional Strength, inclusive training", source: "https://www.pexels.com/photo/black-woman-with-personal-trainer-in-gym-6455923/", reserved: "Not placed: a political flag hangs on the gym wall. Recommend a replacement (owner decision)." },
+  manDumbbells: { n: 11, src: "/images/library/11-man-dumbbells.webp", width: 2000, height: 1333, focal: "45% 40%", subject: "Man training with dumbbells", use: "Functional Strength, deeper on the page", source: "https://www.pexels.com/photo/man-with-dumbbells-6496089/", placed: "/services/functional-strength how we help" },
+  womanDumbbell: { n: 12, src: "/images/library/12-woman-dumbbell.webp", width: 2000, height: 1333, focal: "50% 40%", subject: "Woman holding a dumbbell in natural light", use: "Functional Strength, independent capacity", source: "https://www.pexels.com/photo/a-woman-holding-a-dumbbell-8846112/", reserved: "Not placed: framed on physique more than coaching, against the library’s own brief. Reserve." },
+  matureWomanMovement: { n: 13, src: "/images/library/13-mature-woman-movement.webp", width: 1333, height: 2000, focal: "50% 30%", subject: "Mature woman practising movement", use: "Women’s Wellness hero", source: "https://www.pexels.com/photo/elderly-woman-doing-yoga-10223039/", placed: "/services/womens-wellness hero" },
+  womanMovingBrightRoom: { n: 14, src: "/images/library/14-woman-moving-bright-room.webp", width: 2000, height: 1333, focal: "65% 60%", subject: "Woman moving in a bright room", use: "Women’s Wellness, life stage", source: "https://www.pexels.com/photo/woman-doing-yoga-on-mat-in-room-10223021/", placed: "/services/womens-wellness how we help" },
+  pregnancyPortrait: { n: 15, src: "/images/library/15-pregnancy-portrait.webp", width: 1333, height: 2000, focal: "50% 50%", subject: "Pregnancy portrait in natural light", use: "Women’s Wellness, pregnancy. Lifestyle framing, no medical claims", source: "https://www.pexels.com/photo/pregnant-woman-posing-in-natural-light-indoors-29392532/", reserved: "Pregnancy context only; waits for life-stage content." },
+  pregnancyGuidedMovement: { n: 16, src: "/images/library/16-pregnancy-guided-movement.webp", width: 2000, height: 1335, focal: "40% 50%", subject: "Pregnant woman practising with a trainer", use: "Women’s Wellness, guided movement", source: "https://www.pexels.com/photo/pregnant-woman-doing-yoga-7055676/", reserved: "Pregnancy context only; waits for life-stage content." },
+  nutritionConversation: { n: 17, src: "/images/library/17-nutrition-conversation.webp", width: 1333, height: 2000, focal: "50% 40%", subject: "Two women talking over fresh food in a kitchen", use: "Integrated Nutrition hero", source: "https://www.pexels.com/photo/woman-smiling-while-holding-tomatoes-8844901/", placed: "/services/integrated-nutrition hero" },
+  kitchenPrep: { n: 18, src: "/images/library/18-kitchen-prep.webp", width: 1333, height: 2000, focal: "50% 45%", subject: "Woman slicing vegetables in a bright kitchen", use: "Integrated Nutrition, practical nourishment", source: "https://www.pexels.com/photo/woman-slicing-a-vegetable-on-chopping-board-6593597/", placed: "/services/integrated-nutrition how we help" },
+  handsVegetables: { n: 19, src: "/images/library/19-hands-vegetables.webp", width: 1333, height: 2000, focal: "50% 50%", subject: "Hands preparing vegetables in a rustic kitchen", use: "Integrated Nutrition, secondary", source: "https://www.pexels.com/photo/food-hands-chef-kitchen-4057678/", reserved: "Kept for Resources (Nutrition and fueling) once articles publish." },
+  mediterraneanMeal: { n: 20, src: "/images/library/20-mediterranean-meal.webp", width: 1333, height: 2000, focal: "50% 50%", subject: "Meal in natural light", use: "Integrated Nutrition, food detail. Never a prescriptive meal plan", source: "https://www.pexels.com/photo/meal-in-bowl-20243883/", reserved: "Kept for Resources (Nutrition and fueling) once articles publish." },
+  kitchenIngredients: { n: 21, src: "/images/library/21-kitchen-ingredients.webp", width: 1333, height: 2000, focal: "50% 50%", subject: "Fresh vegetables and eggs in a kitchen", use: "Integrated Nutrition, Resources", source: "https://www.pexels.com/photo/basket-with-vegetables-on-stool-in-kitchen-7262906/", reserved: "Kept for Resources (Nutrition and fueling) once articles publish." },
+  coachingConversation: { n: 22, src: "/images/library/22-coaching-conversation.webp", width: 2000, height: 1333, focal: "35% 45%", subject: "Woman with a notebook in conversation", use: "Holistic Life Coaching hero. Conversational, never therapy", source: "https://www.pexels.com/photo/positive-woman-sitting-with-notebook-and-talking-with-female-7176288/", placed: "/services/holistic-life-coaching hero" },
+  supportiveConversation: { n: 23, src: "/images/library/23-supportive-conversation.webp", width: 2000, height: 1333, focal: "60% 50%", subject: "Two women talking in a plant-filled room", use: "Life Coaching, support", source: "https://www.pexels.com/photo/happy-woman-talking-to-friend-in-cozy-room-6113430/", placed: "/services/holistic-life-coaching how we help" },
+  journaling: { n: 24, src: "/images/library/24-journaling.webp", width: 1335, height: 2000, focal: "50% 50%", subject: "Woman journaling with tea", use: "Life Coaching, reflection", source: "https://www.pexels.com/photo/a-woman-sitting-on-a-sofa-while-writing-on-a-notebook-6653926/", reserved: "Kept for Resources (Life and agency) once articles publish." },
+  discussion: { n: 25, src: "/images/library/25-discussion.webp", width: 2000, height: 1333, focal: "50% 50%", subject: "Man and woman in discussion", use: "Life Coaching, gender-neutral representation", source: "https://www.pexels.com/photo/man-and-woman-having-a-conversation-at-the-office-8549944/", reserved: "Kept for Resources; office setting reads corporate on a service page." },
+  transformSunrise: { n: 26, src: "/images/library/26-transform-sunrise.webp", width: 2000, height: 1333, focal: "50% 40%", subject: "Mountain sunrise", use: "The TAB Method, Transform", source: "https://www.pexels.com/photo/breathtaking-mountain-sunrise-landscape-31633324/", placed: "/tab-method Transform" },
+  adaptPath: { n: 27, src: "/images/library/27-adapt-path.webp", width: 1506, height: 2000, focal: "50% 60%", subject: "Winding path toward mountains", use: "The TAB Method, Adapt", source: "https://www.pexels.com/photo/scenic-mountain-path-at-sunrise-30547987/", placed: "/tab-method Adapt" },
+  balanceLayers: { n: 28, src: "/images/library/28-balance-layers.webp", width: 2000, height: 1333, focal: "50% 55%", subject: "Layered mountains at sunrise", use: "The TAB Method, Balance", source: "https://www.pexels.com/photo/serene-mountain-landscape-at-sunrise-30322592/", placed: "/tab-method Balance" },
+  textureSage: { n: 29, src: "/images/library/29-texture-sage.webp", width: 2000, height: 1333, focal: "50% 50%", subject: "Close-up of sage-green leaves", use: "Texture, at low visual weight", source: "https://www.pexels.com/photo/close-up-of-green-leaves-15078465/", reserved: "Texture; no low-weight use on the site yet." },
+  textureLinen: { n: 30, src: "/images/library/30-texture-linen.webp", width: 1500, height: 2000, focal: "50% 50%", subject: "Natural linen close-up", use: "Texture, low opacity for cards and quotes", source: "https://www.pexels.com/photo/close-up-of-linen-fabric-8774406/", reserved: "Texture; no low-weight use on the site yet." },
+} satisfies Record<string, LibraryImage>;
+
+export type ImageKey = keyof typeof images;

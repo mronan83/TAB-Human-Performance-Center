@@ -6,6 +6,8 @@
  * FAQ answers marked `draft: true` are temporary copy for practitioner review.
  */
 
+import type { ImageKey } from "./images";
+
 export type ServiceSlug =
   | "massage-bodywork"
   | "personal-strength-training"
@@ -38,6 +40,8 @@ export type Service = {
   primaryCta: { label: string; kind: "book" | "start" };
   secondaryCta: { label: string; kind: "book" | "start" };
   icon: string;
+  /** Library photographs (C21): the page hero and the image beside "How we help". */
+  photos: { hero: ImageKey; support: ImageKey };
 };
 
 export const services: Service[] = [
@@ -105,6 +109,7 @@ export const services: Service[] = [
     primaryCta: { label: "Book Massage & Bodywork", kind: "book" },
     secondaryCta: { label: "Find the Right Starting Point", kind: "start" },
     icon: "/brand/icons/massage-bodywork.svg",
+    photos: { hero: "massageDetail", support: "assistedStretch" },
   },
   {
     slug: "personal-strength-training",
@@ -166,6 +171,7 @@ export const services: Service[] = [
     primaryCta: { label: "Schedule a Strength Consultation", kind: "book" },
     secondaryCta: { label: "Find Your Starting Point", kind: "start" },
     icon: "/brand/icons/functional-strength.svg",
+    photos: { hero: "trainerDumbbells", support: "manDumbbells" },
   },
   {
     slug: "womens-wellness-coaching",
@@ -225,6 +231,7 @@ export const services: Service[] = [
     primaryCta: { label: "Schedule a Women’s Wellness Conversation", kind: "book" },
     secondaryCta: { label: "Find Your Starting Point", kind: "start" },
     icon: "/brand/icons/womens-wellness.svg",
+    photos: { hero: "matureWomanMovement", support: "womanMovingBrightRoom" },
   },
   {
     slug: "integrated-nutrition",
@@ -279,6 +286,7 @@ export const services: Service[] = [
     primaryCta: { label: "Schedule a Nutrition Conversation", kind: "book" },
     secondaryCta: { label: "Find Your Starting Point", kind: "start" },
     icon: "/brand/icons/integrated-nutrition.svg",
+    photos: { hero: "nutritionConversation", support: "kitchenPrep" },
   },
   {
     slug: "holistic-life-coaching",
@@ -333,6 +341,7 @@ export const services: Service[] = [
     primaryCta: { label: "Schedule a Coaching Conversation", kind: "book" },
     secondaryCta: { label: "Start with What Matters", kind: "start" },
     icon: "/brand/icons/holistic-life-coaching.svg",
+    photos: { hero: "coachingConversation", support: "supportiveConversation" },
   },
 ];
 

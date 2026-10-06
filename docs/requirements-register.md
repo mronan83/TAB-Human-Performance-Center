@@ -238,7 +238,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 | DS-004 | Primary button = Deep Olive pill; secondary button = Clay Dark pill; Clay, Sage and Ochre are decorative accents only, used "selectively for energy". *(2026-10-05 rebrand, proposed D-062.)* | S18-HPC §18.3, §18.7 | P1 |
 | DS-005 | Every text/background and UI-boundary pairing in use meets WCAG 2.2 AA (see CON-011); an automated contrast check runs in CI against the token set. | DEC-009 | P1 |
 | DS-006 | Production logo files (SVG) for every lockup, in light and reversed versions, plus a simplified small-size symbol for 16–32px. *(2026-10-05: met by the approved redraw of the TAB Human Performance Center board: horizontal, stacked and symbol in colour, graphite, white and sheen; app icons; favicon set; five service icons. Proposed D-061.)* | S18-HPC §18.2 | P1 |
-| DS-007 | Imagery: real people and environments, natural light, warm tones; no before/after, hyper-posed fitness or sterile clinical imagery. | S18 §18.6 | P1 |
+| DS-007 | Imagery: real people and environments, natural light, warm tones; no before/after, hyper-posed fitness or sterile clinical imagery. *(2026-10-06: the batch-5 stock image library (30 Pexels images) is installed; see `content/images.ts` for each image's placement or reason for reserve.)* | S18 §18.6 | P1 |
 
 ---
 
