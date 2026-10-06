@@ -32,7 +32,7 @@ export const legacyRedirects: Record<string, string> = {
   "/appointments": "/book",
   "/appointments/customer-reviews": "/about",
   "/appointments/reviews": "/about",
-  "/introduction-to-massage": "/services/massage-bodywork",
+  "/introduction-to-massage": "/services/massage-bodywork/techniques", // its eight modalities live on the techniques guide
   "/tab-lifequest": "/services/holistic-life-coaching",
   "/yoga-faq": "/faq",
   "/small-group-training-lifequest": "/services/functional-strength",

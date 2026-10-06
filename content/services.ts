@@ -34,6 +34,8 @@ export type Service = {
   method: { transform: string; adapt: string; balance: string };
   anchor: string;
   focusAreas?: { title: string; body: string }[];
+  /** A techniques guide under this service (Massage & Bodywork: content/massage-techniques.ts). */
+  techniques?: boolean;
   whatToExpect: { title: string; body: string }[];
   scopeNote: string;
   faqs: Faq[];
@@ -93,6 +95,7 @@ export const services: Service[] = [
       { title: "Manual lymphatic drainage", body: "Light, specialized technique to support healthy lymphatic movement." },
       { title: "Chronic illness comfort", body: "Supportive care designed around changing health needs and energy." },
     ],
+    techniques: true,
     whatToExpect: [
       { title: "Before", body: "A short intake covers what brings you in, relevant health information, and your preferences for pressure and focus." },
       { title: "During", body: "Your session is adapted to how you feel today. You can adjust pressure, positioning, or focus at any time." },

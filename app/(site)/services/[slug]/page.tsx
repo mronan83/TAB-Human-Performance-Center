@@ -6,6 +6,7 @@ import { getServiceByPath, services } from "@/content/services";
 import { Cta } from "@/components/Cta";
 import { FaqList } from "@/components/FaqList";
 import { Photo } from "@/components/Photo";
+import { TechniqueIndex } from "@/components/Techniques";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonld";
 import { pageMetadata } from "@/lib/seo";
 import { serviceBookingHref } from "@/lib/settings";
@@ -92,6 +93,7 @@ export default async function ServicePage({ params }: Props) {
             ))}
           </div>
         )}
+        {s.techniques && <TechniqueIndex />}
       </section>
 
       {/* TAB Method applied */}
