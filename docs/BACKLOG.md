@@ -81,6 +81,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 ## Recently done
 
+- **Homepage closing band** (2026-10-06, in review): the closing call to action now uses the layered-ridges sunrise (library #28) and a Spectral headline, echoing the hero; the scrim is darkest behind the text (white text 4.8:1 or better at every width). Owner feedback: "something that aligns better with the hero image".
+
 - **Domains and email** (2026-10-06): `tabhumanperformance.com` (owner) plus `tabhumanperformancecenter.com`, `tabhpc.com` and `tabhp.com` registered at Vercel; Google Workspace verification, MX, SPF, DKIM and DMARC (monitoring) published for the main domain; the other three locked against mail. Closes A1 and RSK-007.
 
 - **Rebrand PR 3, image library** (2026-10-06, in review): the 30 images from the batch-5 stock library, resized, slightly desaturated and saved as WebP (4.6 MB in all), catalogued in `content/images.ts` with source, licence, focal point and placement. 17 placed: a hero and a "How we help" image on every service page, About and TAB Method heroes, a Transform / Adapt / Balance band on the TAB Method page, and the homepage core idea and closing band. 13 held in reserve with a reason each; #10 is not used (a political flag in frame). Closes C21.

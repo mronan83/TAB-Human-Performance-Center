@@ -399,6 +399,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-05 | 1.6 | Rebrand PR 4: My TAB and TAB Practice restyled to the new identity (C22); F-16 updated for the portal tint tokens and the colour rule in `npm run test:brand` | Owner request, 2026-10-05 |
 | 2026-10-06 | 1.7 | Rebrand PR 3: stock image library placed by page (C21); DS-007 updated | Owner request, 2026-10-05 |
 | 2026-10-06 | 1.8 | Domains registered and email set up (proposed D-066); switch-over Phase A: demo portal off on production, site URL and form addresses on `tabhumanperformance.com`; A1 closed; owner Settings page approved (proposed D-067, C23) | Owner rulings 2026-10-06 |
+| 2026-10-06 | 1.9 | Homepage closing band re-imaged to echo the hero (DS-007); no requirement changes | Owner feedback, 2026-10-06 |
 
 ## Sources
 
