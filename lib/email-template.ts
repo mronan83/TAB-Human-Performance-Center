@@ -6,7 +6,8 @@ import { EMAIL_LOGO } from "@/lib/email-logo";
  * beautiful"). Email clients ignore stylesheets and SVG, so this is table layout with inline styles, the palette from
  * app/globals.css as literal values (D-062: Bone page, white card, Graphite text, Deep Olive button, Clay Dark labels),
  * Montserrat and Spectral named first (used where installed, otherwise Helvetica/Arial and Georgia); no web-font request, so opening an email tells no third party anything (DS-002). The logo is embedded (CID), so it
- * shows even while the site is behind Vercel login. Everything passed in is escaped here; callers pass plain text.
+ * shows even while the site is behind Vercel login. Supabase's sign-in emails can't carry attachments, so they pass
+ * `logoSrc` (a hosted copy of the same PNG; scripts/supabase-emails.mjs). Everything passed in is escaped here; callers pass plain text.
  * Guardrail 5 still applies to what callers put in: no health details, and subjects stay generic.
  */
 
@@ -42,6 +43,8 @@ export type EmailContent = {
   /** A block of free text (the contact message, TAB's copy only), shown with its line breaks. */
   quote?: { title: string; text: string };
   cta?: { label: string; href: string };
+  /** A one-time code, shown large on its own line. */
+  code?: string;
   /** Small print under the card. */
   footnote?: string;
 };
@@ -70,8 +73,15 @@ function button(cta: NonNullable<EmailContent["cta"]>) {
     `</td></tr></table>`;
 }
 
-/** Renders the branded HTML and the inline logo attachment for Resend. */
-export function renderEmail(c: EmailContent) {
+function code(value: string) {
+  return `<p style="margin:4px 0 20px;padding:16px;background:${C.noteSoft};border-radius:12px;text-align:center;font-family:${SANS};font-size:28px;font-weight:600;letter-spacing:6px;color:${C.graphite}">${esc(value)}</p>`;
+}
+
+/**
+ * Renders the branded HTML and the inline logo attachment for Resend. `logoSrc` replaces the attachment with a hosted
+ * image, for senders that can't attach (Supabase Auth).
+ */
+export function renderEmail(c: EmailContent, opts: { logoSrc?: string } = {}) {
   const notices = (c.notice ?? [])
     .map(
       (n) =>
@@ -91,11 +101,11 @@ export function renderEmail(c: EmailContent) {
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(c.preheader)}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${C.bone}"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px">
-<tr><td style="padding:0 4px 24px"><a href="${esc(siteUrl)}"><img src="cid:${EMAIL_LOGO_CID}" width="${EMAIL_LOGO.width}" height="${EMAIL_LOGO.height}" alt="${esc(siteConfig.brand.name)}" style="display:block;border:0"></a></td></tr>
+<tr><td style="padding:0 4px 24px"><a href="${esc(siteUrl)}"><img src="${opts.logoSrc ? esc(opts.logoSrc) : `cid:${EMAIL_LOGO_CID}`}" width="${EMAIL_LOGO.width}" height="${EMAIL_LOGO.height}" alt="${esc(siteConfig.brand.name)}" style="display:block;border:0"></a></td></tr>
 <tr><td style="background:${C.white};border:1px solid ${C.border};border-radius:20px;padding:36px 32px">
 ${c.eyebrow ? `<p style="margin:0 0 10px;font-family:${SANS};font-size:12px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:${C.clayDark}">${esc(c.eyebrow)}</p>` : ""}
 <h1 style="margin:0 0 20px;font-family:${SERIF};font-size:30px;line-height:1.2;font-weight:500;color:${C.graphite}">${esc(c.heading)}</h1>
-${notices}${(c.paragraphs ?? []).map((t) => p(t)).join("")}${c.details ? details(c.details) : ""}${quote}${c.cta ? button(c.cta) : ""}
+${notices}${(c.paragraphs ?? []).map((t) => p(t)).join("")}${c.details ? details(c.details) : ""}${quote}${c.code ? code(c.code) : ""}${c.cta ? button(c.cta) : ""}
 </td></tr>
 <tr><td style="padding:24px 8px 0;font-family:${SANS};font-size:12px;line-height:1.6;color:${C.secondary}">
 ${c.footnote ? `<p style="margin:0 0 12px">${esc(c.footnote)}</p>` : ""}
@@ -104,6 +114,7 @@ ${c.footnote ? `<p style="margin:0 0 12px">${esc(c.footnote)}</p>` : ""}
 </td></tr>
 </table></td></tr></table>
 </body></html>`;
+  if (opts.logoSrc) return { html, attachments: [] };
   return { html, attachments: [{ filename: "tab-human-performance-center.png", content: EMAIL_LOGO.base64, contentType: "image/png", contentId: EMAIL_LOGO_CID }] };
 }
 

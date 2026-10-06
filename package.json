@@ -16,7 +16,8 @@
     "docs:check": "node scripts/docs/schema-snapshot.mjs --check && node scripts/docs/render-traceability.mjs --check && node scripts/docs/render-architecture.mjs --check && node scripts/docs/render-data-model.mjs --check",
     "docs:html": "node scripts/docs/build-all.mjs",
     "test:brand": "node scripts/check-brand.mjs",
-    "email:logo": "node scripts/email-logo.mjs"
+    "email:logo": "node scripts/email-logo.mjs",
+    "emails:supabase": "node scripts/supabase-emails.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -37,6 +38,7 @@
     "@types/node": "^26.6.3",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "jiti": "^2.7.0",
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3"
