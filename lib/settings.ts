@@ -83,3 +83,14 @@ export async function portalOpen(): Promise<boolean> {
   if (siteConfig.portal.dataSource !== "supabase") return true; // the demo: previews and tests only
   return (await getSettings()).portalMode === "live";
 }
+
+export type AccountLink = { href: string; label: string };
+
+/**
+ * The header and footer account link (WEB-020): "My TAB" once the client portal is open (the owner's Settings switch,
+ * within what the build allows), and nothing before that. Owner ruling 2026-10-06: "The client login CTA button needs
+ * to be hidden until the client portal is live. The book now CTA button fulfills the link to the booking site."
+ */
+export async function accountLink(): Promise<AccountLink | null> {
+  return (await portalOpen()) ? { href: "/my-tab", label: "My TAB" } : null;
+}

@@ -98,7 +98,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-017 | Our Story: TAB Massage & Fitness (2008) to TAB Human Performance Center | P1 | Should | Partial: placeholder copy (A8) | F-04 | — |
 | WEB-018 | Service icons as light navigational markers | P1 | Could | Built: vector icons in the board colours and graphite | F-03, F-17 | — |
 | WEB-019 | Favicons, touch, PWA and share icons, light and dark | P1 | Should | Built | F-17 | — |
-| WEB-020 | Client Login goes to Timely until My TAB launches | P1 | Must | Verified (demo portal on production by owner ruling) | F-01, F-19 | smoke |
+| WEB-020 | No Client Login until My TAB is live, then "My TAB" (owner ruling 2026-10-06; Book covers Timely) | P1 | Must | Verified | F-01, F-19 | smoke |
 
 ### Start Where You Are (GS)
 
@@ -405,6 +405,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.11 | Business facts on the site (WEB-012 built, gift cards aside); privacy policy and terms drafted for review (A7); launch targeted 1 November (GAP-017); stock photography confirmed for launch | Owner rulings 2026-10-06 |
 | 2026-10-06 | 1.12 | C23: owner Settings page and real staff sign-in with two-step verification (F-53); SEC-015's enrolment screen built; F-45 narrowed to auth URLs and invitation emails; `app_settings` added to the data model | Owner request and design approval, 2026-10-06 (proposed D-067) |
 | 2026-10-06 | 1.13 | Production database set up and owner signed in with two-step verification (G3); Supabase sign-in, invitation and security emails branded (`content/auth-emails.ts`); F-45 narrowed to the invitation-link check | Owner approvals and request, 2026-10-06 |
+| 2026-10-06 | 1.14 | WEB-020 restated: header and footer hide the account link until the client portal is open, then show "My TAB" | Owner ruling, 2026-10-06 |
 
 ## Sources
 

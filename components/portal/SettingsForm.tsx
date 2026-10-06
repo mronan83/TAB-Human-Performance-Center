@@ -25,7 +25,7 @@ export function SettingsForm({ settings, gate, canGoLive }: { settings: Settings
     <form action={action} className="space-y-6">
       <section className="rounded-[20px] border border-border bg-white p-6" aria-labelledby="portal-heading">
         <h2 id="portal-heading" className="text-h4">Client portal (My TAB)</h2>
-        <p className="mt-1 text-sm text-text-secondary">Off: My TAB shows a page that links to Timely client login. Live: clients sign in to My TAB.</p>
+        <p className="mt-1 text-sm text-text-secondary">Off: the site shows no client sign-in; Book covers Timely. Live: “My TAB” appears in the site header and footer, and clients sign in.</p>
         <fieldset className="mt-4 grid gap-3 sm:grid-cols-2">
           <legend className="sr-only">Client portal</legend>
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border-input p-4 has-[:checked]:border-primary has-[:checked]:bg-note-soft">

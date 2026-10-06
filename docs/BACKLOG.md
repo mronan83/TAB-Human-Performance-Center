@@ -21,7 +21,6 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 |---|---|---|---|---|---|
 | A3 | Turnstile keys: real keys for Production, test keys for Preview [SEC-013] | Accounts | Owner | S | A1 |
 | A4 | Plausible account for the domain (Start funnel counts) [GAP-015, D-057] | Accounts | Owner | S | A1 |
-| A5 | Timely Client Login link [WEB-020] | Content | Owner | S | None |
 | A6 | Business facts: the gift cards link (Timely) is the last one; address, phone, hours and map link were set 2026-10-06 [GAP-003, GAP-020] | Content | Owner | S | None |
 | A7 | Review the drafted privacy policy and terms (2026-10-06, `content/legal.ts`; review notes show on previews), decide the retention question (proposed D-058 vs deletion on request), then have a Michigan attorney check them. Send the current cancellation policy for `/policies` [GAP-010] | Legal | Owner + counsel | M | None |
 | A8 | Content: founder story, bio and the 14 draft service FAQs. Stock photography is fine for launch (owner, 2026-10-06) [GAP-012] | Content | Owner | M | None |
@@ -43,6 +42,7 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
+| A5 | Timely Client Login link, for My TAB's appointments and billing pages (no longer a public-launch item: the site shows no Client Login until My TAB is live, owner ruling 2026-10-06) [WEB-020, PORTAL-006] | Content | Owner | S | None |
 | C5 | Sign-in plumbing. **Done 2026-10-06:** Site URL and redirect allow-list, Supabase email through Resend SMTP (owner), staff MFA enrolment (C23); branded sign-in, invitation and security emails **in review**. **Left:** confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in, before the first real client invitation [SEC-014, SEC-015] | Portal | Claude | S | — |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
 | C16 | My TAB profile: accessibility needs and goals, client-editable (PORTAL-010, TG-5) | Portal | Claude | S | None |
@@ -80,6 +80,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **No Client Login until My TAB is live** (2026-10-06, in review): the header and footer drop Client Login while the portal is off and show "My TAB" once the owner sets it to Live; Book stays the way into Timely. Owner ruling: "The client login CTA button needs to be hidden until the client portal is live". A5 (the Timely Client Login link) moves to P2, where My TAB's appointment pages use it; own photography is now optional on the launch checklist, per the A8 ruling.
 
 - **Branded sign-in emails** (2026-10-06, in review): the 13 emails Supabase sends (sign-in link, My TAB invitation, verification code, security notices) now use the website emails' layout and wording; sender name is the full business name. Owner request: "update the email templates that are sent out of supabase with our brand".
 

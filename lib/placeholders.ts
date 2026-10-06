@@ -16,7 +16,8 @@ export function launchChecklist(): ChecklistItem[] {
     { area: "Contact", item: "Business hours", where: "config/site.ts → contact.hours", done: hoursSet },
     { area: "Contact", item: "Map link", where: "config/site.ts → contact.mapUrl", done: !!c.contact.mapUrl, optional: true },
     { area: "Booking", item: "Timely booking link", where: "config/site.ts → booking.timelyBookingUrl", done: !!c.booking.timelyBookingUrl },
-    { area: "Booking", item: "Timely Client Login link", where: "config/site.ts → booking.timelyClientLoginUrl", done: !!c.booking.timelyClientLoginUrl },
+    // Owner ruling 2026-10-06: no Client Login on the site until My TAB is live; only the interim /my-tab page uses it.
+    { area: "Booking", item: "Timely Client Login link (interim /my-tab page; booking page until set)", where: "config/site.ts → booking.timelyClientLoginUrl", done: !!c.booking.timelyClientLoginUrl, optional: true },
     { area: "Booking", item: "Gift cards link (optional)", where: "config/site.ts → booking.giftCardsUrl", done: !!c.booking.giftCardsUrl, optional: true },
     { area: "Brand", item: "Vector logo files from designer (replace PNGs)", where: "public/brand/", done: true },
     { area: "Brand", item: "Designer vector masters to replace the approved logo redraw (same file names)", where: "public/brand/", done: false, optional: true },
@@ -32,7 +33,8 @@ export function launchChecklist(): ChecklistItem[] {
     { area: "Content", item: "Team bios, credentials, photos", where: "content/pages.ts → about.team", done: !about.team.draft },
     { area: "Content", item: "Service FAQ answers reviewed", where: "content/services.ts → faqs", done: services.every((s) => s.faqs.every((f) => !f.draft)) },
     { area: "Content", item: "General FAQ reviewed", where: "content/pages.ts → faqs", done: faqs.every((f) => !f.draft) },
-    { area: "Content", item: "Authentic photography", where: "public/images/ + pages", done: false },
+    // Owner ruling 2026-10-06 (A8): "What you have is fine" — the stock library is accepted for launch.
+    { area: "Content", item: "Own photography (stock library accepted for launch)", where: "public/images/ + pages", done: false, optional: true },
     { area: "Legal", item: "Privacy policy (owner and attorney review)", where: "content/legal.ts → privacyPolicy", done: !privacyPolicy.draft },
     { area: "Legal", item: "Terms of use (owner and attorney review)", where: "content/legal.ts → termsOfUse", done: !termsOfUse.draft },
     { area: "Legal", item: "Client policies (cancellation, scope)", where: "content/pages.ts → legal.policies", done: !legal.policies.draft },

@@ -7,12 +7,13 @@ import { primaryNav } from "@/config/navigation";
 import { HomeLogoLink } from "./Logo";
 import { Cta } from "./Cta";
 import { SmartLink } from "./SmartLink";
-import { accountLink } from "@/lib/links";
+import type { AccountLink } from "@/lib/settings";
 import clsx from "clsx";
 
 /**
  * Header: primary nav + persistent actions Start Where You Are, Book, My TAB (Step 16.2, WEB-001).
- * Until the portal is live, the account action is "Client Login" straight into Timely (Step 19.14, WEB-020).
+ * The account action ("My TAB") appears only once the client portal is open; until then Book covers Timely (WEB-020,
+ * owner ruling 2026-10-06). Server layouts pass it in, since whether the portal is open is the owner's live setting.
  * Fit: the full row (logo, nav, actions) needs about 68rem of the 72rem inside the 75rem container, leaving ~3rem of
  * headroom for wider font rendering (Safari, Windows). The switch point and row width are in rem, so visitors who set
  * larger default text get the Menu button instead of a crowded header, and header items never wrap. Adding a nav item
@@ -20,9 +21,7 @@ import clsx from "clsx";
  * Keyboard (NFR-001): Escape closes an open menu and returns focus to the button that opened it; a menu closes
  * when focus moves out of it. Closed menus stay in the DOM as `hidden` so `aria-controls` always resolves.
  */
-const account = accountLink();
-
-export function SiteHeader() {
+export function SiteHeader({ account = null }: { account?: AccountLink | null }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -103,7 +102,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 min-[80rem]:flex">
-          <SmartLink href={account.href} external={account.external} className="whitespace-nowrap px-2.5 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>
+          {account && <SmartLink href={account.href} className="whitespace-nowrap px-2.5 py-2 text-[0.9375rem] font-medium hover:text-primary">{account.label}</SmartLink>}
           <Cta kind="book" label="Book" variant="outline" size="sm" className="whitespace-nowrap" />
           <Cta kind="start" label="Start Where You Are" size="sm" className="whitespace-nowrap" />
         </div>
@@ -127,7 +126,7 @@ export function SiteHeader() {
                 )}
               </li>
             ))}
-            <li className="py-2"><SmartLink href={account.href} external={account.external} className="block py-2 text-lg font-semibold">{account.label}</SmartLink></li>
+            {account && <li className="py-2"><SmartLink href={account.href} className="block py-2 text-lg font-semibold">{account.label}</SmartLink></li>}
             <li className="flex flex-col gap-3 pt-4">
               <Cta kind="start" label="Start Where You Are" />
               <Cta kind="book" label="Book" variant="outline" />
