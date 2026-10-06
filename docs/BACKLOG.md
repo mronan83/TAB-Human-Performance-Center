@@ -19,7 +19,6 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| A2 | Resend: create the account, add `tabhumanperformance.com` and send Claude the DNS records it lists; add `RESEND_API_KEY` (Sensitive, Production) in Vercel. Until then the forms can't send [D-005, runbook Phase A step 4] | Accounts | Owner | S | None |
 | A3 | Turnstile keys: real keys for Production, test keys for Preview [SEC-013] | Accounts | Owner | S | A1 |
 | A4 | Plausible account for the domain (Start funnel counts) [GAP-015, D-057] | Accounts | Owner | S | A1 |
 | A5 | Timely Client Login link [WEB-020] | Content | Owner | S | None |
@@ -80,6 +79,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Website email** (2026-10-06, in review): Resend verified for `tabhumanperformance.com` and tested end to end (owner received both emails; closes A2). All emails now share a branded layout: logo embedded inline, Bone page and white card, Spectral headline, answers table, olive button and brand footer; the staff copy adds the reference, any follow-up flags, the next-step options and a one-tap reply. Owner feedback: "They are plain text and look unprofessional".
 
 - **Homepage closing band** (2026-10-06, in review): the closing call to action now uses the layered-ridges sunrise (library #28) and a Spectral headline, echoing the hero; the scrim is darkest behind the text (white text 4.8:1 or better at every width). Owner feedback: "something that aligns better with the hero image".
 

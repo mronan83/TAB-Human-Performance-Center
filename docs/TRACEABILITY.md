@@ -238,7 +238,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-07 | Start Where You Are form | Verified | GS-001, GS-002, GS-003, GS-006, SEC-006 | D-054, D-059 | `app/(site)/start/`, `components/InquiryForm.tsx`, `lib/inquiry.ts` | smoke, a11y |
 | F-08 | Contact form | Verified | SEC-006, SEC-013 | D-054 | `app/(site)/contact/`, `components/InquiryForm.tsx` | smoke, a11y |
 | F-09 | Form spam protection | Partial: Turnstile keys (A3) | SEC-013 | — | `lib/spam.ts`, `components/Turnstile.tsx` | smoke |
-| F-10 | Submission email and storage | Partial: Resend (A2); storage waits on A15 | GS-004, SEC-006 | D-054, D-058 | `app/api/inquiry/`, `lib/email.ts`, `lib/inquiry-store.ts`, `content/emails.ts` | — (TG-3, TG-8) |
+| F-10 | Submission email and storage | Partial: email live through Resend in a branded layout (A2 done 2026-10-06); storage waits on A15 | GS-004, SEC-006 | D-054, D-058 | `app/api/inquiry/`, `lib/email.ts`, `lib/email-template.ts`, `lib/inquiry-store.ts`, `content/emails.ts` | — (TG-3, TG-8) |
 | F-11 | Submissions in TAB Practice | Built (demo) | GS-004, GS-005, INT-006 | D-058 | `app/(portal)/practice/inquiries/` | rls |
 | F-12 | Legacy redirects | Verified | NFR-004, NFR-008 | RSK-009 | `config/redirects.ts`, `middleware.ts` | redirects |
 | F-13 | SEO metadata, sitemap, robots, structured data | Verified | WEB-016, NFR-002, NFR-003, NFR-009 | D-038 | `lib/seo.ts`, `lib/jsonld.ts`, `app/sitemap.ts`, `app/robots.ts` | seo |
@@ -348,7 +348,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 | Backlog | Unblocks |
 | --- | --- |
 | A1 domain (done 2026-10-06) | Now unblocks A2, A3, A4, C1, C2 and C5 |
-| A2 Resend | GS-004 (emails send), PORTAL-012 |
+| A2 Resend (done 2026-10-06) | GS-004 (emails send), PORTAL-012 |
 | A3 Turnstile | SEC-013 in full |
 | A4 Plausible | NFR-006, TG-7 |
 | A5 Timely Client Login | INT-001, PORTAL-006 |
@@ -400,6 +400,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.7 | Rebrand PR 3: stock image library placed by page (C21); DS-007 updated | Owner request, 2026-10-05 |
 | 2026-10-06 | 1.8 | Domains registered and email set up (proposed D-066); switch-over Phase A: demo portal off on production, site URL and form addresses on `tabhumanperformance.com`; A1 closed; owner Settings page approved (proposed D-067, C23) | Owner rulings 2026-10-06 |
 | 2026-10-06 | 1.9 | Homepage closing band re-imaged to echo the hero (DS-007); no requirement changes | Owner feedback, 2026-10-06 |
+| 2026-10-06 | 1.10 | Branded email layout for Start, contact and My TAB emails (GS-004 emails now send; A2 closed) | Owner feedback, 2026-10-06 |
 
 ## Sources
 

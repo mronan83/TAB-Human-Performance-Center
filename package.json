@@ -15,7 +15,8 @@
     "docs:schema": "node scripts/docs/schema-snapshot.mjs",
     "docs:check": "node scripts/docs/schema-snapshot.mjs --check && node scripts/docs/render-traceability.mjs --check && node scripts/docs/render-architecture.mjs --check && node scripts/docs/render-data-model.mjs --check",
     "docs:html": "node scripts/docs/build-all.mjs",
-    "test:brand": "node scripts/check-brand.mjs"
+    "test:brand": "node scripts/check-brand.mjs",
+    "email:logo": "node scripts/email-logo.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
