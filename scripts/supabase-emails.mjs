@@ -30,7 +30,7 @@ const { siteConfig, siteUrl } = await jiti.import("../config/site.ts");
 const rendered = Object.entries(authEmails).map(([key, e]) => ({ key, subject: e.subject, html: renderEmail(e.content, { logoSrc: LOGO_URL }).html }));
 
 // Every variable a template uses must be one Supabase provides for it, or the email goes out with a blank.
-const VARS = { ConfirmationURL: 1, Token: 1, NewEmail: 1, Email: 1, OldEmail: 1, Provider: 1, SiteURL: 1 };
+const VARS = { ConfirmationURL: 1, Token: 1, TokenHash: 1, RedirectTo: 1, NewEmail: 1, Email: 1, OldEmail: 1, Provider: 1, SiteURL: 1 };
 for (const r of rendered) {
   for (const [, name] of r.html.matchAll(/\{\{\s*\.(\w+)\s*\}\}/g)) {
     if (!VARS[name]) throw new Error(`${r.key}: unknown Supabase variable {{ .${name} }}`);
@@ -47,6 +47,8 @@ if (outIdx >= 0) {
   mkdirSync(dir, { recursive: true });
   const sample = {
     ConfirmationURL: `${siteUrl}/practice/auth/callback`,
+    RedirectTo: `${siteUrl}/practice/auth/callback`,
+    TokenHash: "pkce_3f2a9c0e7b1d",
     Token: "48213907",
     NewEmail: "new.address@example.com",
     Email: "you@example.com",

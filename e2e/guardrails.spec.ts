@@ -5,6 +5,7 @@ import { authEmails } from "../content/auth-emails";
 import { stageUpdatedEmail } from "../content/emails";
 import { services } from "../content/services";
 import { bookingHref } from "../lib/links";
+import { LINK_TYPES, readEmailLink } from "../lib/supabase/email-link";
 
 /**
  * Checks for guardrails that only code review protected before (C15): analytics exclusion (NFR-005, guardrail 6),
@@ -106,4 +107,20 @@ test("every service page keeps its booking CTA, a not-sure path to Start, and re
     expect(hrefs).not.toContain(`/services/${s.path}`);
     for (const h of hrefs) expect(services.map((x) => `/services/${x.path}`)).toContain(h);
   }
+});
+
+test("sign-in and invitation links work in any browser, and only the expected kinds are accepted (C5)", () => {
+  const at = (q: string, path = "/my-tab/auth/callback") => new URL(`https://www.tabhumanperformance.com${path}?${q}`);
+  // Our templates send a one-time token hash straight to the callback (no browser-bound code, nothing after a #).
+  expect(authEmails.magic_link.content.cta?.href).toBe("{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email");
+  expect(authEmails.invite.content.cta?.href).toBe("{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=invite");
+  expect(readEmailLink(at("token_hash=pkce_abc123def&type=invite"), LINK_TYPES.myTab)).toEqual({ kind: "token", tokenHash: "pkce_abc123def", type: "invite" });
+  expect(readEmailLink(at("token_hash=abc123def456&type=email", "/practice/auth/callback"), LINK_TYPES.practice)).toEqual({ kind: "token", tokenHash: "abc123def456", type: "email" });
+  // Staff can't be invited through the client flow, and nothing else is passed to Supabase.
+  expect(readEmailLink(at("token_hash=abc123def456&type=invite", "/practice/auth/callback"), LINK_TYPES.practice)).toBeNull();
+  expect(readEmailLink(at("token_hash=abc123def456&type=recovery"), LINK_TYPES.myTab)).toBeNull();
+  expect(readEmailLink(at("token_hash=%3Cscript%3E&type=email"), LINK_TYPES.myTab)).toBeNull();
+  // Links already sent in the older form keep working.
+  expect(readEmailLink(at("code=3c9e0a1b-77f2-4d5e"), LINK_TYPES.myTab)).toEqual({ kind: "code", code: "3c9e0a1b-77f2-4d5e" });
+  expect(readEmailLink(at(""), LINK_TYPES.myTab)).toBeNull();
 });

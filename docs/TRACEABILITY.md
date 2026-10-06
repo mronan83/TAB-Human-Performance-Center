@@ -295,7 +295,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
 | F-44 | Payload CMS | Planned | CMS-001 to CMS-005 | C8 (after Phase 1, A-02) |
-| F-45 | Sign-in plumbing: invitation-link check left (auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53) | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
+| F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, in review); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
 | F-48 | Service intakes for the five pillars | Planned | STAFF-003 | not yet on the backlog |
@@ -407,6 +407,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.16 | C23b: per-service Book links and page switches in Settings (F-53); Events and Testimonials locked until real content exists; settings checks run in their own e2e project | Owner request, 2026-10-06 |
 | 2026-10-06 | 1.17 | Client policies written from the owner's policies (A30, WEB-012 footer links now resolve to real content); retention ruled: submissions never deleted (A7, proposed D-058), privacy policy updated to match | Owner rulings, 2026-10-06 |
 | 2026-10-06 | 1.18 | Analytics: Plausible replaced by Vercel Web Analytics (owner ruling A4; F-14, NFR-005, NFR-006); client policies cover all five pillars and no-shows (A30); Turnstile keys set (A3, SEC-013) | Owner rulings, 2026-10-06 |
+| 2026-10-06 | 1.19 | C5: invitation links fixed (tokens after a `#` never reached the server) and sign-in links work in any browser (`token_hash`); checked in `e2e/guardrails.spec.ts` | Found while answering the owner's C5 question, 2026-10-06 |
 
 ## Sources
 

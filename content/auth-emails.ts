@@ -16,6 +16,13 @@ const REACH = `${contact.email}${contact.phone ? ` or ${contact.phone}` : ""}`;
 const NOT_YOU = `If this wasn't you, contact us right away at ${REACH}.`;
 const IGNORE = "If you didn't ask for this, you can ignore this email. Nothing changes without the link.";
 const LINK = "{{ .ConfirmationURL }}";
+/**
+ * Sign-in and invitation links go straight to our callback with a one-time `token_hash` (C5, lib/supabase/email-link.ts),
+ * so they work in any browser. `RedirectTo` is the callback the app asked for (My TAB or TAB Practice); Supabase only
+ * accepts callbacks on its allow-list.
+ */
+const SIGN_IN_LINK = "{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email";
+const INVITE_LINK = "{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=invite";
 
 /** Supabase's key for each template (mailer_templates_<key>_content and mailer_subjects_<key>). */
 export type AuthEmailKey =
@@ -46,7 +53,7 @@ export const authEmails: Record<AuthEmailKey, AuthEmail> = {
       eyebrow: "Sign in",
       heading: "Your sign-in link",
       paragraphs: [`Use the button below to sign in to ${siteConfig.brand.name}. The link works once and expires in ${EXPIRY}.`],
-      cta: { label: "Sign in", href: LINK },
+      cta: { label: "Sign in", href: SIGN_IN_LINK },
       footnote: `${IGNORE} Questions? ${REACH}.`,
     },
   },
@@ -60,7 +67,7 @@ export const authEmails: Record<AuthEmailKey, AuthEmail> = {
         `Your practitioner has invited you to My TAB, your private space at ${siteConfig.brand.name} for your plan, programs and progress between sessions.`,
         "There's no password to remember: accept the invitation now, and each time after that we'll email you a sign-in link.",
       ],
-      cta: { label: "Accept invitation", href: LINK },
+      cta: { label: "Accept invitation", href: INVITE_LINK },
       footnote: `If the link has expired, ask us for a new one at ${REACH}. Please don't reply with health details; we'll talk privately.`,
     },
   },
