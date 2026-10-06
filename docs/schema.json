@@ -14,7 +14,8 @@
   "20261007000000_integrated_nutrition_service.sql",
   "20261008000000_method_stages_adapt_balance.sql",
   "20261009000000_owner_settings.sql",
-  "20261010000000_settings_booking_features.sql"
+  "20261010000000_settings_booking_features.sql",
+  "20261011000000_site_stats.sql"
  ],
  "tables": [
   {
@@ -3800,6 +3801,62 @@
    ]
   },
   {
+   "name": "site_stats",
+   "rls": true,
+   "comment": "Aggregate website counts (A4): daily totals per page, event and referring site; nothing that identifies a visitor.",
+   "columns": [
+    {
+     "name": "day",
+     "type": "date"
+    },
+    {
+     "name": "kind",
+     "type": "text"
+    },
+    {
+     "name": "key",
+     "type": "text"
+    },
+    {
+     "name": "count",
+     "type": "integer",
+     "default": "0"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "site_stats_count_check",
+     "kind": "check",
+     "def": "CHECK ((count >= 0))"
+    },
+    {
+     "name": "site_stats_key_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(key) >= 1) AND (char_length(key) <= 120)))"
+    },
+    {
+     "name": "site_stats_kind_check",
+     "kind": "check",
+     "def": "CHECK ((kind = ANY (ARRAY['pageview'::text, 'event'::text, 'referrer'::text])))"
+    },
+    {
+     "name": "site_stats_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (day, kind, key)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "site_stats_owner_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)"
+    }
+   ],
+   "triggers": []
+  },
+  {
    "name": "stage_changes",
    "rls": true,
    "columns": [
@@ -4791,6 +4848,14 @@
    "args": "p_client uuid, p_outcome review_outcome, p_reflections jsonb, p_summary text, p_next_steps text, p_shared boolean, p_stage method_stage",
    "returns": "boolean",
    "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "record_site_stat",
+   "args": "p_kind text, p_key text",
+   "returns": "void",
+   "security_definer": true,
+   "language": "sql",
    "volatility": "volatile"
   },
   {

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { analyticsAllowed, dropExcluded, isServicePage, pixelAllowed } from "../lib/analytics";
+import { analyticsAllowed, isServicePage, pixelAllowed } from "../lib/analytics";
+import { isBot, referrerHost, statRows } from "../lib/site-stats";
 import { buildInquiryEmails, type InquiryAnswers } from "../lib/inquiry-emails";
 import { authEmails } from "../content/auth-emails";
 import { stageUpdatedEmail } from "../content/emails";
@@ -20,12 +21,11 @@ test("analytics never runs on My TAB, TAB Practice or the contact form; no ad pi
   }
   for (const path of ["/", "/start", "/services/massage-bodywork", "/about", "/contact-us-elsewhere"]) expect(analyticsAllowed(path), path).toBe(true);
   expect(pixelAllowed("/start")).toBe(false);
-  // The tracker itself drops anything from an excluded page, even after client-side navigation into one.
-  for (const p of ["/my-tab", "/my-tab/plan", "/practice/settings", "/contact"]) {
-    expect(dropExcluded({ type: "pageview", url: `https://www.tabhumanperformance.com${p}` }), p).toBeNull();
-    expect(dropExcluded({ type: "event", url: `https://www.tabhumanperformance.com${p}?x=1` }), p).toBeNull();
+  // The counter itself (/api/stats) refuses excluded pages, however it's reached.
+  for (const p of ["/my-tab", "/my-tab/plan", "/practice/settings", "/contact", "/contact?x=1"]) {
+    expect(statRows({ k: "pageview", p }), p).toEqual([]);
+    expect(statRows({ k: "event", p, e: "Booking: Clicked" }), p).toEqual([]);
   }
-  expect(dropExcluded({ type: "event", url: "https://www.tabhumanperformance.com/services/massage-bodywork" })).not.toBeNull();
   expect(isServicePage("/services/massage-bodywork")).toBe(true);
   expect(isServicePage("/services")).toBe(false);
 });
@@ -123,4 +123,41 @@ test("sign-in and invitation links work in any browser, and only the expected ki
   // Links already sent in the older form keep working.
   expect(readEmailLink(at("code=3c9e0a1b-77f2-4d5e"), LINK_TYPES.myTab)).toEqual({ kind: "code", code: "3c9e0a1b-77f2-4d5e" });
   expect(readEmailLink(at(""), LINK_TYPES.myTab)).toBeNull();
+});
+
+test("our own counts keep nothing that identifies a visitor (A4, NFR-005)", () => {
+  // A page view becomes a daily total for the path, plus the referring site's hostname only.
+  expect(statRows({ k: "pageview", p: "/services/massage-bodywork?utm_source=x#top", r: "https://www.google.com/search?q=massage+brighton" }))
+    .toEqual([{ kind: "pageview", key: "/services/massage-bodywork" }, { kind: "referrer", key: "google.com" }]);
+  // Unknown pages are pooled; our own domains, previews and odd schemes aren't referrers.
+  expect(statRows({ k: "pageview", p: "/some/old/link" })).toEqual([{ kind: "pageview", key: "/other" }]);
+  for (const r of ["https://www.tabhumanperformance.com/start", "https://tabmassage.com/", "https://x-mronan83s-projects.vercel.app/", "javascript:alert(1)", ""]) expect(referrerHost(r), r).toBeNull();
+  // Only the fixed events count, never anything a visitor typed.
+  expect(statRows({ k: "event", p: "/start", e: "Start Form: Submitted" })).toEqual([{ kind: "event", key: "Start Form: Submitted" }]);
+  expect(statRows({ k: "event", p: "/start", e: "jane@example.com" })).toEqual([]);
+  expect(statRows({ k: "visitor", p: "/" })).toEqual([]);
+  expect(statRows({ k: "pageview", p: "https://evil.example/" })).toEqual([]);
+  // Crawlers aren't visitors.
+  expect(isBot("Mozilla/5.0 (compatible; Googlebot/2.1)")).toBe(true);
+  expect(isBot("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1")).toBe(false);
+});
+
+test("website stats: the owner sees them, nobody else does, and the counter answers nothing (A4)", async ({ page, context, baseURL, request }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/stats");
+  await expect(page.locator("main h1")).toHaveText("Website stats");
+  await expect(page.getByText("Demo: these numbers are a fixed sample.")).toBeVisible();
+  await expect(page.getByRole("cell", { name: "Massage & Bodywork" })).toBeVisible(); // page names, not paths
+  // A client never reaches it (the demo has no non-owner staff; on live data row-level security allows the owner only,
+  // which supabase/tests/rls.test.mjs checks).
+  await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
+  await page.goto("/practice/stats");
+  await expect(page).not.toHaveURL(/\/practice\/stats/);
+  // The counter always answers 204 with no body, whatever it's sent.
+  const origin = new URL(baseURL!).origin;
+  for (const data of ['{"k":"pageview","p":"/"}', "not json", '{"k":"pageview","p":"/my-tab"}']) {
+    const res = await request.post("/api/stats", { data, headers: { origin, "content-type": "text/plain" } });
+    expect(res.status()).toBe(204);
+    expect(await res.text()).toBe("");
+  }
 });
