@@ -47,7 +47,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         {
           list: [
-            "Website analytics: we use Plausible Analytics, which counts visits without cookies and without identifying you. We see totals such as pages viewed, the site that referred you, your device type and your country, and anonymous counts of how many people start and finish Start Where You Are. We can't use it to follow you across websites.",
+            "Website analytics: we use Vercel Web Analytics, from our hosting provider, which counts visits without cookies and without identifying you. We see totals such as pages viewed, the site that referred you, your device type and your country, and anonymous counts of how many people start and finish Start Where You Are. We can't use it to follow you across websites.",
             "Spam protection: our forms use Cloudflare Turnstile, which looks at technical signals from your browser to tell people from automated spam. Cloudflare's privacy policy applies to that check.",
             "Server logs: our hosting provider, Vercel, records technical details of each request, such as your IP address, browser and the time, to run and secure the site. These logs are kept for a short time.",
           ],
@@ -84,10 +84,9 @@ export const privacyPolicy: LegalDoc = {
         "We share information only with companies that help us run TAB, only for that purpose, and under their own privacy and security commitments:",
         {
           list: [
-            "Vercel (website hosting)",
+            "Vercel (website hosting and privacy-friendly website statistics)",
             "Resend (sending our website emails)",
             "Google Workspace (our email)",
-            "Plausible Analytics (privacy-friendly website statistics)",
             "Cloudflare (form spam protection)",
             "Timely (appointment booking, packages and client login)",
             "Stripe (payment for digital programs and memberships)",
@@ -100,7 +99,7 @@ export const privacyPolicy: LegalDoc = {
     {
       heading: "How long we keep information",
       body: [
-        "We keep emails and records of our work with you for as long as you're a client and afterward as long as we need them for our records and legal obligations. Start Where You Are and contact submissions are kept with your client record.",
+        "We keep emails and records of our work with you for as long as you're a client and afterward as long as we need them for our records and legal obligations. Start Where You Are and contact submissions are kept as part of our records, linked to your client record if you become a client, and are not deleted.",
         "Website analytics are aggregate and contain no personal information. Server logs are kept for a short time.",
       ],
     },
@@ -111,7 +110,7 @@ export const privacyPolicy: LegalDoc = {
           list: [
             "Ask to see the information we hold about you",
             "Ask us to correct it",
-            "Ask us to delete it, unless we need to keep it for our records or by law",
+            "Ask us to delete it, except for records we keep for our business or by law, which include website submissions",
             "Unsubscribe from news and events at any time, using the link in any such email or by contacting us",
           ],
         },
@@ -144,9 +143,9 @@ export const privacyPolicy: LegalDoc = {
     },
   ],
   reviewNotes: [
-    "Retention conflicts with an earlier ruling: proposed D-058 keeps Start and contact submissions indefinitely and never deletes them, while this draft promises deletion on request \"unless we need to keep it\". Decide which you want. Recommendation: honour deletion requests for prospects who never became clients; keep client records for as long as Michigan and your professional rules require.",
+    "Retention: owner ruling 2026-10-06 (A7) keeps proposed D-058: website submissions are kept and never deleted, including for people who don’t become clients. The policy says so in “How long we keep information” and “Your choices”.",
     "HIPAA: you ruled on 2026-09-28 that HIPAA doesn't apply (proposed D-060). The draft says nothing about HIPAA either way, which is the safer choice. If you bill health insurance or plan to, have counsel confirm before launch.",
-    "Plausible and Cloudflare Turnstile are planned but not switched on yet (A3, A4). Keep them in the policy if they'll be on at launch; otherwise remove them until they are.",
+    "Analytics: owner ruling 2026-10-06 (A4) replaced Plausible with Vercel Web Analytics, part of the existing Vercel Pro plan; Cloudflare Turnstile keys were set the same day (A3).",
     "Supabase and Stripe hold no client data until My TAB and online programs launch. Listing them now is harmless and avoids an update later.",
     "Breach notification: Michigan's Identity Theft Protection Act sets notice duties for certain data. Counsel should confirm the wording in Security.",
     "Have a Michigan attorney review the final text before launch. This draft reflects how the site works, not legal advice.",

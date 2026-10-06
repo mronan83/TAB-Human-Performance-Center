@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { PLAUSIBLE_EXCLUDE, analyticsAllowed, isServicePage, pixelAllowed } from "../lib/analytics";
+import { analyticsAllowed, dropExcluded, isServicePage, pixelAllowed } from "../lib/analytics";
 import { buildInquiryEmails, type InquiryAnswers } from "../lib/inquiry-emails";
 import { authEmails } from "../content/auth-emails";
 import { stageUpdatedEmail } from "../content/emails";
@@ -19,8 +19,12 @@ test("analytics never runs on My TAB, TAB Practice or the contact form; no ad pi
   }
   for (const path of ["/", "/start", "/services/massage-bodywork", "/about", "/contact-us-elsewhere"]) expect(analyticsAllowed(path), path).toBe(true);
   expect(pixelAllowed("/start")).toBe(false);
-  // Plausible's own exclusion list covers every excluded area and everything under it.
-  for (const p of ["/my-tab", "/practice", "/contact"]) expect(PLAUSIBLE_EXCLUDE).toContain(`${p}, ${p}/**`);
+  // The tracker itself drops anything from an excluded page, even after client-side navigation into one.
+  for (const p of ["/my-tab", "/my-tab/plan", "/practice/settings", "/contact"]) {
+    expect(dropExcluded({ type: "pageview", url: `https://www.tabhumanperformance.com${p}` }), p).toBeNull();
+    expect(dropExcluded({ type: "event", url: `https://www.tabhumanperformance.com${p}?x=1` }), p).toBeNull();
+  }
+  expect(dropExcluded({ type: "event", url: "https://www.tabhumanperformance.com/services/massage-bodywork" })).not.toBeNull();
   expect(isServicePage("/services/massage-bodywork")).toBe(true);
   expect(isServicePage("/services")).toBe(false);
 });

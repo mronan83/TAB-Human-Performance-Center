@@ -7,6 +7,10 @@
  * Structured for migration into Payload globals and collections (D-036).
  */
 
+import { siteConfig } from "@/config/site";
+
+const PHONE = siteConfig.contact.phone ?? siteConfig.contact.email;
+
 export const home = {
   hero: {
     // Brand Foundation v2 §10 (homepage H1) and the approved board's website mock-up (docs/source/batch-5).
@@ -207,12 +211,62 @@ export const legal = {
       "If anything on this site is hard to use, email us and we’ll help and fix it.",
     ],
   },
+  /**
+   * Client policies (A30): the owner's TAB Massage & Fitness cancellation, arrival and gratuity policies (sent
+   * 2026-10-06), reworded for TAB Human Performance Center with the site's service names, then extended by the owner
+   * the same day to every pillar and to no-shows. The terms are the owner's; the wording is ours. The phone number comes from config/site.ts.
+   */
   policies: {
     title: "Client policies",
-    draft: true,
-    sections: { cancellation: "Cancellations, late arrivals and illness", scope: "Scope of our services" },
-    body: [
-      "[PLACEHOLDER: cancellation, late arrival, illness, and scope-of-practice policies. Carry over the current TAB cancellation policy, updated for the new name.]",
+    draft: false,
+    intro: [
+      "Your time matters, and so does the time we set aside for you. We keep a full, carefully organized schedule so every client gets the attention they came for. These policies keep it fair for everyone. Thank you for helping us honor them.",
     ],
+    sections: [
+      {
+        id: "cancellation",
+        heading: "Cancelling or rescheduling",
+        body: [
+          "These policies apply to every session: Massage & Bodywork, Functional Strength, Women’s Wellness, Integrated Nutrition and Holistic Life Coaching, in person or virtual.",
+          {
+            list: [
+              "You can cancel or reschedule without a fee if you give us at least 24 hours’ notice.",
+              "With less than 24 hours’ notice, including on the day of your appointment, the full price of the scheduled session is charged.",
+              "If you miss your appointment without letting us know, the full price of the session is charged.",
+              "A prepaid session, including one from a package or program, may be forfeited for a late cancellation or a missed appointment.",
+              "Can’t make it? You’re welcome to send someone in your place. We keep a waitlist and will do our best to fill your time; if we can’t, we’ll ask you to cover it.",
+              `To cancel or reschedule, please call us at ${PHONE}. We can’t accept cancellations by email or social media.`,
+            ],
+          },
+        ],
+      },
+      {
+        id: "arrival",
+        heading: "Arriving for your session",
+        body: [
+          {
+            list: [
+              "Returning clients: please arrive 10 minutes before your appointment so you get your full session.",
+              "New clients: please arrive at least 15 minutes early to complete your intake paperwork, so none of your hands-on time is lost.",
+              "Virtual sessions: please be ready a few minutes before your start time.",
+            ],
+          },
+        ],
+      },
+      {
+        id: "gratuity",
+        heading: "Gratuity",
+        body: [
+          "Gratuity is never expected, but always appreciated as a way to thank your practitioner for a great experience. If you’d like to leave one:",
+          {
+            list: [
+              "When you pay with a gift card, or use a prepaid massage from our Monthly Massage Program, gratuity can’t be added to a card payment. Please bring cash or a check to give directly to your practitioner.",
+            ],
+          },
+        ],
+      },
+    ] as { id: string; heading: string; body: (string | { list: string[] })[] }[],
+    scopeHeading: "Scope of our services",
   },
+
 };
