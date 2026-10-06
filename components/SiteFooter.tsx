@@ -4,11 +4,10 @@ import { siteConfig } from "@/config/site";
 import { services } from "@/content/services";
 import { Logo } from "./Logo";
 import { SmartLink } from "./SmartLink";
-import { accountLink, hoursText, practitionerLink } from "@/lib/links";
+import { accountLink, formatAddress, groupedHours, practitionerLink, telHref } from "@/lib/links";
 
 export function SiteFooter() {
   const { contact, social, booking, brand } = siteConfig;
-  const addressParts = [contact.address.street, contact.address.city, contact.address.region, contact.address.postalCode].filter(Boolean);
   const socials = Object.entries(social).filter(([, url]) => !!url) as [string, string][];
   const account = accountLink();
   const practitioner = practitionerLink();
@@ -19,13 +18,13 @@ export function SiteFooter() {
           <Logo variant="horizontal" tone="white" className="h-16 w-auto" />
           <p className="mt-6 max-w-xs text-sm text-white/80">{brand.tagline}</p>
           <address className="mt-6 space-y-1 text-sm not-italic text-white/80">
-            <p>{addressParts.length > 1 ? addressParts.join(", ") : `Serving ${siteConfig.location.label}`}</p>
-            {contact.phone && <p><a className="underline hover:text-white" href={`tel:${contact.phone}`}>{contact.phone}</a></p>}
+            <p>{contact.address.street ? formatAddress(contact.address) : `Serving ${siteConfig.location.label}`}</p>
+            {contact.phone && <p><a className="underline hover:text-white" href={telHref(contact.phone)}>{contact.phone}</a></p>}
             <p><a className="underline hover:text-white" href={`mailto:${contact.email}`}>{contact.email}</a></p>
           </address>
           <dl className="mt-6 space-y-1 text-sm text-white/80">
-            {contact.hours.map((h) => (
-              <div key={h.days} className="flex gap-2"><dt>{h.days}:</dt><dd>{hoursText(h)}</dd></div>
+            {groupedHours(contact.hours).map((h) => (
+              <div key={h.days} className="flex gap-2"><dt>{h.days}:</dt><dd>{h.text}</dd></div>
             ))}
           </dl>
           {socials.length > 0 && (

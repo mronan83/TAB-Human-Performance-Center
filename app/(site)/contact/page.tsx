@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { hoursText } from "@/lib/links";
+import { formatAddress, hoursText, telHref } from "@/lib/links";
 import { pageMetadata } from "@/lib/seo";
 import { siteConfig } from "@/config/site";
 import { PageHero } from "@/components/PageHero";
@@ -9,7 +9,7 @@ export const metadata: Metadata = pageMetadata({ title: "Contact", description: 
 
 export default function ContactPage() {
   const { contact } = siteConfig;
-  const addr = [contact.address.street, contact.address.city, contact.address.region, contact.address.postalCode].filter(Boolean).join(", ");
+  const addr = formatAddress(contact.address);
   return (
     <>
       <PageHero eyebrow="Contact" title="We’re here to help." />
@@ -17,7 +17,7 @@ export default function ContactPage() {
         <div className="container-page grid gap-12 lg:grid-cols-[1fr_1.4fr]">
           <div className="space-y-8">
             <div><h2 className="text-h4">Email</h2><a className="mt-1 block text-primary underline" href={`mailto:${contact.email}`}>{contact.email}</a></div>
-            {contact.phone && <div><h2 className="text-h4">Phone</h2><a className="mt-1 block text-primary underline" href={`tel:${contact.phone}`}>{contact.phone}</a></div>}
+            {contact.phone && <div><h2 className="text-h4">Phone</h2><a className="mt-1 block text-primary underline" href={telHref(contact.phone)}>{contact.phone}</a></div>}
             {contact.address.street && <div><h2 className="text-h4">Visit</h2><p className="mt-1">{addr}</p>{contact.mapUrl && <a className="text-primary underline" href={contact.mapUrl}>Get directions</a>}</div>}
             <div>
               <h2 className="text-h4">Hours</h2>
