@@ -110,7 +110,8 @@ Never print, log or commit token values.
 3. **Design tokens** in `app/globals.css` follow the approved TAB Human Performance Center palette (proposed D-062):
    Graphite, Deep Olive, Sage, Clay, Clay Dark, Ochre, Linen, Bone. Don't invent colors. White text only on Deep Olive,
    Clay Dark or Graphite. Clay `#C46A4A`, Sage `#A7B39F` and Ochre `#D4A574` are decorative only: never text, never
-   behind white text. Montserrat for headings, body and UI; Spectral for editorial accents.
+   behind white text. A colour a component needs (a status tint, say) becomes a token there first, with its pairing in
+   `scripts/check-contrast.mjs`; `npm run test:brand` fails on a hex colour written into a class. Montserrat for headings, body and UI; Spectral for editorial accents.
 4. **Health data (D-042, amended by the owner's ruling of 2026-09-28 that HIPAA does not apply; proposed D-060):**
    My TAB is still a sensitive-data system. Do not connect production client data until the portal security gate
    is met (SEC-015–SEC-021: 0 known gaps in `npm run test:rls`, staff MFA enforced), Supabase is on a paid plan with

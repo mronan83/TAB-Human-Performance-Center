@@ -19,7 +19,7 @@ export default async function ProgramDetail({ params }: { params: Promise<{ id: 
       <div className="mb-8 max-w-md"><ProgressBar value={programProgress(p)} label={`Started ${fmtDate(p.startedAt, { month: "long", day: "numeric" })}`} /></div>
       {p.status !== "active" && <p role="status" className="mb-6 rounded-xl bg-bone p-4">{p.status === "paused" ? "This program is paused for now. Your practitioner will let you know when it picks up again." : "You’ve completed this program."}</p>}
       {p.personalization.note && (
-        <section aria-labelledby="practitioner-note" className="mb-6 rounded-xl border border-sage bg-[#F1F3EA] p-4">
+        <section aria-labelledby="practitioner-note" className="mb-6 rounded-xl border border-sage bg-note-soft p-4">
           <h2 id="practitioner-note" className="font-semibold">A note from your practitioner</h2>
           <p className="mt-1">{p.personalization.note}</p>
         </section>

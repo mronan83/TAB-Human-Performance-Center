@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Brand consistency (owner, 2026-10-05: "We can't have misaligned verbiage and content").
 //
-// Fails when a retired name, the old philosophy, an old service name or a wrong pillar count appears anywhere in the
-// site's source: pages, components, content, config, the portal and emails. The pillar count is read from
+// Fails when a retired name, the old philosophy, an old service name, a wrong pillar count or a colour outside the
+// design tokens appears anywhere in the site's source: pages, components, content, config, the portal and emails. The pillar count is read from
 // content/services.ts, so adding or removing a pillar moves the expected number with it. Legacy redirect keys
 // (old URLs we must keep answering) are the only allowed mentions, listed in ALLOW below.
 //
@@ -31,6 +31,9 @@ const RULES = [
   { name: "old service name", re: /Wellness Coaching/i },
   { name: "old master category", re: /whole-person wellness|stronger bodies and fuller lives/i },
   { name: "wrong coaching count", re: /\bboth coaching\b/i },
+  { name: "retired portal name (TAB Practice, A27)", re: /Practice workspace/i },
+  // Guardrail 3: colours come from the tokens in app/globals.css, never a hex value in a class.
+  { name: "invented colour (use a token from app/globals.css)", re: /\b(?:bg|text|border|fill|stroke|from|via|to|ring|outline|decoration|shadow)-\[#[0-9a-f]{3,8}\]/i },
   {
     name: `wrong pillar count (there are ${pillars})`,
     re: new RegExp(`(?<!(?:Step|§|S)\\s?)\\b(${countWord})\\b(?:\\W+(?:connected|integrated|service|equally|weighted|core|distinct)){0,3}\\W+(?:pillars?|areas of support|services? pillars)\\b`, "i"),

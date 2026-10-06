@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getServiceByPath, services } from "@/content/services";
 import { Cta } from "@/components/Cta";
 import { FaqList } from "@/components/FaqList";
+import { Photo } from "@/components/Photo";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonld";
 import { pageMetadata } from "@/lib/seo";
 
@@ -48,7 +49,13 @@ export default async function ServicePage({ params }: Props) {
               <Cta kind={s.secondaryCta.kind} label={s.secondaryCta.label} service={s.slug} variant="outline" />
             </div>
           </div>
-          <div className="mx-auto w-56 lg:w-72"><Image src={s.icon} alt="" width={256} height={256} className="w-full" priority /></div>
+          {/* Library photograph (C21) with the pillar icon as a badge; both decorative */}
+          <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+            <Photo name={s.photos.hero} aspect="aspect-[4/3] sm:aspect-[4/5]" sizes="(min-width: 1024px) 40vw, (min-width: 448px) 448px, 100vw" priority />
+            <div className="absolute -bottom-5 left-5 rounded-full bg-bone p-3 shadow-[var(--shadow-md)]">
+              <Image src={s.icon} alt="" width={64} height={64} className="h-14 w-14 lg:h-16 lg:w-16" />
+            </div>
+          </div>
         </div>
       </section>
 
@@ -68,10 +75,13 @@ export default async function ServicePage({ params }: Props) {
 
       {/* How we help */}
       <section className="section">
-        <div className="container-prose">
-          <h2 className="text-h1">How we help</h2>
-          <p className="text-body-lg mt-6 font-medium">{s.approachLead}</p>
-          {s.approach.map((p) => (<p key={p} className="mt-4 text-text-secondary">{p}</p>))}
+        <div className="container-page grid items-center gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
+          <div className="max-w-[680px]">
+            <h2 className="text-h1">How we help</h2>
+            <p className="text-body-lg mt-6 font-medium">{s.approachLead}</p>
+            {s.approach.map((p) => (<p key={p} className="mt-4 text-text-secondary">{p}</p>))}
+          </div>
+          <Photo name={s.photos.support} aspect="aspect-[3/2] lg:aspect-[4/5]" sizes="(min-width: 1024px) 40vw, 100vw" />
         </div>
         {s.focusAreas && (
           <div className="container-page mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

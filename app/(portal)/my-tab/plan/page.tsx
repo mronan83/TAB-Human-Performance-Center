@@ -26,7 +26,7 @@ export default async function PlanPage() {
                   <h2 className="text-h4">{g.title}</h2>
                   <Badge tone={g.status === "achieved" ? "success" : "neutral"}>{g.status}</Badge>
                 </div>
-                {g.whyItMatters && <p className="mt-2 italic text-text-secondary">“{g.whyItMatters}”</p>}
+                {g.whyItMatters && <p className="text-editorial mt-2 text-[1.0625rem] italic text-text-secondary">“{g.whyItMatters}”</p>}
                 <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                   {g.measure && <div><dt className="text-text-secondary">How we’ll know</dt><dd className="font-medium">{g.measure}</dd></div>}
                   {g.target && <div><dt className="text-text-secondary">Target</dt><dd className="font-medium">{g.target}</dd></div>}
@@ -59,7 +59,7 @@ export default async function PlanPage() {
         <div className="space-y-6">
           <Panel title="Where you are">
             <StageTracker stage={client!.methodStage} />
-            {stage && <p className="mt-4 text-sm text-text-secondary">{stage.blurb}</p>}
+            {stage && <p className="text-editorial mt-4 text-[1.0625rem] italic text-text-secondary">{stage.blurb}</p>}
           </Panel>
           <Panel title="Plan details">
             <dl className="space-y-3 text-sm">
