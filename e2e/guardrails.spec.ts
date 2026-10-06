@@ -66,9 +66,13 @@ test("a Start submission reaches TAB Practice and takes exactly one next step (T
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
   await page.goto("/practice/inquiries");
   await page.getByRole("link", { name: new RegExp(name) }).first().click();
+  // "Needs a next step" also shows on the list, so wait for the submission's own page before looking at it.
+  await expect(page).toHaveURL(/\/practice\/inquiries\/[^/]+$/);
+  await expect(page.locator("main h1")).toContainText(name);
   await expect(page.locator("main").getByText("Needs a next step").first()).toBeVisible();
   // One choice only: the next step is a radio group, and nothing is chosen yet.
   const choices = page.locator('input[type="radio"][name="outcome"]');
+  await expect(choices.first()).toBeVisible();
   expect(await choices.count()).toBeGreaterThan(1);
   await expect(page.locator('input[name="outcome"]:checked')).toHaveCount(0);
   const label = (await choices.first().locator("xpath=..").innerText()).split("\n")[0].trim();
