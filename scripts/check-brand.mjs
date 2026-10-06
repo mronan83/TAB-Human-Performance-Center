@@ -24,6 +24,7 @@ const RULES = [
   { name: "retired name", re: /Wellness Collective/i },
   { name: "retired name", re: /Human Performance Practice/i },
   { name: "retired name", re: /\bTAB (?:HPC|HPP)\b/ },
+  { name: "retired domain (now tabhumanperformance.com, proposed D-066)", re: /tabwellnesscollective/i },
   { name: "old philosophy", re: /Transform\W+Align|Align\W+Become/i },
   { name: "old stage name", re: /\b(?:Align|Become)\b/ },
   { name: "old service name", re: /Personal Strength Training/i },
