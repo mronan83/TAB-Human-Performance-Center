@@ -22,7 +22,11 @@ export default defineConfig({
     extraHTTPHeaders: bypass ? { "x-vercel-protection-bypass": bypass, "x-vercel-set-bypass-cookie": "true" } : undefined,
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: /settings\.spec\.ts/ },
+    // Owner settings change the whole demo site (banner, pages, Book links), so they run alone, after everything else.
+    { name: "settings", use: { ...devices["Desktop Chrome"] }, testMatch: /settings\.spec\.ts/, dependencies: ["chromium"] },
+  ],
   webServer: external
     ? undefined
     : { command: `npx next start -p ${PORT}`, url: `http://localhost:${PORT}`, reuseExistingServer: !process.env.CI, timeout: 120_000 },

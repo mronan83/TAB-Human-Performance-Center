@@ -9,6 +9,7 @@ import { ServiceCard } from "@/components/ServiceCard";
 import { MethodSteps } from "@/components/MethodSteps";
 import { Photo } from "@/components/Photo";
 import { pageMetadata } from "@/lib/seo";
+import { siteFeatures } from "@/lib/settings";
 
 export const metadata = pageMetadata({
   title: `${siteConfig.brand.name} | ${siteConfig.brand.categoryLine.replace(/\.$/, "")}`,
@@ -20,7 +21,8 @@ export const metadata = pageMetadata({
 // The pillar count comes from the services themselves, so it can't drift from the site (npm run test:brand).
 const PILLAR_COUNT = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven"][services.length] ?? String(services.length);
 
-export default function HomePage() {
+export default async function HomePage() {
+  const features = await siteFeatures();
   return (
     <>
       {/* 1. Hero: the mountain photograph from the approved board, a graphite scrim for AA contrast on the text side */}
@@ -156,7 +158,7 @@ export default function HomePage() {
       </section>
 
       {/* 8. Resources */}
-      {siteConfig.features.resources && (
+      {features.resources && (
         <section className="section">
           <div className="container-page flex flex-col justify-between gap-6 md:flex-row md:items-end">
             <div className="max-w-2xl">

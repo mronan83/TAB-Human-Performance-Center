@@ -278,7 +278,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-37 | Version moves and client-only activities | Verified (demo) | STAFF-009 | — | `practice/clients/[id]/programs/`, `components/portal/interactive.tsx` | smoke, rls |
 | F-38 | Team page (publishing permission) | Verified (demo) | STAFF-009, SEC-001 | D-045 | `practice/team/` | smoke, a11y, rls |
 | F-39 | Invite to My TAB, assign forms, share resources | Partial: invite email needs C5 | STAFF-010, PORTAL-008, CMS-003, SEC-014 | D-054 | `practice/clients/[id]/page.tsx`, migration `20261005000000` | smoke, a11y, rls |
-| F-53 | Owner settings and staff sign-in with two-step verification | Built: production needs the migration, the owner account and auth URLs (G3) | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, migration `20261009000000` | smoke, a11y, rls |
+| F-53 | Owner settings and staff sign-in with two-step verification | Live 2026-10-06; part 2 (booking links, page switches, C23b) in review, its migration needs G3 | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, `config/navigation.ts`, migrations `20261009000000` and `20261010000000` | settings, a11y, rls |
 
 ### Delivery and operations
 
@@ -404,6 +404,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.13 | Production database set up and owner signed in with two-step verification (G3); Supabase sign-in, invitation and security emails branded (`content/auth-emails.ts`); F-45 narrowed to the invitation-link check | Owner approvals and request, 2026-10-06 |
 | 2026-10-06 | 1.14 | WEB-020 restated: header and footer hide the account link until the client portal is open, then show "My TAB" | Owner ruling, 2026-10-06 |
 | 2026-10-06 | 1.15 | C15 checks (`e2e/guardrails.spec.ts`): NFR-005, SEC-006, GS-004/005 and WEB-004 to 007 verified; TG-3 and TG-8 closed. C18 events (NFR-006 built, TG-7 closed). A7 legal pages approved; A12 service-area wording | Owner rulings and requests, 2026-10-06 |
+| 2026-10-06 | 1.16 | C23b: per-service Book links and page switches in Settings (F-53); Events and Testimonials locked until real content exists; settings checks run in their own e2e project | Owner request, 2026-10-06 |
 
 ## Sources
 

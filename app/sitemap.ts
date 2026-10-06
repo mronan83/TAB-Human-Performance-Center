@@ -1,12 +1,14 @@
 import type { MetadataRoute } from "next";
-import { siteUrl, siteConfig } from "@/config/site";
+import { siteUrl } from "@/config/site";
+import { siteFeatures } from "@/lib/settings";
 import { services } from "@/content/services";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const features = await siteFeatures();
   const pages = ["", "/services", "/tab-method", "/about", "/about/our-story", "/faq", "/start", "/book", "/contact", "/privacy", "/terms", "/accessibility", "/policies"];
-  if (siteConfig.features.team) pages.push("/about/team");
-  if (siteConfig.features.resources) pages.push("/resources");
-  if (siteConfig.features.events) pages.push("/events");
+  if (features.team) pages.push("/about/team");
+  if (features.resources) pages.push("/resources");
+  if (features.events) pages.push("/events");
   const now = new Date();
   return [
     ...pages.map((p) => ({ url: `${siteUrl}${p}`, lastModified: now })),

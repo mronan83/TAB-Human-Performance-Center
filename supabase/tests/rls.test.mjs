@@ -505,7 +505,10 @@ const asAnon = async (sql) => {
 };
 const setting = async (key) => (await superuser(`select value from app_settings where key='${key}'`))[0]?.value;
 check('settings start with the portal off', await setting('portal_mode'), 'off');
-check('anyone can read settings', (await asAnon(`select key from app_settings order by key`)).map(r => r.key), ['portal_mode', 'start_form_open', 'transition_banner']);
+check('anyone can read settings', (await asAnon(`select key from app_settings order by key`)).map(r => r.key), [
+  'booking_holistic-life-coaching', 'booking_integrated-nutrition', 'booking_massage-bodywork', 'booking_personal-strength-training',
+  'booking_womens-wellness-coaching', 'feature_events', 'feature_resources', 'feature_team', 'portal_mode', 'start_form_open', 'transition_banner']);
+check('booking links start empty and pages match today (C23b)', [await setting('booking_massage-bodywork'), await setting('feature_resources'), await setting('feature_team'), await setting('feature_events')], [null, true, true, false]);
 await asAnon(`update app_settings set value='false' where key='transition_banner'`).catch(() => {});
 check('a visitor cannot change a setting', await setting('transition_banner'), true);
 await as(C1, `update app_settings set value='false' where key='transition_banner'`);
@@ -520,6 +523,16 @@ check('the change is stamped with who made it', (await superuser(`select updated
 check('and audited', (await superuser(`select count(*)::int n from audit_events where table_name='app_settings' and actor_id='${O}'`))[0].n, 1);
 await expectDenied('the owner cannot add an unknown setting', () => as(O, `insert into app_settings (key, value) values ('anything','true')`).catch((e) => { throw new Error(/check constraint/.test(e.message) ? 'permission denied' : e.message); }));
 check('portal mode accepts only off or live', await attempt(() => as(O, `update app_settings set value='"demo"' where key='portal_mode'`)), false);
+await as(O, `update app_settings set value='"https://bookings.gettimely.com/tabmassageandfitness/book/massage"' where key='booking_massage-bodywork'`);
+check('the owner can set an https booking link (C23b)', await setting('booking_massage-bodywork'), 'https://bookings.gettimely.com/tabmassageandfitness/book/massage');
+check('a booking link must be https', await attempt(() => as(O, `update app_settings set value='"http://example.com"' where key='booking_massage-bodywork'`)), false);
+check('a booking link cannot be a script', await attempt(() => as(O, `update app_settings set value='"javascript:alert(1)"' where key='booking_massage-bodywork'`)), false);
+check('a booking link cannot contain spaces', await attempt(() => as(O, `update app_settings set value='"https://a b.com"' where key='booking_massage-bodywork'`)), false);
+await as(O, `update app_settings set value='null' where key='booking_massage-bodywork'`);
+check('clearing a booking link falls back to the main page', await setting('booking_massage-bodywork'), null);
+check('a page switch accepts only true or false', await attempt(() => as(O, `update app_settings set value='"yes"' where key='feature_team'`)), false);
+await as(P, `update app_settings set value='false' where key='feature_team'`);
+check('a practitioner cannot hide a page', await setting('feature_team'), true);
 check('a switch accepts only true or false', await attempt(() => as(O, `update app_settings set value='"yes"' where key='start_form_open'`)), false);
 await as(O, `delete from app_settings where key='start_form_open'`).catch(() => {});
 check('nobody can delete a setting', await setting('start_form_open'), true);

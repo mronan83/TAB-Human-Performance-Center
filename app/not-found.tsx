@@ -1,7 +1,7 @@
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { NotFoundContent } from "@/components/NotFoundContent";
-import { accountLink } from "@/lib/settings";
+import { accountLink, siteFeatures } from "@/lib/settings";
 
 /**
  * Any URL that matches no route, including unmapped legacy tabmassage.com paths, gets the branded 404 with the
@@ -10,7 +10,7 @@ import { accountLink } from "@/lib/settings";
 export default async function RootNotFound() {
   return (
     <>
-      <SiteHeader account={await accountLink()} />
+      <SiteHeader account={await accountLink()} features={await siteFeatures()} />
       <main id="main">
         <NotFoundContent />
       </main>
