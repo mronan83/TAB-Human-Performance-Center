@@ -213,8 +213,8 @@ export const legal = {
   },
   /**
    * Client policies (A30): the owner's TAB Massage & Fitness cancellation, arrival and gratuity policies (sent
-   * 2026-10-06), reworded for TAB Human Performance Center with the site's service names. The terms are the owner's;
-   * the wording is ours. The phone number comes from config/site.ts.
+   * 2026-10-06), reworded for TAB Human Performance Center with the site's service names, then extended by the owner
+   * the same day to every pillar and to no-shows. The terms are the owner's; the wording is ours. The phone number comes from config/site.ts.
    */
   policies: {
     title: "Client policies",
@@ -227,11 +227,13 @@ export const legal = {
         id: "cancellation",
         heading: "Cancelling or rescheduling",
         body: [
-          "These policies apply to Massage & Bodywork and Functional Strength sessions.",
+          "These policies apply to every session: Massage & Bodywork, Functional Strength, Women’s Wellness, Integrated Nutrition and Holistic Life Coaching, in person or virtual.",
           {
             list: [
               "You can cancel or reschedule without a fee if you give us at least 24 hours’ notice.",
-              "With less notice, including on the day of your appointment, the full price of the scheduled session is charged. A prepaid session, including one from a package or program, may be forfeited.",
+              "With less than 24 hours’ notice, including on the day of your appointment, the full price of the scheduled session is charged.",
+              "If you miss your appointment without letting us know, the full price of the session is charged.",
+              "A prepaid session, including one from a package or program, may be forfeited for a late cancellation or a missed appointment.",
               "Can’t make it? You’re welcome to send someone in your place. We keep a waitlist and will do our best to fill your time; if we can’t, we’ll ask you to cover it.",
               `To cancel or reschedule, please call us at ${PHONE}. We can’t accept cancellations by email or social media.`,
             ],
@@ -246,6 +248,7 @@ export const legal = {
             list: [
               "Returning clients: please arrive 10 minutes before your appointment so you get your full session.",
               "New clients: please arrive at least 15 minutes early to complete your intake paperwork, so none of your hands-on time is lost.",
+              "Virtual sessions: please be ready a few minutes before your start time.",
             ],
           },
         ],

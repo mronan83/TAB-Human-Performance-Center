@@ -44,7 +44,7 @@ test("portal pages: fresh nonce per request, scripts carry it, no violations", a
   expect(na, "portal CSP has a nonce").toBeTruthy();
   expect(na).not.toBe(nb);
   expect(a.headers()["content-security-policy"]).toContain("'strict-dynamic'");
-  expect(a.headers()["content-security-policy"]).not.toContain("'unsafe-inline' https://plausible.io");
+  expect(/script-src ([^;]*)/.exec(a.headers()["content-security-policy"] ?? "")?.[1]).not.toContain("'unsafe-inline'");
   const html = await a.text();
   expect(html).toContain(`nonce="${na}"`);
 

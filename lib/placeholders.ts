@@ -28,7 +28,7 @@ export function launchChecklist(): ChecklistItem[] {
     // SEC-013: the forms email a copy to whatever address is entered (DIV-05), so the human check is required at launch.
     { area: "Forms", item: "Cloudflare Turnstile keys for the forms' human check (free account)", where: "Vercel env → NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY", done: !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !!process.env.TURNSTILE_SECRET_KEY },
     { area: "Forms", item: "Shared rate limit for /api/inquiry at the edge (Vercel Firewall rule)", where: "Vercel project → Firewall (SEC-013)", done: false, optional: true },
-    { area: "Analytics", item: "Plausible domain, plus goals for the Start Form: Started / Submitted events", where: "config/site.ts → analytics.plausibleDomain", done: !!c.analytics.plausibleDomain, optional: true },
+    { area: "Analytics", item: "Web Analytics switched on in the Vercel project (Analytics tab; included in Pro)", where: "Vercel project → Analytics", done: false, optional: true },
     { area: "Content", item: "Our Story written with owner", where: "content/pages.ts → about.story", done: !about.story.draft },
     { area: "Content", item: "Team bios, credentials, photos", where: "content/pages.ts → about.team", done: !about.team.draft },
     { area: "Content", item: "Service FAQ answers reviewed", where: "content/services.ts → faqs", done: services.every((s) => s.faqs.every((f) => !f.draft)) },

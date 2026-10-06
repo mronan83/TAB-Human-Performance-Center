@@ -125,7 +125,8 @@ Never print, log or commit token values.
    subjects never carry personal details. Detailed health intake belongs in My TAB only. Start and contact submissions are
    emailed to TAB and to the submitter, and saved in the `inquiries` table (whole form, never deleted) only once
    guardrail 4's conditions are met (proposed D-058).
-6. **Analytics (D-046, amended by the owner's DIV-04 ruling, proposed D-057):** Plausible on public pages only,
+6. **Analytics (D-046, amended by the owner's DIV-04 ruling, proposed D-057, and A4 2026-10-06):** Vercel Web Analytics
+   (in the Pro plan; no Plausible, no paid add-on services) on public pages only,
    including `/start`, where it counts the funnel with fixed, property-less events (`lib/analytics.ts`); never
    on `/my-tab`, `/practice` or `/contact`. Ad pixels only when paid ads start, and never on `/my-tab`,
    `/practice`, `/start` or `/contact`.

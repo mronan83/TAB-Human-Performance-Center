@@ -202,8 +202,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | NFR-002 | Technical SEO: sitemap, robots, canonicals, 404, Core Web Vitals | Sitemap, canonicals and branded 404 checked; Core Web Vitals not measured | P1 | Must | Partial | seo, smoke |
 | NFR-003 | Titles, descriptions and structured data follow the pattern | Unique titles, descriptions and share tags on every sitemap page | P1 | Must | Verified | seo |
 | NFR-004 | Legacy redirect map complete before launch | `config/redirects.ts`, 64 mapped paths | P0/P1 | Must | Verified | redirects |
-| NFR-005 | Privacy-aware analytics; none on My TAB, TAB Practice or `/contact` | Plausible excluded from those paths (D-057), checked in `e2e/guardrails.spec.ts` | P1 | Must | Verified | guardrails |
-| NFR-006 | The named public events are counted | Start funnel, `Service: Viewed` and `Booking: Clicked` (TG-7 closed); counting starts with Plausible (A4) | P1 | Should | Built | guardrails |
+| NFR-005 | Privacy-aware analytics; none on My TAB, TAB Practice or `/contact` | Vercel Web Analytics drops those paths in the tracker (D-057, A4), checked in `e2e/guardrails.spec.ts` | P1 | Must | Verified | guardrails |
+| NFR-006 | The named public events are counted | Start funnel, `Service: Viewed` and `Booking: Clicked` (TG-7 closed); counted by Vercel Web Analytics once it's switched on in the project (A4) | P1 | Should | Built | guardrails |
 | NFR-007 | Launch smoke tests automated and run on previews and production | Run in CI on the production build; previews need A18; production after cutover (C2) | P1 | Must | Partial | smoke |
 | NFR-008 | Redirects are single-hop 301/308, no chains or loops | Middleware; trailing slashes and legacy host covered | P1 | Must | Verified | redirects |
 | NFR-009 | Nothing indexable before launch | `noindex` until the production domain; portal never indexable | P1 | Must | Verified | seo |
@@ -242,7 +242,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-11 | Submissions in TAB Practice | Built (demo) | GS-004, GS-005, INT-006 | D-058 | `app/(portal)/practice/inquiries/` | rls |
 | F-12 | Legacy redirects | Verified | NFR-004, NFR-008 | RSK-009 | `config/redirects.ts`, `middleware.ts` | redirects |
 | F-13 | SEO metadata, sitemap, robots, structured data | Verified | WEB-016, NFR-002, NFR-003, NFR-009 | D-038 | `lib/seo.ts`, `lib/jsonld.ts`, `app/sitemap.ts`, `app/robots.ts` | seo |
-| F-14 | Plausible analytics | Partial: account (A4); Start funnel only (TG-7) | NFR-005, NFR-006 | D-046, D-057 | `components/Analytics.tsx`, `lib/analytics.ts` | — |
+| F-14 | Privacy-friendly analytics (Vercel Web Analytics) | Built; counting starts when the site is public | NFR-005, NFR-006 | D-046, D-057 (amended, A4) | `components/Analytics.tsx`, `lib/analytics.ts` | guardrails |
 | F-15 | Content-Security-Policy and headers | Verified | SEC-004, SEC-013 | — | `lib/csp.ts`, `middleware.ts`, `next.config.ts` | security |
 | F-16 | Design tokens, fonts and contrast check | Partial: hand-copied tokens (TG-6); the portal's status tints are tokens too, and `npm run test:brand` blocks hex colours in classes | DS-001 to DS-005, NFR-001 | D-062 (proposed; replaces D-053, D-056) | `app/globals.css`, `app/fonts/`, `scripts/check-contrast.mjs` | contrast, a11y |
 | F-17 | Logo, icons, manifest | Built | WEB-018, WEB-019, DS-006 | D-061 (proposed; replaces D-027) | `public/brand/`, `components/Logo.tsx`, `app/manifest.ts` | smoke |
@@ -348,7 +348,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 | A1 domain (done 2026-10-06) | Now unblocks A2, A3, A4, C1, C2 and C5 |
 | A2 Resend (done 2026-10-06) | GS-004 (emails send), PORTAL-012 |
 | A3 Turnstile | SEC-013 in full |
-| A4 Plausible | NFR-006, TG-7 |
+| A4 analytics (Vercel Web Analytics, ruled 2026-10-06) | NFR-006 |
 | A5 Timely Client Login | INT-001, PORTAL-006 |
 | A6 business facts (gift cards link left) | WEB-012 (gift cards) |
 | A7 legal review (approved 2026-10-06; retention ruled) | guardrail 4 privacy condition met, so A15 |
@@ -406,6 +406,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.15 | C15 checks (`e2e/guardrails.spec.ts`): NFR-005, SEC-006, GS-004/005 and WEB-004 to 007 verified; TG-3 and TG-8 closed. C18 events (NFR-006 built, TG-7 closed). A7 legal pages approved; A12 service-area wording | Owner rulings and requests, 2026-10-06 |
 | 2026-10-06 | 1.16 | C23b: per-service Book links and page switches in Settings (F-53); Events and Testimonials locked until real content exists; settings checks run in their own e2e project | Owner request, 2026-10-06 |
 | 2026-10-06 | 1.17 | Client policies written from the owner's policies (A30, WEB-012 footer links now resolve to real content); retention ruled: submissions never deleted (A7, proposed D-058), privacy policy updated to match | Owner rulings, 2026-10-06 |
+| 2026-10-06 | 1.18 | Analytics: Plausible replaced by Vercel Web Analytics (owner ruling A4; F-14, NFR-005, NFR-006); client policies cover all five pillars and no-shows (A30); Turnstile keys set (A3, SEC-013) | Owner rulings, 2026-10-06 |
 
 ## Sources
 

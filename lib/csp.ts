@@ -23,11 +23,12 @@ export function contentSecurityPolicy(nonce?: string): string {
     "default-src": ["'self'"],
     "script-src": nonce
       ? ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"]
-      : ["'self'", "'unsafe-inline'", "https://plausible.io", "https://challenges.cloudflare.com", ...(pixel ? ["https://connect.facebook.net"] : [])],
+      : ["'self'", "'unsafe-inline'", "https://challenges.cloudflare.com", ...(pixel ? ["https://connect.facebook.net"] : [])],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:", ...(pixel && !nonce ? ["https://www.facebook.com"] : [])],
     "font-src": ["'self'"],
-    "connect-src": ["'self'", ...(nonce ? [] : ["https://plausible.io"]), ...(pixel && !nonce ? ["https://www.facebook.com"] : [])],
+    // Vercel Web Analytics loads and reports from our own domain (/_vercel/insights), so 'self' covers it (A4).
+    "connect-src": ["'self'", ...(pixel && !nonce ? ["https://www.facebook.com"] : [])],
     // Turnstile renders in an iframe (public forms, and the My TAB sign-in form).
     "frame-src": ["https://challenges.cloudflare.com"],
     // Stripe Checkout and the billing portal are reached by a form post that redirects (D-052).
