@@ -1,14 +1,10 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import {
-  availabilityOptions, considerationOptions, contactOptions, deliveryOptions, foundViaOptions, helpOptions, inquirySchema, journeyOptions,
-  labelFor, labelsFor, outcomeOptions, routingOptions, serviceOptions, topicOptions,
-} from "@/lib/inquiry";
+import { inquirySchema } from "@/lib/inquiry";
 import { storeInquiry } from "@/lib/inquiry-store";
-import { MAX_BODY_BYTES, MIN_FILL_MS, duplicateGuard, flagLabels, limiter, sameOrigin, screenText, verifyHuman, type SpamFlag } from "@/lib/spam";
-import { siteConfig, siteUrl } from "@/config/site";
-import { staffInquiryEmail, submitterCopyEmail } from "@/content/emails";
-import { firstName, renderEmail } from "@/lib/email-template";
+import { MAX_BODY_BYTES, MIN_FILL_MS, duplicateGuard, limiter, sameOrigin, screenText, verifyHuman, type SpamFlag } from "@/lib/spam";
+import { siteConfig } from "@/config/site";
+import { buildInquiryEmails } from "@/lib/inquiry-emails";
 import { getSettings } from "@/lib/settings";
 
 // Spam defenses (SEC-013): see lib/spam.ts for the layers and why each exists. The limits below are per server
@@ -23,7 +19,6 @@ const copyLimited = limiter(3, DAY_MS);
 /** The same submission twice within ten minutes (a double click or a replay) is sent once. */
 const duplicates = duplicateGuard(WINDOW_MS);
 
-const dash = (v?: string) => v || "—";
 const json = (body: object, status = 200) => NextResponse.json(body, { status });
 const failed = (status: number) => json({ ok: false, error: `We couldn’t send your message. Please email ${siteConfig.contact.email}.` }, status);
 /** Dropped as spam: answer exactly like a success so bots learn nothing. */
@@ -83,80 +78,15 @@ export async function POST(req: Request) {
     } catch (e) {
       console.error("[inquiry] store failed", ref, e);
     }
+  } else if (siteConfig.portal.enabled && siteConfig.portal.dataSource === "mock") {
+    // The demo portal (previews, tests): keep it in the demo's TAB Practice. Production never runs the demo.
+    (await import("@/lib/portal/mock-repository")).recordDemoInquiry(d, ref, flags);
+    stored = true;
   }
 
-  // Start answers are all predefined options (proposed D-059); the contact form adds one message box.
-  const list = (opts: Parameters<typeof labelsFor>[0], v?: readonly string[]) => labelsFor(opts, v).join("; ") || "—";
-  const rows: [string, string][] = [
-    ["Name", d.name],
-    ["Email", d.email],
-    ["Phone", dash(d.phone)],
-    ["Preferred contact", dash(labelFor(contactOptions, d.contactPreference))],
-  ];
-  if (isStart) {
-    rows.push(
-      ["Starting from", dash(labelFor(journeyOptions, d.journey))],
-      ["Would like help with", list(helpOptions, d.help)],
-      ["Service interest", dash(labelFor(serviceOptions, d.service))],
-      ["If things improved", list(outcomeOptions, d.outcomes)],
-      ["Before we start", list(considerationOptions, d.considerations)],
-      ["In person or virtual", dash(labelFor(deliveryOptions, d.delivery))],
-      ["Days or times", list(availabilityOptions, d.availability)],
-      ["How they found TAB", dash(labelFor(foundViaOptions, d.foundVia))],
-    );
-  } else {
-    rows.push(["Topic", dash(labelFor(topicOptions, d.topic))]);
-  }
-  rows.push(["News and events by email", d.marketingOptIn ? "Yes" : "No"]);
-
-  const plain = rows.map(([k, v]) => `${k}: ${v}`).join("\n");
-  // The contact message goes to TAB only; the submitter's copy never repeats it (RSK-011).
-  const message = !isStart && d.message ? d.message : "";
-
-  // 1. TAB's copy. GS-004: every Start submission ends with exactly one next step, chosen by whoever replies.
-  const subject = `${flags.length ? "[Check] " : ""}${isStart ? "Start Where You Are" : "Website message"}: new submission (${ref})`;
-  const flagNote = flags.length ? `Possible spam: ${flags.map((f) => flagLabels[f]).join("; ")}. No copy was sent to the submitter.` : "";
-  const healthFlag = d.considerations?.includes("health-private")
-    ? "They’d like to discuss something health-related privately: follow up before anything is booked."
-    : "";
-  const routing = isStart ? `Next step (choose one): ${routingOptions.map((o) => o.label).join(" · ")}.` : "";
-  const savedNote = stored ? `Saved in TAB Practice → Submissions (reference ${ref}).` : "";
-  const staffNotes = [flagNote, healthFlag, routing, savedNote].filter(Boolean);
-  const s = staffInquiryEmail;
-  const staff = renderEmail({
-    preheader: `${isStart ? "Start Where You Are" : "Website message"} · reference ${ref}`,
-    eyebrow: `${isStart ? s.eyebrowStart : s.eyebrowContact} · ${ref}`,
-    heading: d.name,
-    notice: [
-      ...(flagNote ? [{ tone: "warning" as const, text: flagNote }] : []),
-      ...(healthFlag ? [{ tone: "warning" as const, text: healthFlag }] : []),
-      ...(routing ? [{ tone: "note" as const, text: routing }] : []),
-    ],
-    details: { title: s.detailsTitle, rows },
-    quote: message ? { title: s.messageTitle, text: message } : undefined,
-    cta: { label: s.reply(firstName(d.name)), href: `mailto:${d.email}` },
-    footnote: savedNote || undefined,
-  });
-  const text = [plain, message && `Message:\n${message}`, ...staffNotes].filter(Boolean).join("\n\n");
-  const to = isStart ? siteConfig.forms.startRecipient : siteConfig.forms.contactRecipient;
-
-  // 2. The submitter's copy (owner ruling 2026-09-28): their details and choices, a neutral subject; replies go to
-  //    TAB. It never repeats a typed message, so the form can't relay someone's text to another address.
+  const { staff, copy } = buildInquiryEmails(d, ref, flags, stored);
   // Flagged submissions never trigger a copy: a flagged form is the likeliest to carry someone else's address.
   const sendCopy = siteConfig.forms.sendSubmitterCopy && flags.length === 0 && !copyLimited(d.email.toLowerCase());
-  const copySubject = `We’ve received your message – ${siteConfig.brand.name}`;
-  const cc = isStart ? submitterCopyEmail.start : submitterCopyEmail.contact;
-  const first = firstName(d.name);
-  const copy = renderEmail({
-    preheader: cc.preheader,
-    eyebrow: cc.eyebrow,
-    heading: cc.heading(first),
-    paragraphs: [...cc.body],
-    details: { title: cc.detailsTitle, rows },
-    cta: { label: cc.cta, href: `${siteUrl}${cc.ctaPath}` },
-    footnote: submitterCopyEmail.footnote,
-  });
-  const copyText = [cc.heading(first), ...cc.body, plain, submitterCopyEmail.footnote].join("\n\n");
 
   /** Delivered (stored or emailed to TAB): only now does a repeat count as a duplicate. */
   const delivered = (body: object) => {
@@ -167,8 +97,8 @@ export async function POST(req: Request) {
   const key = process.env.RESEND_API_KEY;
   if (!key) {
     if (process.env.NODE_ENV !== "production") {
-      console.info("[inquiry] RESEND_API_KEY not set; would send to", to, `\n${subject}\n\n${text}`);
-      if (sendCopy) console.info("[inquiry] and a copy to the submitter:", `\n${copySubject}\n\n${copyText}`);
+      console.info("[inquiry] RESEND_API_KEY not set; would send to", staff.to, `\n${staff.subject}\n\n${staff.text}`);
+      if (sendCopy) console.info("[inquiry] and a copy to the submitter:", `\n${copy.subject}\n\n${copy.text}`);
       return delivered({ dev: true, copy: sendCopy });
     }
     return stored ? delivered({ copy: false }) : failed(503);
@@ -176,7 +106,7 @@ export async function POST(req: Request) {
 
   const resend = new Resend(key);
   try {
-    const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to, replyTo: d.email, subject, html: staff.html, text, attachments: staff.attachments });
+    const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to: staff.to, replyTo: d.email, subject: staff.subject, html: staff.html, text: staff.text, attachments: staff.attachments });
     if (error) throw new Error(error.message);
   } catch (e) {
     console.error("[inquiry] send failed", ref, e);
@@ -185,7 +115,7 @@ export async function POST(req: Request) {
   let copied = false;
   if (sendCopy) {
     try {
-      const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to: d.email, replyTo: siteConfig.contact.email, subject: copySubject, html: copy.html, text: copyText, attachments: copy.attachments });
+      const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to: d.email, replyTo: siteConfig.contact.email, subject: copy.subject, html: copy.html, text: copy.text, attachments: copy.attachments });
       if (error) throw new Error(error.message);
       copied = true;
     } catch (e) {

@@ -266,6 +266,19 @@ store.stageChanges ??= {};
 store.planEntries ??= {}; // a store created before stage history existed (dev hot reload)
 
 const clone = <T>(v: T): T => structuredClone(v);
+
+/**
+ * A website submission in the demo (previews and tests only; production never runs the demo portal), so TAB Practice
+ * shows it exactly as it would with storage on (TG-8). Mirrors storeInquiry() in lib/inquiry-store.ts.
+ */
+export function recordDemoInquiry(d: Omit<import("@/lib/inquiry").Inquiry, "website" | "elapsedMs" | "turnstileToken">, reference: string, flags: string[]) {
+  store.inquiries.unshift({
+    id: `inq-${reference.toLowerCase()}`, reference, kind: d.kind, receivedAt: new Date().toISOString(), name: d.name, email: d.email,
+    phone: d.phone || undefined, contactPreference: d.contactPreference, journey: d.journey, help: d.help ?? [], serviceInterest: d.service,
+    outcomes: d.outcomes ?? [], considerations: d.considerations ?? [], delivery: d.delivery, availability: d.availability ?? [],
+    foundVia: d.foundVia, topic: d.topic, message: d.kind === "contact" ? d.message || undefined : undefined, flags, marketingOptIn: d.marketingOptIn ?? false,
+  });
+}
 /** Client-only activities from the form: ids from this program are kept, new rows get an id (as save_client_activities). */
 const withIds = (items: ProgramAssignmentInput["customActivities"], kept: Set<string>) =>
   items.map((c, i) => ({ ...c, id: c.id && kept.has(c.id) ? c.id : `cx${Date.now()}-${i}` }));

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-type Props = { href: string; external?: boolean; className?: string; children: ReactNode; "aria-label"?: string };
+type Props = { href: string; external?: boolean; className?: string; children: ReactNode; "aria-label"?: string; "data-event"?: string };
 
 /** Internal links use next/link; external links open in the same tab with rel protections. */
 export function SmartLink({ href, external, className, children, ...rest }: Props) {

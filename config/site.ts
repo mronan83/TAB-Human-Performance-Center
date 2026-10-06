@@ -44,11 +44,13 @@ export const siteConfig = {
   },
 
   /**
-   * Service area for titles and structured data (NFR-003: "[Service] in [Location]"). Business context: Brighton/Howell
-   * area, Michigan. Revisit once the studio address is set.
+   * Service area. `label` is the visible wording (owner, 2026-10-06, A12: "Serving Livingston County"), shown in the
+   * footer and emails. Structured data names the county and its two towns, and page descriptions keep "Brighton and
+   * Howell, MI", because people search by town (ASM-006).
    */
   location: {
-    label: "Brighton & Howell, MI",
+    label: "Serving Livingston County",
+    county: "Livingston County, MI",
     areaServed: ["Brighton, MI", "Howell, MI"],
   },
 

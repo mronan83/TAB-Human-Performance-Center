@@ -3,7 +3,10 @@ import { services, type Faq, type Service } from "@/content/services";
 
 /** Structured data (NFR-003; S16 §16.8): Organization / LocalBusiness, Service, breadcrumbs, and FAQ only where eligible. */
 const ORG_ID = `${siteUrl}/#organization`;
-const areaServed = () => siteConfig.location.areaServed.map((name) => ({ "@type": "City", name }));
+const areaServed = () => [
+  { "@type": "AdministrativeArea", name: siteConfig.location.county },
+  ...siteConfig.location.areaServed.map((name) => ({ "@type": "City", name })),
+];
 
 /** LocalBusiness structured data; omits address fields until they are configured (Step 16.6). */
 export function organizationJsonLd() {
