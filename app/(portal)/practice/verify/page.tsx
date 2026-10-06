@@ -3,6 +3,7 @@ import { getViewer, isDemoSignIn } from "@/lib/portal";
 import { SignInFrame } from "@/components/portal/SignInFrame";
 import { MfaForm } from "@/components/portal/MfaForm";
 import { SecondStep } from "@/components/portal/StaffAuth";
+import { PASSKEYS_AVAILABLE } from "@/lib/staff-auth";
 
 export const metadata = { title: "Two-step verification", robots: { index: false, follow: false } };
 
@@ -21,7 +22,7 @@ export default async function VerifyPage() {
   const { data } = await (await createSupabaseServerClient()).auth.mfa.listFactors();
   const factor = data?.totp?.find((f) => f.status === "verified");
   // Passkeys come after the authenticator app, which stays as the backup.
-  const passkeys = factor ? (data?.webauthn ?? []).filter((f) => f.status === "verified").map((f) => ({ id: f.id, name: f.friendly_name || "Passkey" })) : [];
+  const passkeys = factor && PASSKEYS_AVAILABLE ? (data?.webauthn ?? []).filter((f) => f.status === "verified").map((f) => ({ id: f.id, name: f.friendly_name || "Passkey" })) : [];
   return (
     <SignInFrame>
       <h1 className="text-h2 mt-8 text-center lg:mt-0 lg:text-left">Two-step verification</h1>

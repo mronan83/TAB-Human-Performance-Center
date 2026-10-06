@@ -17,7 +17,7 @@ import { sendStageUpdatedEmail } from "@/lib/email";
 import { getService, type ServiceSlug } from "@/content/services";
 import { routingOptions, type RoutingOutcome } from "@/lib/inquiry";
 import { limiter, verifyHuman } from "@/lib/spam";
-import { isBreachedPassword, passkeyOptionsToJSON, passkeyRelyingParty, passwordProblem } from "@/lib/staff-auth";
+import { PASSKEYS_AVAILABLE, isBreachedPassword, passkeyOptionsToJSON, passkeyRelyingParty, passwordProblem } from "@/lib/staff-auth";
 
 export async function toggleActivityAction(programId: string, activityId: string, done: boolean) {
   const { clientId, repo } = await requireClient();
@@ -514,7 +514,7 @@ export async function signInWithPasswordAction(_prev: unknown, fd: FormData): Pr
 /** A signed-in staff member on one of our own addresses, for passkey work. */
 async function passkeyContext(requireVerified: boolean) {
   const sb = requireVerified ? (await requireStaffViewer(), await (await import("@/lib/supabase/server")).createSupabaseServerClient()) : await signedInStaff();
-  const rp = passkeyRelyingParty((await headers()).get("host"));
+  const rp = PASSKEYS_AVAILABLE ? passkeyRelyingParty((await headers()).get("host")) : null;
   return { sb, rp };
 }
 

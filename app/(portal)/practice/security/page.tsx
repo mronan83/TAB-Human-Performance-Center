@@ -1,7 +1,7 @@
 import { requireStaffViewer, isDemoSignIn } from "@/lib/portal";
 import { PageTitle, Panel } from "@/components/portal/ui";
 import { PasskeyManager, SetPasswordForm } from "@/components/portal/StaffAuth";
-import { STAFF_SESSION_MAX_DAYS, sessionStartedAt } from "@/lib/staff-auth";
+import { PASSKEYS_AVAILABLE, STAFF_SESSION_MAX_DAYS, sessionStartedAt } from "@/lib/staff-auth";
 import { SESSION_MAX_AGE_SECONDS } from "@/lib/supabase/cookies";
 
 export const metadata = { title: "Sign-in & security" };
@@ -15,7 +15,7 @@ const IDLE_DAYS = Math.round(SESSION_MAX_AGE_SECONDS / 86400);
  */
 export default async function SecurityPage() {
   await requireStaffViewer();
-  const lead = `Sign in with your email and password, then confirm it’s you with a passkey or your authenticator app. Sessions end after ${IDLE_DAYS} days without use, and ${STAFF_SESSION_MAX_DAYS} days after signing in at the most.`;
+  const lead = `Sign in with your email and password, then confirm it’s you with ${PASSKEYS_AVAILABLE ? "a passkey or your authenticator app" : "the code from your authenticator app"}. Sessions end after ${IDLE_DAYS} days without use, and ${STAFF_SESSION_MAX_DAYS} days after signing in at the most.`;
   if (isDemoSignIn()) {
     return (
       <>
@@ -42,10 +42,18 @@ export default async function SecurityPage() {
           <SetPasswordForm hasPassword={!!setAt} email={user?.email ?? ""} />
         </Panel>
         <Panel title="Passkeys">
-          <p className="mb-5 text-text-secondary">
-            A passkey confirms it’s you with Face ID, Touch ID, Windows Hello or your phone, instead of typing the 6-digit code. Add one on each computer or phone you use for TAB Practice.
-          </p>
-          <PasskeyManager passkeys={passkeys} />
+          {PASSKEYS_AVAILABLE ? (
+            <>
+              <p className="mb-5 text-text-secondary">
+                A passkey confirms it’s you with Face ID, Touch ID, Windows Hello or your phone, instead of typing the 6-digit code. Add one on each computer or phone you use for TAB Practice.
+              </p>
+              <PasskeyManager passkeys={passkeys} />
+            </>
+          ) : (
+            <p className="text-text-secondary">
+              Coming later. Passkeys (Face ID, Touch ID or Windows Hello instead of the 6-digit code) are built, but our sign-in provider doesn’t support them yet. They’ll appear here once it does.
+            </p>
+          )}
         </Panel>
         <Panel title="Authenticator app">
           <p>{totp ? `Set up ${day(totp.created_at)}. It’s your backup when a passkey isn’t available, and it confirms password changes.` : "Not set up yet. You’ll be asked to set it up at your next sign-in."}</p>

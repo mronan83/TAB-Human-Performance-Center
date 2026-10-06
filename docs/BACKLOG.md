@@ -34,7 +34,6 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
 | A5 | Timely Client Login link, for My TAB's appointments and billing pages (no longer a public-launch item: the site shows no Client Login until My TAB is live, owner ruling 2026-10-06) [WEB-020, PORTAL-006] | Content | Owner | S | None |
-| C27 | **In review.** Staff sign-in without waiting for email: password first, then a passkey (Face ID, Touch ID, Windows Hello) or the authenticator code; staff sessions end 30 days after sign-in (idle ones after 7). Owner ruling 2026-10-06, proposed D-068. After merge (G3): switch on Supabase's WebAuthn MFA and set the minimum password length to 12, promote, then the owner sets a password and adds a passkey under TAB Practice → Sign-in & security [SEC-015, SEC-020] | Security | Claude, then Owner | M | G3 approval |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
 | C16 | My TAB profile: accessibility needs and goals, client-editable (PORTAL-010, TG-5) | Portal | Claude | S | None |
 | C19 | Incident-response runbook: who to call, revoking keys, telling clients; paired with counsel's breach duties (SEC-011, TG-9) | Security | Claude | S | A7 |
@@ -47,6 +46,7 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
+| C28 | Passkeys for staff sign-in (Face ID, Touch ID, Windows Hello instead of the 6-digit code): built and tested, hidden until Supabase's hosted service allows WebAuthn MFA (it refused on 2026-10-06). Then: switch on the two Supabase settings, set `PASSKEYS_AVAILABLE`, test with the owner's devices (G3) [SEC-015] | Security | Claude | S | Supabase support |
 | C14 | Rule-based stage-readiness prompts in TAB Practice (design §5.1) | Portal | Claude | M | None |
 | C13 | AI program drafting, templates only, no client data (design §4) | Portal | Claude | M | A24 |
 | A24 | Anthropic API account and key for AI program drafting (Vercel Sensitive var `ANTHROPIC_API_KEY`) | Accounts | Owner | S | None |
@@ -64,13 +64,13 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 **C1 is the launch path.** The domain is attached behind Vercel login; what remains is the switch-over's Phase B (public access, indexing, launch day under C2) and the content and access items above it (A6, A8, A10, A29).
 
-**C27 removes the daily friction for staff.** Password, then a passkey, instead of waiting for an emailed link each time. It needs one G3 step (two Supabase settings) after merge.
-
 **The pilot's practitioner tools are done.** With C4, a practitioner can invite a client, assign plans, programs, forms and resources, and record progress reviews. What stands between the demo and A16 is plumbing and paperwork, not features: C6 on my side, A14 and A26 on yours. C14 and C13 are improvements, not pilot needs.
 
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Staff sign-in with a password** (live 2026-10-06, C27): email and password, then the authenticator code; the emailed link stays for a forgotten password. TAB Practice sessions end 30 days after sign-in (idle ones after 7); passwords need 12 characters and are checked against known breaches. Passkeys moved to C28: Supabase won't switch them on yet.
 
 - **Sign-in links that work in any browser** (done 2026-10-06, C5): the owner's sign-in at 20:37 used the new one-time link type in production. The invitation test is dropped for now (My TAB is off, so there's nothing real to land on); the first real invitation under A15 covers it. The matthew@tabmassage.com test account was deleted.
 
