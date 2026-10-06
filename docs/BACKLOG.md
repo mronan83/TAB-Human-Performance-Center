@@ -38,7 +38,7 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
 | A5 | Timely Client Login link, for My TAB's appointments and billing pages (no longer a public-launch item: the site shows no Client Login until My TAB is live, owner ruling 2026-10-06) [WEB-020, PORTAL-006] | Content | Owner | S | None |
-| C5 | Sign-in plumbing. **Done 2026-10-06:** Site URL and redirect allow-list, Supabase email through Resend SMTP (owner), staff MFA enrolment (C23); branded sign-in, invitation and security emails **in review**. **Left:** confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in, before the first real client invitation [SEC-014, SEC-015] | Portal | Claude | S | — |
+| C5 | **In review.** Sign-in links that work in any browser, and invitation links that arrive intact (they used to fail: Supabase put the token after a `#`, which never reaches our server). Both callbacks accept a one-time `token_hash`; the sign-in and invitation emails send one. After merge: reinstall the email templates, then the live test with `matthew@tabmassage.com` (sign-in link opened on another device; an invitation followed; first sign-in recorded) [SEC-014, SEC-015, PORTAL-001] | Portal | Claude | S | — |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
 | C16 | My TAB profile: accessibility needs and goals, client-editable (PORTAL-010, TG-5) | Portal | Claude | S | None |
 | C19 | Incident-response runbook: who to call, revoking keys, telling clients; paired with counsel's breach duties (SEC-011, TG-9) | Security | Claude | S | A7 |
@@ -75,6 +75,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Sign-in and invitation links** (2026-10-06, in review, C5): a sign-in link now works in any browser (request it on a laptop, tap it on a phone), and invitation links no longer fail on arrival. Found while answering "What are the steps for C5?".
 
 - **Turnstile and analytics** (2026-10-06, in review): Turnstile keys set in Vercel (production: the owner's; previews: Cloudflare's test keys), closing A3 once a live form is checked. Plausible declined by the owner ("I'm not paying for a bunch of micro services"); Vercel Web Analytics, already in the Pro plan, counts the same property-less events instead (A4 closed).
 
