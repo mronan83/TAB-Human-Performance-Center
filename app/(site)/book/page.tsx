@@ -3,7 +3,7 @@ import { pageMetadata } from "@/lib/seo";
 import Image from "next/image";
 import { services } from "@/content/services";
 import { siteConfig } from "@/config/site";
-import { bookingHref } from "@/lib/links";
+import { serviceBookingHref } from "@/lib/settings";
 import { PageHero } from "@/components/PageHero";
 import { SmartLink } from "@/components/SmartLink";
 import { Cta } from "@/components/Cta";
@@ -11,8 +11,9 @@ import { Cta } from "@/components/Cta";
 export const metadata: Metadata = pageMetadata({ title: "Book", description: "Book massage, strength training, or a coaching conversation with TAB Human Performance Center.", path: "/book" });
 
 /** Two paths (Step 16.4): know what you need → book; not sure → Start Where You Are. Booking stays in Timely (D-003). */
-export default function BookPage() {
+export default async function BookPage() {
   const online = !!siteConfig.booking.timelyBookingUrl;
+  const links = await Promise.all(services.map((s) => serviceBookingHref(s.slug)));
   return (
     <>
       <PageHero eyebrow="Book" title="Ready when you are." lead="Know what you need? Choose a service below. Not sure? We’ll help you find the right starting point.">
@@ -20,8 +21,8 @@ export default function BookPage() {
       </PageHero>
       <section className="section">
         <div className="container-page grid gap-6 md:grid-cols-2">
-          {services.map((s) => {
-            const b = bookingHref(s.slug);
+          {services.map((s, i) => {
+            const b = links[i];
             return (
               <div key={s.slug} className="card flex items-center gap-5 p-6">
                 <Image src={s.icon} alt="" width={72} height={72} />

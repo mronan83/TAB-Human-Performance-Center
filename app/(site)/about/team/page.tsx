@@ -6,10 +6,13 @@ import { about } from "@/content/pages";
 import { getService } from "@/content/services";
 import { PageHero } from "@/components/PageHero";
 import { DraftFlag } from "@/components/DraftFlag";
+import { notFound } from "next/navigation";
+import { siteFeatures } from "@/lib/settings";
 
 export const metadata: Metadata = pageMetadata({ title: "Our Team", description: "Meet the people behind TAB Human Performance Center.", path: "/about/team" });
 
-export default function TeamPage() {
+export default async function TeamPage() {
+  if (!(await siteFeatures()).team) notFound(); // the owner can hide it in Settings (C23b)
   return (
     <>
       <PageHero eyebrow="Our team" title={about.team.headline} />

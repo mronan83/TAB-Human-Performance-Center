@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type FocusEvent } from "react";
-import { primaryNav } from "@/config/navigation";
+import { DEFAULT_NAV_FEATURES, primaryNavFor, type NavFeatures } from "@/config/navigation";
 import { HomeLogoLink } from "./Logo";
 import { Cta } from "./Cta";
 import { SmartLink } from "./SmartLink";
@@ -21,7 +21,8 @@ import clsx from "clsx";
  * Keyboard (NFR-001): Escape closes an open menu and returns focus to the button that opened it; a menu closes
  * when focus moves out of it. Closed menus stay in the DOM as `hidden` so `aria-controls` always resolves.
  */
-export function SiteHeader({ account = null }: { account?: AccountLink | null }) {
+export function SiteHeader({ account = null, features = DEFAULT_NAV_FEATURES }: { account?: AccountLink | null; features?: NavFeatures }) {
+  const primaryNav = primaryNavFor(features);
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);

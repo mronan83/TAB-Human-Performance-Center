@@ -87,7 +87,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | --- | --- | --- |
 | `inquiries` | Start Where You Are and contact submissions: the whole form, flags, the linked client and the routing outcome. Never deleted | Written by the website with the service role. The owner reads all and records routing; a practitioner reads only those linked to their clients |
 | `appointment_refs` | References to Timely appointments, for display in My TAB | The client reads their own; staff write |
-| `app_settings` | Owner settings (C23, proposed D-067): whether the client portal is open (`off` or `live`), the transition banner and whether the Start form is open. One row per setting, no personal data | Anyone reads (the site reads them on every page). Only the owner, two-step-verified, inserts or changes; nobody deletes; every change is stamped and audited |
+| `app_settings` | Owner settings (C23, proposed D-067): whether the client portal is open (`off` or `live`), the transition banner, whether the Start form is open, and (C23b) a Timely link per service (`booking_<service>`, https only, or null for the main booking page) and the optional pages (`feature_resources`, `feature_team`, `feature_events`). One row per setting, no personal data | Anyone reads (the site reads them on every page). Only the owner, two-step-verified, inserts or changes; nobody deletes; every change is stamped and audited |
 
 ### Private
 
@@ -172,7 +172,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 - **Authorship can't be forged.** Who wrote, assigned, invited or reviewed is stamped from the session.
 - **History is kept.** Consents are insert-only, submissions are never deleted, stage changes are recorded, every change to client data is audited, and so is every read of internal notes. The audit log is append-only and copied off Supabase nightly once A26 is done.
 - **Purchases follow Stripe in one step.** Each Stripe event applies whole or not at all, and an event that can't be applied fails loudly so Stripe retries it. A partial refund keeps access until the owner decides (owner ruling 2026-10-03).
-- **Settings are the owner's.** Only the owner, in a two-step-verified session, may change `app_settings`; the keys and value shapes are fixed by check constraints, and no setting can be deleted. A `live` portal setting is the owner's intent only: the app opens My TAB to clients only in a build whose portal data is real (guardrail 4).
+- **Settings are the owner's.** Only the owner, in a two-step-verified session, may change `app_settings`; the keys and value shapes are fixed by check constraints (a booking link must be `https://` with no spaces, at most 500 characters), and no setting can be deleted. A `live` portal setting is the owner's intent only: the app opens My TAB to clients only in a build whose portal data is real (guardrail 4).
 - **Links stay within one client.** A plan, review, form submission or activity log can only point to records of the same client.
 
 ## Security model

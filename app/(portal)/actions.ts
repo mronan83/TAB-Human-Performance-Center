@@ -4,7 +4,7 @@ import { cookies, headers } from "next/headers";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { getViewer, isDemoSignIn, isMock, requireClient, requireOwner as requireOwnerViewer, requireStaff } from "@/lib/portal";
-import { saveSettings, SETTINGS_TAG, type PortalMode } from "@/lib/settings";
+import { DEFAULT_SETTINGS, SERVICE_SLUGS, getSettings, isBookingLink, saveSettings, SETTINGS_TAG, type PortalMode } from "@/lib/settings";
 import { siteUrl } from "@/config/site";
 import type { Consent, GoalInput, InviteResult, MethodStage, Plan, PlanType, ProgramAction, ReviewOutcome } from "@/lib/portal/types";
 import { isSafeResourceHref, resourceKinds } from "@/lib/portal/resources";
@@ -14,7 +14,7 @@ import { STAGES } from "@/lib/portal/format";
 import { newerVersions, programStatuses, readPersonalization } from "@/lib/portal/programs";
 import { circumstanceOptions, reviewOutcomes } from "@/lib/portal/review";
 import { sendStageUpdatedEmail } from "@/lib/email";
-import type { ServiceSlug } from "@/content/services";
+import { getService, type ServiceSlug } from "@/content/services";
 import { routingOptions, type RoutingOutcome } from "@/lib/inquiry";
 import { limiter, verifyHuman } from "@/lib/spam";
 
@@ -478,8 +478,20 @@ export async function saveSettingsAction(_prev: unknown, fd: FormData): Promise<
   const portalMode: PortalMode = fd.get("portalMode") === "live" ? "live" : "off";
   // Live is accepted only where this build can actually run the portal on real data (guardrail 4).
   if (portalMode === "live" && isMock()) return { ok: false, error: "The client portal can’t go live until the go-live checklist is complete." };
+  // C23b: a booking link per service (blank = the main booking page), https only, as the database also enforces.
+  const bookingLinks = { ...DEFAULT_SETTINGS.bookingLinks };
+  for (const slug of SERVICE_SLUGS) {
+    const v = String(fd.get(`booking_${slug}`) ?? "").trim();
+    if (v && !isBookingLink(v)) {
+      return { ok: false, error: `The booking link for ${getService(slug)?.name ?? slug} must start with https:// and contain no spaces.` };
+    }
+    bookingLinks[slug] = v || null;
+  }
+  // Events stays as stored: its switch is locked until there's events content.
+  const current = await getSettings();
+  const features = { resources: fd.get("feature_resources") === "on", team: fd.get("feature_team") === "on", events: current.features.events };
   try {
-    await saveSettings({ portalMode, transitionBanner: fd.get("transitionBanner") === "on", startFormOpen: fd.get("startFormOpen") === "on" });
+    await saveSettings({ portalMode, transitionBanner: fd.get("transitionBanner") === "on", startFormOpen: fd.get("startFormOpen") === "on", bookingLinks, features });
   } catch (e) {
     console.error("[settings] save failed", e);
     return { ok: false, error: "We couldn’t save your settings. Please try again." };

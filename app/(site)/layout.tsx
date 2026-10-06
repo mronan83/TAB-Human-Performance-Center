@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { TransitionBanner } from "@/components/TransitionBanner";
 import { organizationJsonLd } from "@/lib/jsonld";
 import { Analytics } from "@/components/Analytics";
-import { accountLink } from "@/lib/settings";
+import { accountLink, siteFeatures } from "@/lib/settings";
 
 /**
  * Public pages are prebuilt; rebuilding them daily lets date-based content change without a deploy. The transition
@@ -16,7 +16,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }} />
       <TransitionBanner />
-      <SiteHeader account={await accountLink()} />
+      <SiteHeader account={await accountLink()} features={await siteFeatures()} />
       <main id="main">{children}</main>
       <SiteFooter />
       <Analytics />

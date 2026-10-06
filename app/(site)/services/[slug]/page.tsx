@@ -8,6 +8,7 @@ import { FaqList } from "@/components/FaqList";
 import { Photo } from "@/components/Photo";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonld";
 import { pageMetadata } from "@/lib/seo";
+import { serviceBookingHref } from "@/lib/settings";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -27,6 +28,7 @@ export default async function ServicePage({ params }: Props) {
   const s = getServiceByPath((await params).slug);
   if (!s) notFound();
   const related = services.filter((x) => x.slug !== s.slug);
+  const book = (await serviceBookingHref(s.slug)).href; // the owner's link for this service, if set (C23b)
   // Structured data (NFR-003, S16 §16.4): Service + breadcrumb; FAQ markup only for reviewed, visible answers.
   const jsonLd = [serviceJsonLd(s), breadcrumbJsonLd([{ name: "Services", path: "/services" }, { name: s.name, path: `/services/${s.path}` }]), faqJsonLd(s.faqs)].filter(Boolean);
 
@@ -45,8 +47,8 @@ export default async function ServicePage({ params }: Props) {
             <h1 className="text-display-lg mt-4">{s.headline}</h1>
             <p className="text-body-lg mt-6 max-w-2xl text-text-secondary">{s.description}</p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Cta kind={s.primaryCta.kind} label={s.primaryCta.label} service={s.slug} />
-              <Cta kind={s.secondaryCta.kind} label={s.secondaryCta.label} service={s.slug} variant="outline" />
+              <Cta kind={s.primaryCta.kind} label={s.primaryCta.label} service={s.slug} href={book} />
+              <Cta kind={s.secondaryCta.kind} label={s.secondaryCta.label} service={s.slug} href={book} variant="outline" />
             </div>
           </div>
           {/* Library photograph (C21) with the pillar icon as a badge; both decorative */}
@@ -154,7 +156,7 @@ export default async function ServicePage({ params }: Props) {
         <div className="container-prose text-center">
           <h2 className="text-display-lg">Start where you are.</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Cta kind={s.primaryCta.kind} label={s.primaryCta.label} service={s.slug} variant="secondary" />
+            <Cta kind={s.primaryCta.kind} label={s.primaryCta.label} service={s.slug} href={book} variant="secondary" />
             <Cta kind="start" label="Not sure yet? Start here" variant="outline" className="!border-white/50 !text-white" />
           </div>
         </div>

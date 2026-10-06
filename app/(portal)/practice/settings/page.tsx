@@ -1,6 +1,7 @@
 import { requireStaffViewer, isDemoSignIn, isMock } from "@/lib/portal";
 import { getSettings } from "@/lib/settings";
 import { privacyPolicy } from "@/content/legal";
+import { services } from "@/content/services";
 import { PageTitle, Panel } from "@/components/portal/ui";
 import { SettingsForm } from "@/components/portal/SettingsForm";
 
@@ -37,7 +38,7 @@ export default async function SettingsPage() {
           <span className="font-semibold">tabhumanperformance.com/practice/settings</span>.
         </p>
       )}
-      <SettingsForm settings={settings} gate={gate} canGoLive={!isMock()} />
+      <SettingsForm settings={settings} gate={gate} canGoLive={!isMock()} services={services.map((s) => ({ slug: s.slug, name: s.name }))} />
     </>
   );
 }

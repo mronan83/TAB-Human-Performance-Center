@@ -13,7 +13,8 @@
   "20261006000000_private_notes_audit_stripe.sql",
   "20261007000000_integrated_nutrition_service.sql",
   "20261008000000_method_stages_adapt_balance.sql",
-  "20261009000000_owner_settings.sql"
+  "20261009000000_owner_settings.sql",
+  "20261010000000_settings_booking_features.sql"
  ],
  "tables": [
   {
@@ -185,12 +186,12 @@
     {
      "name": "app_settings_key_check",
      "kind": "check",
-     "def": "CHECK ((key = ANY (ARRAY['portal_mode'::text, 'transition_banner'::text, 'start_form_open'::text])))"
+     "def": "CHECK ((key = ANY (ARRAY['portal_mode'::text, 'transition_banner'::text, 'start_form_open'::text, 'booking_massage-bodywork'::text, 'booking_personal-strength-training'::text, 'booking_womens-wellness-coaching'::text, 'booking_integrated-nutrition'::text, 'booking_holistic-life-coaching'::text, 'feature_resources'::text, 'feature_team'::text, 'feature_events'::text])))"
     },
     {
      "name": "app_settings_value_shape",
      "kind": "check",
-     "def": "CHECK (\nCASE key\n    WHEN 'portal_mode'::text THEN ((jsonb_typeof(value) = 'string'::text) AND ((value #>> '{}'::text[]) = ANY (ARRAY['off'::text, 'live'::text])))\n    ELSE (jsonb_typeof(value) = 'boolean'::text)\nEND)"
+     "def": "CHECK (\nCASE\n    WHEN (key = 'portal_mode'::text) THEN ((jsonb_typeof(value) = 'string'::text) AND ((value #>> '{}'::text[]) = ANY (ARRAY['off'::text, 'live'::text])))\n    WHEN (key ~~ 'booking\\_%'::text) THEN ((jsonb_typeof(value) = 'null'::text) OR ((jsonb_typeof(value) = 'string'::text) AND (length((value #>> '{}'::text[])) <= 500) AND ((value #>> '{}'::text[]) ~ '^https://[^[:space:]]+$'::text)))\n    ELSE (jsonb_typeof(value) = 'boolean'::text)\nEND)"
     },
     {
      "name": "app_settings_updated_by_fkey",

@@ -1,9 +1,14 @@
 import { siteConfig } from "./site";
 
+/** The optional pages that are on (lib/settings.ts → siteFeatures(); the owner switches them in Settings, C23b). */
+export type NavFeatures = { resources: boolean; team: boolean; events: boolean };
+/** Build-time defaults, for places that can't read live settings. */
+export const DEFAULT_NAV_FEATURES: NavFeatures = { resources: siteConfig.features.resources, team: siteConfig.features.team, events: siteConfig.features.events };
+
 export type NavItem = { label: string; href: string; children?: NavItem[] };
 
 /** D-033 / Step 16.2: primary navigation follows visitor intent. */
-export const primaryNav: NavItem[] = [
+export const primaryNavFor = (f: NavFeatures): NavItem[] => [
   { label: "Home", href: "/" }, // WEB-001
   {
     label: "Services",
@@ -24,19 +29,19 @@ export const primaryNav: NavItem[] = [
     children: [
       { label: "About TAB", href: "/about" },
       { label: "Our Story", href: "/about/our-story" },
-      ...(siteConfig.features.team ? [{ label: "Our Team", href: "/about/team" }] : []),
+      ...(f.team ? [{ label: "Our Team", href: "/about/team" }] : []),
     ],
   },
-  ...(siteConfig.features.resources ? [{ label: "Resources", href: "/resources" }] : []),
+  ...(f.resources ? [{ label: "Resources", href: "/resources" }] : []),
 ];
 
-export const footerNav = {
+export const footerNavFor = (f: NavFeatures) => ({
   explore: [
     { label: "Home", href: "/" },
     { label: "Services", href: "/services" },
     { label: "The TAB Method", href: "/tab-method" },
     { label: "About", href: "/about" },
-    ...(siteConfig.features.resources ? [{ label: "Resources", href: "/resources" }] : []),
+    ...(f.resources ? [{ label: "Resources", href: "/resources" }] : []),
   ],
   getStarted: [
     { label: "Start Where You Are", href: "/start" },
@@ -45,9 +50,9 @@ export const footerNav = {
   ],
   tab: [
     { label: "Our Story", href: "/about/our-story" },
-    ...(siteConfig.features.team ? [{ label: "Our Team", href: "/about/team" }] : []),
+    ...(f.team ? [{ label: "Our Team", href: "/about/team" }] : []),
     { label: "FAQ", href: "/faq" },
-    ...(siteConfig.features.events ? [{ label: "Events & Workshops", href: "/events" }] : []),
+    ...(f.events ? [{ label: "Events & Workshops", href: "/events" }] : []),
   ],
   legal: [
     { label: "Privacy", href: "/privacy" },
@@ -57,4 +62,4 @@ export const footerNav = {
     { label: "Cancellation policy", href: "/policies#cancellation" },
     { label: "Service disclaimers", href: "/policies#scope" },
   ],
-};
+});

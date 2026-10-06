@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { footerNav } from "@/config/navigation";
+import { footerNavFor } from "@/config/navigation";
 import { siteConfig } from "@/config/site";
 import { services } from "@/content/services";
 import { Logo } from "./Logo";
 import { SmartLink } from "./SmartLink";
-import { accountLink } from "@/lib/settings";
+import { accountLink, siteFeatures } from "@/lib/settings";
 import { formatAddress, groupedHours, practitionerLink, telHref } from "@/lib/links";
 
 export async function SiteFooter() {
   const { contact, social, booking, brand } = siteConfig;
   const socials = Object.entries(social).filter(([, url]) => !!url) as [string, string][];
   const account = await accountLink();
+  const footerNav = footerNavFor(await siteFeatures());
   const practitioner = practitionerLink();
   return (
     <footer className="on-dark mt-24 bg-graphite text-white">

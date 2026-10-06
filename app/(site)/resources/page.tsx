@@ -3,11 +3,14 @@ import { pageMetadata } from "@/lib/seo";
 import { resourceClusters, home } from "@/content/pages";
 import { PageHero } from "@/components/PageHero";
 import { Cta } from "@/components/Cta";
+import { notFound } from "next/navigation";
+import { siteFeatures } from "@/lib/settings";
 
 export const metadata: Metadata = pageMetadata({ title: "Resources", description: "Guides and education to help you understand, prepare, practice, and keep moving forward.", path: "/resources" });
 
 /** Resource hub (Step 16.5). Articles and guides arrive with the CMS (D-036); clusters are the planned structure. */
-export default function ResourcesPage() {
+export default async function ResourcesPage() {
+  if (!(await siteFeatures()).resources) notFound(); // the owner can hide it in Settings (C23b)
   return (
     <>
       <PageHero eyebrow="Resources" title={home.resources.headline} lead={home.resources.body} />
