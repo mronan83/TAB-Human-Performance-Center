@@ -9,18 +9,13 @@ export function bookingHref(slug?: ServiceSlug): { href: string; external: boole
 }
 
 /**
- * "Client Login" goes to Timely (WEB-020, Step 19.14). Until the dedicated Client Login link is configured it opens the
+ * Timely's client login (Step 19.14), used inside the interim /my-tab page and the portal's billing and appointment pages. Until the dedicated Client Login link is configured it opens the
  * Timely booking page, where clients manage bookings too. It never falls back to /contact: a login button that opens a
  * contact form reads as broken (owner feedback 2026-09-28).
  */
 export function clientLoginHref(): { href: string; external: boolean } {
   const url = siteConfig.booking.timelyClientLoginUrl ?? siteConfig.booking.timelyBookingUrl;
   return url ? { href: url, external: true } : { href: "/book", external: false };
-}
-
-/** The header and footer account link: "My TAB" once the portal is live, else "Client Login" into Timely (WEB-020). */
-export function accountLink(): { href: string; external: boolean; label: string } {
-  return siteConfig.portal.enabled ? { href: "/my-tab", external: false, label: "My TAB" } : { ...clientLoginHref(), label: "Client Login" };
 }
 
 /** The footer entry to TAB Practice: real staff sign-in where it exists (C23), else the demo while the portal is on. */

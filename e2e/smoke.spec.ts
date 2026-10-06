@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
-import { accountLink, bookingHref, clientLoginHref } from "../lib/links";
+import { bookingHref, clientLoginHref } from "../lib/links";
+import { accountLink } from "../lib/settings";
 
 /** S19 §19.15 critical smoke tests that can run without live third-party services (NFR-007). */
 
@@ -30,11 +31,14 @@ test("homepage → service page → booking", async ({ page }) => {
   }
 });
 
-test("account link goes where the configuration says (WEB-020)", async ({ page }) => {
+test("account link: My TAB only once the client portal is open, never a Client Login (WEB-020)", async ({ page }) => {
+  // Owner ruling 2026-10-06: no Client Login until the portal is live; Book covers Timely meanwhile.
   await page.goto("/");
-  const account = accountLink();
-  await expect(page.locator("header").getByRole("link", { name: account.label }).first()).toHaveAttribute("href", account.href);
-  // Production shows "Client Login" until My TAB is live: it must open Timely, never the contact form.
+  const account = await accountLink();
+  for (const area of ["header", "footer"]) await expect(page.locator(area).getByRole("link", { name: "Client Login" })).toHaveCount(0);
+  if (account) await expect(page.locator("header").getByRole("link", { name: account.label }).first()).toHaveAttribute("href", account.href);
+  else await expect(page.locator("header").getByRole("link", { name: "My TAB" })).toHaveCount(0);
+  // The interim /my-tab page (old bookmarks, /employee-login) still opens Timely, never the contact form.
   expect(clientLoginHref().href).not.toBe("/contact");
   if (bookingHref().external) expect(clientLoginHref().external).toBe(true);
 });

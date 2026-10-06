@@ -4,12 +4,13 @@ import { siteConfig } from "@/config/site";
 import { services } from "@/content/services";
 import { Logo } from "./Logo";
 import { SmartLink } from "./SmartLink";
-import { accountLink, formatAddress, groupedHours, practitionerLink, telHref } from "@/lib/links";
+import { accountLink } from "@/lib/settings";
+import { formatAddress, groupedHours, practitionerLink, telHref } from "@/lib/links";
 
-export function SiteFooter() {
+export async function SiteFooter() {
   const { contact, social, booking, brand } = siteConfig;
   const socials = Object.entries(social).filter(([, url]) => !!url) as [string, string][];
-  const account = accountLink();
+  const account = await accountLink();
   const practitioner = practitionerLink();
   return (
     <footer className="on-dark mt-24 bg-graphite text-white">
@@ -39,7 +40,7 @@ export function SiteFooter() {
         <FooterCol title="Services" links={services.map((s) => ({ label: s.name, href: `/services/${s.path}` }))} />
         <div className="space-y-10">
           <FooterCol title="Get started" links={footerNav.getStarted} extra={[
-            <SmartLink key="account" href={account.href} external={account.external} className="text-white/85 hover:text-white">{account.label}</SmartLink>,
+            account && <SmartLink key="account" href={account.href} className="text-white/85 hover:text-white">{account.label}</SmartLink>,
             practitioner && <Link key="practitioner" href={practitioner.href} className="text-white/85 hover:text-white">{practitioner.label}</Link>,
           ]} />
           <FooterCol title="TAB" links={[...footerNav.tab, ...(booking.giftCardsUrl ? [{ label: "Gift cards", href: booking.giftCardsUrl }] : [])]} />

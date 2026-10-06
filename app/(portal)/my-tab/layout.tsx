@@ -10,7 +10,7 @@ export const metadata = { title: "My TAB", robots: { index: false, follow: false
 
 export default async function MyTabLayout({ children }: { children: React.ReactNode }) {
   if (!(await portalOpen())) {
-    return (<><SiteHeader /><main id="main">{children}</main><SiteFooter /></>);
+    return (<><SiteHeader account={null} /><main id="main">{children}</main><SiteFooter /></>);
   }
   const viewer = await getViewer();
   const onSignIn = (await headers()).get("x-tab-path") === "/my-tab/login";
