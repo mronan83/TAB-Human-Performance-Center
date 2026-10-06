@@ -61,6 +61,8 @@ test("portal: demo sign-in and progress review meet WCAG 2.2 AA", async ({ page,
   await scan(page, "/practice/programs/… (published version)");
   await page.goto("/practice/team");
   await scan(page, "/practice/team");
+  await page.goto("/practice/settings");
+  await scan(page, "/practice/settings (owner settings)");
   await page.goto("/practice/clients/demo-client-dana");
   await scan(page, "/practice/clients/… (client page: access, forms, resources)");
   await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);

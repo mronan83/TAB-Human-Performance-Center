@@ -9,6 +9,7 @@ import { MAX_BODY_BYTES, MIN_FILL_MS, duplicateGuard, flagLabels, limiter, sameO
 import { siteConfig, siteUrl } from "@/config/site";
 import { staffInquiryEmail, submitterCopyEmail } from "@/content/emails";
 import { firstName, renderEmail } from "@/lib/email-template";
+import { getSettings } from "@/lib/settings";
 
 // Spam defenses (SEC-013): see lib/spam.ts for the layers and why each exists. The limits below are per server
 // instance; a shared limit at the edge (Vercel Firewall) is the planned complement.
@@ -65,6 +66,10 @@ export async function POST(req: Request) {
   }
 
   const isStart = d.kind === "start";
+  // The owner can pause online Start submissions (C23); the page hides the form, and this stops a stale tab or a bot.
+  if (isStart && !(await getSettings()).startFormOpen) {
+    return json({ ok: false, error: `We’re not taking Start Where You Are submissions online right now. Please email ${siteConfig.contact.email}.` }, 409);
+  }
   // Subjects carry no personal details (D-054, R-027); the reference ties the emails to the stored record.
   const ref = `${Date.now().toString(36)}${crypto.randomUUID().slice(0, 4)}`.toUpperCase();
 

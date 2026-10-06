@@ -39,7 +39,10 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
-  if (!siteConfig.portal.enabled && path !== "/my-tab") return NextResponse.redirect(new URL("/my-tab", url.origin), 307);
+  // TAB Practice stays reachable for real staff sign-in (owner Settings, C23) even while the client portal is closed.
+  const isPractice = path.startsWith("/practice");
+  const staffReal = isPractice && siteConfig.portal.realStaffSignIn;
+  if (!siteConfig.portal.enabled && path !== "/my-tab" && !staffReal) return NextResponse.redirect(new URL("/my-tab", url.origin), 307);
 
   // Next.js stamps this nonce on the scripts it renders. The policy goes on the request (as the Next.js docs describe)
   // and on the response the browser enforces; e2e/security.spec.ts checks the page scripts carry the enforced nonce.
@@ -52,7 +55,7 @@ export async function middleware(req: NextRequest) {
     res.headers.set("Content-Security-Policy", csp);
     return res;
   };
-  if (siteConfig.portal.dataSource !== "supabase") return next();
+  if (siteConfig.portal.dataSource !== "supabase" && !staffReal) return next();
 
   // Refresh the Supabase session cookie on portal requests.
   let res = next();
@@ -68,8 +71,8 @@ export async function middleware(req: NextRequest) {
     },
   });
   const { data: { user } } = await sb.auth.getUser();
-  const open = path === "/my-tab/login" || path.startsWith("/my-tab/auth");
-  if (!user && !open) return NextResponse.redirect(new URL("/my-tab/login", url.origin), 307);
+  const open = path === "/my-tab/login" || path.startsWith("/my-tab/auth") || path === "/practice/login" || path.startsWith("/practice/auth");
+  if (!user && !open) return NextResponse.redirect(new URL(isPractice ? "/practice/login" : "/my-tab/login", url.origin), 307);
   return res;
 }
 

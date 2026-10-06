@@ -1,10 +1,15 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isProductionDeployment, siteConfig } from "@/config/site";
+import { portalOpen } from "@/lib/settings";
 import type { PortalRepository, Viewer } from "./types";
 import { DEMO_CLIENT_ID, DEMO_PRACTITIONER_ID, mockRepository } from "./mock-repository";
 
 export const isMock = () => siteConfig.portal.dataSource === "mock";
+/** Demo sign-in (the chooser on /my-tab/login) instead of real accounts. Production uses real staff sign-in (C23). */
+export const isDemoSignIn = () => !siteConfig.portal.realStaffSignIn;
+/** TAB Practice's client screens: where client data is real, or in the demo. Production with demo data shows Settings only. */
+export const clientScreensAvailable = () => !isMock() || isDemoSignIn();
 
 /** Demo data is shared by every visitor: allowed on production only while `portal.demoOnProduction` is set. */
 function assertDemoAllowed() {
@@ -19,9 +24,9 @@ export async function getRepository(): Promise<PortalRepository> {
   return (await import("./supabase-repository")).supabaseRepository;
 }
 
-/** The signed-in viewer. In mock mode the demo sign-in sets a cookie: demo client, demo practitioner, or signed out. */
+/** The signed-in viewer. In the demo, the sign-in chooser sets a cookie: demo client, demo practitioner, or signed out. */
 export async function getViewer(): Promise<Viewer | null> {
-  if (isMock()) {
+  if (isDemoSignIn()) {
     assertDemoAllowed();
     const role = (await cookies()).get("tab_demo_role")?.value;
     if (role !== "owner" && role !== "client") return null;
@@ -57,19 +62,34 @@ export async function getViewer(): Promise<Viewer | null> {
 }
 
 export async function requireClient(): Promise<{ viewer: Viewer; clientId: string; repo: PortalRepository }> {
-  if (!siteConfig.portal.enabled) redirect("/my-tab");
+  if (!(await portalOpen())) redirect("/my-tab");
   const viewer = await getViewer();
   if (!viewer) redirect("/my-tab/login");
   if (!viewer.clientId) redirect(viewer.role === "client" ? "/my-tab/login?e=unlinked" : "/practice");
   return { viewer, clientId: viewer.clientId, repo: await getRepository() };
 }
 
-export async function requireStaff(): Promise<{ viewer: Viewer; repo: PortalRepository }> {
-  if (!siteConfig.portal.enabled || !siteConfig.portal.showPracticeWorkspace) redirect("/my-tab");
+/** Signed-in, two-step-verified staff. Real sign-in sends people to /practice/login and /practice/verify. */
+export async function requireStaffViewer(): Promise<Viewer> {
+  const real = !isDemoSignIn();
+  if (!siteConfig.portal.showPracticeWorkspace || (!real && !siteConfig.portal.enabled)) redirect("/my-tab");
   const viewer = await getViewer();
-  if (!viewer) redirect("/my-tab/login");
+  if (!viewer) redirect(real ? "/practice/login" : "/my-tab/login");
   // Demo: a client who follows "Practitioner login" lands on the sign-in page, one click from the practitioner view.
-  if (viewer.role === "client") redirect(isMock() ? "/my-tab/login" : "/my-tab");
-  if (viewer.staffVerified === false) redirect("/my-tab/login?e=mfa");
+  if (viewer.role === "client") redirect(real ? "/practice/login?e=staff" : "/my-tab/login");
+  if (viewer.staffVerified === false) redirect("/practice/verify");
+  return viewer;
+}
+
+export async function requireStaff(): Promise<{ viewer: Viewer; repo: PortalRepository }> {
+  const viewer = await requireStaffViewer();
+  if (!clientScreensAvailable()) redirect("/practice/settings");
   return { viewer, repo: await getRepository() };
+}
+
+/** The owner only, for actions that change owner-level things (settings). Pages show non-owners a notice instead. */
+export async function requireOwner(): Promise<Viewer> {
+  const viewer = await requireStaffViewer();
+  if (viewer.role !== "owner") throw new Error("Only the owner can do this.");
+  return viewer;
 }

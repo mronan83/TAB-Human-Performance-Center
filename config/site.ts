@@ -22,7 +22,7 @@ const portalDataSource = "mock" as "mock" | "supabase";
  * Demo My TAB and TAB Practice on the production deployment (owner ruling 2026-09-28), now off: the switch-over runbook
  * (docs/runbooks/switch-over.md, C1) turns it off before the custom domain is attached, because demo mode has no real
  * login and one in-memory store shared by every visitor. Previews keep the demo. The owner settings page (C23,
- * approved 2026-10-06) replaces this constant with an Off / Demo / Live setting.
+ * proposed D-067) opens or closes the real portal (Off / Live); demo stays a preview-only build mode.
  */
 const portalDemoOnProduction = false;
 
@@ -143,6 +143,12 @@ export const siteConfig = {
     dataSource: portalDataSource,
     demoOnProduction: portalDemoOnProduction,
     showPracticeWorkspace: true,
+    /**
+     * Real staff sign-in (Supabase, two-step verification) instead of the demo chooser (C23, proposed D-067): wherever
+     * client data is real, and on production whenever Supabase is configured, so the owner can reach TAB Practice →
+     * Settings while client data stays off. Staff accounts and settings are not client data (guardrail 4).
+     */
+    realStaffSignIn: portalDataSource === "supabase" || (isProductionDeployment && !!process.env.NEXT_PUBLIC_SUPABASE_URL),
   },
 } as const;
 

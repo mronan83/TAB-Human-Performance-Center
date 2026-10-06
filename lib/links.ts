@@ -23,9 +23,11 @@ export function accountLink(): { href: string; external: boolean; label: string 
   return siteConfig.portal.enabled ? { href: "/my-tab", external: false, label: "My TAB" } : { ...clientLoginHref(), label: "Client Login" };
 }
 
-/** The footer entry to TAB Practice for practitioners; none while the portal is off. */
+/** The footer entry to TAB Practice: real staff sign-in where it exists (C23), else the demo while the portal is on. */
 export function practitionerLink(): { href: string; label: string } | null {
-  return siteConfig.portal.enabled && siteConfig.portal.showPracticeWorkspace ? { href: "/practice", label: "Practitioner login" } : null;
+  if (!siteConfig.portal.showPracticeWorkspace) return null;
+  if (siteConfig.portal.realStaffSignIn) return { href: "/practice/login", label: "Practitioner login" };
+  return siteConfig.portal.enabled ? { href: "/practice", label: "Practitioner login" } : null;
 }
 
 type Hours = { days: string; open: string; close: string; closed: boolean };
