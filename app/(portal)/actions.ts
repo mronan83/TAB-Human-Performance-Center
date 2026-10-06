@@ -3,7 +3,7 @@
 import { cookies, headers } from "next/headers";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { getViewer, isDemoSignIn, isMock, requireClient, requireOwner as requireOwnerViewer, requireStaff } from "@/lib/portal";
+import { getViewer, isDemoSignIn, isMock, requireClient, requireOwner as requireOwnerViewer, requireStaff, requireStaffViewer } from "@/lib/portal";
 import { DEFAULT_SETTINGS, SERVICE_SLUGS, getSettings, isBookingLink, saveSettings, SETTINGS_TAG, type PortalMode } from "@/lib/settings";
 import { siteUrl } from "@/config/site";
 import type { Consent, GoalInput, InviteResult, MethodStage, Plan, PlanType, ProgramAction, ReviewOutcome } from "@/lib/portal/types";
@@ -17,6 +17,7 @@ import { sendStageUpdatedEmail } from "@/lib/email";
 import { getService, type ServiceSlug } from "@/content/services";
 import { routingOptions, type RoutingOutcome } from "@/lib/inquiry";
 import { limiter, verifyHuman } from "@/lib/spam";
+import { isBreachedPassword, passkeyOptionsToJSON, passkeyRelyingParty, passwordProblem } from "@/lib/staff-auth";
 
 export async function toggleActivityAction(programId: string, activityId: string, done: boolean) {
   const { clientId, repo } = await requireClient();
@@ -471,6 +472,144 @@ export async function verifyTotpAction(_prev: unknown, fd: FormData): Promise<{ 
   const { error } = await sb.auth.mfa.challengeAndVerify({ factorId, code });
   if (error) return { error: "That code didn’t match. Check the time on your phone and try the newest code." };
   redirect("/practice");
+}
+
+// ---------------------------------------------------------------------------
+// Staff password and passkeys (owner ruling 2026-10-06, proposed D-068). The password replaces the emailed link as
+// the first step; the second step stays mandatory: a passkey, or the authenticator code as the backup. The emailed
+// link remains for a forgotten password. Clients keep emailed links only.
+// ---------------------------------------------------------------------------
+
+const passwordPerIp = limiter(10, 10 * 60_000);
+const passwordPerEmail = limiter(5, 15 * 60_000);
+const WRONG_PASSWORD = "That email and password don’t match. Forgot your password, or haven’t set one yet? Use the emailed link below.";
+
+/** Staff sign-in with email and password, behind the same public-form defenses as the emailed link (SEC-013). */
+export async function signInWithPasswordAction(_prev: unknown, fd: FormData): Promise<{ error: string } | undefined> {
+  if (isDemoSignIn()) redirect("/my-tab/login");
+  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  const password = String(fd.get("password") ?? "");
+  if (email.length > 254 || !/^\S+@\S+\.\S+$/.test(email) || !password) return { error: "Enter your email address and password." };
+  if (String(fd.get("website") ?? "")) return { error: WRONG_PASSWORD }; // honeypot: the usual answer, nothing checked
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const tooMany = { error: "Too many sign-in attempts. Please wait a few minutes, then try again." };
+  if (passwordPerIp(ip)) return tooMany;
+  const token = String(fd.get("turnstileToken") ?? "") || undefined;
+  const human = await verifyHuman(token, { ip, action: "login", host: h.get("x-forwarded-host") ?? h.get("host") });
+  if (human === "fail") return { error: "We couldn’t confirm this is a real browser. Please try again." };
+  if (passwordPerEmail(email)) return tooMany;
+  const { createSupabaseServerClient } = await import("@/lib/supabase/server");
+  const sb = await createSupabaseServerClient();
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error || !data.user) return { error: WRONG_PASSWORD };
+  const { data: profile } = await sb.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
+  if (!profile || profile.role === "client") {
+    await sb.auth.signOut();
+    return { error: "That account isn’t a TAB staff account. Clients sign in to My TAB." };
+  }
+  redirect("/practice/verify");
+}
+
+/** A signed-in staff member on one of our own addresses, for passkey work. */
+async function passkeyContext(requireVerified: boolean) {
+  const sb = requireVerified ? (await requireStaffViewer(), await (await import("@/lib/supabase/server")).createSupabaseServerClient()) : await signedInStaff();
+  const rp = passkeyRelyingParty((await headers()).get("host"));
+  return { sb, rp };
+}
+
+type PasskeyStart = { factorId: string; challengeId: string; options: Record<string, unknown> } | { error: string };
+
+/** Starts adding a passkey for this device. Needs a two-step-verified session; the authenticator app stays as backup. */
+export async function startPasskeyRegistrationAction(name: string): Promise<PasskeyStart> {
+  const { sb, rp } = await passkeyContext(true);
+  if (!rp) return { error: "Passkeys work on the TAB website address only." };
+  const { data: list } = await sb.auth.mfa.listFactors();
+  for (const f of list?.all ?? []) if (f.factor_type === "webauthn" && f.status !== "verified") await sb.auth.mfa.unenroll({ factorId: f.id });
+  const taken = new Set((list?.all ?? []).map((f) => f.friendly_name));
+  const base = name.replace(/[^\p{L}\p{N} '’()-]/gu, "").trim().slice(0, 40) || "Passkey";
+  let friendlyName = base;
+  for (let i = 2; taken.has(friendlyName); i++) friendlyName = `${base} (${i})`;
+  const { data: factor, error } = await sb.auth.mfa.enroll({ factorType: "webauthn", friendlyName });
+  if (error || !factor) return { error: "We couldn’t start adding a passkey. Please try again." };
+  const { data: challenge, error: cErr } = await sb.auth.mfa.challenge({ factorId: factor.id, webauthn: rp });
+  if (cErr || !challenge || challenge.webauthn.type !== "create") return { error: "We couldn’t start adding a passkey. Please try again." };
+  return { factorId: factor.id, challengeId: challenge.id, options: passkeyOptionsToJSON(challenge.webauthn.credential_options.publicKey as unknown as Record<string, unknown>) };
+}
+
+/** Finishes adding a passkey with what the device created. */
+export async function finishPasskeyRegistrationAction(factorId: string, challengeId: string, credential: Record<string, unknown>): Promise<{ ok: true } | { error: string }> {
+  const { sb, rp } = await passkeyContext(true);
+  if (!rp) return { error: "Passkeys work on the TAB website address only." };
+  // Supabase's library serializes a browser credential with its toJSON(); ours arrives already as that JSON.
+  const credential_response = { toJSON: () => credential } as never;
+  const { error } = await sb.auth.mfa.verify({ factorId, challengeId, webauthn: { ...rp, type: "create", credential_response } });
+  if (error) {
+    await sb.auth.mfa.unenroll({ factorId }).catch(() => undefined);
+    return { error: "That passkey couldn’t be saved. Please try again." };
+  }
+  revalidatePath("/practice/security");
+  return { ok: true };
+}
+
+/** The second step with a passkey: asks the device to sign this sign-in's challenge. */
+export async function startPasskeySignInAction(factorId: string): Promise<PasskeyStart> {
+  const { sb, rp } = await passkeyContext(false);
+  if (!rp) return { error: "Passkeys work on the TAB website address only." };
+  const { data, error } = await sb.auth.mfa.challenge({ factorId, webauthn: rp });
+  if (error || !data || data.webauthn.type !== "request") return { error: "We couldn’t start your passkey. Use the 6-digit code instead." };
+  return { factorId, challengeId: data.id, options: passkeyOptionsToJSON(data.webauthn.credential_options.publicKey as unknown as Record<string, unknown>) };
+}
+
+/** Checks the passkey's answer. Success makes the session two-step verified (aal2), as the 6-digit code does. */
+export async function finishPasskeySignInAction(factorId: string, challengeId: string, credential: Record<string, unknown>): Promise<{ error: string } | undefined> {
+  const { sb, rp } = await passkeyContext(false);
+  if (!rp) return { error: "Passkeys work on the TAB website address only." };
+  const credential_response = { toJSON: () => credential } as never;
+  const { error } = await sb.auth.mfa.verify({ factorId, challengeId, webauthn: { ...rp, type: "request", credential_response } });
+  if (error) return { error: "That passkey didn’t work. Try again, or use the 6-digit code." };
+  redirect("/practice");
+}
+
+/** Removes a passkey (a lost or replaced device). The authenticator app can't be removed here: it's the backup. */
+export async function removePasskeyAction(factorId: string): Promise<{ ok: true } | { error: string }> {
+  const { sb } = await passkeyContext(true);
+  const { data: list } = await sb.auth.mfa.listFactors();
+  if (!list?.all.some((f) => f.id === factorId && f.factor_type === "webauthn")) return { error: "That passkey wasn’t found." };
+  const { error } = await sb.auth.mfa.unenroll({ factorId });
+  if (error) return { error: "We couldn’t remove that passkey. Please try again." };
+  revalidatePath("/practice/security");
+  return { ok: true };
+}
+
+/**
+ * Sets or changes the staff password. Asks for a fresh authenticator code as well, so a session left open on someone
+ * else's screen can't be used to take over the account. Supabase emails the account a "password changed" notice.
+ */
+export async function setPasswordAction(_prev: unknown, fd: FormData): Promise<{ ok: boolean; error?: string }> {
+  if (isDemoSignIn()) return { ok: false, error: "Passwords are for real accounts." };
+  await requireStaffViewer();
+  const password = String(fd.get("password") ?? "");
+  const confirm = String(fd.get("confirm") ?? "");
+  const code = String(fd.get("code") ?? "").replace(/\s+/g, "");
+  const { createSupabaseServerClient } = await import("@/lib/supabase/server");
+  const sb = await createSupabaseServerClient();
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) return { ok: false, error: "Your session ended. Please sign in again." };
+  const problem = passwordProblem(password, user.email);
+  if (problem) return { ok: false, error: problem };
+  if (password !== confirm) return { ok: false, error: "The two passwords don’t match." };
+  if (!/^\d{6}$/.test(code)) return { ok: false, error: "Enter the 6-digit code from your authenticator app." };
+  const { data: list } = await sb.auth.mfa.listFactors();
+  const totp = list?.totp?.find((f) => f.status === "verified");
+  if (!totp) return { ok: false, error: "Set up your authenticator app first." };
+  const { error: codeError } = await sb.auth.mfa.challengeAndVerify({ factorId: totp.id, code });
+  if (codeError) return { ok: false, error: "That code didn’t match. Check the time on your phone and try the newest code." };
+  if (await isBreachedPassword(password)) return { ok: false, error: "That password has appeared in a known data breach, so it isn’t safe to use. Please choose another." };
+  const { error } = await sb.auth.updateUser({ password, data: { password_set_at: new Date().toISOString() } });
+  if (error) return { ok: false, error: /different/i.test(error.message) ? "Choose a password you haven’t used here before." : "We couldn’t save your password. Please try again." };
+  revalidatePath("/practice/security");
+  return { ok: true };
 }
 
 export async function saveSettingsAction(_prev: unknown, fd: FormData): Promise<{ ok: boolean; error?: string }> {
