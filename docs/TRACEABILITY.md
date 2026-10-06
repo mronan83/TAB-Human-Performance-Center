@@ -278,7 +278,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-37 | Version moves and client-only activities | Verified (demo) | STAFF-009 | — | `practice/clients/[id]/programs/`, `components/portal/interactive.tsx` | smoke, rls |
 | F-38 | Team page (publishing permission) | Verified (demo) | STAFF-009, SEC-001 | D-045 | `practice/team/` | smoke, a11y, rls |
 | F-39 | Invite to My TAB, assign forms, share resources | Partial: invite email needs C5 | STAFF-010, PORTAL-008, CMS-003, SEC-014 | D-054 | `practice/clients/[id]/page.tsx`, migration `20261005000000` | smoke, a11y, rls |
-| F-53 | Owner settings and staff sign-in with two-step verification | Live 2026-10-06; part 2 (booking links, page switches, C23b) in review, its migration needs G3 | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, `config/navigation.ts`, migrations `20261009000000` and `20261010000000` | settings, a11y, rls |
+| F-53 | Owner settings and staff sign-in with two-step verification | Live 2026-10-06, both parts (part 2: booking links and page switches, C23b) | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, `config/navigation.ts`, migrations `20261009000000` and `20261010000000` | settings, a11y, rls |
 
 ### Delivery and operations
 
@@ -295,7 +295,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
 | F-44 | Payload CMS | Planned | CMS-001 to CMS-005 | C8 (after Phase 1, A-02) |
-| F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, in review); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
+| F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
 | F-48 | Service intakes for the five pillars | Planned | STAFF-003 | not yet on the backlog |
@@ -409,6 +409,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.18 | Analytics: Plausible replaced by Vercel Web Analytics (owner ruling A4; F-14, NFR-005, NFR-006); client policies cover all five pillars and no-shows (A30); Turnstile keys set (A3, SEC-013) | Owner rulings, 2026-10-06 |
 | 2026-10-06 | 1.19 | C5: invitation links fixed (tokens after a `#` never reached the server) and sign-in links work in any browser (`token_hash`); checked in `e2e/guardrails.spec.ts` | Found while answering the owner's C5 question, 2026-10-06 |
 | 2026-10-06 | 1.20 | Analytics rebuilt as our own first-party counter with an owner Website stats page (F-14; `site_stats`, `record_site_stat`, `/api/stats`); Vercel Web Analytics removed (it is a paid add-on) | Owner ruling A4, 2026-10-06: "Let's build our own" |
+| 2026-10-06 | 1.21 | Status refresh after the production release: F-53 part 2 and F-45 (C5) live; Contact added to the About menu (F-01, `config/navigation.ts`) | Owner request 2026-10-06: "the contact us page needs to be part of the about drop down" |
 
 ## Sources
 

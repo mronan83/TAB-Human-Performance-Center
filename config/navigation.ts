@@ -30,6 +30,7 @@ export const primaryNavFor = (f: NavFeatures): NavItem[] => [
       { label: "About TAB", href: "/about" },
       { label: "Our Story", href: "/about/our-story" },
       ...(f.team ? [{ label: "Our Team", href: "/about/team" }] : []),
+      { label: "Contact", href: "/contact" }, // owner request 2026-10-06: Contact sits under About
     ],
   },
   ...(f.resources ? [{ label: "Resources", href: "/resources" }] : []),
