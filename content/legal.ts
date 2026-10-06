@@ -1,7 +1,7 @@
 /**
  * Privacy policy and terms of use (A7). Drafted 2026-10-06 from how the site actually works (config/site.ts,
- * lib/csp.ts, app/api/inquiry, lib/email*.ts, the My TAB design) for the owner's review, then an attorney's. `draft`
- * keeps the "Pending review" flag on the page and the item on /launch-checklist; `reviewNotes` are shown only while
+ * lib/csp.ts, app/api/inquiry, lib/email*.ts, the My TAB design) for the owner's review, then an attorney's; the owner
+ * approved both on 2026-10-06 (A7). `draft` keeps the "Pending review" flag on the page and the item on /launch-checklist; `reviewNotes` are shown only while
  * the draft flag is on and never become part of the policy. Plain language on purpose: these are read by clients.
  */
 
@@ -26,8 +26,8 @@ export type LegalDoc = {
 
 export const privacyPolicy: LegalDoc = {
   title: "Privacy policy",
-  draft: true,
-  updated: null,
+  draft: false, // owner, 2026-10-06 (A7): "Done"
+  updated: "October 6, 2026",
   intro: [
     "TAB Human Performance Center (formerly TAB Massage & Fitness) respects your privacy. This policy explains what information we collect through our website, how we use it, who helps us handle it, and the choices you have.",
     "It covers tabhumanperformance.com and the forms and emails that come from it. Booking through Timely and payments through Stripe are also covered by those companies' own privacy policies.",
@@ -155,8 +155,8 @@ export const privacyPolicy: LegalDoc = {
 
 export const termsOfUse: LegalDoc = {
   title: "Terms of use",
-  draft: true,
-  updated: null,
+  draft: false, // owner, 2026-10-06 (A7): "Done"
+  updated: "October 6, 2026",
   intro: [
     "These terms apply to your use of tabhumanperformance.com and the services offered through it by TAB Human Performance Center (\"TAB\", \"we\", \"us\"). By using the site, you agree to them. If you don't agree, please don't use the site.",
   ],

@@ -30,7 +30,7 @@ export default function BookPage() {
                   <p className="text-sm text-text-secondary">{s.primaryCta.label}</p>
                 </div>
                 {b.external ? (
-                  <SmartLink href={b.href} external className="btn btn-primary btn-sm">Book</SmartLink>
+                  <SmartLink href={b.href} external className="btn btn-primary btn-sm" data-event="Booking: Clicked">Book</SmartLink>
                 ) : (
                   <a href={`mailto:${siteConfig.contact.email}?subject=${encodeURIComponent("Booking request: " + s.name)}`} className="btn btn-primary btn-sm">Request</a>
                 )}

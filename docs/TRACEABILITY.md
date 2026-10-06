@@ -82,10 +82,10 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-001 | Primary nav plus persistent Start Where You Are, Book and My TAB actions | P1 | Must | Verified | F-01 | header, smoke, a11y |
 | WEB-002 | Sitemap and the 19 specified URLs | P1 | Must | Partial: 17 of 19 routes; `/resources/articles` and `/resources/guides` missing (TG-2) | F-02 to F-06 | links, seo |
 | WEB-003 | Homepage in the approved nine-section order | P1 | Must | Built | F-02 | — |
-| WEB-004 | Services landing page, pillars independent and optionally connected | P1 | Must | Built | F-03 | — |
-| WEB-005 | One reusable 10-part service-page template | P1 | Must | Built | F-03 | — |
-| WEB-006 | Every service page offers a direct CTA and a "not sure?" path to `/start` | P1 | Must | Built | F-03 | — |
-| WEB-007 | Related services only where the link is genuine | P1 | Should | Built | F-03 | — |
+| WEB-004 | Services landing page, pillars independent and optionally connected | P1 | Must | Verified | F-03 | guardrails |
+| WEB-005 | One reusable 10-part service-page template | P1 | Must | Verified | F-03 | guardrails |
+| WEB-006 | Every service page offers a direct CTA and a "not sure?" path to `/start` | P1 | Must | Verified | F-03 | guardrails |
+| WEB-007 | Related services only where the link is genuine | P1 | Should | Verified | F-03 | guardrails |
 | WEB-008 | TAB Method page: Start Where You Are, Transform, Adapt, Balance | P1 | Must | Built | F-04 | — |
 | WEB-009 | About, Our Story and Team pages | P1 | Must | Partial: founder story, bio and photos are placeholders (A8) | F-04 | — |
 | WEB-010 | Resources hub: articles, guides, events, FAQ | P1 | Should | Partial: topic list and FAQ only; events switched off (TG-2, A8) | F-05 | — |
@@ -107,8 +107,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | GS-001 | Guided form at `/start`, every answer a predefined option (D-059) | P1 | Must | Verified | F-07 | smoke, a11y |
 | GS-002 | Ask "How did you find TAB?" | P1 | Should | Verified | F-07 | smoke |
 | GS-003 | Short, progressively disclosed, confirmation says what happens next | P1 | Must | Verified | F-07 | smoke, a11y |
-| GS-004 | Each submission ends with exactly one next step | P1 | Must | Partial: recorded in code; live once storage switches on (guardrail 5, A15) | F-10, F-11 | — |
-| GS-005 | Staff review submissions and record the routing outcome | P1 | Must | Partial: same as GS-004; no end-to-end test (TG-8) | F-11 | rls |
+| GS-004 | Each submission ends with exactly one next step | P1 | Must | Verified in the demo; live once storage switches on (guardrail 4, A15) | F-10, F-11 | guardrails |
+| GS-005 | Staff review submissions and record the routing outcome | P1 | Must | Verified in the demo (TG-8 closed); live once storage switches on | F-11 | guardrails, rls |
 | GS-006 | Discovery is never a mandatory gate | P1 | Must | Built | F-06, F-07 | — |
 
 ### My TAB client portal (PORTAL)
@@ -177,7 +177,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | SEC-003 | MFA mandatory for all staff | Staff role counts only in an `aal2` session; enrolment screen waits on C5 | P1+ | Must | Partial | rls |
 | SEC-004 | Encryption in transit and at rest; secrets server-side only | Vercel and Supabase defaults; service role used only in server code | P1 | Must | Built | — |
 | SEC-005 | Audit log of sensitive changes and admin actions | `audit_row()` trigger on every client table; log read-only to signed-in users | P2 | Must | Verified | rls |
-| SEC-006 | Nothing sensitive in logs, analytics, URLs, email subjects or SMS | Property-less analytics events; fixed email subjects; no automated check (TG-3) | P1 | Must | Partial | — |
+| SEC-006 | Nothing sensitive in logs, analytics, URLs, email subjects or SMS | Property-less analytics events; fixed email subjects, checked with sample data (TG-3 closed) | P1 | Must | Verified | guardrails |
 | SEC-007 | Secure uploads with short-lived links and malware scanning | No uploads yet | P2 | Should | Planned | — |
 | SEC-008 | Separate environments; synthetic data outside production | Preview and production both run demo data; one Supabase project, no separate test database | P1 | Must | Partial | — |
 | SEC-009 | Retention, backup and recovery defined, and a restore tested, before launch | Supabase Pro and a tested restore (A14, A15) | P1 | Must | Planned | — |
@@ -202,8 +202,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | NFR-002 | Technical SEO: sitemap, robots, canonicals, 404, Core Web Vitals | Sitemap, canonicals and branded 404 checked; Core Web Vitals not measured | P1 | Must | Partial | seo, smoke |
 | NFR-003 | Titles, descriptions and structured data follow the pattern | Unique titles, descriptions and share tags on every sitemap page | P1 | Must | Verified | seo |
 | NFR-004 | Legacy redirect map complete before launch | `config/redirects.ts`, 64 mapped paths | P0/P1 | Must | Verified | redirects |
-| NFR-005 | Privacy-aware analytics; none on My TAB, TAB Practice or `/contact` | Plausible excluded from those paths (D-057); no test proves the exclusion | P1 | Must | Built | — |
-| NFR-006 | The named public events are counted | Only the Start funnel events exist (TG-7) | P1 | Should | Partial | — |
+| NFR-005 | Privacy-aware analytics; none on My TAB, TAB Practice or `/contact` | Plausible excluded from those paths (D-057), checked in `e2e/guardrails.spec.ts` | P1 | Must | Verified | guardrails |
+| NFR-006 | The named public events are counted | Start funnel, `Service: Viewed` and `Booking: Clicked` (TG-7 closed); counting starts with Plausible (A4) | P1 | Should | Built | guardrails |
 | NFR-007 | Launch smoke tests automated and run on previews and production | Run in CI on the production build; previews need A18; production after cutover (C2) | P1 | Must | Partial | smoke |
 | NFR-008 | Redirects are single-hop 301/308, no chains or loops | Middleware; trailing slashes and legacy host covered | P1 | Must | Verified | redirects |
 | NFR-009 | Nothing indexable before launch | `noindex` until the production domain; portal never indexable | P1 | Must | Verified | seo |
@@ -317,12 +317,12 @@ The weak spot is not security, it is everything nobody wrote a check for. Start 
 | --- | --- | --- | --- | --- | --- |
 | TG-1 | Progress-review outcomes in TAB Practice use a different set from Step 14's six continuation outcomes (Continue, Maintain, Independent, Shift, Pause, Return) | STAFF-008 | Owner ruling: adopt Step 14's six, or record ours as an amendment. Recommend Step 14's: it is the documented model and reporting will need it | S | A25 (Q-5) |
 | TG-2 | `/resources/articles` and `/resources/guides` don't exist; the library is a topic list | WEB-002, WEB-010, PORTAL-007 | Defer to Payload (C8) and amend WEB-002 to 17 routes for Phase 1, rather than build pages with nothing in them | S (ruling) | A25 (Q-6) |
-| TG-3 | No automated check that emails, subjects and previews carry no personal or health details | SEC-006, PORTAL-012, guardrail 5 | A unit test over `content/emails.ts` that renders every template with sample data and fails on name, message or answer text in a subject | S | C15 |
+| TG-3 | No automated check that emails, subjects and previews carry no personal or health details | **Closed 2026-10-06 (C15):** `e2e/guardrails.spec.ts`. SEC-006, PORTAL-012, guardrail 5 | A unit test over `content/emails.ts` that renders every template with sample data and fails on name, message or answer text in a subject | S | C15 |
 | TG-4 | Clients can't respond to an activity and practitioners can't give feedback | PORTAL-004 | New backlog item: activity responses and feedback, with RLS and tests. Needed before the pilot only if programs are central to it | M | A25 (Q-2) |
 | TG-5 | Profile has no accessibility needs or goals | PORTAL-010 | Add both fields, client-editable through `guard_client_columns` | S | C16 |
 | TG-6 | Tokens are hand-copied into `app/globals.css`, not generated from the token JSON | DS-001 | Generate the CSS variables from the JSON in the build, and keep the contrast check | S | C17 |
-| TG-7 | Only the Start funnel events are counted | NFR-006 | Add `service_view` and `book_click` (property-less) once Plausible exists (A4) | S | C18 |
-| TG-8 | No end-to-end test that a submission gets exactly one next step and shows in TAB Practice | GS-004, GS-005 | An e2e test through `/api/inquiry` in demo mode | S | C15 |
+| TG-7 | Only the Start funnel events are counted | **Closed 2026-10-06 (C18).** NFR-006 | Add `service_view` and `book_click` (property-less) once Plausible exists (A4) | S | C18 |
+| TG-8 | No end-to-end test that a submission gets exactly one next step and shows in TAB Practice | **Closed 2026-10-06 (C15):** an e2e test through the Start form and TAB Practice in the demo. GS-004, GS-005 | An e2e test through `/api/inquiry` in demo mode | S | C15 |
 | TG-9 | No incident-response playbook | SEC-011 | A one-page runbook: who to call, how to revoke keys, how to tell clients. Pair it with counsel's breach duties (A7) | S | C19 |
 
 ### Requirements no feature delivers
@@ -339,10 +339,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 
 ### Built but unchecked
 
-{{req.built}} requirements are built with no check: WEB-003 to WEB-008, WEB-016, WEB-018, WEB-019, GS-006, INT-002, PORTAL-005, STAFF-001, SEC-004, NFR-005, DS-003, DS-004 and DS-006. Two checks would cover the riskiest of them in a day; both are in C15:
-
-- **Analytics exclusion (NFR-005).** A test that Plausible never loads on `/my-tab`, `/practice` or `/contact`. This is a guardrail (6), and today only code review protects it.
-- **Service-page anatomy (WEB-004 to WEB-007).** A test that every service page has its direct CTA, its "not sure?" link to `/start`, and only the related services set in `content/services.ts`.
+{{req.built}} requirements are built with no check: WEB-003, WEB-008, WEB-016, WEB-018, WEB-019, GS-006, INT-002, PORTAL-005, STAFF-001, SEC-004, DS-003, DS-004 and DS-006. C15 added checks for the analytics exclusion (NFR-005), email privacy (SEC-006) and the service-page anatomy (WEB-004 to WEB-007) on 2026-10-06.
 
 ### What each open backlog item holds back
 
@@ -406,6 +403,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.12 | C23: owner Settings page and real staff sign-in with two-step verification (F-53); SEC-015's enrolment screen built; F-45 narrowed to auth URLs and invitation emails; `app_settings` added to the data model | Owner request and design approval, 2026-10-06 (proposed D-067) |
 | 2026-10-06 | 1.13 | Production database set up and owner signed in with two-step verification (G3); Supabase sign-in, invitation and security emails branded (`content/auth-emails.ts`); F-45 narrowed to the invitation-link check | Owner approvals and request, 2026-10-06 |
 | 2026-10-06 | 1.14 | WEB-020 restated: header and footer hide the account link until the client portal is open, then show "My TAB" | Owner ruling, 2026-10-06 |
+| 2026-10-06 | 1.15 | C15 checks (`e2e/guardrails.spec.ts`): NFR-005, SEC-006, GS-004/005 and WEB-004 to 007 verified; TG-3 and TG-8 closed. C18 events (NFR-006 built, TG-7 closed). A7 legal pages approved; A12 service-area wording | Owner rulings and requests, 2026-10-06 |
 
 ## Sources
 

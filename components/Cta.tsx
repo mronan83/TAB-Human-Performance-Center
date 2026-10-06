@@ -24,6 +24,7 @@ export function Cta({ kind, label, href, service, variant = "primary", size = "m
       href={target.href}
       external={target.external}
       className={clsx("btn", `btn-${variant}`, size === "sm" && "btn-sm", className)}
+      data-event={kind === "book" ? "Booking: Clicked" : undefined}
     >
       {label}
     </SmartLink>

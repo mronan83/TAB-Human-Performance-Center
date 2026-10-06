@@ -19,7 +19,8 @@ export async function SiteFooter() {
           <Logo variant="horizontal" tone="white" className="h-16 w-auto" />
           <p className="mt-6 max-w-xs text-sm text-white/80">{brand.tagline}</p>
           <address className="mt-6 space-y-1 text-sm not-italic text-white/80">
-            <p>{contact.address.street ? formatAddress(contact.address) : `Serving ${siteConfig.location.label}`}</p>
+            {contact.address.street && <p>{formatAddress(contact.address)}</p>}
+            <p>{siteConfig.location.label}</p>
             {contact.phone && <p><a className="underline hover:text-white" href={telHref(contact.phone)}>{contact.phone}</a></p>}
             <p><a className="underline hover:text-white" href={`mailto:${contact.email}`}>{contact.email}</a></p>
           </address>
