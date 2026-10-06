@@ -22,6 +22,14 @@ export function organizationJsonLd() {
     ...(hasAddress
       ? { address: { "@type": "PostalAddress", streetAddress: contact.address.street, addressLocality: contact.address.city, addressRegion: contact.address.region, postalCode: contact.address.postalCode, addressCountry: contact.address.country } }
       : {}),
+    ...(contact.hours.some((h) => !h.closed && /^\d{2}:\d{2}$/.test(h.open))
+      ? {
+          openingHoursSpecification: contact.hours
+            .filter((h) => !h.closed && /^\d{2}:\d{2}$/.test(h.open))
+            .map((h) => ({ "@type": "OpeningHoursSpecification", dayOfWeek: `https://schema.org/${h.days}`, opens: h.open, closes: h.close })),
+        }
+      : {}),
+    ...(contact.mapUrl ? { hasMap: contact.mapUrl } : {}),
     areaServed: areaServed(),
     foundingDate: String(brand.foundedYear),
     sameAs: Object.values(social).filter(Boolean),

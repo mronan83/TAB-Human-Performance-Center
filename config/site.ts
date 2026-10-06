@@ -54,19 +54,23 @@ export const siteConfig = {
 
   contact: {
     email: "info@tabhumanperformance.com",
-    phone: null as Maybe<string>, // PLACEHOLDER: e.g. "(517) 555-0100"
+    phone: "(810) 844-1283" as Maybe<string>, // owner, 2026-10-06 (A6)
     address: {
-      street: null as Maybe<string>, // PLACEHOLDER
-      city: null as Maybe<string>, // PLACEHOLDER
+      street: "7487 Grand River Ave" as Maybe<string>,
+      city: "Brighton" as Maybe<string>,
       region: "MI",
-      postalCode: null as Maybe<string>, // PLACEHOLDER
+      postalCode: "48114" as Maybe<string>,
       country: "US",
     },
-    mapUrl: null as Maybe<string>, // PLACEHOLDER: Google Maps link
+    mapUrl: "https://www.google.com/maps/search/?api=1&query=7487+Grand+River+Ave%2C+Brighton%2C+MI+48114" as Maybe<string>,
+    /** Owner, 2026-10-06 (A6). 24-hour times; the site shows them as "10 AM – 4 PM" and groups matching days. */
     hours: [
-      // PLACEHOLDER: replace with real hours. `closed: true` hides times.
-      { days: "Monday – Friday", open: "PLACEHOLDER", close: "PLACEHOLDER", closed: false },
-      { days: "Saturday", open: "PLACEHOLDER", close: "PLACEHOLDER", closed: false },
+      { days: "Monday", open: "10:00", close: "16:00", closed: false },
+      { days: "Tuesday", open: "10:00", close: "16:00", closed: false },
+      { days: "Wednesday", open: "11:00", close: "18:00", closed: false },
+      { days: "Thursday", open: "", close: "", closed: true },
+      { days: "Friday", open: "09:00", close: "16:00", closed: false },
+      { days: "Saturday", open: "", close: "", closed: true },
       { days: "Sunday", open: "", close: "", closed: true },
     ] as Array<{ days: string; open: string; close: string; closed: boolean }>,
   },

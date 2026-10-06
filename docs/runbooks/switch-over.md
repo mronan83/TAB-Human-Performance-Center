@@ -24,6 +24,29 @@ step: the owner approves it in the session first.
 3. Claude, one week after DKIM shows "authenticating" and mail flows: DMARC `p=quarantine`, then `p=reject`.
 4. Owner: keep `tabmassage.com` in Google Workspace with its GoDaddy MX untouched; removing it ends the aliases.
 
+### Legacy `@tabmassage.com` mail (A29)
+
+Mail for `tabmassage.com` is delivered by Google Workspace (its MX records point at Google), so it keeps working through
+the switch-over and after.
+
+1. Owner: after renaming a user, check **Users → (user) → Alternate email addresses** lists the old `@tabmassage.com`
+   address. Mail sent to it lands in the same mailbox.
+2. Owner, for old addresses that aren't users (for example a former info@ or bookings@): **Apps → Google Workspace →
+   Gmail → Default routing → Configure**. Under **Specified envelope recipients**, choose **Pattern match** with
+   `^.*@tabmassage\.com$`; under **Envelope recipient**, choose **Change envelope recipient** and **Replace recipient**
+   with `info@tabhumanperformance.com`; under **Options**, tick **Perform this action on non-recognized addresses** only.
+   That catches any old address without affecting renamed users.
+3. Owner at GoDaddy (Claude on the call): `tabmassage.com` has no SPF or DMARC record today, so anyone can send mail
+   that claims to be from it and real mail is more likely to be filtered. Add:
+
+   | Type | Name | Value |
+   | --- | --- | --- |
+   | TXT | `@` | `v=spf1 include:_spf.google.com ~all` |
+   | TXT | `google._domainkey` | the key from **Gmail → Authenticate email**, with `tabmassage.com` selected |
+   | TXT | `_dmarc` | `v=DMARC1; p=none; adkim=r; aspf=r` (tightened with C24, a week after DKIM authenticates) |
+
+   Then click **Start authentication** for `tabmassage.com` in the Workspace admin console.
+
 ## Phase A: private attach (no visitor sees anything)
 
 1. Merge the PR that turns `portalDemoOnProduction` off and moves `config/site.ts` to the new domain; promote it (G3).

@@ -22,21 +22,21 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | A3 | Turnstile keys: real keys for Production, test keys for Preview [SEC-013] | Accounts | Owner | S | A1 |
 | A4 | Plausible account for the domain (Start funnel counts) [GAP-015, D-057] | Accounts | Owner | S | A1 |
 | A5 | Timely Client Login link [WEB-020] | Content | Owner | S | None |
-| A6 | Business facts: address, phone, hours, map link, gift cards link (15 placeholders in `config/site.ts`) [GAP-003, GAP-020] | Content | Owner | S | None |
-| A7 | Legal pages with counsel: privacy (Plausible, forms, My TAB), terms, cancellation. Also confirm the duties that remain without HIPAA: breach notification, record retention [GAP-010] | Legal | Owner + counsel | L | None |
-| A8 | Content: founder story, bio, photos (TAB's own, to replace stock for team, facility and proof), the 14 draft service FAQs; a replacement for library image #10 [GAP-012] | Content | Owner | M | None |
+| A6 | Business facts: the gift cards link (Timely) is the last one; address, phone, hours and map link were set 2026-10-06 [GAP-003, GAP-020] | Content | Owner | S | None |
+| A7 | Review the drafted privacy policy and terms (2026-10-06, `content/legal.ts`; review notes show on previews), decide the retention question (proposed D-058 vs deletion on request), then have a Michigan attorney check them. Send the current cancellation policy for `/policies` [GAP-010] | Legal | Owner + counsel | M | None |
+| A8 | Content: founder story, bio and the 14 draft service FAQs. Stock photography is fine for launch (owner, 2026-10-06) [GAP-012] | Content | Owner | M | None |
 | A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | S | None |
 | A11 | Vercel Pro at launch; the Hobby plan doesn't allow business use [RSK-005] | Accounts | Owner | S | Launch date |
 | A12 | Confirm the service-area wording "Brighton & Howell, MI" [ASM-006] | Content | Owner | S | None |
-| A13 | Set a target launch date; recommended once email sends [GAP-017] | Decision | Owner | S | A2 |
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
 | C15 | Checks for guardrails that only code review protects today: analytics never loads on `/my-tab`, `/practice` or `/contact` (NFR-005); emails and subjects carry no personal or health details (TG-3); a Start submission gets one next step and shows in TAB Practice (TG-8); every service page keeps its CTA, "not sure?" link and related services (WEB-004 to WEB-007) | Quality | Claude | M | None |
 | C18 | Count the remaining public events, `service_view` and `book_click`, property-less (NFR-006, TG-7) | Analytics | Claude | S | A4 |
 | C1 | Switch-over, `docs/runbooks/switch-over.md`. Phase A (private attach: demo portal off, new domain in config, domains attached behind Vercel login, Resend DNS) in progress; Phase B (public launch: protection to Standard, indexing, GoDaddy web records for tabmassage.com, checks) waits on content and A13 [§7.4, RSK-009, proposed D-066] (G3) | Launch | Claude | M | A2, A8, A13 |
 | C23 | Owner Settings page in TAB Practice: client portal Off / Demo / Live (Live locked until guardrail 4's gate), transition banner, Start form open/closed, booking links, feature flags; settings table with owner-only RLS and audit; real staff sign-in with two-step verification on production [proposed D-067] (production migration: G3) | Portal | Claude | L | C1 Phase A |
-| A29 | Google Workspace: start DKIM authentication; rename users to `@tabhumanperformance.com` (old addresses stay as aliases); add `info@tabhumanperformance.com` for the website forms; keep `tabmassage.com` in Workspace [runbook, Email] | Accounts | Owner | S | None |
+| A29 | Google Workspace: rename users to `@tabhumanperformance.com` (each old `@tabmassage.com` address stays as an alias on the same mailbox); for any other old address, add a catch-all route for `tabmassage.com` to `info@tabhumanperformance.com`; keep `tabmassage.com` in Workspace. At GoDaddy, add SPF, DKIM and DMARC for `tabmassage.com`, which has none today (records in `docs/runbooks/switch-over.md`) [runbook, Email] | Accounts | Owner | S | A10 |
 | C24 | Tighten DMARC on `tabhumanperformance.com` to `quarantine`, then `reject`, one week after DKIM is authenticating and mail flows | Accounts | Claude | S | A29 |
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
+| C25 | Launch communications plan for 1 November: announcement sequence, channels, assets and the cutover timeline (a shared document for the owner) [A13] | Launch | Claude | M | None |
 
 ## P2 · My TAB go-live (`CLAUDE.md` guardrail 4)
 
@@ -79,6 +79,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Launch date and business facts** (2026-10-06, in review): public launch targeted for 1 November 2026 (closes A13); address, phone, hours (grouped in the footer, by day on the contact page, and as opening hours for search engines) and a map link on the site (most of A6); privacy policy and terms drafted from how the site actually works, with review notes for the owner and attorney (A7 now review); stock photography confirmed for launch (A8). Email template no longer requests web fonts from Google.
 
 - **Website email** (2026-10-06, in review): Resend verified for `tabhumanperformance.com` and tested end to end (owner received both emails; closes A2). All emails now share a branded layout: logo embedded inline, Bone page and white card, Spectral headline, answers table, olive button and brand footer; the staff copy adds the reference, any follow-up flags, the next-step options and a one-tap reply. Owner feedback: "They are plain text and look unprofessional".
 

@@ -5,7 +5,7 @@ import { EMAIL_LOGO } from "@/lib/email-logo";
  * The branded layout every email shares (owner request 2026-10-06: "We have all the branding to make those emails
  * beautiful"). Email clients ignore stylesheets and SVG, so this is table layout with inline styles, the palette from
  * app/globals.css as literal values (D-062: Bone page, white card, Graphite text, Deep Olive button, Clay Dark labels),
- * Montserrat with system fallbacks and Spectral for the headline, as on the site. The logo is embedded (CID), so it
+ * Montserrat and Spectral named first (used where installed, otherwise Helvetica/Arial and Georgia); no web-font request, so opening an email tells no third party anything (DS-002). The logo is embedded (CID), so it
  * shows even while the site is behind Vercel login. Everything passed in is escaped here; callers pass plain text.
  * Guardrail 5 still applies to what callers put in: no health details, and subjects stay generic.
  */
@@ -86,7 +86,6 @@ export function renderEmail(c: EmailContent) {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light">
 <title>${esc(c.heading)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Spectral:wght@500&display=swap" rel="stylesheet">
 </head>
 <body style="margin:0;padding:0;background:${C.bone}">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0">${esc(c.preheader)}</div>

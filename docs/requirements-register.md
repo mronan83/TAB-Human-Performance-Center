@@ -265,7 +265,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 |---|---|---|---|
 | GAP-001 | ~~Visual identity~~ → answered by S18 + TOK. **Remaining:** production SVG logo files for every lockup, a simplified small-size symbol, and vector service icons (DS-006). Current assets are painterly raster working files. | P1 launch | Owner / designer |
 | GAP-002 | ~~Step 17 outcome~~ → conditional go (DEC-013). **Remaining:** trademark counsel opinion, Michigan filing, domain registration, social handle reservation. | P1 launch | Owner + counsel |
-| GAP-003 | Location: Michigan (S17). **Remaining:** street address, city, hours, service area, single vs multiple locations. | P1 | Owner |
+| GAP-003 | Location: Michigan (S17). *(Closed 2026-10-06: 7487 Grand River Ave, Brighton, MI 48114; (810) 844-1283; hours Mon–Tue 10–4, Wed 11–6, Fri 9–4, Thu and weekends closed; one location.)* | P1 | Owner |
 | GAP-004 | Team roster: practitioners, services each provides, credentials, bios, photos. | P1 | Maybe |
 | GAP-005 | Legacy inventory: **public part done** (LEG: 36 pages, 28 posts, hosting, DNS, email). **Remaining:** Search Console, analytics, backlinks, category/tag archives. The live site is WordPress on shared hosting, so the old Vercel project `tab-wellness-collective` is *not* the live site — is anything in it worth reusing? | P1 launch | Owner |
 | GAP-006 | Timely plan (Innovate?), current booking URLs, whether Timely Consult forms are in use. | P1 | Owner |
@@ -279,7 +279,7 @@ submission, stamped with who and when; it goes live when submission storage swit
 | GAP-014 | Named product owner and content owners (S16 §16.9 ownership table). | P1 | Owner |
 | GAP-015 | Analytics tool: Plausible vs Matomo vs GA4. | P1 | Engineering proposal |
 | GAP-016 | Where client records and session notes live today (Timely, paper, other) and what, if anything, migrates. | P2 | Owner |
-| GAP-017 | Target launch date. S19 plans relative to T-8 weeks but sets no date. | Planning | Owner |
+| GAP-017 | Target launch date. S19 plans relative to T-8 weeks but sets no date. *(Closed 2026-10-06: public launch 1 November 2026, owner.)* | Planning | Owner |
 | GAP-018 | Legacy offerings outside the four pillars: yoga, nutrition, sports injury rehab, small-group training / LifeQuest, chair/corporate massage, cupping, youth programs, remote training. Which continue? This drives redirect destinations and service-page content. *(2026-10-05: nutrition is now a pillar, Integrated Nutrition, proposed D-065; `/nutrition` redirects to its page.)* | P1 | Owner |
 | GAP-019 | Access for cutover: host DNS panel for tabmassage.com (nameservers at `SUPERCP.COM`), GoDaddy registrar, Google Workspace admin (to add the new domain and aliases), Search Console. | P1 launch | Owner |
 | GAP-020 | Gift cards: the legacy site sells them. Will they continue, and through what (Timely vouchers, Stripe, other)? S16 lists "Gift Cards if offered". | P1 | Owner |
@@ -423,4 +423,14 @@ Source: `docs/source/batch-5/` (Brand Foundation v2, Steps 13, 18, 19, stock ima
 | Website email | "Resend" (after weighing Gmail SMTP and self-hosted options) | D-005 confirmed: Resend sends form mail (and, at My TAB go-live, Supabase Auth sign-in links) from `no-reply@tabhumanperformance.com`. |
 | Owner settings | "We will need an admin portal … that has a toggle to turn the client portal on and off"; design "approved" | *Proposed D-067:* an owner-only Settings page in TAB Practice (C23), stored in a settings table with RLS (owner, two-step-verified sessions) and an audit trail. Client portal is **Off / Demo / Live**; Live stays locked until guardrail 4's gate is met; Demo never on the public domain. Starter settings: transition banner, Start form open/closed, per-service booking links, feature flags. Ships after the domain switch-over. |
 | Sequencing | "domain first" | The switch-over (C1) uses the existing `portalDemoOnProduction` constant; C23 replaces it. |
+
+### 7.7 Launch facts and content (owner rulings, 2026-10-06)
+
+| Topic | Owner's words | Outcome |
+| --- | --- | --- |
+| Business facts (A6) | Address, phone and an hours screenshot | 7487 Grand River Ave, Brighton, MI 48114; (810) 844-1283; Monday and Tuesday 10 AM to 4 PM, Wednesday 11 AM to 6 PM, Friday 9 AM to 4 PM, closed Thursday and weekends. Closes GAP-003. |
+| Legal pages (A7) | "Can you draft actual privacy policy and terms that I can review" | Drafted in `content/legal.ts` from the site's real data flows, flagged as drafts until the owner and a Michigan attorney approve. Open question for the owner: proposed D-058 (keep submissions indefinitely) versus deletion on request. |
+| Photography (A8) | "What you have is fine" | The stock library is accepted for launch; own photography is no longer a launch item. Library image #10 stays unused. |
+| Launch date (A13) | "Targeting November 1"; "We will need a communication and announcement hype strategy" | Public launch 1 November 2026 (a Sunday; the plan, C25, proposes the cutover on a quieter weekday before). Closes GAP-017. |
+| Legacy email (A29) | "ensure emails to the legacy domain … will be sent to our new domains" | Renamed users keep their `@tabmassage.com` addresses as aliases; a catch-all route sends any other `@tabmassage.com` address to `info@tabhumanperformance.com`; `tabmassage.com` stays in Google Workspace, and gets SPF, DKIM and DMARC at GoDaddy. |
 

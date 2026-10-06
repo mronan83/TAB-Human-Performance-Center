@@ -1,6 +1,7 @@
 import { siteConfig } from "@/config/site";
 import { about, legal, faqs } from "@/content/pages";
 import { services } from "@/content/services";
+import { privacyPolicy, termsOfUse } from "@/content/legal";
 
 /** `optional` items never block launch; every other open item fails the launch gate below. */
 export type ChecklistItem = { area: string; item: string; where: string; done: boolean; optional?: boolean };
@@ -32,8 +33,8 @@ export function launchChecklist(): ChecklistItem[] {
     { area: "Content", item: "Service FAQ answers reviewed", where: "content/services.ts → faqs", done: services.every((s) => s.faqs.every((f) => !f.draft)) },
     { area: "Content", item: "General FAQ reviewed", where: "content/pages.ts → faqs", done: faqs.every((f) => !f.draft) },
     { area: "Content", item: "Authentic photography", where: "public/images/ + pages", done: false },
-    { area: "Legal", item: "Privacy policy (legal review)", where: "content/pages.ts → legal.privacy", done: !legal.privacy.draft },
-    { area: "Legal", item: "Terms of use", where: "content/pages.ts → legal.terms", done: !legal.terms.draft },
+    { area: "Legal", item: "Privacy policy (owner and attorney review)", where: "content/legal.ts → privacyPolicy", done: !privacyPolicy.draft },
+    { area: "Legal", item: "Terms of use (owner and attorney review)", where: "content/legal.ts → termsOfUse", done: !termsOfUse.draft },
     { area: "Legal", item: "Client policies (cancellation, scope)", where: "content/pages.ts → legal.policies", done: !legal.policies.draft },
     { area: "Brand", item: "Trademark clearance for TAB Human Performance Center (Step 19 gate)", where: "Decision register R-020", done: false, optional: true },
     // Demo mode has no real login and a store shared by every visitor: it must be off before the site is public.

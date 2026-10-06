@@ -90,7 +90,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-009 | About, Our Story and Team pages | P1 | Must | Partial: founder story, bio and photos are placeholders (A8) | F-04 | — |
 | WEB-010 | Resources hub: articles, guides, events, FAQ | P1 | Should | Partial: topic list and FAQ only; events switched off (TG-2, A8) | F-05 | — |
 | WEB-011 | `/book` offers two paths: Timely booking or `/start` | P1 | Must | Verified | F-06 | smoke |
-| WEB-012 | Footer with legal, accessibility, policies, location, hours, contact | P1 | Must | Partial: address, phone and hours are placeholders (A6) | F-01 | links |
+| WEB-012 | Footer with legal, accessibility, policies, location, hours, contact | P1 | Must | Built: address, phone, hours (grouped) and map link set 2026-10-06; gift cards link still open (A6) | F-01 | links |
 | WEB-013 | Trust content with consent metadata; no invented testimonials | P1 | Should | Partial: waits on real content (A8) | F-02 | — |
 | WEB-014 | Public copy follows the Brand Foundation v2 voice and the Step 15 avoid-lists | P1 | Must | Built | F-02 to F-05 | brand |
 | WEB-015 | Transition announcement with a start and end date | P1 | Must | Partial: dated expiry in config; editable once the CMS lands (C8) | F-01 | — |
@@ -352,8 +352,8 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 | A3 Turnstile | SEC-013 in full |
 | A4 Plausible | NFR-006, TG-7 |
 | A5 Timely Client Login | INT-001, PORTAL-006 |
-| A6 business facts | WEB-012 |
-| A7 legal pages | guardrail 4 privacy condition, so A15 |
+| A6 business facts (gift cards link left) | WEB-012 (gift cards) |
+| A7 legal review (drafts written 2026-10-06) | guardrail 4 privacy condition, so A15 |
 | A8 content | WEB-009, WEB-010, WEB-013, WEB-017, DS-007 |
 | A14 Supabase Pro | SEC-009 |
 | A17 Stripe | PORTAL-009, INT-003 |
@@ -401,6 +401,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.8 | Domains registered and email set up (proposed D-066); switch-over Phase A: demo portal off on production, site URL and form addresses on `tabhumanperformance.com`; A1 closed; owner Settings page approved (proposed D-067, C23) | Owner rulings 2026-10-06 |
 | 2026-10-06 | 1.9 | Homepage closing band re-imaged to echo the hero (DS-007); no requirement changes | Owner feedback, 2026-10-06 |
 | 2026-10-06 | 1.10 | Branded email layout for Start, contact and My TAB emails (GS-004 emails now send; A2 closed) | Owner feedback, 2026-10-06 |
+| 2026-10-06 | 1.11 | Business facts on the site (WEB-012 built, gift cards aside); privacy policy and terms drafted for review (A7); launch targeted 1 November (GAP-017); stock photography confirmed for launch | Owner rulings 2026-10-06 |
 
 ## Sources
 
