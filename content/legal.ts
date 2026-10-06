@@ -100,7 +100,7 @@ export const privacyPolicy: LegalDoc = {
     {
       heading: "How long we keep information",
       body: [
-        "We keep emails and records of our work with you for as long as you're a client and afterward as long as we need them for our records and legal obligations. Start Where You Are and contact submissions are kept with your client record.",
+        "We keep emails and records of our work with you for as long as you're a client and afterward as long as we need them for our records and legal obligations. Start Where You Are and contact submissions are kept as part of our records, linked to your client record if you become a client, and are not deleted.",
         "Website analytics are aggregate and contain no personal information. Server logs are kept for a short time.",
       ],
     },
@@ -111,7 +111,7 @@ export const privacyPolicy: LegalDoc = {
           list: [
             "Ask to see the information we hold about you",
             "Ask us to correct it",
-            "Ask us to delete it, unless we need to keep it for our records or by law",
+            "Ask us to delete it, except for records we keep for our business or by law, which include website submissions",
             "Unsubscribe from news and events at any time, using the link in any such email or by contacting us",
           ],
         },
@@ -144,7 +144,7 @@ export const privacyPolicy: LegalDoc = {
     },
   ],
   reviewNotes: [
-    "Retention conflicts with an earlier ruling: proposed D-058 keeps Start and contact submissions indefinitely and never deletes them, while this draft promises deletion on request \"unless we need to keep it\". Decide which you want. Recommendation: honour deletion requests for prospects who never became clients; keep client records for as long as Michigan and your professional rules require.",
+    "Retention: owner ruling 2026-10-06 (A7) keeps proposed D-058: website submissions are kept and never deleted, including for people who don’t become clients. The policy says so in “How long we keep information” and “Your choices”.",
     "HIPAA: you ruled on 2026-09-28 that HIPAA doesn't apply (proposed D-060). The draft says nothing about HIPAA either way, which is the safer choice. If you bill health insurance or plan to, have counsel confirm before launch.",
     "Plausible and Cloudflare Turnstile are planned but not switched on yet (A3, A4). Keep them in the policy if they'll be on at launch; otherwise remove them until they are.",
     "Supabase and Stripe hold no client data until My TAB and online programs launch. Listing them now is harmless and avoids an update later.",

@@ -351,7 +351,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 | A4 Plausible | NFR-006, TG-7 |
 | A5 Timely Client Login | INT-001, PORTAL-006 |
 | A6 business facts (gift cards link left) | WEB-012 (gift cards) |
-| A7 legal review (drafts written 2026-10-06) | guardrail 4 privacy condition, so A15 |
+| A7 legal review (approved 2026-10-06; retention ruled) | guardrail 4 privacy condition met, so A15 |
 | A8 content | WEB-009, WEB-010, WEB-013, WEB-017, DS-007 |
 | A14 Supabase Pro | SEC-009 |
 | A17 Stripe | PORTAL-009, INT-003 |
@@ -405,6 +405,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.14 | WEB-020 restated: header and footer hide the account link until the client portal is open, then show "My TAB" | Owner ruling, 2026-10-06 |
 | 2026-10-06 | 1.15 | C15 checks (`e2e/guardrails.spec.ts`): NFR-005, SEC-006, GS-004/005 and WEB-004 to 007 verified; TG-3 and TG-8 closed. C18 events (NFR-006 built, TG-7 closed). A7 legal pages approved; A12 service-area wording | Owner rulings and requests, 2026-10-06 |
 | 2026-10-06 | 1.16 | C23b: per-service Book links and page switches in Settings (F-53); Events and Testimonials locked until real content exists; settings checks run in their own e2e project | Owner request, 2026-10-06 |
+| 2026-10-06 | 1.17 | Client policies written from the owner's policies (A30, WEB-012 footer links now resolve to real content); retention ruled: submissions never deleted (A7, proposed D-058), privacy policy updated to match | Owner rulings, 2026-10-06 |
 
 ## Sources
 

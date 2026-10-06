@@ -19,10 +19,10 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| A3 | Turnstile keys: real keys for Production, test keys for Preview [SEC-013] | Accounts | Owner | S | A1 |
-| A4 | Plausible account for the domain (Start funnel counts) [GAP-015, D-057] | Accounts | Owner | S | A1 |
+| A3 | Turnstile (the forms' "are you human" check) for production: create a free Cloudflare account → Turnstile → add a widget for `tabhumanperformance.com` and `www.tabhumanperformance.com` (mode: Managed) → send Claude the site key and secret key. Claude adds them to Vercel (secret as Sensitive), sets Cloudflare's official test keys on Preview, redeploys and verifies a form submission [SEC-013] | Accounts | Owner | S | None |
+| A4 | Plausible (privacy-friendly visitor counts): sign up at plausible.io (paid, about $9/month after a 30-day trial) → add the site `tabhumanperformance.com` → add four custom-event goals: `Start Form: Started`, `Start Form: Submitted`, `Service: Viewed`, `Booking: Clicked` → tell Claude. Claude switches it on in `config/site.ts`. Counts begin when the site is public (switch-over Phase B) [GAP-015, D-057, NFR-006] | Accounts | Owner | S | None |
 | A6 | Business facts: the gift cards link (Timely) is the last one; address, phone, hours and map link were set 2026-10-06 [GAP-003, GAP-020] | Content | Owner | S | None |
-| A30 | Send the current cancellation and late-arrival policy for `/policies` (split from A7) [GAP-010] | Legal | Owner | S | None |
+| A30 | **In review.** Client policies from the owner's cancellation, arrival and gratuity policies, reworded for the new name and services (`content/pages.ts`). Two questions for the owner: do the policies cover the coaching services too, and is a no-show charged like a late cancellation? [GAP-010] | Legal | Owner | S | None |
 | A8 | Content: founder story, bio and the 14 draft service FAQs. Stock photography is fine for launch (owner, 2026-10-06) [GAP-012] | Content | Owner | M | None |
 | A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | S | None |
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
@@ -77,6 +77,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Client policies and retention** (2026-10-06, in review): `/policies` now carries the owner's cancellation, arrival and gratuity policies, reworded for TAB Human Performance Center (A30). Retention ruled: website submissions are kept and never deleted (A7, proposed D-058 kept); the privacy policy now says so plainly. A3 and A4 have step-by-step instructions; their old dependency on A1 (done) is cleared.
 
 - **Settings, part 2** (2026-10-06, in review, C23b): set a Timely link for each service's Book buttons and switch Resources and Our Team on or off, from TAB Practice → Settings; menus, pages, the homepage and the sitemap follow within seconds. Events and Testimonials are visible but locked until there's real content for them.
 
