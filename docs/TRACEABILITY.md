@@ -279,6 +279,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-38 | Team page (publishing permission) | Verified (demo) | STAFF-009, SEC-001 | D-045 | `practice/team/` | smoke, a11y, rls |
 | F-39 | Invite to My TAB, assign forms, share resources | Partial: invite email needs C5 | STAFF-010, PORTAL-008, CMS-003, SEC-014 | D-054 | `practice/clients/[id]/page.tsx`, migration `20261005000000` | smoke, a11y, rls |
 | F-53 | Owner settings and staff sign-in with two-step verification | Live 2026-10-06, both parts (part 2: booking links and page switches, C23b) | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, `config/navigation.ts`, migrations `20261009000000` and `20261010000000` | settings, a11y, rls |
+| F-54 | Staff password, passkeys and session limits | Built 2026-10-06; needs G3 Supabase settings (WebAuthn MFA, minimum password length) | SEC-015, SEC-020, SEC-013 | D-068 (proposed) | `practice/login/`, `practice/verify/`, `practice/security/`, `components/portal/StaffAuth.tsx`, `lib/staff-auth.ts`, `lib/passkey-browser.ts`, `middleware.ts` | guardrails, a11y |
 
 ### Delivery and operations
 
@@ -410,6 +411,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.19 | C5: invitation links fixed (tokens after a `#` never reached the server) and sign-in links work in any browser (`token_hash`); checked in `e2e/guardrails.spec.ts` | Found while answering the owner's C5 question, 2026-10-06 |
 | 2026-10-06 | 1.20 | Analytics rebuilt as our own first-party counter with an owner Website stats page (F-14; `site_stats`, `record_site_stat`, `/api/stats`); Vercel Web Analytics removed (it is a paid add-on) | Owner ruling A4, 2026-10-06: "Let's build our own" |
 | 2026-10-06 | 1.21 | Status refresh after the production release: F-53 part 2 and F-45 (C5) live; Contact added to the About menu (F-01, `config/navigation.ts`) | Owner request 2026-10-06: "the contact us page needs to be part of the about drop down" |
+| 2026-10-06 | 1.22 | F-54: staff sign in with a password, then a passkey or the authenticator code; staff sessions end 30 days after sign-in (SEC-015, SEC-020) | Owner ruling 2026-10-06, proposed D-068 |
 
 ## Sources
 

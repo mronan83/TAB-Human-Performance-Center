@@ -22,6 +22,7 @@ const ICONS = {
   team: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z",
   settings: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4",
   stats: "M4 20V10M10 20V4M16 20v-7M22 20H2",
+  lock: "M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4M12 15v2",
 } as const;
 
 export function Icon({ name, className }: { name: keyof typeof ICONS; className?: string }) {

@@ -28,7 +28,9 @@ export function PortalShell({ viewer, area, children }: { viewer: Viewer; area: 
   // Team (C7b): the owner grants the publishing permission and credentials.
   // Team, Website stats and Settings are the owner's (C7b, A4, C23). Without real client data (production before go-live) only stats and Settings show.
   const ownerNav: PortalNavItem[] = [{ href: "/practice/team", label: "Team", icon: "team" }, { href: "/practice/stats", label: "Website stats", short: "Stats", icon: "stats" }, { href: "/practice/settings", label: "Settings", icon: "settings" }];
-  const staffNav = !clientScreensAvailable() ? ownerNav.filter((n) => n.href !== "/practice/team") : viewer.role === "owner" ? [...practiceNav, ...ownerNav] : practiceNav;
+  const roleNav = !clientScreensAvailable() ? ownerNav.filter((n) => n.href !== "/practice/team") : viewer.role === "owner" ? [...practiceNav, ...ownerNav] : practiceNav;
+  // Every staff member's own password and passkeys (proposed D-068).
+  const staffNav: PortalNavItem[] = [...roleNav, { href: "/practice/security", label: "Sign-in & security", short: "Security", icon: "lock" }];
   const nav = area === "client" ? clientNav : staffNav;
   return (
     <div className="min-h-dvh bg-bone">

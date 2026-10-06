@@ -4,6 +4,7 @@ import { legacyRedirects, legacyPrefixRedirects } from "@/config/redirects";
 import { siteConfig, siteUrl } from "@/config/site";
 import { contentSecurityPolicy } from "@/lib/csp";
 import { sessionCookieOptions } from "@/lib/supabase/cookies";
+import { staffSessionExpired } from "@/lib/staff-auth";
 
 const LEGACY_HOSTS = ["tabmassage.com", "www.tabmassage.com"];
 
@@ -12,6 +13,7 @@ const LEGACY_HOSTS = ["tabmassage.com", "www.tabmassage.com"];
  * 2. Trailing-slash normalization.
  * 3. Content-Security-Policy on every page (SEC-013; see lib/csp.ts), with a per-request nonce on the portal.
  * 4. My TAB session refresh (Supabase) and portal-disabled guard.
+ * 5. TAB Practice sessions end 30 days after sign-in (proposed D-068; idle sessions end after 7 through the cookie).
  */
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -73,6 +75,16 @@ export async function middleware(req: NextRequest) {
   const { data: { user } } = await sb.auth.getUser();
   const open = path === "/my-tab/login" || path.startsWith("/my-tab/auth") || path === "/practice/login" || path.startsWith("/practice/auth");
   if (!user && !open) return NextResponse.redirect(new URL(isPractice ? "/practice/login" : "/my-tab/login", url.origin), 307);
+  if (user && isPractice) {
+    // Only a session we could read and found too old is ended; a failed read (a network blip) never signs anyone out.
+    const { data } = await sb.auth.getClaims();
+    if (data?.claims && staffSessionExpired(data.claims.amr)) {
+      await sb.auth.signOut({ scope: "local" }); // clears the session cookies on `res`
+      const out = NextResponse.redirect(new URL("/practice/login?e=expired", url.origin), 307);
+      res.cookies.getAll().forEach((c) => out.cookies.set(c));
+      return out;
+    }
+  }
   return res;
 }
 

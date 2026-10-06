@@ -7,6 +7,7 @@ import { stageUpdatedEmail } from "../content/emails";
 import { services } from "../content/services";
 import { bookingHref } from "../lib/links";
 import { LINK_TYPES, readEmailLink } from "../lib/supabase/email-link";
+import { PASSWORD_MIN, STAFF_SESSION_MAX_DAYS, fromBase64Url, passkeyOptionsToJSON, passkeyRelyingParty, passwordProblem, sessionStartedAt, staffSessionExpired, toBase64Url } from "../lib/staff-auth";
 
 /**
  * Checks for guardrails that only code review protected before (C15): analytics exclusion (NFR-005, guardrail 6),
@@ -160,4 +161,43 @@ test("website stats: the owner sees them, nobody else does, and the counter answ
     expect(res.status()).toBe(204);
     expect(await res.text()).toBe("");
   }
+});
+
+test("staff passwords: long, not the email address, at most 72 bytes (proposed D-068)", () => {
+  expect(passwordProblem("short pass", "matthew@example.com")).toMatch(/at least/);
+  expect(passwordProblem("a".repeat(PASSWORD_MIN))).toMatch(/repeated/);
+  expect(passwordProblem("my matthew password", "matthew@example.com")).toMatch(/email/);
+  expect(passwordProblem("é".repeat(40))).toMatch(/at most/); // 80 bytes
+  expect(passwordProblem("river stones at dawn", "matthew@example.com")).toBeNull();
+});
+
+test("staff sessions end 30 days after sign-in, and unreadable sessions count as ended (proposed D-068)", () => {
+  const now = 2_000_000_000;
+  const day = 86400;
+  const amr = (...ages: number[]) => ages.map((a, i) => ({ method: i ? "totp" : "password", timestamp: now - a * day }));
+  expect(sessionStartedAt(amr(3, 1))).toBe(now - 3 * day); // the first step, not the latest re-check
+  expect(staffSessionExpired(amr(STAFF_SESSION_MAX_DAYS - 1, 0), now)).toBe(false);
+  expect(staffSessionExpired(amr(STAFF_SESSION_MAX_DAYS + 1, 0), now)).toBe(true);
+  for (const bad of [undefined, null, [], [{ method: "otp" }], "x"]) expect(staffSessionExpired(bad, now)).toBe(true);
+});
+
+test("passkeys belong to our own addresses only; options reach the browser as base64url (proposed D-068)", () => {
+  expect(passkeyRelyingParty("www.tabhumanperformance.com")).toEqual({ rpId: "tabhumanperformance.com", rpOrigins: ["https://tabhumanperformance.com", "https://www.tabhumanperformance.com"] });
+  expect(passkeyRelyingParty("tabhumanperformance.com")?.rpId).toBe("tabhumanperformance.com");
+  expect(passkeyRelyingParty("tab-human-performance-center.vercel.app")?.rpId).toBe("tab-human-performance-center.vercel.app");
+  for (const host of ["evil.example", "tabhumanperformance.com.evil.example", "tab-human-performance-center-abc-mronan83s-projects.vercel.app", "", null]) expect(passkeyRelyingParty(host), String(host)).toBeNull();
+  const bytes = new Uint8Array([0, 1, 250, 251, 252, 253, 254, 255]);
+  expect([...fromBase64Url(toBase64Url(bytes))]).toEqual([...bytes]);
+  expect(toBase64Url(bytes)).not.toMatch(/[+/=]/);
+  const json = passkeyOptionsToJSON({ challenge: bytes.buffer, rpId: "tabhumanperformance.com", allowCredentials: [{ id: bytes, type: "public-key" }], user: { id: bytes, name: "m" } });
+  expect(json).toMatchObject({ challenge: toBase64Url(bytes), rpId: "tabhumanperformance.com", allowCredentials: [{ id: toBase64Url(bytes), type: "public-key" }], user: { id: toBase64Url(bytes), name: "m" } });
+  expect(JSON.parse(JSON.stringify(json))).toEqual(json); // plain JSON, safe to send from a server action
+});
+
+test("Sign-in & security is in every staff menu and stays empty in the demo (proposed D-068)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/security");
+  await expect(page.locator("main h1")).toHaveText("Sign-in & security");
+  await expect(page.getByText("passwords and passkeys apply to real TAB Practice accounts only")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Sign-in & security" }).first()).toBeVisible();
 });
