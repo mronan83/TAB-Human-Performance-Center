@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
-export type PortalNavItem = { href: string; label: string; icon: keyof typeof ICONS };
+/** `short` is the label in the phone tab bar, where six items share the width. */
+export type PortalNavItem = { href: string; label: string; short?: string; icon: keyof typeof ICONS };
 
 const ICONS = {
   home: "M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
@@ -20,6 +21,7 @@ const ICONS = {
   inbox: "M3 13l3-8h12l3 8v6H3zM3 13h5l1 3h6l1-3h5",
   team: "M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z",
   settings: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4",
+  stats: "M4 20V10M10 20V4M16 20v-7M22 20H2",
 } as const;
 
 export function Icon({ name, className }: { name: keyof typeof ICONS; className?: string }) {
@@ -53,9 +55,9 @@ export function PortalNav({ items, variant }: { items: PortalNavItem[]; variant:
     <nav aria-label="Portal" className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
       <ul className="flex justify-around">
         {items.map((i) => (
-          <li key={i.href} className="flex-1">
-            <Link href={i.href} aria-current={active(i.href) ? "page" : undefined} className={clsx("flex flex-col items-center gap-1 py-2.5 text-[0.6875rem] font-semibold", active(i.href) ? "text-primary" : "text-text-secondary")}>
-              <Icon name={i.icon} className="h-6 w-6" />{i.label}
+          <li key={i.href} className="min-w-0 flex-1">
+            <Link href={i.href} aria-current={active(i.href) ? "page" : undefined} className={clsx("flex flex-col items-center gap-1 px-0.5 py-2.5 text-center text-[0.6875rem] font-semibold leading-tight", active(i.href) ? "text-primary" : "text-text-secondary")}>
+              <Icon name={i.icon} className="h-6 w-6" /><span className="max-w-full truncate">{i.short ?? i.label}</span>
             </Link>
           </li>
         ))}

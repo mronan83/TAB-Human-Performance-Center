@@ -537,5 +537,20 @@ check('a switch accepts only true or false', await attempt(() => as(O, `update a
 await as(O, `delete from app_settings where key='start_form_open'`).catch(() => {});
 check('nobody can delete a setting', await setting('start_form_open'), true);
 
+// First-party website counts (A4): aggregate only; only the server writes; only the verified owner reads.
+await superuser(`select record_site_stat('pageview','/services/massage-bodywork')`);
+await superuser(`select record_site_stat('pageview','/services/massage-bodywork')`);
+await superuser(`select record_site_stat('event','Booking: Clicked')`);
+check('a page view adds one to today\'s total', (await superuser(`select count from site_stats where kind='pageview' and key='/services/massage-bodywork'`))[0].count, 2);
+check('the owner reads the counts', (await as(O, `select kind from site_stats order by kind`)).map(r => r.kind), ['event', 'pageview']);
+check('the owner without two-step verification reads nothing', (await as(O, `select kind from site_stats`, 'aal1')).length, 0);
+check('a practitioner reads nothing', (await as(P, `select kind from site_stats`)).length, 0);
+check('a client reads nothing', (await as(C1, `select kind from site_stats`)).length, 0);
+check('a visitor reads nothing', (await asAnon(`select kind from site_stats`)).length, 0);
+await expectDenied('a visitor cannot record a count directly', () => asAnon(`select record_site_stat('pageview','/')`));
+await expectDenied('a signed-in person cannot record a count directly', () => as(O, `select record_site_stat('pageview','/')`));
+await expectDenied('nobody signed in can write counts', () => as(O, `insert into site_stats (day, kind, key, count) values (current_date, 'pageview', '/', 999)`));
+check('only the three kinds of count exist', await attempt(() => superuser(`select record_site_stat('visitor','someone@example.com')`)), false);
+
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

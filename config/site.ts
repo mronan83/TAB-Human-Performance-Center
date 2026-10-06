@@ -119,11 +119,12 @@ export const siteConfig = {
 
   /**
    * D-046 / proposed D-057: privacy-friendly counts on public pages; ad pixels only when paid ads start, never in My TAB.
-   * Owner ruling 2026-10-06 (A4): no Plausible ("I'm not paying for a bunch of micro services"); Vercel Web Analytics
-   * instead, included in the Vercel Pro plan, cookieless, served from our own domain. Production deployments only.
+   * Owner rulings 2026-10-06 (A4): no Plausible ("I'm not paying for a bunch of micro services"), then "Let's build our
+   * own" (Vercel Web Analytics turned out to be a paid add-on): first-party daily totals in our database (/api/stats,
+   * lib/site-stats.ts). No cookies, no visitor identifiers, no third party. Production deployments with Supabase only.
    */
   analytics: {
-    webAnalytics: isProductionDeployment,
+    firstParty: isProductionDeployment && !!process.env.NEXT_PUBLIC_SUPABASE_URL,
     metaPixelId: null as Maybe<string>, // set only when paid ads begin (D-015)
     googleTagManagerId: null as Maybe<string>, // set with Timely Innovate upgrade (D-015)
   },

@@ -20,15 +20,15 @@ export const clientNav: PortalNavItem[] = [
 
 export const practiceNav: PortalNavItem[] = [
   { href: "/practice", label: "Clients", icon: "clients" },
-  { href: "/practice/inquiries", label: "Submissions", icon: "inbox" },
-  { href: "/practice/programs", label: "Program library", icon: "programs" },
+  { href: "/practice/inquiries", label: "Submissions", short: "Inbox", icon: "inbox" },
+  { href: "/practice/programs", label: "Program library", short: "Programs", icon: "programs" },
 ];
 
 export function PortalShell({ viewer, area, children }: { viewer: Viewer; area: "client" | "practice"; children: React.ReactNode }) {
   // Team (C7b): the owner grants the publishing permission and credentials.
-  // Team and Settings are the owner's (C7b, C23). Without real client data (production before go-live) only Settings shows.
-  const ownerNav: PortalNavItem[] = [{ href: "/practice/team", label: "Team", icon: "team" }, { href: "/practice/settings", label: "Settings", icon: "settings" }];
-  const staffNav = !clientScreensAvailable() ? ownerNav.filter((n) => n.href === "/practice/settings") : viewer.role === "owner" ? [...practiceNav, ...ownerNav] : practiceNav;
+  // Team, Website stats and Settings are the owner's (C7b, A4, C23). Without real client data (production before go-live) only stats and Settings show.
+  const ownerNav: PortalNavItem[] = [{ href: "/practice/team", label: "Team", icon: "team" }, { href: "/practice/stats", label: "Website stats", short: "Stats", icon: "stats" }, { href: "/practice/settings", label: "Settings", icon: "settings" }];
+  const staffNav = !clientScreensAvailable() ? ownerNav.filter((n) => n.href !== "/practice/team") : viewer.role === "owner" ? [...practiceNav, ...ownerNav] : practiceNav;
   const nav = area === "client" ? clientNav : staffNav;
   return (
     <div className="min-h-dvh bg-bone">

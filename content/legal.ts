@@ -47,7 +47,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         {
           list: [
-            "Website analytics: we use Vercel Web Analytics, from our hosting provider, which counts visits without cookies and without identifying you. We see totals such as pages viewed, the site that referred you, your device type and your country, and anonymous counts of how many people start and finish Start Where You Are. We can't use it to follow you across websites.",
+            "Website statistics: our own website counts visits itself, with no cookies and no outside analytics company. Each visit adds one to a daily total for the page you viewed, and we also count how many times Start Where You Are is begun and sent, and how often Book is clicked. If another website sent you, we note only that site's name. We never store your IP address, device details or anything else that identifies you, so these totals can't be traced to anyone. We don't count visits to My TAB or the contact page, and we skip counting entirely if your browser sends a Global Privacy Control or Do Not Track signal.",
             "Spam protection: our forms use Cloudflare Turnstile, which looks at technical signals from your browser to tell people from automated spam. Cloudflare's privacy policy applies to that check.",
             "Server logs: our hosting provider, Vercel, records technical details of each request, such as your IP address, browser and the time, to run and secure the site. These logs are kept for a short time.",
           ],
@@ -84,7 +84,7 @@ export const privacyPolicy: LegalDoc = {
         "We share information only with companies that help us run TAB, only for that purpose, and under their own privacy and security commitments:",
         {
           list: [
-            "Vercel (website hosting and privacy-friendly website statistics)",
+            "Vercel (website hosting)",
             "Resend (sending our website emails)",
             "Google Workspace (our email)",
             "Cloudflare (form spam protection)",
@@ -145,7 +145,7 @@ export const privacyPolicy: LegalDoc = {
   reviewNotes: [
     "Retention: owner ruling 2026-10-06 (A7) keeps proposed D-058: website submissions are kept and never deleted, including for people who don’t become clients. The policy says so in “How long we keep information” and “Your choices”.",
     "HIPAA: you ruled on 2026-09-28 that HIPAA doesn't apply (proposed D-060). The draft says nothing about HIPAA either way, which is the safer choice. If you bill health insurance or plan to, have counsel confirm before launch.",
-    "Analytics: owner ruling 2026-10-06 (A4) replaced Plausible with Vercel Web Analytics, part of the existing Vercel Pro plan; Cloudflare Turnstile keys were set the same day (A3).",
+    "Analytics: owner rulings 2026-10-06 (A4): no Plausible, no paid add-on; our own first-party daily totals instead (lib/site-stats.ts). Cloudflare Turnstile keys were set the same day (A3).",
     "Supabase and Stripe hold no client data until My TAB and online programs launch. Listing them now is harmless and avoids an update later.",
     "Breach notification: Michigan's Identity Theft Protection Act sets notice duties for certain data. Counsel should confirm the wording in Security.",
     "Have a Michigan attorney review the final text before launch. This draft reflects how the site works, not legal advice.",

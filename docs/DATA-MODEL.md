@@ -87,6 +87,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | --- | --- | --- |
 | `inquiries` | Start Where You Are and contact submissions: the whole form, flags, the linked client and the routing outcome. Never deleted | Written by the website with the service role. The owner reads all and records routing; a practitioner reads only those linked to their clients |
 | `appointment_refs` | References to Timely appointments, for display in My TAB | The client reads their own; staff write |
+| `site_stats` | Website counts (owner ruling A4): one row per day, kind (`pageview`, `event`, `referrer`) and key (a public page, a fixed event name, or a referring site's hostname), with a count. No cookies, IP addresses or visitor identifiers exist anywhere | Only the two-step-verified owner reads; only `record_site_stat()` (service role) writes |
 | `app_settings` | Owner settings (C23, proposed D-067): whether the client portal is open (`off` or `live`), the transition banner, whether the Start form is open, and (C23b) a Timely link per service (`booking_<service>`, https only, or null for the main booking page) and the optional pages (`feature_resources`, `feature_team`, `feature_events`). One row per setting, no personal data | Anyone reads (the site reads them on every page). Only the owner, two-step-verified, inserts or changes; nobody deletes; every change is stamped and audited |
 
 ### Private
@@ -131,6 +132,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | `set_updated_at` | Trigger: maintains `updated_at` |
 | `stamp_author` | Trigger: authorship is the signed-in user, never a value the caller sends (SEC-018) |
 | `stamp_consent` | Trigger: server time and caller on new consents |
+| `record_site_stat` | Adds one to today's total for a page, event or referring site (America/Detroit day). Service role only |
 | `stamp_setting` | Trigger: stamps the time and the signed-in owner on every settings change (C23) |
 | `stamp_client_invite` | Trigger: stamps the time and the inviter when a client is invited |
 | `forbid_consent_change` | Trigger: consents are insert-only |
