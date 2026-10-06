@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { siteConfig } from "@/config/site";
+import { portalOpen } from "@/lib/settings";
 import { getViewer } from "@/lib/portal";
 import { PortalShell } from "@/components/portal/PortalShell";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "My TAB", robots: { index: false, follow: false } };
 
 export default async function MyTabLayout({ children }: { children: React.ReactNode }) {
-  if (!siteConfig.portal.enabled) {
+  if (!(await portalOpen())) {
     return (<><SiteHeader /><main id="main">{children}</main><SiteFooter /></>);
   }
   const viewer = await getViewer();

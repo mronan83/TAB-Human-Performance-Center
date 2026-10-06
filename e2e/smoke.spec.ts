@@ -404,3 +404,26 @@ test("header menus: Escape returns focus, focus-out closes (WEB-001, NFR-001)", 
   for (let i = 0; i <= links; i++) await page.keyboard.press("Tab");
   await expect(page.locator("#menu-Services")).toBeHidden();
 });
+
+test("owner settings: the banner switch reaches the site; Live waits for the go-live checklist (C23)", async ({ page, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
+  await page.goto("/practice/settings");
+  await expect(page.locator("main h1")).toHaveText("Settings");
+  await expect(page.getByRole("radio", { name: /Live/ })).toBeDisabled();
+  await expect(page.getByText("Go-live checklist")).toBeVisible();
+  const banner = page.getByText("TAB Massage & Fitness is becoming TAB Human Performance Center.");
+
+  await page.getByLabel(/Name-change banner/).uncheck();
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Saved. The website updates within a few seconds.")).toBeVisible();
+  await page.goto("/about");
+  await expect(banner).toHaveCount(0);
+
+  await page.goto("/practice/settings");
+  await page.getByLabel(/Name-change banner/).check();
+  await page.getByRole("button", { name: "Save settings" }).click();
+  await expect(page.getByText("Saved. The website updates within a few seconds.")).toBeVisible();
+  await page.goto("/about");
+  await expect(banner).toBeVisible();
+});
+

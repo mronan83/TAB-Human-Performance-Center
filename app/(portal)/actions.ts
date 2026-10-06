@@ -1,9 +1,10 @@
 "use server";
 
 import { cookies, headers } from "next/headers";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
-import { requireClient, requireStaff, isMock } from "@/lib/portal";
+import { getViewer, isDemoSignIn, isMock, requireClient, requireOwner as requireOwnerViewer, requireStaff } from "@/lib/portal";
+import { saveSettings, SETTINGS_TAG, type PortalMode } from "@/lib/settings";
 import { siteUrl } from "@/config/site";
 import type { Consent, GoalInput, InviteResult, MethodStage, Plan, PlanType, ProgramAction, ReviewOutcome } from "@/lib/portal/types";
 import { isSafeResourceHref, resourceKinds } from "@/lib/portal/resources";
@@ -391,7 +392,7 @@ export async function createClientFromInquiryAction(id: string) {
 
 /** Demo only: switch between the client and practitioner views. */
 export async function setDemoRoleAction(role: "client" | "owner") {
-  if (!isMock()) return;
+  if (!isDemoSignIn()) return;
   (await cookies()).set("tab_demo_role", role, { path: "/", sameSite: "lax" });
   redirect(role === "owner" ? "/practice" : "/my-tab");
 }
@@ -420,17 +421,71 @@ export async function sendMagicLinkAction(_prev: unknown, fd: FormData) {
   if (signInPerEmail(email)) return tooMany;
   const { createSupabaseServerClient } = await import("@/lib/supabase/server");
   const sb = await createSupabaseServerClient();
-  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${siteUrl}/my-tab/auth/callback` } });
+  // Staff links land in TAB Practice (two-step verification next); client links in My TAB. Only these two values.
+  const callback = fd.get("area") === "practice" ? "/practice/auth/callback" : "/my-tab/auth/callback";
+  const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${siteUrl}${callback}` } });
   // Same response whether or not the account exists, to avoid revealing who is a client.
   if (error && !/not found|signups not allowed/i.test(error.message)) console.error("[auth]", error.message);
   return { ok: true };
 }
 
 export async function signOutAction() {
-  if (isMock()) (await cookies()).delete("tab_demo_role");
+  if (isDemoSignIn()) (await cookies()).delete("tab_demo_role");
   else {
     const { createSupabaseServerClient } = await import("@/lib/supabase/server");
     await (await createSupabaseServerClient()).auth.signOut();
   }
   redirect("/");
 }
+
+// ---------------------------------------------------------------------------
+// Staff two-step verification (SEC-015) and owner settings (C23, proposed D-067)
+// ---------------------------------------------------------------------------
+
+/** Signed in as staff, before two-step verification: the only state in which these two actions make sense. */
+async function signedInStaff() {
+  if (isDemoSignIn()) throw new Error("Two-step verification is for real accounts.");
+  const viewer = await getViewer();
+  if (!viewer || viewer.role === "client") throw new Error("Sign in with a TAB staff account first.");
+  const { createSupabaseServerClient } = await import("@/lib/supabase/server");
+  return createSupabaseServerClient();
+}
+
+/** Starts authenticator-app setup: a QR code and the matching secret for apps that can't scan. */
+export async function startTotpEnrollmentAction(): Promise<{ factorId: string; qr: string; secret: string } | { error: string }> {
+  const sb = await signedInStaff();
+  const { data: list } = await sb.auth.mfa.listFactors();
+  // An abandoned setup leaves an unverified factor behind; clear it so the new QR code is the only one.
+  for (const f of list?.all ?? []) if (f.status !== "verified") await sb.auth.mfa.unenroll({ factorId: f.id });
+  const { data, error } = await sb.auth.mfa.enroll({ factorType: "totp", friendlyName: "Authenticator app" });
+  if (error || !data) return { error: "We couldn’t start setup. Please try again." };
+  return { factorId: data.id, qr: data.totp.qr_code, secret: data.totp.secret };
+}
+
+/** Checks the 6-digit code. Success upgrades the session to two-step verified (aal2) and opens TAB Practice. */
+export async function verifyTotpAction(_prev: unknown, fd: FormData): Promise<{ error: string } | undefined> {
+  const factorId = String(fd.get("factorId") ?? "");
+  const code = String(fd.get("code") ?? "").replace(/\s+/g, "");
+  if (!/^\d{6}$/.test(code)) return { error: "Enter the 6-digit code from your authenticator app." };
+  const sb = await signedInStaff();
+  const { error } = await sb.auth.mfa.challengeAndVerify({ factorId, code });
+  if (error) return { error: "That code didn’t match. Check the time on your phone and try the newest code." };
+  redirect("/practice");
+}
+
+export async function saveSettingsAction(_prev: unknown, fd: FormData): Promise<{ ok: boolean; error?: string }> {
+  await requireOwnerViewer(); // not requireStaff(): Settings must work where TAB Practice has no client screens
+  const portalMode: PortalMode = fd.get("portalMode") === "live" ? "live" : "off";
+  // Live is accepted only where this build can actually run the portal on real data (guardrail 4).
+  if (portalMode === "live" && isMock()) return { ok: false, error: "The client portal can’t go live until the go-live checklist is complete." };
+  try {
+    await saveSettings({ portalMode, transitionBanner: fd.get("transitionBanner") === "on", startFormOpen: fd.get("startFormOpen") === "on" });
+  } catch (e) {
+    console.error("[settings] save failed", e);
+    return { ok: false, error: "We couldn’t save your settings. Please try again." };
+  }
+  revalidateTag(SETTINGS_TAG);
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+

@@ -3,7 +3,7 @@ title: TAB Human Performance Center Traceability
 eyebrow: TAB Human Performance Center · Requirements
 heading: Requirements & Feature Traceability
 owner: Matthew Ronan
-updated: 2026-10-03
+updated: 2026-10-06
 ---
 
 <!-- Edit this file, not the page. scripts/docs/render-traceability.mjs builds the page from it (npm run docs:html), and
@@ -186,7 +186,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | SEC-012 | Owner access to sensitive data is limited and audited, not automatically universal | Owner sees every client by design (D-045); access is audited | P2 | Should | Partial (Q-3) | rls |
 | SEC-013 | Bot protection and rate limits on forms; nonce-based CSP with `frame-ancestors 'none'` | `lib/spam.ts` layers; Turnstile once keys exist (A3); `lib/csp.ts` | P1 | Must | Verified | security, smoke |
 | SEC-014 | No public sign-up; accounts by invitation | Sign-up off; Invite to My TAB built (C4); invitation confirm route waits on C5 | P2 | Must | Partial | rls, smoke |
-| SEC-015 | Staff MFA enforced; nobody clears their own requirement | `current_app_role()` and `requireStaff`; enrolment waits on C5 | P2 | Must | Partial | rls |
+| SEC-015 | Staff MFA enforced; nobody clears their own requirement | `current_app_role()` and `requireStaff`; enrolment and verification screens built (F-53) | P2 | Must | Partial | rls |
 | SEC-016 | Client writes limited to allowed columns; consents insert-only | `guard_client_columns`, `guard_client_update`, form submission guards | P2 | Must | Verified | rls |
 | SEC-017 | Program content readable only when published and entitled | `can_read_program()` on modules and activities | P2 | Must | Verified | rls |
 | SEC-018 | Practitioners confined to their care team; authorship pinned | `can_access_client()`, `stamp_author()`, `guard_same_client()` | P2 | Must | Verified | rls |
@@ -278,6 +278,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-37 | Version moves and client-only activities | Verified (demo) | STAFF-009 | — | `practice/clients/[id]/programs/`, `components/portal/interactive.tsx` | smoke, rls |
 | F-38 | Team page (publishing permission) | Verified (demo) | STAFF-009, SEC-001 | D-045 | `practice/team/` | smoke, a11y, rls |
 | F-39 | Invite to My TAB, assign forms, share resources | Partial: invite email needs C5 | STAFF-010, PORTAL-008, CMS-003, SEC-014 | D-054 | `practice/clients/[id]/page.tsx`, migration `20261005000000` | smoke, a11y, rls |
+| F-53 | Owner settings and staff sign-in with two-step verification | Built: production needs the migration, the owner account and auth URLs (G3) | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, migration `20261009000000` | smoke, a11y, rls |
 
 ### Delivery and operations
 
@@ -294,7 +295,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
 | F-44 | Payload CMS | Planned | CMS-001 to CMS-005 | C8 (after Phase 1, A-02) |
-| F-45 | Sign-in plumbing and staff MFA | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
+| F-45 | Sign-in plumbing: auth URLs and invitation emails (staff MFA built in F-53) | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
 | F-48 | Service intakes for the five pillars | Planned | STAFF-003 | not yet on the backlog |
@@ -402,6 +403,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.9 | Homepage closing band re-imaged to echo the hero (DS-007); no requirement changes | Owner feedback, 2026-10-06 |
 | 2026-10-06 | 1.10 | Branded email layout for Start, contact and My TAB emails (GS-004 emails now send; A2 closed) | Owner feedback, 2026-10-06 |
 | 2026-10-06 | 1.11 | Business facts on the site (WEB-012 built, gift cards aside); privacy policy and terms drafted for review (A7); launch targeted 1 November (GAP-017); stock photography confirmed for launch | Owner rulings 2026-10-06 |
+| 2026-10-06 | 1.12 | C23: owner Settings page and real staff sign-in with two-step verification (F-53); SEC-015's enrolment screen built; F-45 narrowed to auth URLs and invitation emails; `app_settings` added to the data model | Owner request and design approval, 2026-10-06 (proposed D-067) |
 
 ## Sources
 

@@ -32,7 +32,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | C15 | Checks for guardrails that only code review protects today: analytics never loads on `/my-tab`, `/practice` or `/contact` (NFR-005); emails and subjects carry no personal or health details (TG-3); a Start submission gets one next step and shows in TAB Practice (TG-8); every service page keeps its CTA, "not sure?" link and related services (WEB-004 to WEB-007) | Quality | Claude | M | None |
 | C18 | Count the remaining public events, `service_view` and `book_click`, property-less (NFR-006, TG-7) | Analytics | Claude | S | A4 |
 | C1 | Switch-over, `docs/runbooks/switch-over.md`. Phase A (private attach: demo portal off, new domain in config, domains attached behind Vercel login, Resend DNS) in progress; Phase B (public launch: protection to Standard, indexing, GoDaddy web records for tabmassage.com, checks) waits on content and A13 [§7.4, RSK-009, proposed D-066] (G3) | Launch | Claude | M | A2, A8, A13 |
-| C23 | Owner Settings page in TAB Practice: client portal Off / Demo / Live (Live locked until guardrail 4's gate), transition banner, Start form open/closed, booking links, feature flags; settings table with owner-only RLS and audit; real staff sign-in with two-step verification on production [proposed D-067] (production migration: G3) | Portal | Claude | L | C1 Phase A |
+| C23 | **In review.** Owner Settings page in TAB Practice: client portal Off / Live (Live locked until guardrail 4's gate; demo stays preview-only), transition banner, Start form open/closed; `app_settings` table with owner-only RLS and audit; real staff sign-in with an authenticator app on production [proposed D-067]. After merge (G3): apply the 13 migrations to production Supabase, create the owner account, set the auth URLs, owner enrols an authenticator app | Portal | Claude | S | G3 approval |
+| C23b | Settings, part 2: per-service booking links and feature flags (Resources, Events, Team, Testimonials) | Portal | Claude | M | C23 |
 | A29 | Google Workspace: rename users to `@tabhumanperformance.com` (each old `@tabmassage.com` address stays as an alias on the same mailbox); for any other old address, add a catch-all route for `tabmassage.com` to `info@tabhumanperformance.com`; keep `tabmassage.com` in Workspace. At GoDaddy, add SPF, DKIM and DMARC for `tabmassage.com`, which has none today (records in `docs/runbooks/switch-over.md`) [runbook, Email] | Accounts | Owner | S | A10 |
 | C24 | Tighten DMARC on `tabhumanperformance.com` to `quarantine`, then `reject`, one week after DKIM is authenticating and mail flows | Accounts | Claude | S | A29 |
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
@@ -42,7 +43,7 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
-| C5 | Sign-in plumbing: Site URL and redirects; sign-in and invitation emails through Resend, with Supabase's invite template worded like ours (no personal details, guardrail 5); confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in; staff MFA enrolment (staff can't use TAB Practice on Supabase until this exists) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
+| C5 | Sign-in plumbing: Site URL and redirects; sign-in and invitation emails through Resend, with Supabase's invite template worded like ours (no personal details, guardrail 5); confirm invitation links land on `/my-tab/auth/callback` and record the first sign-in; staff MFA enrolment is built (C23) [SEC-014, SEC-015] | Portal | Claude | M | A1, A2 |
 | C6 | Tests against a real Supabase stack in CI [SEC-021] | Security | Claude | L | None |
 | C16 | My TAB profile: accessibility needs and goals, client-editable (PORTAL-010, TG-5) | Portal | Claude | S | None |
 | C19 | Incident-response runbook: who to call, revoking keys, telling clients; paired with counsel's breach duties (SEC-011, TG-9) | Security | Claude | S | A7 |
@@ -79,6 +80,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 **A15 is the real go-live gate for My TAB.** It needs C5, C6, A7, A14 and A26 together: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Owner Settings** (2026-10-06, in review, C23): TAB Practice → Settings, where the owner turns the client portal on or off (Live only once the go-live gate is met), the transition banner and the Start form; staff sign-in with an emailed link and an authenticator app; the settings table lets only the two-step-verified owner change anything and logs every change. Owner request: "I don't have to ask you to turn the portal on or off".
 
 - **Launch date and business facts** (2026-10-06, in review): public launch targeted for 1 November 2026 (closes A13); address, phone, hours (grouped in the footer, by day on the contact page, and as opening hours for search engines) and a map link on the site (most of A6); privacy policy and terms drafted from how the site actually works, with review notes for the owner and attorney (A7 now review); stock photography confirmed for launch (A8). Email template no longer requests web fonts from Google.
 

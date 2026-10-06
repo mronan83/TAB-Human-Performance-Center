@@ -12,7 +12,8 @@
   "20261005000000_client_invites_assignments.sql",
   "20261006000000_private_notes_audit_stripe.sql",
   "20261007000000_integrated_nutrition_service.sql",
-  "20261008000000_method_stages_adapt_balance.sql"
+  "20261008000000_method_stages_adapt_balance.sql",
+  "20261009000000_owner_settings.sql"
  ],
  "tables": [
   {
@@ -153,6 +154,88 @@
      "name": "activity_logs_same_client",
      "function": "guard_same_client",
      "def": "CREATE TRIGGER activity_logs_same_client BEFORE INSERT OR UPDATE ON public.activity_logs FOR EACH ROW EXECUTE FUNCTION guard_same_client('client_program_id', 'client_programs')"
+    }
+   ]
+  },
+  {
+   "name": "app_settings",
+   "rls": true,
+   "comment": "Owner-controlled site settings (C23). Public to read; owner-only to change; audited.",
+   "columns": [
+    {
+     "name": "key",
+     "type": "text"
+    },
+    {
+     "name": "value",
+     "type": "jsonb"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_by",
+     "type": "uuid",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "app_settings_key_check",
+     "kind": "check",
+     "def": "CHECK ((key = ANY (ARRAY['portal_mode'::text, 'transition_banner'::text, 'start_form_open'::text])))"
+    },
+    {
+     "name": "app_settings_value_shape",
+     "kind": "check",
+     "def": "CHECK (\nCASE key\n    WHEN 'portal_mode'::text THEN ((jsonb_typeof(value) = 'string'::text) AND ((value #>> '{}'::text[]) = ANY (ARRAY['off'::text, 'live'::text])))\n    ELSE (jsonb_typeof(value) = 'boolean'::text)\nEND)"
+    },
+    {
+     "name": "app_settings_updated_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (updated_by) REFERENCES auth.users(id) ON DELETE SET NULL",
+     "ref_table": "auth.users"
+    },
+    {
+     "name": "app_settings_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (key)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "app_settings_insert",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "(current_app_role() = 'owner'::app_role)"
+    },
+    {
+     "name": "app_settings_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "true"
+    },
+    {
+     "name": "app_settings_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)",
+     "with_check": "(current_app_role() = 'owner'::app_role)"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "app_settings_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER app_settings_audit AFTER INSERT OR DELETE OR UPDATE ON public.app_settings FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "app_settings_stamp",
+     "function": "stamp_setting",
+     "def": "CREATE TRIGGER app_settings_stamp BEFORE INSERT OR UPDATE ON public.app_settings FOR EACH ROW EXECUTE FUNCTION stamp_setting()"
     }
    ]
   },
@@ -4772,6 +4855,14 @@
   },
   {
    "name": "stamp_consent",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "stamp_setting",
    "args": "",
    "returns": "trigger",
    "security_definer": true,

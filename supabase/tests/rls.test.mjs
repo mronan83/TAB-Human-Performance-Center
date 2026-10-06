@@ -498,5 +498,31 @@ check('a full refund ends access', (await ent('cs_1')).status, 'refunded');
 check('a refund for an unknown purchase fails loudly', await attempt(() => stripe('evt_9', 'charge.refunded', { id: 'ch_2', amount: 100, amount_refunded: 100 }, 'cs_unknown')), false);
 await expectDenied('signed-in people cannot apply Stripe events', () => as(O, `select apply_stripe_event('evt_x','charge.refunded','{}'::jsonb,'cs_1')`));
 
+// Owner settings (C23, proposed D-067): public to read, owner-only (two-step-verified) to change, never deleted, audited.
+const asAnon = async (sql) => {
+  await db.exec(`set role anon; select set_config('test.uid','',false), set_config('test.jwt','{}',false);`);
+  try { return (await db.query(sql)).rows; } finally { await db.exec(`reset role;`); }
+};
+const setting = async (key) => (await superuser(`select value from app_settings where key='${key}'`))[0]?.value;
+check('settings start with the portal off', await setting('portal_mode'), 'off');
+check('anyone can read settings', (await asAnon(`select key from app_settings order by key`)).map(r => r.key), ['portal_mode', 'start_form_open', 'transition_banner']);
+await asAnon(`update app_settings set value='false' where key='transition_banner'`).catch(() => {});
+check('a visitor cannot change a setting', await setting('transition_banner'), true);
+await as(C1, `update app_settings set value='false' where key='transition_banner'`);
+check('a client cannot change a setting', await setting('transition_banner'), true);
+await as(P, `update app_settings set value='false' where key='transition_banner'`);
+check('a practitioner cannot change a setting', await setting('transition_banner'), true);
+await as(O, `update app_settings set value='false' where key='transition_banner'`, 'aal1');
+check('the owner cannot change a setting without two-step verification', await setting('transition_banner'), true);
+await as(O, `update app_settings set value='false' where key='transition_banner'`);
+check('the owner can change a setting', await setting('transition_banner'), false);
+check('the change is stamped with who made it', (await superuser(`select updated_by from app_settings where key='transition_banner'`))[0].updated_by, O);
+check('and audited', (await superuser(`select count(*)::int n from audit_events where table_name='app_settings' and actor_id='${O}'`))[0].n, 1);
+await expectDenied('the owner cannot add an unknown setting', () => as(O, `insert into app_settings (key, value) values ('anything','true')`).catch((e) => { throw new Error(/check constraint/.test(e.message) ? 'permission denied' : e.message); }));
+check('portal mode accepts only off or live', await attempt(() => as(O, `update app_settings set value='"demo"' where key='portal_mode'`)), false);
+check('a switch accepts only true or false', await attempt(() => as(O, `update app_settings set value='"yes"' where key='start_form_open'`)), false);
+await as(O, `delete from app_settings where key='start_form_open'`).catch(() => {});
+check('nobody can delete a setting', await setting('start_form_open'), true);
+
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

@@ -570,13 +570,13 @@ export function PlanEntryForm({ clientId, planId }: { clientId: string; planId: 
 }
 
 /** My TAB sign-in: honeypot and Turnstile like the public forms (SEC-013); limits are enforced in sendMagicLinkAction. */
-export function LoginForm() {
+export function LoginForm({ area = "client" }: { area?: "client" | "practice" }) {
   const [state, action, pending] = useActionState(sendMagicLinkAction, null);
   const turnstile = useTurnstile("login");
   const [waitMessage, setWaitMessage] = useState("");
   const { reset } = turnstile;
   useEffect(() => { if (state) reset(); }, [state, reset]); // tokens are single-use
-  if (state?.ok) return <p role="status" className="rounded-[20px] bg-success-soft p-5 font-medium text-success">If that email belongs to a TAB client, a sign-in link is on its way. It expires in one hour.</p>;
+  if (state?.ok) return <p role="status" className="rounded-[20px] bg-success-soft p-5 font-medium text-success">If that email belongs to {area === "practice" ? "TAB staff" : "a TAB client"}, a sign-in link is on its way. It expires in one hour.</p>;
   const error = waitMessage || state?.error;
   return (
     <form
@@ -590,6 +590,7 @@ export function LoginForm() {
           : "Just a moment: we’re checking this is a real browser. Please try again in a few seconds.");
       }}
     >
+      <input type="hidden" name="area" value={area} />
       <div><label htmlFor="email" className="field-label">Email</label><input id="email" name="email" type="email" className="field-input" autoComplete="email" required /></div>
       {/* Honeypot: off-screen, hidden from assistive technology and skipped by keyboard. */}
       <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">

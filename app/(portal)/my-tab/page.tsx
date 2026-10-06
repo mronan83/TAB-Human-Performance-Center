@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { siteConfig } from "@/config/site";
 import { requireClient } from "@/lib/portal";
+import { portalOpen } from "@/lib/settings";
 import { clientLoginHref, bookingHref } from "@/lib/links";
 import { STAGES, fmtDate, fmtDateTime, serviceName, daysUntil } from "@/lib/portal/format";
 import { Panel, TextLink, StageTracker, ProgressBar, Badge } from "@/components/portal/ui";
@@ -25,7 +25,7 @@ function InterimMyTab() {
 }
 
 export default async function MyTabHome() {
-  if (!siteConfig.portal.enabled) return <InterimMyTab />;
+  if (!(await portalOpen())) return <InterimMyTab />; // the owner's portal setting, within what this build allows (C23)
   const { viewer, clientId, repo } = await requireClient();
   const d = await repo.getDashboard(clientId);
   // "Your stage was updated" shows for 30 days after the practitioner changes it (design §5.2).

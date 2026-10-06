@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { PortalNav, type PortalNavItem } from "./PortalNav";
 import { DemoBanner } from "./DemoBanner";
-import { isMock } from "@/lib/portal";
+import { clientScreensAvailable, isDemoSignIn } from "@/lib/portal";
 import type { Viewer } from "@/lib/portal/types";
 import { signOutAction } from "@/app/(portal)/actions";
 
@@ -26,13 +26,16 @@ export const practiceNav: PortalNavItem[] = [
 
 export function PortalShell({ viewer, area, children }: { viewer: Viewer; area: "client" | "practice"; children: React.ReactNode }) {
   // Team (C7b): the owner grants the publishing permission and credentials.
-  const nav = area === "client" ? clientNav : viewer.role === "owner" ? [...practiceNav, { href: "/practice/team", label: "Team", icon: "team" } as PortalNavItem] : practiceNav;
+  // Team and Settings are the owner's (C7b, C23). Without real client data (production before go-live) only Settings shows.
+  const ownerNav: PortalNavItem[] = [{ href: "/practice/team", label: "Team", icon: "team" }, { href: "/practice/settings", label: "Settings", icon: "settings" }];
+  const staffNav = !clientScreensAvailable() ? ownerNav.filter((n) => n.href === "/practice/settings") : viewer.role === "owner" ? [...practiceNav, ...ownerNav] : practiceNav;
+  const nav = area === "client" ? clientNav : staffNav;
   return (
     <div className="min-h-dvh bg-bone">
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2">
         Skip to content
       </a>
-      {isMock() && <DemoBanner role={viewer.role} />}
+      {isDemoSignIn() && <DemoBanner role={viewer.role} />}
       <div className="lg:grid lg:grid-cols-[260px_1fr]">
         <aside className="hidden border-r border-border bg-white lg:flex lg:min-h-[calc(100dvh-40px)] lg:flex-col">
           <div className="px-6 pb-4 pt-6">
