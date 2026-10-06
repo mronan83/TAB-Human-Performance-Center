@@ -203,10 +203,12 @@ test("Sign-in & security is in every staff menu and stays empty in the demo (pro
   await expect(page.getByRole("link", { name: "Sign-in & security" }).first()).toBeVisible();
 });
 
-test("massage techniques: nine, lymphatic drainage included, no treatment claims, unconfirmed ones flagged (guardrails 8 and 10)", () => {
-  expect(techniques).toHaveLength(9);
-  expect(techniques.map((t) => t.slug)).toContain("lymphatic-drainage");
-  expect(new Set(techniques.map((t) => t.slug)).size).toBe(9);
+test("massage techniques: eleven, with lymphatic, prenatal and sports; no Swedish; no treatment claims; unconfirmed ones flagged (guardrails 8 and 10)", () => {
+  expect(techniques).toHaveLength(11);
+  for (const slug of ["lymphatic-drainage", "prenatal", "sports-massage"]) expect(techniques.map((t) => t.slug)).toContain(slug);
+  expect(new Set(techniques.map((t) => t.slug)).size).toBe(11);
+  // TAB doesn't offer Swedish or relaxation massage (owner, 2026-10-06).
+  expect(JSON.stringify(techniques)).not.toMatch(/swedish|relaxation/i);
   for (const t of techniques) {
     expect(techniqueGroups.map((g) => g.key), t.slug).toContain(t.group);
     expect(PRESSURE_LEVELS, t.slug).toContain(t.pressure);
@@ -222,7 +224,7 @@ test("the techniques guide: every technique has a card, the Massage page links t
   await page.goto("/services/massage-bodywork/techniques");
   await expect(page.locator("main h1")).toHaveText("Massage techniques");
   for (const t of techniques) await expect(page.locator(`article#${t.slug} h3`)).toContainText(t.name);
-  await expect(page.getByRole("region", { name: "Massage techniques at a glance" }).getByRole("row")).toHaveCount(10);
+  await expect(page.getByRole("region", { name: "Massage techniques at a glance" }).getByRole("row")).toHaveCount(12);
   await page.goto("/services/massage-bodywork");
   for (const t of techniques) await expect(page.locator(`a[href="/services/massage-bodywork/techniques#${t.slug}"]`)).toHaveCount(1);
   expect((await request.get("/services/functional-strength/techniques")).status()).toBe(404);
