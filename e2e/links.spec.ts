@@ -17,7 +17,8 @@ test("no broken internal links", async ({ page, request }) => {
   for (const [href, foundOn] of links) {
     // The browser pass above can outlast the server's 5 s keep-alive, so the first reuse of the pooled connection may
     // hit a socket the server already closed (ECONNRESET). maxRetries retries only that network error, never a status.
-    const res = await request.get(href, { maxRetries: 2 });
+    // maxRedirects 0: a resource link (/resources/go/…) is checked as our redirect, not by fetching the other website.
+    const res = await request.get(href, { maxRetries: 2, maxRedirects: 0 });
     if (res.status() >= 400) broken.push(`${href} (${res.status()}) linked from ${foundOn}`);
   }
   expect(broken, broken.join("\n")).toEqual([]);

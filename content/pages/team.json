@@ -1,0 +1,20 @@
+{
+  "headline": "The people behind TAB",
+  "metaDescription": "Meet the people behind TAB Human Performance Center.",
+  "draft": true,
+  "members": [
+    {
+      "name": "[Practitioner name]",
+      "role": "Founder and practitioner",
+      "credentials": "[Credentials and certifications]",
+      "credentialsConfirmed": false,
+      "bio": "[PLACEHOLDER: a short bio covering 20+ years of experience across massage, strength training, and coaching.]",
+      "services": [
+        "massage-bodywork",
+        "personal-strength-training",
+        "womens-wellness-coaching",
+        "holistic-life-coaching"
+      ]
+    }
+  ]
+}

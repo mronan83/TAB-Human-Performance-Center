@@ -3,6 +3,7 @@ import { about, legal, faqs } from "@/content/pages";
 import { services } from "@/content/services";
 import { techniques } from "@/content/massage-techniques";
 import { privacyPolicy, termsOfUse } from "@/content/legal";
+import { visibleResources } from "@/lib/resources";
 
 /** `optional` items never block launch; every other open item fails the launch gate below. */
 export type ChecklistItem = { area: string; item: string; where: string; done: boolean; optional?: boolean };
@@ -29,9 +30,13 @@ export function launchChecklist(): ChecklistItem[] {
     // SEC-013: the forms email a copy to whatever address is entered (DIV-05), so the human check is required at launch.
     { area: "Forms", item: "Cloudflare Turnstile keys for the forms' human check (free account)", where: "Vercel env → NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY", done: !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY && !!process.env.TURNSTILE_SECRET_KEY },
     { area: "Forms", item: "Shared rate limit for /api/inquiry at the edge (Vercel Firewall rule)", where: "Vercel project → Firewall (SEC-013)", done: false, optional: true },
+    // C35: documents that ask for an email address are sent as signed links; production needs the signing key.
+    { area: "Forms", item: "Signing key for emailed resource links (only needed once a document asks for an email address)", where: "Vercel env → RESOURCE_LINK_SECRET", done: !!process.env.RESOURCE_LINK_SECRET || !visibleResources().some((r) => r.document?.requireEmail) },
     { area: "Analytics", item: "Website counts switched on in production (site_stats migration and the server key)", where: "Supabase migration 20261011000000; Vercel env → SUPABASE_SERVICE_ROLE_KEY", done: c.analytics.firstParty && !!process.env.SUPABASE_SERVICE_ROLE_KEY, optional: true },
-    { area: "Content", item: "Our Story written with owner", where: "content/pages.ts → about.story", done: !about.story.draft },
-    { area: "Content", item: "Team bios, credentials, photos", where: "content/pages.ts → about.team", done: !about.team.draft },
+    { area: "Content", item: "Our Story written with owner", where: "Content editor → Pages → Our Story (content/pages/our-story.json)", done: !about.story.draft },
+    { area: "Content", item: "Team bios, credentials, photos", where: "Content editor → Pages → Our Team (content/pages/team.json)", done: !about.team.draft },
+    // Guardrail 10: credentials stay off the site until the owner confirms them.
+    { area: "Content", item: "Team credentials confirmed", where: "Content editor → Pages → Our Team → Credentials confirmed", done: about.team.members.every((m) => !m.credentials || m.credentialsConfirmed) },
     { area: "Content", item: "Massage techniques reviewed: TAB's training confirmed for each of the nine", where: "content/massage-techniques.ts → draft, reviewNote", done: techniques.every((t) => !t.draft) },
     { area: "Content", item: "Service FAQ answers reviewed", where: "content/services.ts → faqs", done: services.every((s) => s.faqs.every((f) => !f.draft)) },
     { area: "Content", item: "General FAQ reviewed", where: "content/pages.ts → faqs", done: faqs.every((f) => !f.draft) },

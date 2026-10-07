@@ -271,7 +271,7 @@ const clone = <T>(v: T): T => structuredClone(v);
  * A website submission in the demo (previews and tests only; production never runs the demo portal), so TAB Practice
  * shows it exactly as it would with storage on (TG-8). Mirrors storeInquiry() in lib/inquiry-store.ts.
  */
-export function recordDemoInquiry(d: Omit<import("@/lib/inquiry").Inquiry, "website" | "elapsedMs" | "turnstileToken">, reference: string, flags: string[]) {
+export function recordDemoInquiry(d: import("@/lib/inquiry").StoredInquiry, reference: string, flags: string[]) {
   store.inquiries.unshift({
     id: `inq-${reference.toLowerCase()}`, reference, kind: d.kind, receivedAt: new Date().toISOString(), name: d.name, email: d.email,
     phone: d.phone || undefined, contactPreference: d.contactPreference, journey: d.journey, help: d.help ?? [], serviceInterest: d.service,

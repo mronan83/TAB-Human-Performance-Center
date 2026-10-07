@@ -6,6 +6,8 @@ import { MAX_BODY_BYTES, MIN_FILL_MS, duplicateGuard, limiter, sameOrigin, scree
 import { siteConfig } from "@/config/site";
 import { buildInquiryEmails } from "@/lib/inquiry-emails";
 import { getSettings } from "@/lib/settings";
+import { findResource, signedDownloadPath } from "@/lib/resources";
+import { buildResourceEmails } from "@/lib/resource-emails";
 
 // Spam defenses (SEC-013): see lib/spam.ts for the layers and why each exists. The limits below are per server
 // instance; a shared limit at the edge (Vercel Firewall) is the planned complement.
@@ -60,6 +62,9 @@ export async function POST(req: Request) {
     return json({ ok: false, error: "We’ve already received several messages from this address today. We’ll be in touch soon." }, 429);
   }
 
+  // A resource request (C35): email the download link; nothing is stored (proposed D-058).
+  if (d.kind === "resource") return sendResource(d, flags);
+
   const isStart = d.kind === "start";
   // The owner can pause online Start submissions (C23); the page hides the form, and this stops a stale tab or a bot.
   if (isStart && !(await getSettings()).startFormOpen) {
@@ -73,14 +78,14 @@ export async function POST(req: Request) {
   let stored = false;
   if (siteConfig.forms.storeSubmissions) {
     try {
-      await storeInquiry(d, ref, flags);
+      await storeInquiry({ ...d, kind: d.kind }, ref, flags);
       stored = true;
     } catch (e) {
       console.error("[inquiry] store failed", ref, e);
     }
   } else if (siteConfig.portal.enabled && siteConfig.portal.dataSource === "mock") {
     // The demo portal (previews, tests): keep it in the demo's TAB Practice. Production never runs the demo.
-    (await import("@/lib/portal/mock-repository")).recordDemoInquiry(d, ref, flags);
+    (await import("@/lib/portal/mock-repository")).recordDemoInquiry({ ...d, kind: d.kind }, ref, flags);
     stored = true;
   }
 
@@ -123,4 +128,55 @@ export async function POST(req: Request) {
     }
   }
   return delivered({ copy: copied });
+}
+
+/**
+ * A document that asks for an email address first (C35). The link goes to the address given, so a request proves the
+ * address works; TAB gets a note of who asked. A flagged request gets no automatic email (the same rule as a form
+ * copy), and TAB's note carries the link to forward if it looks genuine.
+ */
+async function sendResource(d: { name: string; email: string; resource?: string; marketingOptIn?: boolean }, flags: SpamFlag[]) {
+  const r = d.resource ? findResource(d.resource) : undefined;
+  if (!r?.document?.requireEmail) return json({ ok: false, error: "That guide isn’t available any more. Please refresh the page." }, 404);
+  const path = signedDownloadPath(r.slug);
+  if (!path) {
+    console.error("[inquiry] RESOURCE_LINK_SECRET is not set; resource links can't be signed");
+    return failed(503);
+  }
+  const ref = `${Date.now().toString(36)}${crypto.randomUUID().slice(0, 4)}`.toUpperCase();
+  const { staff, copy } = buildResourceEmails(d, r, path, ref, flags);
+  const sendLink = flags.length === 0 && !copyLimited(d.email.toLowerCase());
+  const delivered = (sent: boolean) => {
+    duplicates.remember(d);
+    return json({ ok: true, sent });
+  };
+  const key = process.env.RESEND_API_KEY;
+  if (!key) {
+    // Development and the demo (previews, tests; production never runs the demo): log instead of sending.
+    if (process.env.NODE_ENV !== "production" || (siteConfig.portal.enabled && siteConfig.portal.dataSource === "mock")) {
+      console.info("[inquiry] RESEND_API_KEY not set; would send to", staff.to, `\n${staff.subject}\n\n${staff.text}`);
+      if (sendLink) console.info("[inquiry] and the link to the submitter:", `\n${copy.subject}`);
+      return delivered(sendLink);
+    }
+    return failed(503);
+  }
+  const resend = new Resend(key);
+  let sent = false;
+  if (sendLink) {
+    try {
+      const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to: d.email, replyTo: siteConfig.contact.email, subject: copy.subject, html: copy.html, text: copy.text, attachments: copy.attachments });
+      if (error) throw new Error(error.message);
+      sent = true;
+    } catch (e) {
+      console.error("[inquiry] resource link failed", ref, e);
+    }
+  }
+  try {
+    const { error } = await resend.emails.send({ from: siteConfig.forms.fromAddress, to: staff.to, replyTo: d.email, subject: staff.subject, html: staff.html, text: staff.text, attachments: staff.attachments });
+    if (error) throw new Error(error.message);
+  } catch (e) {
+    console.error("[inquiry] resource note failed", ref, e);
+    if (!sent) return failed(502);
+  }
+  return delivered(sent);
 }

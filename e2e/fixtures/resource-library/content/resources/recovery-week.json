@@ -1,0 +1,15 @@
+{
+  "title": "Your recovery week",
+  "summary": "A PDF that asks for an email address first, used by the checks.",
+  "topic": "recovery",
+  "pillar": "massage-bodywork",
+  "kind": {
+    "discriminant": "document",
+    "value": {
+      "file": "/resource-files/recovery-week/file.pdf",
+      "requireEmail": true
+    }
+  },
+  "status": "published",
+  "added": "2026-10-03"
+}

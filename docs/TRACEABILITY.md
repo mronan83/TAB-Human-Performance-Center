@@ -88,7 +88,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-007 | Related services only where the link is genuine | P1 | Should | Verified | F-03 | guardrails |
 | WEB-008 | TAB Method page: Start Where You Are, Transform, Adapt, Balance | P1 | Must | Built | F-04 | — |
 | WEB-009 | About, Our Story and Team pages | P1 | Must | Partial: founder story, bio and photos are placeholders (A8) | F-04 | — |
-| WEB-010 | Resources hub: articles, guides, events, FAQ | P1 | Should | Partial: topic list and FAQ only; events switched off (TG-2, A8) | F-05 | — |
+| WEB-010 | Resources hub: articles, guides, events, FAQ | P1 | Should | Partial: a library of links and PDF guides by topic, some emailed on request (C35), and the FAQ; articles later; events switched off (A8) | F-05, F-58 | e2e (`e2e/resources.spec.ts`) |
 | WEB-011 | `/book` offers two paths: Timely booking or `/start` | P1 | Must | Verified | F-06 | smoke |
 | WEB-012 | Footer with legal, accessibility, policies, location, hours, contact | P1 | Must | Built: address, phone, hours (grouped) and map link set 2026-10-06; gift cards link still open (A6) | F-01 | links |
 | WEB-013 | Trust content with consent metadata; no invented testimonials | P1 | Should | Partial: waits on real content (A8) | F-02 | — |
@@ -148,11 +148,11 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Requirement | Phase | Priority | Status | Features | Verified by |
 | --- | --- | --- | --- | --- | --- | --- |
-| CMS-001 | Content types for services, practitioners, articles, programs and more | P1 | Should | Partial: services and the techniques guide are content-editor types (C31); the rest later (C35) | F-57, F-44 | e2e (`e2e/content.spec.ts`) |
-| CMS-002 | Taxonomy by pillar, stage, need, format and audience | P1 | Could | Planned (C35) | F-44 | — |
+| CMS-001 | Content types for services, practitioners, articles, programs and more | P1 | Should | Partial: services, the techniques guide, Home, the TAB Method, About, Our Story, team members and resources (links and documents) are content-editor types (C31, C35); articles and programs later | F-57, F-58, F-44 | e2e (`e2e/content.spec.ts`) |
+| CMS-002 | Taxonomy by pillar, stage, need, format and audience | P1 | Could | Partial: resources by topic and pillar, and by format (link or document) (C35) | F-58, F-44 | e2e (`e2e/resources.spec.ts`) |
 | CMS-003 | One canonical resource, assigned by reference, never copied | P2 | Should | Partial: assignments hold a link, not a CMS reference | F-39, F-44 | — |
 | CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Partial: every edit is a change request with checks and the owner's approval; review dates later (C35) | F-57, F-44 | — |
-| CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: owner-editable on the service pages and techniques guide (C31); other pages next (C35) | F-02, F-57, F-44 | e2e (`e2e/content.spec.ts`) |
+| CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: owner-editable on the service pages, techniques guide, Home, the TAB Method and the About pages (C31, C35); FAQ, Start and policies next | F-02, F-57, F-58, F-44 | e2e (`e2e/content.spec.ts`) |
 | CMS-006 | Documented content-management process: lanes, request forms, what is editable, checks, glossary | P1 | Must | Verified | F-55 | CI (`npm run docs:check`) |
 | CMS-007 | Website change requests filed and tracked in TAB Practice, with status and notes | P1 | Must | Verified | F-55 | rls, e2e |
 
@@ -236,7 +236,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-02 | Homepage | Partial: trust content and photos (A8) | WEB-002, WEB-003, WEB-013, WEB-014, CMS-005, DS-007 | D-064, D-065 (proposed) | `app/(site)/page.tsx`, `content/pages.ts` | links, a11y |
 | F-03 | Services landing and service pages; the massage techniques guide (eleven techniques, `/services/massage-bodywork/techniques`) | Partial: 14 draft FAQs (A8) | WEB-002, WEB-004 to WEB-007, WEB-014, WEB-018 | D-065 (proposed), Step 15 §15.8 | `app/(site)/services/`, `content/services.ts`, `content/massage-techniques.ts`, `components/Techniques.tsx` | links, seo, a11y, guardrails |
 | F-04 | TAB Method, About, Our Story, Team | Partial: founder story, bio, photos (A8) | WEB-002, WEB-008, WEB-009, WEB-014, WEB-017 | D-027 | `app/(site)/tab-method/`, `about/` | links, a11y |
-| F-05 | Resources, FAQ, Events | Partial: topic list only (TG-2) | WEB-002, WEB-010, WEB-014 | D-036 | `app/(site)/resources/`, `faq/`, `events/` | links, a11y |
+| F-05 | Resources, FAQ, Events | Partial: the resource library (F-58) and the FAQ; events switched off | WEB-002, WEB-010, WEB-014 | D-036 | `app/(site)/resources/`, `faq/`, `events/` | links, a11y, `e2e/resources.spec.ts` |
 | F-06 | Book page | Verified | WEB-002, WEB-011, GS-006, INT-001 | D-003 | `app/(site)/book/`, `components/Cta.tsx` | smoke, links |
 | F-07 | Start Where You Are form | Verified | GS-001, GS-002, GS-003, GS-006, SEC-006 | D-054, D-059 | `app/(site)/start/`, `components/InquiryForm.tsx`, `lib/inquiry.ts` | smoke, a11y |
 | F-08 | Contact form | Verified | SEC-006, SEC-013 | D-054 | `app/(site)/contact/`, `components/InquiryForm.tsx` | smoke, a11y |
@@ -295,13 +295,14 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-52 | Living traceability, architecture and data model pages | Verified | — (owner ruling) | Owner requests 2026-10-02 and 2026-10-03 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` | CI (`npm run docs:check`) |
 | F-55 | Website change requests (TAB Practice → Website changes) and the content guide | Verified | CMS-006, CMS-007 | D-069, D-070, D-071 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `lib/website-requests.ts`, `lib/website-requests-store.ts`, `app/(portal)/practice/website/`, migration `20261013000000` | CI (`npm run docs:check`), rls, `e2e/website-requests.spec.ts` |
 | F-56 | Website admin role | Verified | STAFF-011 | D-071 (proposed) | `lib/admins.ts`, `app/(portal)/practice/settings/page.tsx`, `components/portal/PortalShell.tsx`, migrations `20261012000000`, `20261013000000` | rls, `e2e/website-requests.spec.ts` |
+| F-58 | Content editor for Home, the TAB Method, About, Our Story, Our Team, and the resource library (links, PDF documents, email-first downloads with signed links, open counts) | Built | CMS-001, CMS-002, CMS-005, WEB-010 | D-069, D-072, D-073, D-074 (proposed) | `content/pages/*.json`, `content/pages.ts`, `content/resources/`, `content/resource-topics/`, `content/resource-files/`, `lib/resources.ts`, `lib/resource-emails.ts`, `lib/resource-stats.ts`, `lib/team-photos.ts`, `components/ResourceRequest.tsx`, `app/(site)/resources/` | build (content rules), `e2e/content.spec.ts`, `e2e/resources.spec.ts`, a11y, brand |
 | F-57 | Content editor (Keystatic) and the block library: service pages and the massage techniques guide | Live | CMS-001, CMS-004, CMS-005 | D-069, D-071, D-072 (proposed) | `keystatic.config.ts`, `content/schema.ts`, `content/services/*.json`, `content/massage-techniques.json`, `components/blocks/Blocks.tsx`, `app/keystatic`, `.github/workflows/content-pr.yml` | build (content rules), `e2e/content.spec.ts`, brand |
 
 ### Planned
 
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
-| F-44 | Content editor for the remaining pages (home, About, Method, FAQ, Resources), then the fast lane | Planned | CMS-001 to CMS-005 | C35, C32 (proposed D-069, D-070) |
+| F-44 | Content editor for the last pages (FAQ, Start's text, client policies), then the fast lane | Planned | CMS-001 to CMS-005 | C35, C32 (proposed D-069, D-070) |
 | F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
@@ -425,6 +426,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.27 | CMS-006 and F-55: website change requests (two GitHub issue forms, linked from TAB Practice → Settings) and the Website content guide; F-44 is now Keystatic and the block library (C31) then the fast lane (C32), replacing Payload (C8) | Owner request 2026-10-07, proposed D-069 and D-070 |
 | 2026-10-07 | 1.28 | STAFF-011 and F-56: the website admin role; CMS-007: website requests move into TAB Practice (status, notes, owner alert), and the GitHub issue forms are retired; F-55 updated | Owner rulings 2026-10-07, proposed D-071 |
 | 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
+| 2026-10-07 | 1.32 | F-58: Home, the TAB Method, About, Our Story, Our Team and the resource library in the content editor (C35); F-05, F-44, WEB-010, CMS-001 and CMS-002 updated | Owner request, 2026-10-07: "all three in one PR", email required for downloads, daily counts, documents in the repository; proposed D-073, D-074 |
 | 2026-10-07 | 1.31 | F-57: the content rules accept an optional text field the editor leaves out of the file (an empty one); `e2e/content.spec.ts` now checks what the editor saves, not only what it reads | The first editor save, on `main` (25723bb), failed the production build |
 | 2026-10-07 | 1.30 | F-57: the content editor and block library for the service pages and the techniques guide (C31); CMS-001, CMS-004, CMS-005 updated; F-44 is now the remaining pages (C35) and the fast lane | Release of C31, proposed D-069 and D-072 |
 

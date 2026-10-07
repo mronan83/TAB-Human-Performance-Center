@@ -78,3 +78,19 @@ export const websiteRequestAlertEmail = {
   cta: "Open the request",
   footer: "Sent to TAB's owner and info addresses. Requests never carry client details.",
 } as const;
+
+/** A requested resource (C35): the download link goes to the address they gave, and TAB gets a note of who asked. */
+export const resourceEmail = {
+  subject: (title: string) => `Your guide from TAB: ${title}`,
+  preheader: "Here's the link to the guide you asked for.",
+  eyebrow: "Resources",
+  heading: (first: string) => `Here's your guide, ${first}.`,
+  body: (title: string, days: number) => [`Thanks for your interest in “${title}”. The button below opens it; the link works for ${days} days.`, "If it stops working, you can ask for a fresh link on our Resources page at any time."],
+  cta: "Open the guide",
+  footnote: "You're receiving this because this address asked for a guide on our website. If that wasn't you, you can ignore this email.",
+  staff: {
+    eyebrow: "Resource request",
+    detailsTitle: "Who asked",
+    notSent: "The link wasn't emailed automatically because this request may be spam. If it looks genuine, forward the link below.",
+  },
+} as const;

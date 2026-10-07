@@ -1,6 +1,6 @@
-import { config, fields, singleton } from "@keystatic/core";
+import { collection, config, fields, singleton } from "@keystatic/core";
 import { images } from "./content/images";
-import { COUNTS, GROUPS, L, PRESSURES, TONES } from "./content/schema";
+import { COUNTS, GROUPS, L, METHOD_STAGES, PAGE_LIMITS as P, PILLAR_KEYS, PRESSURES, RESOURCE_LIMITS as R, SERVICE_KEYS, TONES } from "./content/schema";
 
 /**
  * The content editor (proposed D-069 and D-071, backlog C31), at /keystatic. It edits the content files in this
@@ -102,14 +102,152 @@ const service = (label: string, slug: string) => singleton({
   },
 });
 
+/** Uploaded documents: kept outside public/ so an email-gated one can only be fetched with a signed link (lib/resources.ts). */
+const FILES_DIR = "content/resource-files";
+const FILES_PUBLIC_PATH = "/resource-files/";
+const PILLAR_LABELS: Record<(typeof PILLAR_KEYS)[number], string> = {
+  none: "None (general)", "massage-bodywork": "Massage & Bodywork", "personal-strength-training": "Functional Strength",
+  "womens-wellness-coaching": "Women's Wellness", "integrated-nutrition": "Integrated Nutrition", "holistic-life-coaching": "Holistic Life Coaching",
+};
+
+/** The resource library (C35): one entry per link or document. Only "Published" entries appear on the live site. */
+const resources = collection({
+  label: "Resources",
+  path: "content/resources/*",
+  format: { data: "json" },
+  slugField: "title",
+  columns: ["status", "added"],
+  schema: {
+    title: fields.slug({ name: { label: "Title", description: `${R.title[0]} to ${R.title[1]} characters. Also sets the address, which stays the same if you rename it later.`, validation: { length: { min: R.title[0], max: R.title[1] } } } }),
+    summary: text("One-line summary", R.summary, { multiline: true, description: "What it is and who it's for. No diagnosis or treatment claims." }),
+    topic: fields.relationship({ label: "Topic", collection: "resourceTopics", validation: { isRequired: true } }),
+    pillar: fields.select({ label: "Related service", options: PILLAR_KEYS.map((k) => ({ label: PILLAR_LABELS[k], value: k })), defaultValue: "none" }),
+    kind: fields.conditional(
+      fields.select({ label: "Kind", options: [{ label: "Link to another website", value: "link" }, { label: "Document TAB wrote (PDF upload)", value: "document" }], defaultValue: "link" }),
+      {
+        link: fields.object({
+          url: fields.url({ label: "Web address", description: "Starts with https://. Link to other organizations' material rather than uploading it.", validation: { isRequired: true } }),
+        }),
+        document: fields.object({
+          file: fields.file({ label: "PDF", description: "A PDF TAB wrote, up to 10 MB, exported with 'Tagged PDF' (accessible) turned on. Anyone can download a published document: never upload anything about a client.", directory: FILES_DIR, publicPath: FILES_PUBLIC_PATH, validation: { isRequired: true } }),
+          requireEmail: fields.checkbox({ label: "Ask for an email address first", description: "The download link is emailed to them, and TAB gets a note of who asked.", defaultValue: true }),
+        }),
+      },
+    ),
+    status: fields.select({ label: "Status", description: "Drafts show on previews only.", options: [{ label: "Draft", value: "draft" }, { label: "Published", value: "published" }], defaultValue: "draft" }),
+    added: fields.date({ label: "Date added", defaultValue: { kind: "today" }, validation: { isRequired: true } }),
+  },
+});
+
+const resourceTopics = collection({
+  label: "Resource topics",
+  path: "content/resource-topics/*",
+  format: { data: "json" },
+  slugField: "title",
+  schema: {
+    title: fields.slug({ name: { label: "Topic", validation: { length: { min: R.topicTitle[0], max: R.topicTitle[1] } } } }),
+    intro: text("Introduction", R.topicIntro, { multiline: true }),
+    order: fields.integer({ label: "Order on the page", description: "1 comes first.", defaultValue: 10, validation: { min: 1, max: 99, isRequired: true } }),
+    comingSoon: fields.array(text("Subject", R.comingSoon), { label: "Coming soon", description: "Shown under the topic until it has a published resource.", itemLabel: (p) => p.value, validation: { length: { max: 8 } } }),
+  },
+});
+
+/** Home, the TAB Method and the About pages (C35): fixed layouts, every word editable. */
+const json = { format: { data: "json" as const } };
+const meta = text("Search description", P.metaDescription, { multiline: true, description: "What Google shows under the page title: 40 to 160 characters." });
+const pair = (label: string) => fields.object({ headline: text("Headline", P.headline), body: text("Text", P.body, { multiline: true }) }, { label });
+const titled = fields.object({ title: text("Title", P.short), body: text("Text", P.body, { multiline: true }) });
+const STAGE_LABELS: Record<(typeof METHOD_STAGES)[number], string> = { start: "Start Where You Are", transform: "Transform", adapt: "Adapt", balance: "Balance", evolve: "Evolve" };
+
+const home = singleton({
+  label: "Home",
+  path: "content/pages/home",
+  ...json,
+  schema: {
+    metaDescription: meta,
+    hero: pair("Hero (top of the page)"),
+    coreIdea: fields.object({ headline: text("Headline", P.headline), body: text("Text", P.body, { multiline: true }), photo: photo("Photo") }, { label: "Human performance for real life" }),
+    pillars: fields.object({ headline: text("Headline", P.headline), closing: text("Text under the services", P.body, { multiline: true }) }, { label: "The five services", description: "The service cards come from the service pages." }),
+    method: pair("The TAB Method"),
+    personalization: fields.object({ headline: text("Headline", P.headline), points: fields.array(titled, { label: "Three points", itemLabel: (p) => p.fields.title.value, validation: { length: { min: 3, max: 3 } } }) }, { label: "Built around people (olive band)" }),
+    guided: pair("You don't need to know where to start"),
+    trust: pair("Real people (the figures beside it come from the business settings)"),
+    resources: pair("Resources teaser (also the Resources page heading)"),
+    closing: pair("Closing call to action"),
+  },
+});
+
+const tabMethod = singleton({
+  label: "The TAB Method",
+  path: "content/pages/tab-method",
+  ...json,
+  schema: {
+    metaDescription: meta,
+    intro: text("Introduction", P.body, { multiline: true }),
+    stages: fields.object(Object.fromEntries(METHOD_STAGES.map((k) => [k, fields.object({ short: text("One-line summary", P.short), body: text("Text", P.body, { multiline: true }) }, { label: STAGE_LABELS[k], description: "The stage names are the brand and stay fixed." })])), { label: "Stages" }),
+    principlesHeading: text("Principles heading", P.headline),
+    principles: fields.array(titled, { label: "Principles", itemLabel: (p) => p.fields.title.value, validation: { length: { min: 3, max: 9 } } }),
+    statement: text("Closing statement (quote)", P.body, { multiline: true }),
+  },
+});
+
+const aboutPage = singleton({
+  label: "About",
+  path: "content/pages/about",
+  ...json,
+  schema: {
+    headline: text("Headline", P.headline),
+    metaDescription: meta,
+    sections: fields.array(fields.object({
+      title: text("Section heading", P.sectionTitle),
+      paragraphs: fields.array(text("Paragraph", P.paragraph, { multiline: true }), { label: "Paragraphs", itemLabel: (p) => p.value.slice(0, 60), validation: { length: { min: 1, max: 6 } } }),
+    }), { label: "Sections", itemLabel: (p) => p.fields.title.value, validation: { length: { min: 1, max: 10 } } }),
+  },
+});
+
+const ourStory = singleton({
+  label: "Our Story",
+  path: "content/pages/our-story",
+  ...json,
+  schema: {
+    headline: text("Headline", P.headline),
+    metaDescription: meta,
+    draft: fields.checkbox({ label: "Draft: not yet approved", description: "Listed on the launch checklist until unticked.", defaultValue: true }),
+    paragraphs: fields.array(text("Paragraph", P.paragraph, { multiline: true }), { label: "Paragraphs", itemLabel: (p) => p.value.slice(0, 60), validation: { length: { min: 1, max: 16 } } }),
+  },
+});
+
+const team = singleton({
+  label: "Our Team",
+  path: "content/pages/team",
+  ...json,
+  schema: {
+    headline: text("Headline", P.headline),
+    metaDescription: meta,
+    draft: fields.checkbox({ label: "Draft: not yet approved", description: "Listed on the launch checklist until unticked.", defaultValue: true }),
+    members: fields.array(fields.object({
+      name: text("Name", P.name),
+      role: text("Role", P.role),
+      credentials: text("Credentials and certifications", P.credentials, { description: "Exactly as held. Shown only once confirmed below." }),
+      credentialsConfirmed: fields.checkbox({ label: "Credentials confirmed", description: "Tick only once you've checked them. Until then they stay off the live site.", defaultValue: false }),
+      bio: text("Short bio", P.bio, { multiline: true }),
+      services: fields.multiselect({ label: "Services", options: SERVICE_KEYS.map((k) => ({ label: PILLAR_LABELS[k], value: k })) }),
+      photo: fields.image({ label: "Photo", description: "A JPEG, PNG or WebP up to 5 MB, square works best. Only with the person's permission.", directory: "public/images/team", publicPath: "/images/team/" }),
+      photoAlt: text("Photo description", [0, P.alt[1]], { description: "Required with a photo: what it shows, for people who can't see it (e.g. 'Matthew in the studio, smiling')." }),
+    }), { label: "People", itemLabel: (p) => p.fields.name.value, validation: { length: { min: 1, max: 12 } } }),
+  },
+});
+
 export default config({
   storage: keystaticMode === "cloud" ? { kind: "cloud", branchPrefix: "content/" } : { kind: "local" },
   ...(keystaticMode === "cloud" ? { cloud: { project: keystaticProject } } : {}),
   ui: {
     brand: { name: "TAB Human Performance Center" },
-    navigation: { "Service pages": ["massageBodywork", "functionalStrength", "womensWellness", "integratedNutrition", "holisticLifeCoaching"], Guides: ["massageTechniques"] },
+    navigation: { "Service pages": ["massageBodywork", "functionalStrength", "womensWellness", "integratedNutrition", "holisticLifeCoaching"], Guides: ["massageTechniques"], Resources: ["resources", "resourceTopics"], Pages: ["home", "tabMethod", "aboutPage", "ourStory", "team"] },
   },
+  collections: { resources, resourceTopics },
   singletons: {
+    home, tabMethod, aboutPage, ourStory, team,
     massageBodywork: service("Massage & Bodywork", "massage-bodywork"),
     functionalStrength: service("Functional Strength", "personal-strength-training"),
     womensWellness: service("Women's Wellness", "womens-wellness-coaching"),

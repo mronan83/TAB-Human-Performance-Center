@@ -261,18 +261,18 @@ test("TAB Practice for the pilot: invite to My TAB, assign a form, share a resou
   await page.getByRole("button", { name: "Assign form" }).click();
   await expect(page.getByText("Form assigned. It's waiting in their My TAB.")).toBeVisible();
 
-  await page.getByLabel("From the Resources page (optional)").selectOption({ label: "Sleep and recovery" });
-  await expect(page.getByLabel("Title", { exact: true })).toHaveValue("Sleep and recovery");
+  await page.getByLabel("From the Resources page (optional)").selectOption({ label: "A planned subject" });
+  await expect(page.getByLabel("Title", { exact: true })).toHaveValue("A planned subject");
   await page.getByLabel("Note to the client (optional)").fill("Read before Thursday.");
   await page.getByRole("button", { name: "Share resource" }).click();
   await expect(page.getByText("Shared. It's in their My TAB resources.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Remove Sleep and recovery" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove A planned subject" })).toBeVisible();
 
   await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
   await page.goto("/my-tab/forms");
   await expect(page.getByText("Your weekly routine")).toBeVisible();
   await page.goto("/my-tab/resources");
-  await page.getByRole("link", { name: /Sleep and recovery/ }).click();
+  await page.getByRole("link", { name: /A planned subject/ }).click();
   // The link records the view, then navigates; /\/resources$/ would already match /my-tab/resources.
   await page.waitForURL((url) => url.pathname === "/resources");
 

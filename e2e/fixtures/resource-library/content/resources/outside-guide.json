@@ -1,0 +1,14 @@
+{
+  "title": "An outside guide",
+  "summary": "A link to another organization’s guide, used by the checks.",
+  "topic": "recovery",
+  "pillar": "none",
+  "kind": {
+    "discriminant": "link",
+    "value": {
+      "url": "https://example.org/guide"
+    }
+  },
+  "status": "published",
+  "added": "2026-10-01"
+}
