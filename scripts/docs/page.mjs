@@ -1,5 +1,5 @@
 /**
- * Shared renderer for the living documentation pages (traceability, technical architecture, data model).
+ * Shared renderer for the living documentation pages (traceability, technical architecture, data model, content guide).
  * Each page has a Markdown source in docs/ that is the only place its written content is edited; this module turns
  * that source into one self-contained HTML page in TAB Human Performance Center's design tokens (app/globals.css).
  *
@@ -371,7 +371,7 @@ const FILTER_SCRIPT = `
  */
 export function page(o) {
   const L = links();
-  const sib = [["traceability", "Requirements & traceability"], ["architecture", "Technical architecture"], ["dataModel", "Data model"], ["backlog", "Backlog"]]
+  const sib = [["traceability", "Requirements & traceability"], ["architecture", "Technical architecture"], ["dataModel", "Data model"], ["contentGuide", "Content guide"], ["backlog", "Backlog"]]
     .filter(([k]) => L[k] && k !== o.key).map(([k, t]) => `<a href="${L[k]}" target="_blank" rel="noopener">${t}</a>`);
   return `<title>${esc(o.title)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

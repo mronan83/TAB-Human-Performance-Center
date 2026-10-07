@@ -3,7 +3,7 @@ title: TAB Human Performance Center Traceability
 eyebrow: TAB Human Performance Center · Requirements
 heading: Requirements & Feature Traceability
 owner: Matthew Ronan
-updated: 2026-10-06
+updated: 2026-10-07
 ---
 
 <!-- Edit this file, not the page. scripts/docs/render-traceability.mjs builds the page from it (npm run docs:html), and
@@ -147,11 +147,12 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Requirement | Phase | Priority | Status | Features | Verified by |
 | --- | --- | --- | --- | --- | --- | --- |
-| CMS-001 | Content types for services, practitioners, articles, programs and more | P1 | Should | Partial: shaped in `content/*.ts` for Payload; Payload waits on C8 | F-44 | — |
-| CMS-002 | Taxonomy by pillar, stage, need, format and audience | P1 | Could | Planned (C8) | F-44 | — |
+| CMS-001 | Content types for services, practitioners, articles, programs and more | P1 | Should | Partial: shaped in `content/*.ts`; Keystatic collections arrive with C31 (proposed D-069) | F-44 | — |
+| CMS-002 | Taxonomy by pillar, stage, need, format and audience | P1 | Could | Planned (C31) | F-44 | — |
 | CMS-003 | One canonical resource, assigned by reference, never copied | P2 | Should | Partial: assignments hold a link, not a CMS reference | F-39, F-44 | — |
-| CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Planned (C8) | F-44 | — |
-| CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: in content files, not yet owner-editable (C8) | F-02, F-44 | — |
+| CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Planned (C31) | F-44 | — |
+| CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: in content files, not yet owner-editable (C31) | F-02, F-44 | — |
+| CMS-006 | Documented content-management process: lanes, request forms, what is editable, checks, glossary | P1 | Must | Verified | F-55 | CI (`npm run docs:check`) |
 
 ### Integrations (INT)
 
@@ -290,12 +291,13 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-42 | Main-branch guard | Built | — (owner ruling) | Owner ruling 2026-09-28 | `.claude/hooks/guard-main.mjs` | — |
 | F-43 | Backlog page | Built | — (owner ruling) | Owner ruling 2026-10-02 | `scripts/render-backlog.mjs`, `docs/BACKLOG.md` | — |
 | F-52 | Living traceability, architecture and data model pages | Verified | — (owner ruling) | Owner requests 2026-10-02 and 2026-10-03 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` | CI (`npm run docs:check`) |
+| F-55 | Website change requests and content guide | Verified | CMS-006 | D-069, D-070 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `.github/ISSUE_TEMPLATE/`, `app/(portal)/practice/settings/page.tsx` | CI (`npm run docs:check`) |
 
 ### Planned
 
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
-| F-44 | Payload CMS | Planned | CMS-001 to CMS-005 | C8 (after Phase 1, A-02) |
+| F-44 | Content editor (Keystatic) and block library, then the fast lane | Planned | CMS-001 to CMS-005 | C31, C32 (proposed D-069, D-070) |
 | F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
@@ -317,7 +319,7 @@ The weak spot is not security, it is everything nobody wrote a check for. Start 
 | ID | Gap | Requirements | Proposed resolution | Size | Backlog |
 | --- | --- | --- | --- | --- | --- |
 | TG-1 | Progress-review outcomes in TAB Practice use a different set from Step 14's six continuation outcomes (Continue, Maintain, Independent, Shift, Pause, Return) | STAFF-008 | Owner ruling: adopt Step 14's six, or record ours as an amendment. Recommend Step 14's: it is the documented model and reporting will need it | S | A25 (Q-5) |
-| TG-2 | `/resources/articles` and `/resources/guides` don't exist; the library is a topic list | WEB-002, WEB-010, PORTAL-007 | Defer to Payload (C8) and amend WEB-002 to 17 routes for Phase 1, rather than build pages with nothing in them | S (ruling) | A25 (Q-6) |
+| TG-2 | `/resources/articles` and `/resources/guides` don't exist; the library is a topic list | WEB-002, WEB-010, PORTAL-007 | Defer to the content editor (C31) and amend WEB-002 to 17 routes for Phase 1, rather than build pages with nothing in them | S (ruling) | A25 (Q-6) |
 | TG-3 | No automated check that emails, subjects and previews carry no personal or health details | **Closed 2026-10-06 (C15):** `e2e/guardrails.spec.ts`. SEC-006, PORTAL-012, guardrail 5 | A unit test over `content/emails.ts` that renders every template with sample data and fails on name, message or answer text in a subject | S | C15 |
 | TG-4 | Clients can't respond to an activity and practitioners can't give feedback | PORTAL-004 | New backlog item: activity responses and feedback, with RLS and tests. Needed before the pilot only if programs are central to it | M | A25 (Q-2) |
 | TG-5 | Profile has no accessibility needs or goals | PORTAL-010 | Add both fields, client-editable through `guard_client_columns` | S | C16 |
@@ -360,7 +362,7 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 | A26 audit export secrets | SEC-019 |
 | C5 sign-in plumbing | PORTAL-001, SEC-003, SEC-014, SEC-015 |
 | C6 real-stack tests | SEC-021 |
-| C8 Payload CMS | CMS-001 to CMS-005, WEB-015 |
+| C31 Keystatic and block library | CMS-001 to CMS-005, WEB-015 |
 | A15 go-live gate | GS-004 and GS-005 storage, and every portal requirement for real clients |
 | A25 owner rulings | Q-1, Q-2, Q-3, Q-5, Q-6; STAFF-008 (TG-1), WEB-002 (TG-2), SEC-012 |
 | C15 guardrail checks | NFR-005, SEC-006, PORTAL-012, GS-004, GS-005, WEB-004 to WEB-007 move from Built or Partial to Verified |
@@ -380,7 +382,7 @@ Questions for the owner. Each answer becomes a register entry or a backlog item,
 | Q-3 | SEC-012 says owner access should be "not automatically universal"; D-045 lets the owner see every client. Which wins? | With one practitioner the difference is invisible; with a second practitioner it decides who reads whose notes | Keep D-045 for now (audited), and record SEC-012 as amended until a second practitioner joins |
 | Q-4 | Are the MoSCoW priorities in this doc right? | Claude proposed them; they decide what is cut if launch slips | Review the Must rows only; Should and Could can wait |
 | Q-5 | TG-1: adopt Step 14's six continuation outcomes in progress reviews? | Reviews written now will use whichever set is live | Yes, before the pilot, so no reviews need migrating |
-| Q-6 | TG-2: amend WEB-002 to 17 routes for Phase 1, with articles and guides arriving with Payload? | Empty pages hurt more than missing ones | Yes |
+| Q-6 | TG-2: amend WEB-002 to 17 routes for Phase 1, with articles and guides arriving with the content editor? | Empty pages hurt more than missing ones | Yes |
 | Q-7 | Should clients be able to change the health summary and contraindications in their wellness profile? Today they can read and update the whole row (`client_wellness_profiles`), unlike other tables where `guard_client_columns` limits them | A contraindication a practitioner recorded could be edited away by the client, and the next session would rely on it | Clients keep reading both and add their own notes; only the care team changes contraindications. One guard trigger, plus a database test |
 
 ## Change log
@@ -416,6 +418,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.24 | F-03: massage techniques guide (eleven: the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports); linked from Massage & Bodywork; the old Introduction to Massage page redirects to it; relaxation no longer listed as an offering | Owner request and answers 2026-10-06 |
 | 2026-10-07 | 1.25 | NFR-001: reflow check (`e2e/layout.spec.ts`) after the massage techniques page scrolled sideways on phones; fixed there, on `/book` and on `/accessibility` at 320 px | Owner report 2026-10-07 |
 | 2026-10-07 | 1.26 | WEB-005 / F-03: service pages drop the "Who it's for" and "What you may gain" lists; every pillar now has focus-area cards in How we help | Owner request 2026-10-07 |
+| 2026-10-07 | 1.27 | CMS-006 and F-55: website change requests (two GitHub issue forms, linked from TAB Practice → Settings) and the Website content guide; F-44 is now Keystatic and the block library (C31) then the fast lane (C32), replacing Payload (C8) | Owner request 2026-10-07, proposed D-069 and D-070 |
 
 ## Sources
 

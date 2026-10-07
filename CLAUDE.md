@@ -79,15 +79,25 @@ Never print, log or commit token values.
   --release "<what went live>" --deployment <dpl_id>` and republish it to the same backlog
   artifact (https://claude.ai/artifact/71B4CYEb4dHdHa71fVwAgg; pass it as `url` from a new session), then send the owner
   its link.
-- **Living documents (owner request 2026-10-03):** the traceability, technical architecture and data model pages are
-  Claude's to keep accurate and complete. Every PR assesses all three against its change and updates their sources
-  (`docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json`) in the same PR; its
+- **Living documents (owner request 2026-10-03):** the traceability, technical architecture and data model pages, and
+  the website content guide (owner request 2026-10-07), are Claude's to keep accurate and complete. Every PR assesses
+  all four against its change and updates their sources (`docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`,
+  `docs/DATA-MODEL.md`, `docs/schema.json`, `docs/CONTENT-GUIDE.md`) in the same PR; its
   description carries a "Living documents" line naming what changed in each, or why nothing needed to. `npm run
   docs:check` (in CI) fails when the schema snapshot is stale, a requirement, table, function, environment variable,
-  dependency, API route or `lib/` module isn't described, or a feature, gap or question reference doesn't resolve.
+  dependency, API route or `lib/` module isn't described, a feature, gap or question reference doesn't resolve, or a
+  public page is missing from the content guide. The guide changes with anything that changes what is editable, the
+  block library, the checks or the request workflow.
   After every merge, render them with `npm run docs:html -- --out-dir <folder>` and republish each to its artifact
   (addresses in `docs/living-docs.json`; pass them as `url` from a new session), then confirm to the owner which pages
   were revised and how, or that each was assessed and needed nothing.
+- **Website change requests (owner request 2026-10-07, proposed D-069 and D-070):** content help and design changes
+  arrive as GitHub issues labelled `website-change` (forms in `.github/ISSUE_TEMPLATE/`), or in a session ("pick up
+  request #12"). Design-lane requests: reply with questions, then options with effort and risks; build nothing until
+  the owner chooses one; then the normal G2 and G3 gates. A request that fits the content lane can be moved there.
+  **Fast lane (in force once C32 ships the automation):** a PR authored by the owner that changes only content files
+  and is green is merged and promoted by the workflow without a separate approval. It never covers Claude's PRs, an
+  admin's PR, or any change outside the content files; those keep G2 and G3.
 - G3 Release — owner approves every production promotion and every production migration.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",
@@ -143,8 +153,10 @@ Never print, log or commit token values.
 ## Architecture conventions
 - Business settings live in `config/site.ts`; copy lives in `content/*.ts`. Pages read from these;
   don't hardcode business facts in components.
-- Content files are shaped for migration to **Payload CMS** (D-036, wired after Phase 1 per A-02):
-  `services` → collection, `home`/`about`/`method` → globals, `faqs`/`resourceClusters` → collections.
+- Content files move to **Keystatic** (proposed D-069, replacing D-036's Payload CMS; backlog C31), a git-based editor
+  whose edits are PRs that pass every check: `services` → collection, `home`/`about`/`method` → singletons,
+  `faqs`/`resourceClusters`/techniques → collections. Page layout comes from a fixed block library; a new block type is
+  a design-lane change, and `docs/CONTENT-GUIDE.md` lists what is and isn't editable.
 - Every CTA goes through `components/Cta.tsx` so booking and Start destinations stay config-driven.
 - Portal data access goes through `PortalRepository` (`lib/portal/types.ts`). Add a method to the
   interface, then implement it in **both** `mock-repository.ts` and `supabase-repository.ts`.
