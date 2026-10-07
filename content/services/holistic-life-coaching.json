@@ -1,0 +1,121 @@
+{
+  "name": "Holistic Life Coaching",
+  "shortName": "Life Coaching",
+  "headline": "Bring the way you live closer to what matters most.",
+  "summary": "Integrate capacity into choices, boundaries, habits, relationships, priorities and action.",
+  "description": "Whole-person coaching that helps you create clarity, make intentional choices, navigate change and turn insight into sustainable action. Whether you’re navigating a transition, feeling stuck or overextended, or working on boundaries and follow-through, coaching helps you bring the way you live closer to what matters most.",
+  "metaDescription": "Holistic life coaching in Brighton and Howell, MI, or virtually, to bring more clarity, balance and practical next steps to the life you want.",
+  "primaryCta": {
+    "label": "Schedule a Coaching Conversation",
+    "kind": "book"
+  },
+  "secondaryCta": {
+    "label": "Start with What Matters",
+    "kind": "start"
+  },
+  "heroPhoto": "coachingConversation",
+  "scopeNote": "Coaching does not replace licensed mental health, medical, legal, financial, or other professional care. When needs fall into those areas, we’ll encourage you to work with the right qualified professional.",
+  "sections": [
+    {
+      "discriminant": "textPhoto",
+      "value": {
+        "tone": "linen",
+        "heading": "How we help",
+        "lead": "Holistic life coaching at TAB starts by looking at the whole picture—not just the goal in front of you.",
+        "paragraphs": [
+          "Work affects health. Stress affects relationships. Responsibilities affect routines. We help you step back and understand how those pieces interact.",
+          "Coaching is collaborative and practical. Accountability is part of the process, and it should feel supportive rather than punitive."
+        ],
+        "photo": "supportiveConversation"
+      }
+    },
+    {
+      "discriminant": "cards",
+      "value": {
+        "tone": "linen",
+        "heading": "",
+        "intro": "",
+        "cards": [
+          {
+            "title": "Transitions and competing demands",
+            "body": "Find your footing when work, family and change all pull at once."
+          },
+          {
+            "title": "Feeling stuck or stretched thin",
+            "body": "Step back, see what’s really in the way, and choose a next step."
+          },
+          {
+            "title": "Boundaries and priorities",
+            "body": "Decide what matters most and protect time and energy for it."
+          },
+          {
+            "title": "Habits and follow-through",
+            "body": "Supportive accountability for the changes you’ve chosen to make."
+          },
+          {
+            "title": "Agency and alignment",
+            "body": "Make decisions that reflect your values, not just your obligations."
+          },
+          {
+            "title": "Bringing it all together",
+            "body": "Connect body, work, relationships, recovery and goals into one picture."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "method",
+      "value": {
+        "transform": "Change patterns and choices that limit agency.",
+        "adapt": "Build flexibility when life changes.",
+        "balance": "Bring time, energy, relationships, priorities and recovery into balance.",
+        "quote": "Turn insight into agency and action."
+      }
+    },
+    {
+      "discriminant": "steps",
+      "value": {
+        "tone": "bone",
+        "heading": "What to expect",
+        "steps": [
+          {
+            "title": "Clarify",
+            "body": "We start with what feels out of alignment and what you want to be different."
+          },
+          {
+            "title": "Plan",
+            "body": "Together we build realistic steps that fit your responsibilities and energy."
+          },
+          {
+            "title": "Adapt",
+            "body": "Progress isn’t linear. We adjust as circumstances and priorities change."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "faq",
+      "value": {
+        "tone": "linen",
+        "heading": "Questions",
+        "items": [
+          {
+            "q": "How is coaching different from therapy?",
+            "a": "Coaching focuses on goals, priorities, habits, and practical next steps. Therapy addresses mental health treatment and is provided by licensed professionals. We’ll help you find the right support if you need it.",
+            "draft": true
+          },
+          {
+            "q": "Can coaching happen virtually?",
+            "a": "Yes. Coaching is available virtually and in person.",
+            "draft": true
+          },
+          {
+            "q": "How is accountability handled?",
+            "a": "We agree on commitments together and check in regularly. Accountability is supportive, not punitive.",
+            "draft": true
+          }
+        ]
+      }
+    }
+  ]
+}

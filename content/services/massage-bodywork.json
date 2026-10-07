@@ -1,0 +1,132 @@
+{
+  "name": "Massage & Bodywork",
+  "shortName": "Massage",
+  "headline": "Care for how your body feels, moves, and recovers.",
+  "summary": "Restore capacity: comfort, movement, recovery, body awareness and physical adaptability.",
+  "description": "Personalized massage and bodywork that supports comfort, movement, recovery, body awareness and physical adaptability. From everyday tension and training recovery to prenatal massage, post-surgical support, manual lymphatic drainage and comfort-focused care during chronic illness, each session is adapted to your needs, circumstances and goals.",
+  "metaDescription": "Personalized massage and bodywork in Brighton and Howell, MI: recovery, sports, prenatal and lymphatic care, adapted to how your body feels.",
+  "primaryCta": {
+    "label": "Book Massage & Bodywork",
+    "kind": "book"
+  },
+  "secondaryCta": {
+    "label": "Find the Right Starting Point",
+    "kind": "start"
+  },
+  "heroPhoto": "massageDetail",
+  "scopeNote": "When medical circumstances are involved, services are provided within the appropriate scope of practice and may require medical clearance or coordination with your healthcare team.",
+  "sections": [
+    {
+      "discriminant": "textPhoto",
+      "value": {
+        "tone": "linen",
+        "heading": "How we help",
+        "lead": "Massage and bodywork at TAB are personalized around the individual—not just the appointment type.",
+        "paragraphs": [
+          "We consider how you feel, move, recover, and function, along with your current health circumstances, goals, and stage of life.",
+          "Sessions may range from therapeutic bodywork and sports massage to prenatal massage, recovery-focused work, manual lymphatic drainage, and supportive massage for people managing chronic health conditions."
+        ],
+        "photo": "assistedStretch"
+      }
+    },
+    {
+      "discriminant": "cards",
+      "value": {
+        "tone": "linen",
+        "heading": "",
+        "intro": "",
+        "cards": [
+          {
+            "title": "Everyday tension and stress",
+            "body": "Ease the tension and strain that build up in daily life and work."
+          },
+          {
+            "title": "Training recovery",
+            "body": "Support recovery from strength training, sport, and physically demanding work."
+          },
+          {
+            "title": "Prenatal and postpartum",
+            "body": "Comfort-focused care adapted to pregnancy and the months after."
+          },
+          {
+            "title": "Post-surgical support",
+            "body": "Gentle, appropriate care when you have medical clearance to begin."
+          },
+          {
+            "title": "Manual lymphatic drainage",
+            "body": "Light, specialized technique to support healthy lymphatic movement."
+          },
+          {
+            "title": "Chronic illness comfort",
+            "body": "Supportive care designed around changing health needs and energy."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "techniqueIndex",
+      "value": {
+        "tone": "linen"
+      }
+    },
+    {
+      "discriminant": "method",
+      "value": {
+        "transform": "Address tension, restrictions and recovery needs.",
+        "adapt": "Improve the body’s ability to respond and recover.",
+        "balance": "Recalibrate effort, restoration and physical demand.",
+        "quote": "Restore capacity so the body has more room to move, recover and respond."
+      }
+    },
+    {
+      "discriminant": "steps",
+      "value": {
+        "tone": "bone",
+        "heading": "What to expect",
+        "steps": [
+          {
+            "title": "Before",
+            "body": "A short intake covers what brings you in, relevant health information, and your preferences for pressure and focus."
+          },
+          {
+            "title": "During",
+            "body": "Your session is adapted to how you feel today. You can adjust pressure, positioning, or focus at any time."
+          },
+          {
+            "title": "After",
+            "body": "We close with what changed, what to notice, and what might support you next."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "faq",
+      "value": {
+        "tone": "linen",
+        "heading": "Questions",
+        "items": [
+          {
+            "q": "Is this my first massage? What should I expect?",
+            "a": "We’ll start with a brief conversation about what brings you in and any preferences. You stay in control of pressure and comfort throughout, and you can ask questions at any time.",
+            "draft": true
+          },
+          {
+            "q": "Can I get a massage while pregnant?",
+            "a": "Yes. Prenatal massage is adapted for comfort and safety at each stage of pregnancy. Let us know how far along you are when you book.",
+            "draft": true
+          },
+          {
+            "q": "When is medical clearance needed?",
+            "a": "After recent surgery, during some treatments, or with certain health conditions, we may ask for clearance from your healthcare provider before your session.",
+            "draft": true
+          },
+          {
+            "q": "How often should I book?",
+            "a": "It depends on your goals. We’ll suggest a rhythm that fits what you’re working on and your schedule—never more than you need.",
+            "draft": true
+          }
+        ]
+      }
+    }
+  ]
+}

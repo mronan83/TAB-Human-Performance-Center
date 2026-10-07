@@ -81,13 +81,13 @@ const lanes = () => {
 
 const contentFlow = () => snake("Content lane, step by step", [
   ["Open the editor", ["/keystatic, with your", "Keystatic account"]],
-  ["Choose", ["a page, service,", "technique or FAQ"]],
-  ["Edit", ["fields show their", "limits as you type"]],
-  ["Save", ["a draft; the live", "site is untouched"]],
-  ["Preview", ["check on a phone", "and a computer"]],
-  ["Submit", ["checks run,", "about 5 minutes"]],
-  ["Live", ["owner: automatic;", "admin: owner approves"]],
-], 4, "If a check fails, you get a plain message naming the rule and where; fix it and submit again. Nothing reaches the live site until every check passes.", { accent: [6] });
+  ["New branch", ["one topic per branch,", "content/…"]],
+  ["Choose", ["a service page or", "the techniques guide"]],
+  ["Edit", ["fields and sections,", "limits as you type"]],
+  ["Save", ["kept on your branch;", "live site untouched"]],
+  ["Change request", ["opens itself: checks", "and a preview"]],
+  ["Live", ["owner approves and", "promotes"]],
+], 4, "If a check fails, the change request names the rule and the field; fix it in the editor on the same branch and save again. Nothing reaches the live site until the owner promotes it.", { accent: [6] });
 
 const designFlow = () => snake("Design lane, step by step", [
   ["Request", ["TAB Practice → Website", "changes, or tell Claude"]],

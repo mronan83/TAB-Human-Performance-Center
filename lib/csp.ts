@@ -12,9 +12,12 @@ const deploymentEnv = process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_E
  *   render no user-supplied content, which is what a nonce mainly defends against.
  * - Everywhere: no framing (clickjacking), no plugins, no <base> rewriting, and data and form posts only to allowed hosts.
  *
+ * - The content editor (/keystatic, `editor`): also Keystatic Cloud (sign-in and saving) and GitHub (where the content
+ *   lives, and editors' profile pictures). Proposed D-069 and D-071.
+ *
  * A new third-party service needs its hosts here, or the browser blocks it (e2e/security.spec.ts reports violations).
  */
-export function contentSecurityPolicy(nonce?: string): string {
+export function contentSecurityPolicy(nonce?: string, opts: { editor?: boolean } = {}): string {
   const pixel = !!siteConfig.analytics.metaPixelId; // D-046: only once paid ads start, never on the portal
   const preview = deploymentEnv === "preview"; // Vercel's review toolbar on preview deployments only
   const dev = process.env.NODE_ENV === "development"; // React Refresh needs eval in `next dev`
@@ -38,6 +41,10 @@ export function contentSecurityPolicy(nonce?: string): string {
     "object-src": ["'none'"],
   };
 
+  if (opts.editor) {
+    directives["connect-src"].push("https://api.keystatic.cloud", "https://keystatic.cloud", "https://api.github.com");
+    directives["img-src"].push("https://avatars.githubusercontent.com", "https://keystatic.cloud");
+  }
   if (preview) {
     directives["script-src"].push("https://vercel.live");
     directives["style-src"].push("https://vercel.live");

@@ -148,11 +148,11 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Requirement | Phase | Priority | Status | Features | Verified by |
 | --- | --- | --- | --- | --- | --- | --- |
-| CMS-001 | Content types for services, practitioners, articles, programs and more | P1 | Should | Partial: shaped in `content/*.ts`; Keystatic collections arrive with C31 (proposed D-069) | F-44 | — |
-| CMS-002 | Taxonomy by pillar, stage, need, format and audience | P1 | Could | Planned (C31) | F-44 | — |
+| CMS-001 | Content types for services, practitioners, articles, programs and more | P1 | Should | Partial: services and the techniques guide are content-editor types (C31); the rest later (C35) | F-57, F-44 | e2e (`e2e/content.spec.ts`) |
+| CMS-002 | Taxonomy by pillar, stage, need, format and audience | P1 | Could | Planned (C35) | F-44 | — |
 | CMS-003 | One canonical resource, assigned by reference, never copied | P2 | Should | Partial: assignments hold a link, not a CMS reference | F-39, F-44 | — |
-| CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Planned (C31) | F-44 | — |
-| CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: in content files, not yet owner-editable (C31) | F-02, F-44 | — |
+| CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Partial: every edit is a change request with checks and the owner's approval; review dates later (C35) | F-57, F-44 | — |
+| CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: owner-editable on the service pages and techniques guide (C31); other pages next (C35) | F-02, F-57, F-44 | e2e (`e2e/content.spec.ts`) |
 | CMS-006 | Documented content-management process: lanes, request forms, what is editable, checks, glossary | P1 | Must | Verified | F-55 | CI (`npm run docs:check`) |
 | CMS-007 | Website change requests filed and tracked in TAB Practice, with status and notes | P1 | Must | Verified | F-55 | rls, e2e |
 
@@ -295,12 +295,13 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-52 | Living traceability, architecture and data model pages | Verified | — (owner ruling) | Owner requests 2026-10-02 and 2026-10-03 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` | CI (`npm run docs:check`) |
 | F-55 | Website change requests (TAB Practice → Website changes) and the content guide | Verified | CMS-006, CMS-007 | D-069, D-070, D-071 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `lib/website-requests.ts`, `lib/website-requests-store.ts`, `app/(portal)/practice/website/`, migration `20261013000000` | CI (`npm run docs:check`), rls, `e2e/website-requests.spec.ts` |
 | F-56 | Website admin role | Verified | STAFF-011 | D-071 (proposed) | `lib/admins.ts`, `app/(portal)/practice/settings/page.tsx`, `components/portal/PortalShell.tsx`, migrations `20261012000000`, `20261013000000` | rls, `e2e/website-requests.spec.ts` |
+| F-57 | Content editor (Keystatic) and the block library: service pages and the massage techniques guide | Built (sign-in waits on A31) | CMS-001, CMS-004, CMS-005 | D-069, D-071, D-072 (proposed) | `keystatic.config.ts`, `content/schema.ts`, `content/services/*.json`, `content/massage-techniques.json`, `components/blocks/Blocks.tsx`, `app/keystatic`, `.github/workflows/content-pr.yml` | build (content rules), `e2e/content.spec.ts`, brand |
 
 ### Planned
 
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
-| F-44 | Content editor (Keystatic) and block library, then the fast lane | Planned | CMS-001 to CMS-005 | C31, C32 (proposed D-069, D-070) |
+| F-44 | Content editor for the remaining pages (home, About, Method, FAQ, Resources), then the fast lane | Planned | CMS-001 to CMS-005 | C35, C32 (proposed D-069, D-070) |
 | F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
@@ -424,6 +425,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.27 | CMS-006 and F-55: website change requests (two GitHub issue forms, linked from TAB Practice → Settings) and the Website content guide; F-44 is now Keystatic and the block library (C31) then the fast lane (C32), replacing Payload (C8) | Owner request 2026-10-07, proposed D-069 and D-070 |
 | 2026-10-07 | 1.28 | STAFF-011 and F-56: the website admin role; CMS-007: website requests move into TAB Practice (status, notes, owner alert), and the GitHub issue forms are retired; F-55 updated | Owner rulings 2026-10-07, proposed D-071 |
 | 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
+| 2026-10-07 | 1.30 | F-57: the content editor and block library for the service pages and the techniques guide (C31); CMS-001, CMS-004, CMS-005 updated; F-44 is now the remaining pages (C35) and the fast lane | Release of C31, proposed D-069 and D-072 |
 
 ## Sources
 

@@ -8,8 +8,8 @@ import { siteConfig } from "@/config/site";
  */
 export type FunnelEvent = "Start Form: Started" | "Start Form: Submitted" | "Service: Viewed" | "Booking: Clicked";
 
-/** Pages that never send analytics (guardrail 6, D-057): My TAB, TAB Practice and the contact form. */
-export const NO_ANALYTICS = ["/my-tab", "/practice", "/contact"];
+/** Pages that never send analytics (guardrail 6, D-057): My TAB, TAB Practice, the contact form and the content editor. */
+export const NO_ANALYTICS = ["/my-tab", "/practice", "/contact", "/keystatic"];
 /** Pages that never load an ad pixel: the above, plus Start Where You Are. */
 export const NO_PIXEL = [...NO_ANALYTICS, "/start"];
 export const under = (paths: string[], path: string) => paths.some((p) => path === p || path.startsWith(`${p}/`));

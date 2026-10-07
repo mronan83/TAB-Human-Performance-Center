@@ -1,0 +1,40 @@
+# Content editor branches (proposed D-069 and D-071; docs/CONTENT-GUIDE.md): every save in the content editor
+# (/keystatic) is a commit on a content/… branch. This opens one change request (pull request) per branch, so the owner
+# can review the preview and the checks (ci.yml runs on the push) before anything is published. It never merges.
+name: Content change request
+
+on:
+  push:
+    branches: ["content/**"]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: content-pr-${{ github.ref }}
+
+jobs:
+  open:
+    name: Open a change request for this content branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open or find the change request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          existing=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            echo "Change request #$existing is already open for $BRANCH; this save updates it."
+            exit 0
+          fi
+          body=$(printf '%s\n' \
+            "A content change saved in the content editor (branch \`$BRANCH\`)." \
+            "" \
+            "- **Checks:** the CI run on this branch's latest save (brand language, scope of practice, content rules, accessibility, phones, links)." \
+            "- **Preview:** Vercel's preview link appears below once it builds." \
+            "- **Publishing:** the owner approves, then Claude merges and the owner promotes (CLAUDE.md, G2 and G3). Owner-only content changes will use the fast lane once it ships (C32)." \
+            "" \
+            "See the Website content guide for the workflow.")
+          gh pr create --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base main --title "Content: ${BRANCH#content/}" --body "$body"

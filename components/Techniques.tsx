@@ -97,7 +97,7 @@ function TechniqueTableWide() {
 /** On the Massage & Bodywork page: the techniques by group, each linking to its full description. */
 export function TechniqueIndex() {
   return (
-    <div className="container-page mt-16">
+    <div className="container-page">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="max-w-2xl">
           <h3 className="text-h2">Techniques we draw on</h3>

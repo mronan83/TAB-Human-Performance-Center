@@ -3,7 +3,7 @@
 //
 // Fails when a retired name, the old philosophy, an old service name, a wrong pillar count or a colour outside the
 // design tokens appears anywhere in the site's source: pages, components, content, config, the portal and emails. The pillar count is read from
-// content/services.ts, so adding or removing a pillar moves the expected number with it. Legacy redirect keys
+// content/services/, so adding or removing a pillar moves the expected number with it. Legacy redirect keys
 // (old URLs we must keep answering) are the only allowed mentions, listed in ALLOW below.
 //
 //   npm run test:brand
@@ -13,10 +13,10 @@ import { join, relative } from "node:path";
 
 const root = new URL("..", import.meta.url).pathname;
 const DIRS = ["app", "components", "lib", "content", "config"];
-const EXT = /\.(ts|tsx|mjs|js)$/;
+const EXT = /\.(ts|tsx|mjs|js|json)$/; // json: the content editor's files in content/ (proposed D-069)
 
-const services = readFileSync(join(root, "content/services.ts"), "utf8");
-const pillars = (services.match(/^ {4}slug: "/gm) ?? []).length;
+// One content file per pillar (content/services/<slug>.json, wired in content/services.ts).
+const pillars = readdirSync(join(root, "content/services")).filter((f) => f.endsWith(".json")).length;
 const WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 const countWord = `(?:${WORDS.join("|")}|\\d+)`;
 

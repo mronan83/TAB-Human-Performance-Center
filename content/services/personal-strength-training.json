@@ -1,0 +1,126 @@
+{
+  "name": "Functional Strength",
+  "shortName": "Strength",
+  "headline": "Build strength for the way you want to live.",
+  "summary": "Build capacity: practical strength, stability, confidence, movement and durability.",
+  "description": "Individualized strength and movement training designed to build practical capability for the way you actually live. Whether you’re new to strength training, returning after time away, focused on aging well or building strength for work, family or the outdoors, your training is built around your abilities, goals and life.",
+  "metaDescription": "Functional strength training in Brighton and Howell, MI, or virtually, built around your abilities, goals and everyday life.",
+  "primaryCta": {
+    "label": "Schedule a Strength Consultation",
+    "kind": "book"
+  },
+  "secondaryCta": {
+    "label": "Find Your Starting Point",
+    "kind": "start"
+  },
+  "heroPhoto": "trainerDumbbells",
+  "scopeNote": "When an injury, surgery, or medical condition affects training, services remain within professional scope and may require clearance or collaboration with your healthcare or rehabilitation providers.",
+  "sections": [
+    {
+      "discriminant": "textPhoto",
+      "value": {
+        "tone": "linen",
+        "heading": "How we help",
+        "lead": "Functional strength training at TAB starts with the person, not the workout.",
+        "paragraphs": [
+          "We consider where you are today, what you want your body to be capable of, what gets in the way, and what kind of training realistically fits your life.",
+          "Programs are individualized and progressively adapted as strength, confidence, movement quality, and goals change—especially for people who don’t identify as “gym people.”"
+        ],
+        "photo": "manDumbbells"
+      }
+    },
+    {
+      "discriminant": "cards",
+      "value": {
+        "tone": "linen",
+        "heading": "",
+        "intro": "",
+        "cards": [
+          {
+            "title": "New to strength",
+            "body": "A supportive start with the fundamentals, at your pace."
+          },
+          {
+            "title": "Returning after time away",
+            "body": "Rebuild capacity and confidence without starting from zero."
+          },
+          {
+            "title": "Healthy aging",
+            "body": "Strength, balance, and stability for independence over time."
+          },
+          {
+            "title": "Return to activity",
+            "body": "Progress back toward the sports and activities you love, when cleared."
+          },
+          {
+            "title": "Strength for real life",
+            "body": "Capacity for the work, family, recreation and outdoor life you actually have."
+          },
+          {
+            "title": "Balance and confidence",
+            "body": "Stability, mobility and the confidence to move without second-guessing."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "method",
+      "value": {
+        "transform": "Build strength, movement skill and confidence.",
+        "adapt": "Progressively respond to changing loads and demands.",
+        "balance": "Match challenge with recovery and sustainable progression.",
+        "quote": "Build strength that transfers to real life."
+      }
+    },
+    {
+      "discriminant": "steps",
+      "value": {
+        "tone": "bone",
+        "heading": "What to expect",
+        "steps": [
+          {
+            "title": "Assessment",
+            "body": "We look at your current strength, movement, history, and goals—no judgment, no fitness test theatrics."
+          },
+          {
+            "title": "Your plan",
+            "body": "A progressive program that may include resistance, functional movement, mobility, stability, balance, and recovery."
+          },
+          {
+            "title": "Progression",
+            "body": "We adjust as you get stronger and as your goals and life change."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "faq",
+      "value": {
+        "tone": "linen",
+        "heading": "Questions",
+        "items": [
+          {
+            "q": "Do I need experience?",
+            "a": "No. Training starts from where you are today, whether that’s brand new or returning after years away.",
+            "draft": true
+          },
+          {
+            "q": "Is virtual training available?",
+            "a": "Yes. Training can be delivered in person or virtually, with a plan built around your space and equipment.",
+            "draft": true
+          },
+          {
+            "q": "What if I have an injury or recent surgery?",
+            "a": "We’ll ask about it during intake and may request clearance from your provider. Training is adapted to what’s appropriate for you.",
+            "draft": true
+          },
+          {
+            "q": "How often will we train?",
+            "a": "We’ll recommend a frequency based on your goals and schedule, including what you can do on your own between sessions.",
+            "draft": true
+          }
+        ]
+      }
+    }
+  ]
+}
