@@ -157,11 +157,14 @@ Never print, log or commit token values.
 ## Architecture conventions
 - Business settings live in `config/site.ts`; copy lives in `content/*.ts`. Pages read from these;
   don't hardcode business facts in components.
-- Content files move to **Keystatic** (proposed D-069, replacing D-036's Payload CMS; backlog C31; Keystatic Cloud sign-in
-  so editors need no GitHub account, proposed D-071), a git-based editor
-  whose edits are PRs that pass every check: `services` → collection, `home`/`about`/`method` → singletons,
-  `faqs`/`resourceClusters`/techniques → collections. Page layout comes from a fixed block library; a new block type is
-  a design-lane change, and `docs/CONTENT-GUIDE.md` lists what is and isn't editable.
+- **Content editor (Keystatic, proposed D-069, D-071, D-072):** the service pages and the techniques guide are JSON
+  files (`content/services/*.json`, `content/massage-techniques.json`) edited at `/keystatic` (Keystatic Cloud sign-in)
+  on `content/…` branches; `content-pr.yml` opens a PR per branch and CI runs on every save. `content/schema.ts` is the
+  one set of rules: `keystatic.config.ts` takes its limits from it and the build parses every file with it. A field or
+  block change touches all three (schema, editor config, renderer in `components/blocks/`) plus `e2e/content.spec.ts`
+  and the guide. The other pages move in next (C35); until then their copy stays in `content/*.ts`. A new block type is
+  a design-lane change, and `docs/CONTENT-GUIDE.md` lists what is and isn't editable. Treat a content PR like any
+  other: review its checks and preview, and it needs the owner's approval (until the fast lane, C32).
 - Every CTA goes through `components/Cta.tsx` so booking and Start destinations stay config-driven.
 - Portal data access goes through `PortalRepository` (`lib/portal/types.ts`). Add a method to the
   interface, then implement it in **both** `mock-repository.ts` and `supabase-repository.ts`.

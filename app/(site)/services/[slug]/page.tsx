@@ -4,9 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServiceByPath, services } from "@/content/services";
 import { Cta } from "@/components/Cta";
-import { FaqList } from "@/components/FaqList";
 import { Photo } from "@/components/Photo";
-import { TechniqueIndex } from "@/components/Techniques";
+import { Blocks } from "@/components/blocks/Blocks";
 import { breadcrumbJsonLd, faqJsonLd, serviceJsonLd } from "@/lib/jsonld";
 import { pageMetadata } from "@/lib/seo";
 import { serviceBookingHref } from "@/lib/settings";
@@ -25,9 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 /**
- * Service-page template (Step 16.4): hero, how we help (approach and focus areas), TAB Method, what to expect, scope, FAQ,
- * related, CTA. The separate "Who it's for" and "What you may gain" lists were removed (owner, 2026-10-07): they repeated
- * How we help, which presents the same ground better.
+ * Service-page template (Step 16.4). Fixed: the hero, the scope note, related services and the closing call to action.
+ * Editable (content editor, proposed D-069): the sections between them, built from the block library in the order set
+ * in content/services/<slug>.json. Today every page runs How we help, focus areas, the TAB Method, what to expect and
+ * questions (the "Who it's for" and "What you may gain" lists were removed by the owner on 2026-10-07).
  */
 export default async function ServicePage({ params }: Props) {
   const s = getServiceByPath((await params).slug);
@@ -58,7 +58,7 @@ export default async function ServicePage({ params }: Props) {
           </div>
           {/* Library photograph (C21) with the pillar icon as a badge; both decorative */}
           <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-            <Photo name={s.photos.hero} aspect="aspect-[4/3] sm:aspect-[4/5]" sizes="(min-width: 1024px) 40vw, (min-width: 448px) 448px, 100vw" priority />
+            <Photo name={s.heroPhoto} aspect="aspect-[4/3] sm:aspect-[4/5]" sizes="(min-width: 1024px) 40vw, (min-width: 448px) 448px, 100vw" priority />
             <div className="absolute -bottom-5 left-5 rounded-full bg-bone p-3 shadow-[var(--shadow-md)]">
               <Image src={s.icon} alt="" width={64} height={64} className="h-14 w-14 lg:h-16 lg:w-16" />
             </div>
@@ -66,66 +66,8 @@ export default async function ServicePage({ params }: Props) {
         </div>
       </section>
 
-      {/* How we help */}
-      <section className="section bg-linen">
-        <div className="container-page grid items-center gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
-          <div className="max-w-[680px]">
-            <h2 className="text-h1">How we help</h2>
-            <p className="text-body-lg mt-6 font-medium">{s.approachLead}</p>
-            {s.approach.map((p) => (<p key={p} className="mt-4 text-text-secondary">{p}</p>))}
-          </div>
-          <Photo name={s.photos.support} aspect="aspect-[3/2] lg:aspect-[4/5]" sizes="(min-width: 1024px) 40vw, 100vw" />
-        </div>
-        {s.focusAreas && (
-          <div className="container-page mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {s.focusAreas.map((f) => (
-              <div key={f.title} className="card p-6"><h3 className="text-h4">{f.title}</h3><p className="mt-2 text-text-secondary">{f.body}</p></div>
-            ))}
-          </div>
-        )}
-        {s.techniques && <TechniqueIndex />}
-      </section>
-
-      {/* TAB Method applied */}
-      <section className="on-dark section bg-olive text-white">
-        <div className="container-page">
-          <h2 className="text-label text-white/90">Transform. Adapt. Balance.</h2>
-          <div className="mt-8 grid gap-8 md:grid-cols-3">
-            {(["transform", "adapt", "balance"] as const).map((k) => (
-              <div key={k} className="border-t border-white/30 pt-6">
-                <h3 className="font-[family-name:var(--font-display)] text-3xl font-medium capitalize">{k}</h3>
-                <p className="mt-3 text-white/85">{s.method[k]}</p>
-              </div>
-            ))}
-          </div>
-          <blockquote className="mt-14 max-w-3xl font-[family-name:var(--font-serif)] text-3xl italic leading-snug">“{s.anchor}”</blockquote>
-        </div>
-      </section>
-
-      {/* What to expect */}
-      <section className="section">
-        <div className="container-page">
-          <h2 className="text-h1">What to expect</h2>
-          <ol className="mt-10 grid gap-6 md:grid-cols-3">
-            {s.whatToExpect.map((w, i) => (
-              <li key={w.title} className="card p-6">
-                <span className="text-label text-secondary">{String(i + 1).padStart(2, "0")}</span>
-                <h3 className="text-h4 mt-2">{w.title}</h3>
-                <p className="mt-2 text-text-secondary">{w.body}</p>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-8 rounded-[20px] bg-linen p-6 text-sm text-text-secondary"><strong className="text-text-primary">Scope of care. </strong>{s.scopeNote}</p>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="section bg-linen" id="faq">
-        <div className="container-prose">
-          <h2 className="text-h1">Questions</h2>
-          <div className="mt-8"><FaqList items={s.faqs} /></div>
-        </div>
-      </section>
+      {/* The editable sections, in the order the content editor sets (components/blocks/Blocks.tsx) */}
+      <Blocks blocks={s.sections} scopeNote={s.scopeNote} />
 
       {/* Related */}
       <section className="section">

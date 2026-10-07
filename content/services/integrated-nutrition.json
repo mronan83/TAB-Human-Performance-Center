@@ -1,0 +1,121 @@
+{
+  "name": "Integrated Nutrition",
+  "shortName": "Nutrition",
+  "headline": "Nourishment that works with your real life.",
+  "summary": "Nourish capacity: energy, recovery, strength, resilience and sustainable eating behaviors.",
+  "description": "Practical nutrition coaching that connects nourishment to energy, strength, recovery, stress, lifestyle, preferences and the realities of everyday life. The focus is workable routines, not rigid rules or another diet.",
+  "metaDescription": "Practical nutrition coaching in Brighton and Howell, MI, or virtually, connecting what you eat to energy, strength, recovery and real life.",
+  "primaryCta": {
+    "label": "Schedule a Nutrition Conversation",
+    "kind": "book"
+  },
+  "secondaryCta": {
+    "label": "Find Your Starting Point",
+    "kind": "start"
+  },
+  "heroPhoto": "nutritionConversation",
+  "scopeNote": "Integrated Nutrition is nutrition coaching, not medical nutrition therapy. It does not diagnose or treat medical conditions or eating disorders, or prescribe diets for them. Those needs stay with your physician or a registered dietitian, and we’ll help you find the right professional.",
+  "sections": [
+    {
+      "discriminant": "textPhoto",
+      "value": {
+        "tone": "linen",
+        "heading": "How we help",
+        "lead": "Integrated Nutrition at TAB starts with how you actually live, train, recover and eat.",
+        "paragraphs": [
+          "We look at your routines, preferences, energy, training and recovery together, then build fueling habits that fit your life rather than handing you a rigid plan.",
+          "Because it sits alongside strength, massage and coaching at TAB, nutrition can be coordinated with the rest of your support when that genuinely helps."
+        ],
+        "photo": "kitchenPrep"
+      }
+    },
+    {
+      "discriminant": "cards",
+      "value": {
+        "tone": "linen",
+        "heading": "",
+        "intro": "",
+        "cards": [
+          {
+            "title": "Fuel for strength and recovery",
+            "body": "Eating in a way that supports your training, recovery and energy."
+          },
+          {
+            "title": "Cutting through the noise",
+            "body": "A clear, practical approach when nutrition advice keeps contradicting itself."
+          },
+          {
+            "title": "Beyond all-or-nothing",
+            "body": "Rebuild consistency after restrictive plans or on-and-off approaches."
+          },
+          {
+            "title": "Practical meal structure",
+            "body": "Simple routines for meals and fueling that fit a busy week."
+          },
+          {
+            "title": "Steadier energy",
+            "body": "Habits that support energy through the day, not just on good days."
+          },
+          {
+            "title": "Working with your training",
+            "body": "Nutrition coordinated with strength, massage and recovery when that genuinely helps."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "method",
+      "value": {
+        "transform": "Replace unhelpful food patterns with workable routines.",
+        "adapt": "Adjust fueling to training, stress, life stage and changing demands.",
+        "balance": "Create nourishment that is effective without becoming rigid or obsessive.",
+        "quote": "Nourish capacity without making food another full-time job."
+      }
+    },
+    {
+      "discriminant": "steps",
+      "value": {
+        "tone": "bone",
+        "heading": "What to expect",
+        "steps": [
+          {
+            "title": "Conversation",
+            "body": "We start with your current routines, preferences, schedule, training and goals."
+          },
+          {
+            "title": "Your plan",
+            "body": "Practical meal structure and fueling habits, built together rather than handed to you."
+          },
+          {
+            "title": "Check-ins",
+            "body": "We adjust as your training, stress and life change."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "faq",
+      "value": {
+        "tone": "linen",
+        "heading": "Questions",
+        "items": [
+          {
+            "q": "Will you give me a meal plan?",
+            "a": "We build practical meal structure and routines with you rather than a rigid plan to follow. Diets for medical conditions stay with your physician or a registered dietitian.",
+            "draft": true
+          },
+          {
+            "q": "Can nutrition coaching work alongside strength training?",
+            "a": "Yes. Fueling, training and recovery work best together, and we can coordinate them when that helps your goals.",
+            "draft": true
+          },
+          {
+            "q": "Can we work together virtually?",
+            "a": "Yes. Nutrition coaching is available virtually and in person.",
+            "draft": true
+          }
+        ]
+      }
+    }
+  ]
+}

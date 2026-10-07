@@ -1,0 +1,121 @@
+{
+  "name": "Women’s Wellness",
+  "shortName": "Women’s Wellness",
+  "headline": "Support that adapts as your life changes.",
+  "summary": "Support adaptation through changing life stages, stressors, priorities and needs.",
+  "description": "Personalized coaching for women navigating changing needs, responsibilities, habits and life stages, without reducing the experience to symptoms or a prescribed routine. Whether you’re building sustainable routines, moving through pregnancy, postpartum, perimenopause or menopause, or carrying more than your share, coaching helps you adapt and make informed choices.",
+  "metaDescription": "Women’s Wellness in Brighton and Howell, MI, or virtually: coaching for changing life stages, routines, stress and the choices that matter to you.",
+  "primaryCta": {
+    "label": "Schedule a Women’s Wellness Conversation",
+    "kind": "book"
+  },
+  "secondaryCta": {
+    "label": "Find Your Starting Point",
+    "kind": "start"
+  },
+  "heroPhoto": "matureWomanMovement",
+  "scopeNote": "Women’s Wellness is coaching, not medical care: it does not diagnose or treat medical conditions. Where symptoms, medications or medical concerns are involved, diagnosis and treatment remain with qualified healthcare professionals.",
+  "sections": [
+    {
+      "discriminant": "textPhoto",
+      "value": {
+        "tone": "linen",
+        "heading": "How we help",
+        "lead": "Women’s Wellness at TAB starts with the whole person—not a checklist of symptoms, habits, or expectations.",
+        "paragraphs": [
+          "Coaching is collaborative rather than prescriptive: we help you identify what matters, understand what may be getting in the way, and create strategies that fit your real life.",
+          "Needs shift through pregnancy, postpartum, perimenopause, menopause, caregiving years, and other transitions. Rather than treating those as problems to “fix,” coaching helps you adapt and make informed choices."
+        ],
+        "photo": "womanMovingBrightRoom"
+      }
+    },
+    {
+      "discriminant": "cards",
+      "value": {
+        "tone": "linen",
+        "heading": "",
+        "intro": "",
+        "cards": [
+          {
+            "title": "Perimenopause and menopause",
+            "body": "Lifestyle support for energy, sleep, stress, movement, and routines through midlife change."
+          },
+          {
+            "title": "Pregnancy and postpartum",
+            "body": "Practical, supportive habits for a demanding season, within appropriate scope."
+          },
+          {
+            "title": "Caregiving and transitions",
+            "body": "Reconnect with your own needs when life has been about everyone else’s."
+          },
+          {
+            "title": "Health advocacy",
+            "body": "Organize your questions, goals, and observations for conversations with your healthcare team."
+          },
+          {
+            "title": "Routines that last",
+            "body": "Sustainable rhythms for movement, nourishment and recovery that fit your real life."
+          },
+          {
+            "title": "Self-trust and agency",
+            "body": "Rebuild confidence in your own body, judgment and choices."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "method",
+      "value": {
+        "transform": "Change patterns or routines that no longer fit.",
+        "adapt": "Respond to changing life stages and circumstances.",
+        "balance": "Recalibrate priorities, support, movement, recovery and self-care.",
+        "quote": "Build the capacity to adapt as life and the body change."
+      }
+    },
+    {
+      "discriminant": "steps",
+      "value": {
+        "tone": "bone",
+        "heading": "What to expect",
+        "steps": [
+          {
+            "title": "Conversation",
+            "body": "We start with your goals, routines, stressors, and stage of life."
+          },
+          {
+            "title": "Your plan",
+            "body": "Practical, realistic next steps—built together, not handed to you."
+          },
+          {
+            "title": "Check-ins",
+            "body": "Scheduled conversations plus support between sessions, virtual or in person."
+          }
+        ]
+      }
+    },
+    {
+      "discriminant": "faq",
+      "value": {
+        "tone": "linen",
+        "heading": "Questions",
+        "items": [
+          {
+            "q": "Is coaching a replacement for my doctor?",
+            "a": "No. Coaching works alongside your healthcare team. We focus on habits, routines, and practical change; diagnosis and treatment stay with licensed professionals.",
+            "draft": true
+          },
+          {
+            "q": "Can we work together virtually?",
+            "a": "Yes. Coaching is available virtually and in person.",
+            "draft": true
+          },
+          {
+            "q": "What does a coaching engagement look like?",
+            "a": "Most clients work with us over a defined period with scheduled sessions and support in between. We’ll recommend a structure that fits your goals.",
+            "draft": true
+          }
+        ]
+      }
+    }
+  ]
+}

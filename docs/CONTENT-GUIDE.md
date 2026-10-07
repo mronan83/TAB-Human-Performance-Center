@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 1.2
+version: 1.3
 updated: 2026-10-07
 owner: Matthew Ronan
 ---
@@ -23,7 +23,7 @@ Every change to the website travels one of two lanes. Both end at the same autom
 
 <!-- lanes -->
 
-_Status, 7 October 2026: website requests live in **TAB Practice → Website changes**, and website admin accounts are available. The content editor (Keystatic) arrives with the next release, starting with the service pages; until then, ask for content changes with a **Content help** request. The automatic "fast lane" publish follows in the release after that._
+_Status, 7 October 2026: website requests live in **TAB Practice → Website changes**, with website admin accounts. The content editor (`/keystatic`) is built for the **five service pages** and the **massage techniques guide**; it opens once the owner connects its sign-in (backlog A31). Other pages follow; until then, and for anything else, file a **Content help** request. The automatic "fast lane" publish comes next (C32)._
 
 ## Roles
 
@@ -42,7 +42,8 @@ _Status, 7 October 2026: website requests live in **TAB Practice → Website cha
 | Fix a typo, reword a paragraph, update a headline | Content |
 | Add, remove or reorder FAQs | Content |
 | Add, remove, edit or reorder cards (focus areas, techniques) | Content |
-| Swap a photo for another from the library, or upload a new one | Content |
+| Swap a photo for another from the library | Content |
+| Add a new photo to the library | Design |
 | Move a section up or down, hide one, or add another section of an existing type | Content |
 | Change a section's background between the approved tones | Content |
 | Change a page's search title or description | Content |
@@ -99,15 +100,17 @@ _The content editor is free for up to three editors (you and two admins). A four
 
 <!-- content-flow -->
 
-1. **Open the content editor** at `/keystatic` on the website and sign in with your Keystatic account (no GitHub account needed). The first time, the owner adds you as an editor.
-2. **Choose what to edit**: a page, a service, a technique or an FAQ. Everything appears as labelled fields and blocks (see the glossary).
-3. **Make your change.** Fields show their limits as you type (for example, a search description must be 40 to 160 characters). Required fields such as photo descriptions can't be left empty.
-4. **Save.** Your change is kept as a draft and doesn't touch the live site. You can come back to it later.
-5. **Preview.** The editor gives a preview link. Check the page on your phone and on a computer.
-6. **Submit for publishing.** The automated checks run (about 5 minutes).
-   - **All checks pass:** an owner-made content change goes live automatically (the fast lane). An admin's change waits for the owner's approval.
-   - **A check fails:** you get a plain message saying which rule and where (for example, "Use 'TAB Human Performance Center' in full"). Fix it and submit again.
-7. **Live.** The change appears on the website. If something looks wrong, the owner can roll back to the previous version in one step.
+1. **Open the content editor** at `/keystatic` and sign in with your Keystatic account (no GitHub account needed). The owner invites editors; up to three are free.
+2. **Start a branch.** In the editor's branch menu choose **New branch** and give it a short name, such as `parking-faq`. The editor adds `content/` in front. Each branch is one change request, so keep one topic per branch. _Never edit on `main`: changes there skip the review step (see the note below)._
+3. **Choose what to edit**: one of the five service pages, or the massage techniques guide.
+4. **Make your change.** Fields show their limits as you type (a search description must be 40 to 160 characters, for example). Under **Sections** you can add a section, drag sections into a new order, or remove one; each section's own fields are inside it.
+5. **Save.** Each save is kept on your branch. It doesn't touch the live site, and you can come back to it later.
+6. **The change request opens by itself.** The first save on a branch opens a change request, and every save runs the automated checks (about 10 minutes) and builds a private preview.
+   - **All checks pass:** an admin's change waits for the owner's approval; the owner's own content changes will publish automatically once the fast lane is on (C32).
+   - **A check fails:** the change request says which rule and where (for example, "content/services/massage-bodywork.json: sections.5.value.items.2.a: String must contain at most 900 character(s)" or "Use 'TAB Human Performance Center' in full"). Fix it in the editor on the same branch and save again.
+7. **Live.** The owner approves, Claude merges it and sends the production build, and the owner promotes it. If something looks wrong, rolling back is one step.
+
+_Why branches: the editor lets anyone with access save straight to `main`, the branch the live site is built from. A save there skips the change request, though it still can't go live until the owner promotes a build. GitHub can block this outright with branch protection, which needs a GitHub Pro plan (backlog A34)._
 
 ## Design lane | Step by step
 
@@ -128,11 +131,11 @@ _Claude checks for new requests and new notes every morning. For anything sooner
 | Area | Content lane (self-serve) | Design lane (request) | Locked |
 |---|---|---|---|
 | Page text: headlines, leads, paragraphs | Yes, within each field's length limit | — | — |
-| FAQs | Add, edit, remove, reorder | — | — |
-| Cards: focus areas, techniques | Add, edit, remove, reorder | A new kind of card | — |
-| Photos | Choose from the library or upload, with a description (alt text) | Hero image style, cropping rules | — |
-| Sections on a page | Reorder, hide, add another of an existing type, choose an approved background tone | A new section type; how a section looks | — |
-| Buttons | The label | Where a button goes (booking and Start links come from Settings) | Every call to action uses the shared button component |
+| FAQs (service pages) | Add, edit, remove, reorder; mark an answer as a draft | — | — |
+| Cards: focus areas, techniques | Add, edit, remove, reorder (up to 12 cards a section; techniques: up to 20) | A new kind of card | A technique's address (slug) |
+| Photos | Choose from the photo library | Adding new photos to the library; hero image style, cropping | Library photos stay decorative (no people's names, no proof) |
+| Sections on a service page | Add, remove and reorder sections from the block library; choose Bone or Linen for each | A new section type; how a section looks; other pages | One TAB Method band and one Questions section per page; the scope note always shows |
+| Buttons | The label, and whether it books or goes to Start Where You Are | Any other destination (booking links come from Settings) | Every call to action uses the shared button component |
 | Search title and description | Yes, within limits | — | Page titles always end with the full business name |
 | Settings: booking links, banner, page switches, Start form open | The owner, in TAB Practice → Settings | — | — |
 | New pages | — | Yes | — |
@@ -167,6 +170,21 @@ These run automatically on every change, in either lane. A change that breaks on
 - **The name.** "TAB Human Performance Center" in full in titles and formal text; "TAB" alone is fine in conversation-style copy.
 - **Photos.** Every photo needs a short description of what it shows, for people using screen readers. Decorative photos are marked as such.
 
+## The block library | Sections you can build a service page from
+
+Each service page has a fixed **hero** at the top and fixed **related services** and **closing call to action** at the bottom. In between, the page is a list of sections chosen from these blocks. A new kind of block is a design-lane request.
+
+| Block | What it shows | Fields | Limits |
+|---|---|---|---|
+| **Text and photo** | A heading, a larger lead paragraph and up to six paragraphs, beside a library photo (How we help) | Background, heading, lead, paragraphs, photo | Heading 2–60 characters; paragraphs up to 700 each |
+| **Card grid** | Small white cards in a grid of three, with an optional heading and introduction (focus areas) | Background, heading, introduction, cards (title and text) | 1–12 cards; title 2–60, text 10–260 characters |
+| **Techniques index** | The massage techniques by group, each linked to the techniques guide | Background | Massage & Bodywork only |
+| **TAB Method band** | Transform, Adapt and Balance for this service, and a quote, on Deep Olive | Transform, Adapt, Balance, quote | One per page; each 10–160 characters |
+| **Numbered steps** | Numbered cards (What to expect), followed by the page's scope note | Background, heading, steps (title and text) | 1–6 steps |
+| **Questions** | Questions that open to show their answers | Background, heading, questions (question, answer, draft) | One per page; 1–20 questions; answers up to 900 characters |
+
+_Sections next to each other on the same background read as one band. Draft answers show on previews and the launch checklist, and are left out of the FAQ data search engines read. The **scope note** is a required field of every service page, not a block, so it can't be removed: it follows the numbered steps, or closes the sections if a page has none._
+
 ## Glossary | Key terms for page elements
 
 <!-- anatomy -->
@@ -176,8 +194,8 @@ These run automatically on every change, in either lane. A change that breaks on
 | **Page** | One address on the website, for example `/services/massage-bodywork`. |
 | **Template** | The fixed structure a kind of page follows. All five service pages share one template. Templates change only through the design lane. |
 | **Section** (or **band**) | A full-width horizontal strip of a page: the hero, How we help, the TAB Method band, the FAQ. |
-| **Block** | A type of section admins can add, remove or reorder in the content lane: hero, text, card grid, image and text, FAQ, call-to-action band and so on. The list of blocks is the **block library**. |
-| **Band tone** | A section's background, chosen from the approved tones: **Bone** (off-white page background), **Linen** (warm beige), **Olive** (deep green, white text) and **Graphite** (charcoal, white text). |
+| **Block** | A type of section an editor can add, remove or reorder on a service page: text and photo, card grid, techniques index, TAB Method band, numbered steps, questions. The list of blocks is the **block library** (see above). |
+| **Band tone** | A section's background. Editors choose **Bone** (off-white) or **Linen** (warm beige). **Olive** (deep green, white text) is the TAB Method band and **Graphite** (charcoal, white text) the closing call to action; both are fixed. |
 | **Banner** | The thin strip across the very top of every page ("TAB Massage & Fitness is becoming TAB Human Performance Center"). Switched on or off in Settings. |
 | **Header** | The logo, menu and buttons at the top of every page. |
 | **Breadcrumb** | The small "Services / Massage & Bodywork" trail under the header, showing where a page sits. |
@@ -203,6 +221,7 @@ These run automatically on every change, in either lane. A change that breaks on
 | **Publish / promote** | Making a checked change live. Promote is the final step that switches the live site to the new version. |
 | **Rollback** | Switching the live site back to the previous version. |
 | **Fast lane** | Owner-made content-only changes that pass every check go live without a separate approval round (D-070). |
+| **Branch** | Your own working copy for one change. The content editor saves to a branch named `content/…`; each branch becomes one change request. |
 | **Content editor (Keystatic)** | The editing screens at `/keystatic`, signed in with a Keystatic Cloud account (no GitHub account). Edits are saved as reviewable changes to the website's own files, so every edit has a history and can be undone. |
 | **Change request (PR)** | A proposed change, with its preview and check results, waiting to be published. |
 | **Website changes** | The page in TAB Practice where every request is filed and followed (`/practice/website`). |
@@ -218,8 +237,8 @@ These run automatically on every change, in either lane. A change that breaks on
 |---|---|---|---|
 | Home | `/` | `content/pages.ts` (home) | Content |
 | Services overview | `/services` | `content/services.ts` | Content |
-| Service pages (five) | `/services/[slug]` | `content/services.ts` | Content |
-| Massage techniques | `/services/[slug]/techniques` | `content/massage-techniques.ts` | Content |
+| Service pages (five) | `/services/[slug]` | `content/services/<service>.json` (the editor), with the address and icon in `content/services.ts` | Content |
+| Massage techniques | `/services/[slug]/techniques` | `content/massage-techniques.json` (the editor), with the address in `content/massage-techniques.ts` | Content |
 | The TAB Method | `/tab-method` | `content/pages.ts` (method) | Content |
 | About | `/about` | `content/pages.ts` (about) | Content |
 | Our Story | `/about/our-story` | `content/pages.ts` (about.story) | Content |
@@ -236,7 +255,7 @@ These run automatically on every change, in either lane. A change that breaks on
 | Accessibility | `/accessibility` | `content/pages.ts` (legal), `config/site.ts` | Content (legal review) |
 | Launch checklist | `/launch-checklist` | Generated from draft flags (`lib/placeholders.ts`) | — |
 
-_Content sources move into the content editor's format with the Keystatic release; this table changes with them._
+_The service pages and the techniques guide are in the content editor now; the other pages move into it next, and this table changes with them._
 
 ## Changing this guide
 
@@ -244,6 +263,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.3 | 2026-10-07 | The content editor: branches, change requests, the block library, the fields and limits for service pages and the techniques guide | Release of C31 (proposed D-069, D-072) |
 | 1.2 | 2026-10-07 | Request alerts go to both matthew@ and info@; the daily check for new requests and notes is on | Owner, 2026-10-07: "both"; daily check "yes" |
 | 1.1 | 2026-10-07 | Requests move into TAB Practice → Website changes (statuses, notes, owner email); website admin accounts; content editor sign-in through Keystatic Cloud; the GitHub request forms are retired | Owner rulings 2026-10-07: "In app form and admin account", "Website only" (proposed D-071) |
 | 1.0 | 2026-10-07 | First version: lanes, roles, step-by-step workflows, what is editable, rules, writing guidelines, glossary, page inventory | Owner request 2026-10-07; decisions D-069 (Keystatic) and D-070 (fast lane) |

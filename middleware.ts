@@ -37,7 +37,7 @@ export async function middleware(req: NextRequest) {
   const isPortal = path.startsWith("/my-tab") || path.startsWith("/practice");
   if (!isPortal) {
     const res = NextResponse.next();
-    res.headers.set("Content-Security-Policy", contentSecurityPolicy());
+    res.headers.set("Content-Security-Policy", contentSecurityPolicy(undefined, { editor: path.startsWith("/keystatic") }));
     return res;
   }
 
