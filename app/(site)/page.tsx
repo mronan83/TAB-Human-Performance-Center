@@ -14,7 +14,7 @@ import { siteFeatures } from "@/lib/settings";
 export const metadata = pageMetadata({
   title: `${siteConfig.brand.name} | ${siteConfig.brand.categoryLine.replace(/\.$/, "")}`,
   absoluteTitle: true,
-  description: "Massage & bodywork, functional strength, women’s wellness, integrated nutrition and life coaching in Brighton and Howell, MI: human performance for real life.",
+  description: home.metaDescription,
   path: "/",
 });
 
@@ -69,7 +69,7 @@ export default async function HomePage() {
             <h2 className="text-h1">{home.coreIdea.headline}</h2>
             <p className="text-body-lg mt-6 text-text-secondary">{home.coreIdea.body}</p>
           </div>
-          <Photo name="movementStudio" aspect="aspect-[4/5]" sizes="(min-width: 768px) 50vw, 100vw" className="mx-auto w-full max-w-md" />
+          <Photo name={home.coreIdea.photo} aspect="aspect-[4/5]" sizes="(min-width: 768px) 50vw, 100vw" className="mx-auto w-full max-w-md" />
         </div>
       </section>
 

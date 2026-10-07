@@ -13,7 +13,7 @@ const STAGE_PHOTOS: { stage: string; image: ImageKey }[] = [
   { stage: "Balance", image: "balanceLayers" },
 ];
 
-export const metadata: Metadata = pageMetadata({ title: "The TAB Method", description: "Start where you are. Transform. Adapt. Balance. How TAB helps you build capacity for real life.", path: "/tab-method" });
+export const metadata: Metadata = pageMetadata({ title: "The TAB Method", description: method.metaDescription, path: "/tab-method" });
 
 export default function MethodPage() {
   return (
@@ -36,7 +36,7 @@ export default function MethodPage() {
       </section>
       <section className="section bg-linen">
         <div className="container-page">
-          <h2 className="text-h1 max-w-2xl">How we work with you</h2>
+          <h2 className="text-h1 max-w-2xl">{method.principlesHeading}</h2>
           <ul className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {method.principles.map((p) => (
               <li key={p.title} className="rounded-[20px] bg-white p-6"><h3 className="text-h4">{p.title}</h3><p className="mt-2 text-text-secondary">{p.body}</p></li>

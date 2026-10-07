@@ -1,0 +1,58 @@
+{
+  "metaDescription": "Start where you are. Transform. Adapt. Balance. How TAB helps you build capacity for real life.",
+  "intro": "The TAB Method is a personalized, whole-person approach that helps you understand where you are, change what limits you, build the ability to respond to what life asks, and balance effort and recovery so your progress lasts.",
+  "statement": "Start where you are. Transform what limits you. Adapt to what life asks. Balance what sustains you.",
+  "stages": {
+    "start": {
+      "short": "No judgment. No predefined program.",
+      "body": "You don’t need to arrive knowing which service you need or what a complete plan looks like. We begin with where you are, what you need, and where you want to go."
+    },
+    "transform": {
+      "short": "Change what limits you.",
+      "body": "Transform doesn’t mean a dramatic makeover. It means changing the patterns, capabilities or conditions that are holding you back: reducing persistent tension, returning to strength training, establishing workable routines, or simply feeling more like yourself again."
+    },
+    "adapt": {
+      "short": "Respond to what life asks.",
+      "body": "Once change is underway, we build your ability to respond to stress, challenge, change and new demands without breaking down or starting over: training that progresses with you, recovery that keeps up, and more than one TAB service when it makes sense."
+    },
+    "balance": {
+      "short": "Sustain what matters.",
+      "body": "Balance isn’t a finish line. It’s recalibrating between effort and recovery, doing and resting, structure and flexibility, with the ownership to know what works for you, how to maintain progress, and when extra support is useful."
+    },
+    "evolve": {
+      "short": "Keep evolving as life changes.",
+      "body": "Needs change. A strength client sets a new goal; a massage client becomes pregnant; a coaching client changes careers. When life changes, we begin again from where you are now."
+    }
+  },
+  "principlesHeading": "How we work with you",
+  "principles": [
+    {
+      "title": "Start with listening",
+      "body": "Understand before recommending."
+    },
+    {
+      "title": "Personalize the experience",
+      "body": "You should never feel processed through a formula."
+    },
+    {
+      "title": "Explain the why",
+      "body": "You understand recommendations and stay an active participant."
+    },
+    {
+      "title": "Look at the whole person",
+      "body": "Your body, habits, responsibilities and goals are connected."
+    },
+    {
+      "title": "Stay within scope",
+      "body": "We know when another qualified professional is better positioned to help."
+    },
+    {
+      "title": "Measure what matters to you",
+      "body": "Not every meaningful outcome shows up on a scale or a stopwatch."
+    },
+    {
+      "title": "Build ownership, not dependence",
+      "body": "The goal is confidence, capability, and agency."
+    }
+  ]
+}

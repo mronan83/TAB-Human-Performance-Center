@@ -4,7 +4,7 @@ import { about } from "@/content/pages";
 import { PageHero } from "@/components/PageHero";
 import { DraftFlag } from "@/components/DraftFlag";
 
-export const metadata: Metadata = pageMetadata({ title: "Our Story", description: "How TAB Massage & Fitness, serving Brighton and Howell since 2008, grew into TAB Human Performance Center.", path: "/about/our-story" });
+export const metadata: Metadata = pageMetadata({ title: "Our Story", description: about.story.metaDescription, path: "/about/our-story" });
 
 export default function StoryPage() {
   return (

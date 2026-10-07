@@ -1,0 +1,14 @@
+{
+  "title": "An unfinished draft",
+  "summary": "A draft that never shows on the live site.",
+  "topic": "recovery",
+  "pillar": "none",
+  "kind": {
+    "discriminant": "link",
+    "value": {
+      "url": "https://example.org/draft"
+    }
+  },
+  "status": "draft",
+  "added": "2026-10-04"
+}

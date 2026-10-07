@@ -137,7 +137,9 @@ const choices = <T extends readonly Option[]>(opts: T) => z.array(z.enum(values(
 
 export const inquirySchema = z
   .object({
-    kind: z.enum(["start", "contact"]),
+    kind: z.enum(["start", "contact", "resource"]),
+    // A resource request (C35): which document they asked for, by its address in the library.
+    resource: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(90).optional(),
     // The only typed fields. Restricted so they can't carry links or messages into the emails we send.
     name: z
       .string()
@@ -179,12 +181,18 @@ export const inquirySchema = z
     if (d.kind === "contact" && !d.topic) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["topic"], message: "Please choose what we can help with." });
     }
+    if (d.kind === "resource" && !d.resource) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["resource"], message: "Please choose a resource." });
+    }
     if (d.kind === "contact" && !d.message) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["message"], message: "Please write a short message." });
     }
   })
-  // The Start form has no free text: drop a message if one is sent anyway.
-  .transform((d) => (d.kind === "start" ? { ...d, message: undefined } : d));
+  // Only the contact form has free text: drop a message if one is sent with anything else.
+  .transform((d) => (d.kind === "contact" ? d : { ...d, message: undefined }));
+
+/** A Start or contact submission: the kinds that are stored and listed in TAB Practice → Submissions. */
+export type StoredInquiry = Omit<Inquiry, "website" | "elapsedMs" | "turnstileToken"> & { kind: "start" | "contact" };
 
 export type Inquiry = z.infer<typeof inquirySchema>;
 

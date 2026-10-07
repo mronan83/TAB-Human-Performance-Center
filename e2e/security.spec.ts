@@ -64,7 +64,9 @@ test("portal pages: fresh nonce per request, scripts carry it, no violations", a
 
 test("pages can't be framed by other sites (clickjacking)", async ({ request }) => {
   for (const path of ["/", "/start", "/my-tab"]) {
-    const h = (await request.get(path)).headers();
+    // maxRetries retries only a network error such as a reused keep-alive socket the server already closed (ECONNRESET,
+    // seen on CI 2026-10-07), never a status (see links.spec.ts).
+    const h = (await request.get(path, { maxRetries: 2 })).headers();
     expect(h["x-frame-options"], path).toBe("DENY");
     expect(h["content-security-policy"], path).toContain("frame-ancestors 'none'");
   }

@@ -1,6 +1,7 @@
 import { services } from "@/content/services";
 import { siteUrl } from "@/config/site";
 import { analyticsAllowed, type FunnelEvent } from "@/lib/analytics";
+import { RESOURCE_EVENT_PREFIX } from "@/lib/resource-constants";
 
 /**
  * First-party website counts (owner ruling 2026-10-06, A4). The browser reports a page view or a fixed event to
@@ -83,6 +84,8 @@ export type SiteStats = {
   totals: { views: number } & Record<FunnelEvent, number>;
   pages: { key: string; count: number }[];
   referrers: { key: string; count: number }[];
+  /** Resources opened (links followed, documents downloaded), by address: counted by the server (lib/resource-stats.ts). */
+  resources: { key: string; count: number }[];
 };
 
 
@@ -98,7 +101,7 @@ export function lastDays(n: number, today = new Date()): string[] {
 
 function summarize(rows: { day: string; kind: string; key: string; count: number }[], days: string[], demo: boolean): SiteStats {
   const byDay = new Map(days.map((d) => [d, 0]));
-  const pages = new Map<string, number>(), refs = new Map<string, number>();
+  const pages = new Map<string, number>(), refs = new Map<string, number>(), opened = new Map<string, number>();
   const totals = { views: 0, ...Object.fromEntries(EVENTS.map((e) => [e, 0])) } as SiteStats["totals"];
   for (const r of rows) {
     if (!byDay.has(r.day)) continue;
@@ -108,9 +111,13 @@ function summarize(rows: { day: string; kind: string; key: string; count: number
       totals.views += r.count;
     } else if (r.kind === "referrer") refs.set(r.key, (refs.get(r.key) ?? 0) + r.count);
     else if ((EVENTS as readonly string[]).includes(r.key)) totals[r.key as FunnelEvent] += r.count;
+    else if (r.key.startsWith(RESOURCE_EVENT_PREFIX)) {
+      const slug = r.key.slice(RESOURCE_EVENT_PREFIX.length);
+      opened.set(slug, (opened.get(slug) ?? 0) + r.count);
+    }
   }
   const top = (m: Map<string, number>) => [...m].map(([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count || a.key.localeCompare(b.key)).slice(0, 10);
-  return { demo, days: days.map((day) => ({ day, views: byDay.get(day) ?? 0 })), totals, pages: top(pages), referrers: top(refs) };
+  return { demo, days: days.map((day) => ({ day, views: byDay.get(day) ?? 0 })), totals, pages: top(pages), referrers: top(refs), resources: top(opened) };
 }
 
 /** A fixed, believable sample for previews, so the page can be reviewed without real visits. */
@@ -123,6 +130,7 @@ function demoRows(days: string[]) {
     rows.push({ day, kind: "event", key: "Start Form: Started", count: 1 + (i % 3) }, { day, kind: "event", key: "Start Form: Submitted", count: i % 2 });
     rows.push({ day, kind: "event", key: "Booking: Clicked", count: 2 + (i % 4) }, { day, kind: "event", key: "Service: Viewed", count: 9 + (i % 5) });
     rows.push({ day, kind: "referrer", key: "google.com", count: 4 + (i % 3) }, { day, kind: "referrer", key: "facebook.com", count: i % 3 });
+    rows.push({ day, kind: "event", key: `${RESOURCE_EVENT_PREFIX}sample-guide`, count: i % 4 });
   });
   return rows;
 }

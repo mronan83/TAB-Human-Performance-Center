@@ -9,7 +9,7 @@ import { PageTitle, Panel, Badge, StageTracker, ProgressBar } from "@/components
 import { TrendChart } from "@/components/portal/TrendChart";
 import { AssignFormForm, InviteForm, NoteForm, RowActionButton, ShareResourceForm } from "@/components/portal/interactive";
 import { removeResourceAction, withdrawFormAction } from "@/app/(portal)/actions";
-import { resourceLibrary } from "@/lib/portal/resources";
+import { resourcePicks } from "@/lib/resources";
 
 const stageLabel = (k?: string) => STAGES.find((s) => s.key === k)?.label ?? k;
 const ACCESS_LABEL = { not_invited: "Not invited", invited: "Invited", active: "Active" } as const;
@@ -173,7 +173,7 @@ export default async function ClientDetail({ params, searchParams }: { params: P
               ))}
               {resources.length === 0 && <li className="text-text-secondary">Nothing shared yet.</li>}
             </ul>
-            <div className="mt-5 border-t border-border pt-4"><ShareResourceForm clientId={id} library={resourceLibrary} /></div>
+            <div className="mt-5 border-t border-border pt-4"><ShareResourceForm clientId={id} library={resourcePicks()} /></div>
           </Panel>
         </div>
       </div>

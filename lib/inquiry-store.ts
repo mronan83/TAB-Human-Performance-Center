@@ -1,11 +1,11 @@
-import type { Inquiry } from "@/lib/inquiry";
+import type { StoredInquiry } from "@/lib/inquiry";
 
 /**
  * Saves a Start or contact submission (DIV-05). Server only: the website's API route writes with the service role,
  * because no signed-in role may insert submissions (row-level security in *_inquiries.sql). Called only while
  * `siteConfig.forms.storeSubmissions` is on.
  */
-export async function storeInquiry(d: Omit<Inquiry, "website" | "elapsedMs" | "turnstileToken">, reference: string, flags: string[] = []): Promise<void> {
+export async function storeInquiry(d: StoredInquiry, reference: string, flags: string[] = []): Promise<void> {
   const { createSupabaseServiceClient } = await import("@/lib/supabase/server");
   const sb = await createSupabaseServiceClient();
   const { error } = await sb.from("inquiries").insert({

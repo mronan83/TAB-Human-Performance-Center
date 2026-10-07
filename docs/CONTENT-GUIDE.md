@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 1.4
+version: 1.5
 updated: 2026-10-07
 owner: Matthew Ronan
 ---
@@ -30,7 +30,7 @@ _Status, 7 October 2026: website requests live in **TAB Practice → Website cha
 | Role | Can | Can't |
 |---|---|---|
 | **Owner** | Edit content; file and follow requests; change a request's status; choose between options; approve design changes; publish; roll back; invite and remove website admins (TAB Practice → Settings) | Bypass the automated checks |
-| **Website admin** | Sign in to TAB Practice (password and 6-digit code); file and follow requests and add notes; see the website stats; edit content in the content editor once it arrives | See client records, Settings or Team; change a request's status; approve design changes or releases |
+| **Website admin** | Sign in to TAB Practice (password and 6-digit code); file and follow requests and add notes; see the website stats; edit content in the content editor (reachable once the site is past Vercel login, or as a Vercel team member) | See client records, Settings or Team; change a request's status; approve design changes or releases |
 | **Practitioner** | File and follow requests and add notes, alongside their client work | Change a request's status; approve design changes or releases |
 | **Claude** | Read requests; reply in their notes with questions, options, effort and risks; keep each status current; build design-lane changes; maintain the block library, the checks and this guide; publish approved releases | Build a design change before the owner chooses an option, or publish one without the owner's approval |
 | **Automated checks** | Block any change that breaks a rule (see "Rules every change must pass") | Be skipped |
@@ -102,7 +102,7 @@ _The content editor is free for up to three editors (you and two admins). A four
 
 1. **Open the content editor** at `/keystatic` and sign in with your Keystatic account (no GitHub account needed). The owner invites editors; up to three are free.
 2. **Start a branch.** In the editor's branch menu choose **New branch** and give it a short name, such as `parking-faq`. The editor adds `content/` in front. Each branch is one change request, so keep one topic per branch. _Never edit on `main`: changes there skip the review step (see the note below)._
-3. **Choose what to edit**: one of the five service pages, or the massage techniques guide.
+3. **Choose what to edit**: under **Service pages**, one of the five; under **Guides**, the massage techniques guide; under **Pages**, Home, The TAB Method, About, Our Story or Our Team; under **Resources**, the resource library and its topics.
 4. **Make your change.** Fields show their limits as you type (a search description must be 40 to 160 characters, for example). Under **Sections** you can add a section, drag sections into a new order, or remove one; each section's own fields are inside it.
 5. **Save.** Each save is kept on your branch. It doesn't touch the live site, and you can come back to it later.
 6. **The change request opens by itself.** The first save on a branch opens a change request, and every save runs the automated checks (about 10 minutes) and builds a private preview.
@@ -115,6 +115,34 @@ _Why branches: the editor lets anyone with access save straight to `main`, the b
 _Saved to `main` by mistake? Nothing is live. Tell Claude (or file a Content help request): Claude checks the change, and you confirm it before the next promotion, or Claude takes it back out._
 
 _Empty optional fields are fine. When you clear an optional field (a card grid's heading, say), the editor leaves it out of the file, and the site treats it as empty._
+
+## Resources | Links and documents
+
+The Resources page is a library you build in the editor, under **Resources**. Each entry is either a **link** to another website or a **document**: a PDF TAB wrote, uploaded in the editor. Entries are grouped by **topic**; a topic with nothing published yet lists its "Coming soon" subjects instead.
+
+1. **Add an entry**: Resources → **Add**. Give it a title (it also sets the entry's address) and a one-line summary of what it is and who it's for.
+2. **Choose the topic** and, if it relates to one, the service. To add a topic, use **Resource topics** (its order number sets where it appears; 1 comes first).
+3. **Choose the kind.**
+   - **Link:** paste the web address (it must start with `https://`). Link to other organisations' material rather than uploading it.
+   - **Document:** upload the PDF and choose whether to **ask for an email address first** (on by default). With it on, visitors give their name and email, and the download link is emailed to them; TAB gets an email saying who asked. With it off, anyone can download it straight away.
+4. **Set the status.** **Draft** shows on previews only; **Published** shows on the live site once the change is published. Leave it as a draft until you're happy with it.
+5. **Update or remove.** Open an entry to change it, or upload a new PDF to replace the old one. **Delete** removes it from the page. Save on your branch as usual.
+
+_Before you upload a document:_
+- _**It becomes public.** Anyone can download a published document, and search engines can find one that doesn't ask for an email. Never upload anything about a client._
+- _**TAB wrote it.** For anyone else's material, add a link instead of uploading a copy._
+- _**Make it accessible.** In Word, Pages or Canva, export it as a PDF with "Tagged PDF", "Accessible PDF" or "Best for accessibility" turned on, give it a title, and use real headings. The checks can't read inside a PDF, so this one is on you._
+- _**Keep it small.** Up to 10 MB each. A deleted PDF still stays in the website's history, so the library suits dozens of guides, not hundreds or videos._
+
+_What gets counted:_ each link followed or document downloaded adds one to that resource's daily total, shown under **Resources opened** in TAB Practice → Website stats. As with the rest of the counts, there are no cookies and nothing identifies the visitor. _Who asked for an emailed guide_ arrives as an email to info@; it isn't stored on the website until My TAB goes live with stored submissions.
+
+## Our Team | People, photos and credentials
+
+Under **Pages → Our Team**, add a person with their name, role, short bio and the services they offer.
+
+- **Credentials** show on the live site only once you tick **Credentials confirmed**. Until then they stay off the page, and the launch checklist lists them. Enter them exactly as held.
+- **Photos**: upload a JPEG, PNG or WebP of up to 5 MB (square works best), only with the person's permission, and describe it in **Photo description** for people who can't see it.
+- Untick **Draft** on the page when it's ready; the launch checklist lists it until then.
 
 ## Design lane | Step by step
 
@@ -134,7 +162,11 @@ _Claude checks for new requests and new notes every morning. For anything sooner
 
 | Area | Content lane (self-serve) | Design lane (request) | Locked |
 |---|---|---|---|
-| Page text: headlines, leads, paragraphs | Yes, within each field's length limit | — | — |
+| Page text: headlines, leads, paragraphs | Yes, within each field's length limit, on the service pages, the techniques guide, Home, The TAB Method, About, Our Story and Our Team | Start, FAQ and policy pages (still in code) | — |
+| Home and The TAB Method | Every word, the search description, and the photo beside "Human performance for real life" | The order of sections, the hero photo, the closing photo | The stage names (Start Where You Are, Transform, Adapt, Balance, Evolve); the figures in "Real people" (founding year, years of experience, pillar count) come from the business settings |
+| About and Our Story | Add, edit, remove and reorder sections and paragraphs; mark Our Story as a draft | How the page looks | — |
+| Our Team | Add, edit and remove people; upload their photos; confirm credentials | How the page looks | Credentials show only once confirmed |
+| Resources | Add, update and remove links and PDF documents; topics; whether a document asks for an email address; draft or published | How the page looks; gated downloads that ask for more than a name and email | Documents are PDFs up to 10 MB; links are https |
 | FAQs (service pages) | Add, edit, remove, reorder; mark an answer as a draft | — | — |
 | Cards: focus areas, techniques | Add, edit, remove, reorder (up to 12 cards a section; techniques: up to 20) | A new kind of card | A technique's address (slug) |
 | Photos | Choose from the photo library | Adding new photos to the library; hero image style, cropping | Library photos stay decorative (no people's names, no proof) |
@@ -164,6 +196,8 @@ These run automatically on every change, in either lane. A change that breaks on
 | Links | Every link on the site works | Launch checks |
 | Search | Each page has a unique title and a 40 to 160 character description | NFR-002, NFR-003 |
 | Colours | Only the approved palette; white text only on Deep Olive, Clay Dark or Graphite | Guardrail 3 |
+| Resources | Every entry has a topic that exists; links start with https; every document is a real PDF of at most 10 MB | C35 |
+| Team photos | A JPEG, PNG or WebP of at most 5 MB, with a description | Guardrail 9 |
 
 ## Writing guidelines
 
@@ -233,21 +267,25 @@ _Sections next to each other on the same background read as one band. Draft answ
 | **Request status** | Where a request stands: New, Questions or options, Waiting on you, In progress, In review, Live or Declined (see "Asking for a change"). |
 | **Notes** | The conversation on a request: Claude's questions, options and updates, and your answers. Kept as written. |
 | **Website admin** | A TAB Practice account for the website only: requests, website stats and the content editor; never client records. |
-| **Website stats** | Our own count of page views, Book clicks and Start forms, in TAB Practice. No cookies and nothing that identifies a visitor. |
+| **Website stats** | Our own count of page views, Book clicks, Start forms and resources opened, in TAB Practice. No cookies and nothing that identifies a visitor. |
+| **Resource** | An entry on the Resources page: a **link** to another website or a **document** (a PDF TAB wrote). |
+| **Topic** | A group on the Resources page, such as "Massage and recovery". |
+| **Email-first document** | A document that asks for a name and email address; the download link is emailed and works for 14 days. |
+| **Fixed layout** | A page whose sections stay in a set order (Home, The TAB Method); editors change the words, not the arrangement. |
 
 ## Pages and where their content lives
 
 | Page | Address | Content source | Lane |
 |---|---|---|---|
-| Home | `/` | `content/pages.ts` (home) | Content |
+| Home | `/` | `content/pages/home.json` (the editor); the layout, hero photo and figures in the page file and `config/site.ts` | Content |
 | Services overview | `/services` | `content/services.ts` | Content |
 | Service pages (five) | `/services/[slug]` | `content/services/<service>.json` (the editor), with the address and icon in `content/services.ts` | Content |
 | Massage techniques | `/services/[slug]/techniques` | `content/massage-techniques.json` (the editor), with the address in `content/massage-techniques.ts` | Content |
-| The TAB Method | `/tab-method` | `content/pages.ts` (method) | Content |
-| About | `/about` | `content/pages.ts` (about) | Content |
-| Our Story | `/about/our-story` | `content/pages.ts` (about.story) | Content |
-| Our Team | `/about/team` | `content/pages.ts` (about.team) | Content |
-| Resources | `/resources` | `content/pages.ts` (resourceClusters) | Content |
+| The TAB Method | `/tab-method` | `content/pages/tab-method.json` (the editor); stage names in `content/pages.ts` | Content |
+| About | `/about` | `content/pages/about.json` (the editor) | Content |
+| Our Story | `/about/our-story` | `content/pages/our-story.json` (the editor) | Content |
+| Our Team | `/about/team` | `content/pages/team.json` (the editor), photos in `public/images/team/` | Content |
+| Resources | `/resources` | `content/resources/*.json` and `content/resource-topics/*.json` (the editor), PDFs in `content/resource-files/` | Content |
 | Events | `/events` | The page file itself; shown only when switched on in Settings | Design |
 | FAQ | `/faq` | `content/pages.ts` (faqs) and each service's FAQs in `content/services.ts` | Content |
 | Book | `/book` | `config/site.ts`, Settings | Settings |
@@ -259,7 +297,7 @@ _Sections next to each other on the same background read as one band. Draft answ
 | Accessibility | `/accessibility` | `content/pages.ts` (legal), `config/site.ts` | Content (legal review) |
 | Launch checklist | `/launch-checklist` | Generated from draft flags (`lib/placeholders.ts`) | — |
 
-_The service pages and the techniques guide are in the content editor now; the other pages move into it next, and this table changes with them._
+_Start, the FAQ and the policy pages are still in code: ask with a Content help request. This table changes as pages move into the editor._
 
 ## Changing this guide
 
@@ -267,6 +305,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.5 | 2026-10-07 | Home, The TAB Method, About, Our Story and Our Team in the editor; the resource library (links, PDF documents, email-first downloads, counts); team photos and confirmed credentials; new rules, pages and terms | Owner request, 2026-10-07 (C35): all three in one change, email required for downloads, daily counts, documents stored with the site |
 | 1.4 | 2026-10-07 | What happens when a save lands on `main` instead of a branch, and how it's caught before release; empty optional fields | The first editor save (on `main`) broke the build; owner declined GitHub Pro (A34) |
 | 1.3 | 2026-10-07 | The content editor: branches, change requests, the block library, the fields and limits for service pages and the techniques guide | Release of C31 (proposed D-069, D-072) |
 | 1.2 | 2026-10-07 | Request alerts go to both matthew@ and info@; the daily check for new requests and notes is on | Owner, 2026-10-07: "both"; daily check "yes" |

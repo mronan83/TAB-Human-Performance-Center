@@ -21,6 +21,9 @@ jobs:
     timeout-minutes: 20
     env:
       NEXT_TELEMETRY_DISABLED: "1"
+      # The checks build and test against the resource library's fixture copy (one of each kind of entry, lib/resources.ts);
+      # e2e/content.spec.ts checks the real library, and every Vercel build does too.
+      RESOURCE_LIBRARY_ROOT: e2e/fixtures/resource-library
     steps:
       - uses: actions/checkout@v7
 

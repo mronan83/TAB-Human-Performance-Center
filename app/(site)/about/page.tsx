@@ -5,7 +5,7 @@ import { about } from "@/content/pages";
 import { PageHero } from "@/components/PageHero";
 import { Cta } from "@/components/Cta";
 
-export const metadata: Metadata = pageMetadata({ title: "About", description: "Why TAB Human Performance Center exists and how we help people build capacity for real life.", path: "/about" });
+export const metadata: Metadata = pageMetadata({ title: "About", description: about.metaDescription, path: "/about" });
 
 export default function AboutPage() {
   return (

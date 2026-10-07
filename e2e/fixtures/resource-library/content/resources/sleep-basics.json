@@ -1,0 +1,15 @@
+{
+  "title": "Sleep basics",
+  "summary": "An open PDF anyone can download, used by the checks.",
+  "topic": "recovery",
+  "pillar": "womens-wellness-coaching",
+  "kind": {
+    "discriminant": "document",
+    "value": {
+      "file": "/resource-files/sleep-basics/file.pdf",
+      "requireEmail": false
+    }
+  },
+  "status": "published",
+  "added": "2026-10-02"
+}

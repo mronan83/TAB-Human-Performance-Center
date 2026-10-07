@@ -2,6 +2,7 @@ import { requireStaffViewer, isDemoSignIn } from "@/lib/portal";
 import { getSiteStats, pageName } from "@/lib/site-stats";
 import { PageTitle, Panel } from "@/components/portal/ui";
 import { ViewsChart } from "@/components/portal/ViewsChart";
+import { loadLibrary } from "@/lib/resources";
 
 export const metadata = { title: "Website stats" };
 
@@ -16,6 +17,7 @@ export default async function StatsPage() {
     return (<><PageTitle eyebrow="TAB Practice" title="Website stats" /><Panel><p>Only the owner and website admins can see the website stats.</p></Panel></>);
   }
   const s = await getSiteStats(30);
+  const titles = new Map(loadLibrary().resources.map((r) => [r.slug, r.title]));
   const started = s.totals["Start Form: Started"], submitted = s.totals["Start Form: Submitted"];
   const tiles = [
     { label: "Page views", value: s.totals.views, note: "last 30 days" },
@@ -44,15 +46,18 @@ export default async function StatsPage() {
         <Panel title="Sites that sent visitors">
           {s.referrers.length ? <Table rows={s.referrers.map((r) => ({ name: r.key, count: r.count }))} head="Site" /> : <p className="text-sm text-text-secondary">None yet. Visitors who type the address or use a bookmark aren’t listed.</p>}
         </Panel>
+        <Panel title="Resources opened" className="lg:col-span-2">
+          {s.resources.length ? <Table rows={s.resources.map((r) => ({ name: titles.get(r.key) ?? r.key, count: r.count }))} head="Resource" countHead="Opened" /> : <p className="text-sm text-text-secondary">None yet. Each link followed or document downloaded from the Resources page counts once.</p>}
+        </Panel>
       </div>
     </>
   );
 }
 
-function Table({ rows, head }: { rows: { name: string; count: number }[]; head: string }) {
+function Table({ rows, head, countHead = "Views" }: { rows: { name: string; count: number }[]; head: string; countHead?: string }) {
   return (
     <table className="w-full text-left text-sm">
-      <thead><tr><th className="py-1 font-semibold">{head}</th><th className="py-1 text-right font-semibold">Views</th></tr></thead>
+      <thead><tr><th className="py-1 font-semibold">{head}</th><th className="py-1 text-right font-semibold">{countHead}</th></tr></thead>
       <tbody>{rows.map((r) => <tr key={r.name} className="border-t border-border"><td className="py-2">{r.name}</td><td className="py-2 text-right tabular-nums">{r.count.toLocaleString()}</td></tr>)}</tbody>
     </table>
   );

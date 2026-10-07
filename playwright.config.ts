@@ -7,6 +7,7 @@ import { defineConfig, devices } from "@playwright/test";
  * No retries: a failure is a finding, not a flake.
  */
 const PORT = 3100;
+export const LIBRARY_FIXTURES = "e2e/fixtures/resource-library";
 const external = process.env.E2E_BASE_URL;
 const bypass = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
 
@@ -29,5 +30,9 @@ export default defineConfig({
   ],
   webServer: external
     ? undefined
-    : { command: `npx next start -p ${PORT}`, url: `http://localhost:${PORT}`, reuseExistingServer: !process.env.CI, timeout: 120_000 },
+    : {
+        command: `npx next start -p ${PORT}`, url: `http://localhost:${PORT}`, reuseExistingServer: !process.env.CI, timeout: 120_000,
+        // The resource library's fixture copy (lib/resources.ts): build with the same setting (ci.yml) so the page matches.
+        env: { ...(process.env as Record<string, string>), RESOURCE_LIBRARY_ROOT: LIBRARY_FIXTURES },
+      },
 });

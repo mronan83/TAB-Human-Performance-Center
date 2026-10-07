@@ -27,7 +27,7 @@ export type LegalDoc = {
 export const privacyPolicy: LegalDoc = {
   title: "Privacy policy",
   draft: false, // owner, 2026-10-06 (A7): "Done"
-  updated: "October 6, 2026",
+  updated: "October 7, 2026", // C35: resource requests and resource counts added (owner to confirm in the PR)
   intro: [
     "TAB Human Performance Center (formerly TAB Massage & Fitness) respects your privacy. This policy explains what information we collect through our website, how we use it, who helps us handle it, and the choices you have.",
     "It covers tabhumanperformance.com and the forms and emails that come from it. Booking through Timely and payments through Stripe are also covered by those companies' own privacy policies.",
@@ -38,6 +38,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         "When you use Start Where You Are, we ask for your name, email address and, if you choose, your phone number and preferred way to be contacted. Every other question is a set of choices you pick from: what you'd like help with, which services interest you, what would change if things improved, in person or virtual, your availability and how you found us. The form has no free-text box, so it never asks you to describe a health condition.",
         "When you use the contact form, we ask for your name, email address, an optional phone number, a topic and your message. Please don't include medical details in a message.",
+        "When you ask for a guide on our Resources page, we ask for your name and email address. We email the download link to that address and let our team know who asked, and we'll only send you news if you tick the box for it.",
         "If you tick the box for news and events, we'll use your email address to send them. You can unsubscribe at any time.",
         "When you email or call us, we keep that correspondence so we can help you.",
       ],
@@ -47,7 +48,7 @@ export const privacyPolicy: LegalDoc = {
       body: [
         {
           list: [
-            "Website statistics: our own website counts visits itself, with no cookies and no outside analytics company. Each visit adds one to a daily total for the page you viewed, and we also count how many times Start Where You Are is begun and sent, and how often Book is clicked. If another website sent you, we note only that site's name. We never store your IP address, device details or anything else that identifies you, so these totals can't be traced to anyone. We don't count visits to My TAB or the contact page, and we skip counting entirely if your browser sends a Global Privacy Control or Do Not Track signal.",
+            "Website statistics: our own website counts visits itself, with no cookies and no outside analytics company. Each visit adds one to a daily total for the page you viewed, and we also count how many times Start Where You Are is begun and sent, and how often Book is clicked. On the Resources page we count how many times each guide or link is opened, the same way. If another website sent you, we note only that site's name. We never store your IP address, device details or anything else that identifies you, so these totals can't be traced to anyone. We don't count visits to My TAB or the contact page, and we skip counting entirely if your browser sends a Global Privacy Control or Do Not Track signal.",
             "Spam protection: our forms use Cloudflare Turnstile, which looks at technical signals from your browser to tell people from automated spam. Cloudflare's privacy policy applies to that check.",
             "Server logs: our hosting provider, Vercel, records technical details of each request, such as your IP address, browser and the time, to run and secure the site. These logs are kept for a short time.",
           ],
@@ -99,7 +100,7 @@ export const privacyPolicy: LegalDoc = {
     {
       heading: "How long we keep information",
       body: [
-        "We keep emails and records of our work with you for as long as you're a client and afterward as long as we need them for our records and legal obligations. Start Where You Are and contact submissions are kept as part of our records, linked to your client record if you become a client, and are not deleted.",
+        "We keep emails and records of our work with you for as long as you're a client and afterward as long as we need them for our records and legal obligations. Start Where You Are and contact submissions are kept as part of our records, linked to your client record if you become a client, and are not deleted. A request for a guide is kept in our email as a note of who asked.",
         "Website analytics are aggregate and contain no personal information. Server logs are kept for a short time.",
       ],
     },

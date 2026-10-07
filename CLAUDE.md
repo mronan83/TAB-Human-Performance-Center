@@ -159,12 +159,15 @@ Never print, log or commit token values.
 ## Architecture conventions
 - Business settings live in `config/site.ts`; copy lives in `content/*.ts`. Pages read from these;
   don't hardcode business facts in components.
-- **Content editor (Keystatic, proposed D-069, D-071, D-072):** the service pages and the techniques guide are JSON
-  files (`content/services/*.json`, `content/massage-techniques.json`) edited at `/keystatic` (Keystatic Cloud sign-in)
-  on `content/…` branches; `content-pr.yml` opens a PR per branch and CI runs on every save. `content/schema.ts` is the
+- **Content editor (Keystatic, proposed D-069, D-071 to D-074):** the service pages, the techniques guide, Home, the TAB
+  Method, About, Our Story, Our Team (`content/pages/*.json`) and the resource library (`content/resources/`,
+  `content/resource-topics/`, PDFs in `content/resource-files/`, read through `lib/resources.ts`) are JSON files edited at
+  `/keystatic` (Keystatic Cloud sign-in) on `content/…` branches; `content-pr.yml` opens a PR per branch and CI runs on every save. `content/schema.ts` is the
   one set of rules: `keystatic.config.ts` takes its limits from it and the build parses every file with it. A field or
   block change touches all three (schema, editor config, renderer in `components/blocks/`) plus `e2e/content.spec.ts`
-  and the guide. The other pages move in next (C35); until then their copy stays in `content/*.ts`. A new block type is
+  and the guide. FAQ, Start and the policies are still in `content/*.ts`. Resource documents are public PDFs TAB wrote; one that asks for an
+  email address is sent as a signed link (`RESOURCE_LINK_SECRET`) and the request is never stored until guardrail 4's
+  conditions are met (proposed D-073). A new block type is
   a design-lane change, and `docs/CONTENT-GUIDE.md` lists what is and isn't editable. Treat a content PR like any
   other: review its checks and preview, and it needs the owner's approval (until the fast lane, C32).
 - Every CTA goes through `components/Cta.tsx` so booking and Start destinations stay config-driven.
@@ -188,7 +191,8 @@ Never print, log or commit token values.
   never client data (`requireStaff()` and `is_staff()` exclude the role).
 
 ## Checks before every push
-`npm run typecheck`, `npm run test:brand`, `npm run build`, `npm run test:rls`, then `npm run test:e2e` (Playwright smoke, redirect-map,
+`npm run typecheck`, `npm run test:brand`, `RESOURCE_LIBRARY_ROOT=e2e/fixtures/resource-library npm run build` (the checks
+use the resource library's fixture copy, as CI does), `npm run test:rls`, then `npm run test:e2e` (Playwright smoke, redirect-map,
 link-crawl, SEO, header-fit, CSP and WCAG 2.2 AA scans against the production build; no retries). CI runs the same on every PR.
 
 ## Secrets
