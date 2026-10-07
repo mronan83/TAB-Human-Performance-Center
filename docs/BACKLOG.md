@@ -55,7 +55,6 @@ _Last updated: 2026-10-07, website admins and requests in TAB Practice (C34); Ke
 | C14 | Rule-based stage-readiness prompts in TAB Practice (design §5.1) | Portal | Claude | M | None |
 | C13 | AI program drafting, templates only, no client data (design §4) | Portal | Claude | M | A24 |
 | A24 | Anthropic API account and key for AI program drafting (Vercel Sensitive var `ANTHROPIC_API_KEY`) | Accounts | Owner | S | None |
-| C33 | Daily check for new website requests in TAB Practice, so a request is triaged without anyone starting a session (a scheduled routine reading `website_requests`). Recommended now that requests no longer arrive as GitHub notifications | Process | Claude | S | Owner opts in |
 | C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude | L | None |
 | C10 | Correct handoff-document references [DIV-03] | Docs | Claude | S | None |
 | C11 | Before paid ads: keep the Meta pixel off `/start` and `/contact` after in-site navigation [GAP-022] | Analytics | Claude | S | Paid ads start |
@@ -74,6 +73,8 @@ _Last updated: 2026-10-07, website admins and requests in TAB Practice (C34); Ke
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Daily website request check** (on 2026-10-07, C33): a routine runs every morning at 07:52 (Detroit time), reads new requests and staff replies, answers in the notes with questions or options and moves the status. It never builds, merges or releases. Request alerts go to both matthew@ and info@ (owner: "both").
 
 - **Website change requests and the content guide** (live 2026-10-07, C30): the first version used GitHub issue forms; replaced the same day by requests inside TAB Practice (C34), at the owner's direction.
 

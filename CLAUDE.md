@@ -97,7 +97,8 @@ Never print, log or commit token values.
   ref passed explicitly); reply in the request's notes (no client details, ever) and keep its status current: Questions
   or options → Waiting on you → In progress → In review (set `preview_url` and `change_url`) → Live, or Declined with the
   reason. Design-lane requests: questions, then options with effort and risks; build nothing until the owner chooses
-  one; then the normal G2 and G3 gates. A request that fits the content lane can be moved there.
+  one; then the normal G2 and G3 gates. A request that fits the content lane can be moved there. A daily routine
+  ("Website request check", 07:52 Detroit time, C33) does the triage step only; it never builds or releases.
   **Fast lane (in force once C32 ships the automation):** a PR authored by the owner that changes only content files
   and is green is merged and promoted by the workflow without a separate approval. It never covers Claude's PRs, an
   admin's PR, or any change outside the content files; those keep G2 and G3.

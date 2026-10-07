@@ -423,6 +423,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.26 | WEB-005 / F-03: service pages drop the "Who it's for" and "What you may gain" lists; every pillar now has focus-area cards in How we help | Owner request 2026-10-07 |
 | 2026-10-07 | 1.27 | CMS-006 and F-55: website change requests (two GitHub issue forms, linked from TAB Practice → Settings) and the Website content guide; F-44 is now Keystatic and the block library (C31) then the fast lane (C32), replacing Payload (C8) | Owner request 2026-10-07, proposed D-069 and D-070 |
 | 2026-10-07 | 1.28 | STAFF-011 and F-56: the website admin role; CMS-007: website requests move into TAB Practice (status, notes, owner alert), and the GitHub issue forms are retired; F-55 updated | Owner rulings 2026-10-07, proposed D-071 |
+| 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
 
 ## Sources
 

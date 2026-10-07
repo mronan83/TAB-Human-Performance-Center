@@ -76,5 +76,5 @@ export const websiteRequestAlertEmail = {
   heading: (n: number) => `Website request #${n}`,
   body: (who: string, lane: string) => `${who} asked for a ${lane.toLowerCase()} change. The details are in TAB Practice.`,
   cta: "Open the request",
-  footer: "Sent because you're the owner. Requests never carry client details.",
+  footer: "Sent to TAB's owner and info addresses. Requests never carry client details.",
 } as const;

@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 1.1
+version: 1.2
 updated: 2026-10-07
 owner: Matthew Ronan
 ---
@@ -62,8 +62,8 @@ Every request, in either lane, starts in the same place: **TAB Practice → Webs
 1. **Sign in to TAB Practice** and open **Website changes**, then **New request**.
 2. **Choose the kind:** **Content help** (what a page says) or **Design change** (how the site looks or works).
 3. **Answer the form.** Tick every page it affects, choose the kind of change, give it a short title, and describe it: where on the page, what it says now and what it should say (content), or what you want to achieve and what's wrong today (design). Add why, how soon and any deadline.
-4. **Send.** The request gets a number, for example **#12**, and its status is **New**. If an admin or practitioner sent it, the owner gets an email naming the number (never what was asked).
-5. **Tell Claude** by starting a session and saying "pick up website request #12". A daily check for new requests can also be switched on (backlog C33).
+4. **Send.** The request gets a number, for example **#12**, and its status is **New**. If an admin or practitioner sent it, an email naming the number (never what was asked) goes to matthew@ and info@tabhumanperformance.com.
+5. **Claude picks it up** at the daily check each morning, or straight away if you start a session and say "pick up website request #12".
 6. **Follow it** on the request's page: its status, where it stands, Claude's notes, and the preview link when there is one. Answer questions or choose an option by adding a note.
 
 _Never put a client's name or health details in a request or a note. Requests are about the website only, and they are kept._
@@ -121,7 +121,7 @@ _The content editor is free for up to three editors (you and two admins). A four
 6. **Release.** Claude merges it and sends the production build. You say "promote" and it goes live; the request becomes **Live**. Rolling back is one step.
 7. **Hand-off.** New section types are added to the block library, so they become available in the content lane, and this guide is updated in the same release.
 
-_Telling Claude a request is waiting: start a session and say "pick up website request #12" (the number is on the request). A daily check for new requests can be switched on if you want one._
+_Claude checks for new requests and new notes every morning. For anything sooner, start a session and say "pick up website request #12" (the number is on the request)._
 
 ## What you can and can't edit
 
@@ -244,5 +244,6 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.2 | 2026-10-07 | Request alerts go to both matthew@ and info@; the daily check for new requests and notes is on | Owner, 2026-10-07: "both"; daily check "yes" |
 | 1.1 | 2026-10-07 | Requests move into TAB Practice → Website changes (statuses, notes, owner email); website admin accounts; content editor sign-in through Keystatic Cloud; the GitHub request forms are retired | Owner rulings 2026-10-07: "In app form and admin account", "Website only" (proposed D-071) |
 | 1.0 | 2026-10-07 | First version: lanes, roles, step-by-step workflows, what is editable, rules, writing guidelines, glossary, page inventory | Owner request 2026-10-07; decisions D-069 (Keystatic) and D-070 (fast lane) |

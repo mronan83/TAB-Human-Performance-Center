@@ -51,6 +51,8 @@ test("a request is filed, discussed and moved to live; only the owner changes it
   await page.getByLabel("Add a note").fill("The owner prefers “firm but never forced”.");
   await page.getByRole("button", { name: "Add note" }).click();
   await expect(page.getByText("The owner prefers “firm but never forced”.")).toBeVisible();
+  // The page refreshes after the note is saved; scan once its title is back, not mid-refresh.
+  await expect(page).toHaveTitle(/Website request/);
   await scan(page, "/practice/website/[number]");
 
   await as(context, baseURL!, "owner");

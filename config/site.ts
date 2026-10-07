@@ -159,12 +159,12 @@ export const siteConfig = {
   },
   /**
    * Website changes (owner rulings 2026-10-07; proposed D-069 to D-071): requests are filed and tracked in TAB Practice →
-   * Website changes (lib/website-requests.ts); the guide is the published docs/CONTENT-GUIDE.md. The owner is emailed when
-   * someone else files a request; the email carries its number only.
+   * Website changes (lib/website-requests.ts); the guide is the published docs/CONTENT-GUIDE.md. When someone other than
+   * the owner files a request, both addresses below are emailed its number only (owner, 2026-10-07: "both").
    */
   websiteChanges: {
     guide: "https://claude.ai/artifact/44nWF3p1ap6MbTkUPRWqtp",
-    alertRecipient: "matthew@tabhumanperformance.com",
+    alertRecipients: ["matthew@tabhumanperformance.com", "info@tabhumanperformance.com"],
   },
 } as const;
 
