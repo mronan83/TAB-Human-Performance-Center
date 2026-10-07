@@ -83,7 +83,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | WEB-002 | Sitemap and the 19 specified URLs | P1 | Must | Partial: 17 of 19 routes; `/resources/articles` and `/resources/guides` missing (TG-2) | F-02 to F-06 | links, seo |
 | WEB-003 | Homepage in the approved nine-section order | P1 | Must | Built | F-02 | — |
 | WEB-004 | Services landing page, pillars independent and optionally connected | P1 | Must | Verified | F-03 | guardrails |
-| WEB-005 | One reusable 10-part service-page template | P1 | Must | Verified | F-03 | guardrails |
+| WEB-005 | One reusable service-page template (the "Who it's for" and "What you may gain" lists removed by the owner, 2026-10-07) | P1 | Must | Verified | F-03 | guardrails |
 | WEB-006 | Every service page offers a direct CTA and a "not sure?" path to `/start` | P1 | Must | Verified | F-03 | guardrails |
 | WEB-007 | Related services only where the link is genuine | P1 | Should | Verified | F-03 | guardrails |
 | WEB-008 | TAB Method page: Start Where You Are, Transform, Adapt, Balance | P1 | Must | Built | F-04 | — |
@@ -415,6 +415,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.23 | F-54 live except passkeys: Supabase refused to switch on WebAuthn MFA, so the passkey screens are hidden (`PASSKEYS_AVAILABLE`) until it does (C28) | Release 2026-10-06 |
 | 2026-10-06 | 1.24 | F-03: massage techniques guide (eleven: the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports); linked from Massage & Bodywork; the old Introduction to Massage page redirects to it; relaxation no longer listed as an offering | Owner request and answers 2026-10-06 |
 | 2026-10-07 | 1.25 | NFR-001: reflow check (`e2e/layout.spec.ts`) after the massage techniques page scrolled sideways on phones; fixed there, on `/book` and on `/accessibility` at 320 px | Owner report 2026-10-07 |
+| 2026-10-07 | 1.26 | WEB-005 / F-03: service pages drop the "Who it's for" and "What you may gain" lists; every pillar now has focus-area cards in How we help | Owner request 2026-10-07 |
 
 ## Sources
 

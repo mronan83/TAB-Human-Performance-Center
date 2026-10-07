@@ -71,6 +71,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 ## Recently done
 
+- **Service pages without the repeated lists** (2026-10-07, in review): the "Who it's for" and "What you may gain" bullet lists are gone from all five service pages; How we help carries the same ground in focus-area cards (new cards for Integrated Nutrition and Holistic Life Coaching, two more each for Functional Strength and Women's Wellness). Owner request.
+
 - **Phone layout fix** (2026-10-07, in review): the massage techniques page was 666px wide on phones (its comparison table stretched the column), so the whole page scrolled sideways. On phones the comparison is now a stacked list; `/book` and `/accessibility` also fit 320px screens. A new check fails any page wider than the screen. Owner report.
 
 - **Staff sign-in with a password** (live 2026-10-06, C27): email and password, then the authenticator code; the emailed link stays for a forgotten password. TAB Practice sessions end 30 days after sign-in (idle ones after 7); passwords need 12 characters and are checked against known breaches. Passkeys moved to C28: Supabase won't switch them on yet.
@@ -81,7 +83,7 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 - **Our own website stats** (live 2026-10-06, C26): the site counts its own page views, Start form starts and sends, Book clicks and referring sites as daily totals (no cookies, nothing that identifies a visitor), shown on a new owner-only Website stats page in TAB Practice. Owner ruling A4: "Let's build our own". Migration `20261011000000` applied and the production server key set (G3); first counts confirmed from the owner's browsing.
 
-- **Turnstile and analytics** (live 2026-10-06): Turnstile keys set in Vercel (production: the owner's; previews: Cloudflare's test keys), closing A3 once a live form is checked. Plausible declined by the owner ("I'm not paying for a bunch of micro services"); Vercel Web Analytics turned out to be a paid add-on, so the site counts its own (C26, A4 closed).
+- **Turnstile and analytics** (live 2026-10-06): Turnstile keys set in Vercel (production: the owner's; previews: Cloudflare's test keys), A3 closed: the owner confirmed a live contact-form submission (2026-10-07). Plausible declined by the owner ("I'm not paying for a bunch of micro services"); Vercel Web Analytics turned out to be a paid add-on, so the site counts its own (C26, A4 closed).
 
 - **Client policies and retention** (live 2026-10-06): `/policies` now carries the owner's cancellation, arrival and gratuity policies, reworded for TAB Human Performance Center (A30). Retention ruled: website submissions are kept and never deleted (A7, proposed D-058 kept); the privacy policy now says so plainly. A3 and A4 have step-by-step instructions; their old dependency on A1 (done) is cleared.
 

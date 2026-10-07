@@ -24,7 +24,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return pageMetadata({ title: s.name, description: s.metaDescription, path: `/services/${s.path}` });
 }
 
-/** Service-page template (Step 16.4): hero, who it's for, how we help, TAB Method, what to expect, scope, FAQ, related, CTA. */
+/**
+ * Service-page template (Step 16.4): hero, how we help (approach and focus areas), TAB Method, what to expect, scope, FAQ,
+ * related, CTA. The separate "Who it's for" and "What you may gain" lists were removed (owner, 2026-10-07): they repeated
+ * How we help, which presents the same ground better.
+ */
 export default async function ServicePage({ params }: Props) {
   const s = getServiceByPath((await params).slug);
   if (!s) notFound();
@@ -62,22 +66,8 @@ export default async function ServicePage({ params }: Props) {
         </div>
       </section>
 
-      {/* Who it's for / what you gain */}
-      <section className="section bg-linen">
-        <div className="container-page grid gap-8 md:grid-cols-2">
-          <div className="rounded-[20px] bg-white p-8">
-            <h2 className="text-h2">Who it’s for</h2>
-            <ul className="mt-6 space-y-3">{s.whoItsFor.map((w) => (<li key={w} className="flex gap-3"><Dot />{w}</li>))}</ul>
-          </div>
-          <div className="rounded-[20px] bg-white p-8">
-            <h2 className="text-h2">What you may gain</h2>
-            <ul className="mt-6 space-y-3">{s.gains.map((w) => (<li key={w} className="flex gap-3"><Dot />{w}</li>))}</ul>
-          </div>
-        </div>
-      </section>
-
       {/* How we help */}
-      <section className="section">
+      <section className="section bg-linen">
         <div className="container-page grid items-center gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
           <div className="max-w-[680px]">
             <h2 className="text-h1">How we help</h2>
@@ -167,6 +157,3 @@ export default async function ServicePage({ params }: Props) {
   );
 }
 
-function Dot() {
-  return <span aria-hidden className="mt-2.5 h-2 w-2 shrink-0 rounded-full bg-clay" />;
-}
