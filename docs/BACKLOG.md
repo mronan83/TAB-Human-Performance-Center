@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-07, the content editor and block library (C31) in review; the fast lane (C32) next._
+_Last updated: 2026-10-07, the content editor (C31) live and connected to Keystatic Cloud (`tab-hpc/website`); the repository is now TAB-Human-Performance-Center; the fast lane (C32) next._
 
 ## P0 · Now
 
@@ -29,11 +29,10 @@ _Last updated: 2026-10-07, the content editor and block library (C31) in review;
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
 | C25 | Launch communications plan for 1 November: announcement sequence, channels, assets and the cutover timeline (a shared document for the owner) [A13] | Launch | Claude | M | None |
 | C34 | **In review.** Website admin role (website only: requests, stats, content editor; never client data) and website requests inside TAB Practice → Website changes: numbered requests, statuses, notes, owner-only status changes, an email to the owner naming the number; admins invited and removed in Settings; GitHub issue forms retired; content guide updated. Needs G3 for migrations `20261012000000` and `20261013000000` [STAFF-011, CMS-007, proposed D-071] | Platform | Claude | M | None |
-| A31 | One-time, after C31 merges: create the free Keystatic Cloud team and project, connect it to this repository (Claude sends the steps), invite up to two editors, and give Claude the project name for `NEXT_PUBLIC_KEYSTATIC_CLOUD_PROJECT` | Accounts | Owner | S | C31 |
+| A31 | Keystatic Cloud: project `tab-hpc/website` created and connected (2026-10-07). Left: in its Project URLs, set https://www.tabhumanperformance.com as the primary URL and add https://tab-human-performance-center.vercel.app; invite up to two editors (they can reach `/keystatic` only once the site is past Vercel login, or as Vercel team members) | Accounts | Owner | S | None |
 | A33 | GitHub → repository Settings → Actions → General: allow GitHub Actions to create pull requests, so each content branch opens its change request by itself | Accounts | Owner | S | C31 |
 | A34 | Recommended: GitHub Pro (about US$4 a month) for branch protection on `main`, so the content editor can't save there and skip review (also the long-standing CLAUDE.md note) | Accounts | Owner | S | None |
 | C35 | Move the remaining pages into the content editor: home, About, Our Story, The TAB Method, FAQ, Resources (and the photo library upload) | Platform | Claude | L | C31 |
-| C31 | **In review.** Content editor at `/keystatic` (Keystatic Cloud sign-in) and the block library for the five service pages and the massage techniques guide; content in JSON checked by `content/schema.ts`; edits on `content/…` branches with an automatic change request and full CI [CMS-001, CMS-005, proposed D-069, D-072] | Platform | Claude | L | None |
 | C32 | Fast lane: a GitHub Action that squash-merges an owner-authored, content-only, green PR and promotes that exact production build through the Vercel API; anything else keeps G2 and G3 First confirm that a Keystatic Cloud edit can still be traced to the owner; if not, the fast lane covers only the owner's direct edits [proposed D-070] | Platform | Claude | M | C31, A32 |
 | A32 | Create a Vercel token scoped to the team and add it as the GitHub secret `VERCEL_TOKEN` (Claude sends the steps with C32) | Accounts | Owner | S | C32 |
 
@@ -76,6 +75,8 @@ _Last updated: 2026-10-07, the content editor and block library (C31) in review;
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Content editor** (live 2026-10-07, C31): `/keystatic` edits the five service pages and the massage techniques guide, on `content/…` branches with a change request and full checks for every save; Keystatic Cloud project `tab-hpc/website` (setting `NEXT_PUBLIC_KEYSTATIC_CLOUD_PROJECT`, production). The GitHub repository was renamed to TAB-Human-Performance-Center by the owner.
 
 - **Daily website request check** (on 2026-10-07, C33): a routine runs every morning at 07:52 (Detroit time), reads new requests and staff replies, answers in the notes with questions or options and moves the status. It never builds, merges or releases. Request alerts go to both matthew@ and info@ (owner: "both").
 
