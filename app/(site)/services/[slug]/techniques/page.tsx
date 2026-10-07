@@ -47,12 +47,13 @@ export default async function TechniquesPage({ params }: Props) {
       </PageHero>
 
       <section className="section">
-        <div className="container-page grid gap-8 lg:grid-cols-[1fr_2fr] lg:items-start">
-          <div className="rounded-[20px] bg-olive p-8 text-white on-dark">
+        {/* minmax(0, …) and min-w-0 let the columns shrink below the table's width on phones (it scrolls or stacks instead). */}
+        <div className="container-page grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:items-start">
+          <div className="min-w-0 rounded-[20px] bg-olive p-8 text-white on-dark">
             <h2 className="text-h3">{techniquesPage.notSure.title}</h2>
             <p className="mt-3 text-white/90">{techniquesPage.notSure.body}</p>
           </div>
-          <div>
+          <div className="min-w-0">
             <h2 className="text-h2">At a glance</h2>
             <p className="mb-5 mt-2 text-text-secondary">Pressure runs from very light to firm. Every technique is adjusted to you during the session.</p>
             <TechniqueTable />
@@ -65,7 +66,7 @@ export default async function TechniquesPage({ params }: Props) {
           <div className="container-page">
             <h2 id={`group-${g.key}`} className="text-h1">{g.title}</h2>
             <p className="text-body-lg mt-3 max-w-2xl text-text-secondary">{g.lead}</p>
-            <div className="mt-10 grid gap-6">
+            <div className="mt-10 grid grid-cols-1 gap-6">
               {techniques.filter((t) => t.group === g.key).map((t) => <TechniqueCard key={t.slug} t={t} />)}
             </div>
           </div>

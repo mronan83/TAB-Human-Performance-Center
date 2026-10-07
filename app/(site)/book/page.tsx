@@ -20,20 +20,20 @@ export default async function BookPage() {
         <Cta kind="start" label="Help me choose" variant="outline" />
       </PageHero>
       <section className="section">
-        <div className="container-page grid gap-6 md:grid-cols-2">
+        <div className="container-page grid grid-cols-1 gap-6 md:grid-cols-2">
           {services.map((s, i) => {
             const b = links[i];
             return (
-              <div key={s.slug} className="card flex items-center gap-5 p-6">
-                <Image src={s.icon} alt="" width={72} height={72} />
-                <div className="flex-1">
+              <div key={s.slug} className="card flex items-center gap-4 p-5 sm:gap-5 sm:p-6">
+                <Image src={s.icon} alt="" width={72} height={72} className="h-12 w-12 shrink-0 sm:h-[72px] sm:w-[72px]" />
+                <div className="min-w-0 flex-1">
                   <h2 className="text-h4">{s.name}</h2>
                   <p className="text-sm text-text-secondary">{s.primaryCta.label}</p>
                 </div>
                 {b.external ? (
-                  <SmartLink href={b.href} external className="btn btn-primary btn-sm" data-event="Booking: Clicked">Book</SmartLink>
+                  <SmartLink href={b.href} external className="btn btn-primary btn-sm shrink-0" data-event="Booking: Clicked">Book</SmartLink>
                 ) : (
-                  <a href={`mailto:${siteConfig.contact.email}?subject=${encodeURIComponent("Booking request: " + s.name)}`} className="btn btn-primary btn-sm">Request</a>
+                  <a href={`mailto:${siteConfig.contact.email}?subject=${encodeURIComponent("Booking request: " + s.name)}`} className="btn btn-primary btn-sm shrink-0">Request</a>
                 )}
               </div>
             );

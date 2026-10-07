@@ -71,6 +71,8 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 ## Recently done
 
+- **Phone layout fix** (2026-10-07, in review): the massage techniques page was 666px wide on phones (its comparison table stretched the column), so the whole page scrolled sideways. On phones the comparison is now a stacked list; `/book` and `/accessibility` also fit 320px screens. A new check fails any page wider than the screen. Owner report.
+
 - **Staff sign-in with a password** (live 2026-10-06, C27): email and password, then the authenticator code; the emailed link stays for a forgotten password. TAB Practice sessions end 30 days after sign-in (idle ones after 7); passwords need 12 characters and are checked against known breaches. Passkeys moved to C28: Supabase won't switch them on yet.
 
 - **Sign-in links that work in any browser** (done 2026-10-06, C5): the owner's sign-in at 20:37 used the new one-time link type in production. The invitation test is dropped for now (My TAB is off, so there's nothing real to land on); the first real invitation under A15 covers it. The matthew@tabmassage.com test account was deleted.
