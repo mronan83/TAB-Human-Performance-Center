@@ -5,6 +5,7 @@ import { createReader } from "@keystatic/core/reader";
 import keystaticConfig from "../keystatic.config";
 import { services } from "../content/services";
 import { techniques } from "../content/massage-techniques";
+import { parseContent, serviceContentSchema, techniquesContentSchema } from "../content/schema";
 
 /**
  * The content editor and the site read the same files the same way (proposed D-069, backlog C31). If keystatic.config.ts
@@ -14,16 +15,42 @@ import { techniques } from "../content/massage-techniques";
 const root = path.resolve(__dirname, "..");
 const singletons = Object.entries(keystaticConfig.singletons ?? {}) as [string, { path?: string }][];
 
-test("the content editor reads every content file exactly as the site does", async () => {
+/** What the editor writes on save: an empty text field's key is left out of the file (Keystatic's text serializer). */
+const asEditorSaves = (v: unknown): unknown =>
+  Array.isArray(v) ? v.map(asEditorSaves)
+  : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).filter(([, x]) => x !== "").map(([k, x]) => [k, asEditorSaves(x)]))
+  : v;
+
+test("the content editor reads every content file as the site does, and what it saves builds", async () => {
   const reader = createReader(root, keystaticConfig);
   expect(singletons.length).toBe(6);
   for (const [key, s] of singletons) {
     const file = `${s.path}.json`;
     const onDisk = JSON.parse(fs.readFileSync(path.join(root, file), "utf8"));
     const viaEditor = await (reader.singletons as Record<string, { read: () => Promise<unknown> }>)[key].read();
-    expect(viaEditor, `${key} (${file})`).toEqual(onDisk);
+    // Saving without changes rewrites nothing, so an editor's first save shows only their own edit.
+    expect(asEditorSaves(viaEditor), `${key} (${file})`).toEqual(onDisk);
+    // A save that empties every optional text field still meets the site's rules (the 2026-10-07 save broke the build).
+    const saved = asEditorSaves(blankOptional(viaEditor));
+    expect(() => file.startsWith("content/services/") ? parseContent(serviceContentSchema, saved, file) : parseContent(techniquesContentSchema, saved, file), file).not.toThrow();
   }
 });
+
+/** Empties every optional text field (the ones whose limit starts at 0 in content/schema.ts), the way an editor clearing them would. */
+const OPTIONAL_TEXT: Record<string, string[]> = { textPhoto: ["lead"], cards: ["heading", "intro"], technique: ["aka", "goodToKnow", "reviewNote"] };
+function blankOptional(v: unknown): unknown {
+  if (Array.isArray(v)) return v.map(blankOptional);
+  if (!v || typeof v !== "object") return v;
+  const o = v as Record<string, unknown>;
+  if (typeof o.discriminant === "string") {
+    const value = blankOptional(o.value) as Record<string, unknown>;
+    for (const k of OPTIONAL_TEXT[o.discriminant] ?? []) value[k] = "";
+    return { ...o, value };
+  }
+  const out = Object.fromEntries(Object.entries(o).map(([k, x]) => [k, blankOptional(x)]));
+  if (typeof o.slug === "string") for (const k of OPTIONAL_TEXT.technique) out[k] = "";
+  return out;
+}
 
 test("every service page file is wired into the site, and only Massage & Bodywork has a techniques index", () => {
   const files = fs.readdirSync(path.join(root, "content/services")).filter((f) => f.endsWith(".json")).map((f) => f.replace(/\.json$/, "")).sort();

@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 1.3
+version: 1.4
 updated: 2026-10-07
 owner: Matthew Ronan
 ---
@@ -110,7 +110,11 @@ _The content editor is free for up to three editors (you and two admins). A four
    - **A check fails:** the change request says which rule and where (for example, "content/services/massage-bodywork.json: sections.5.value.items.2.a: String must contain at most 900 character(s)" or "Use 'TAB Human Performance Center' in full"). Fix it in the editor on the same branch and save again.
 7. **Live.** The owner approves, Claude merges it and sends the production build, and the owner promotes it. If something looks wrong, rolling back is one step.
 
-_Why branches: the editor lets anyone with access save straight to `main`, the branch the live site is built from. A save there skips the change request, though it still can't go live until the owner promotes a build. GitHub can block this outright with branch protection, which needs a GitHub Pro plan (backlog A34)._
+_Why branches: the editor lets anyone with access save straight to `main`, the branch the live site is built from. A save there skips the change request and the preview: GitHub shows only the checks on that one save, and it rides into the next release. It still can't go live without the owner's promotion, and before every promotion Claude lists any change that reached `main` without a change request so the owner sees it first. GitHub branch protection would block these saves outright, but it needs a paid plan, which the owner has declined for now (A34)._
+
+_Saved to `main` by mistake? Nothing is live. Tell Claude (or file a Content help request): Claude checks the change, and you confirm it before the next promotion, or Claude takes it back out._
+
+_Empty optional fields are fine. When you clear an optional field (a card grid's heading, say), the editor leaves it out of the file, and the site treats it as empty._
 
 ## Design lane | Step by step
 
@@ -263,6 +267,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.4 | 2026-10-07 | What happens when a save lands on `main` instead of a branch, and how it's caught before release; empty optional fields | The first editor save (on `main`) broke the build; owner declined GitHub Pro (A34) |
 | 1.3 | 2026-10-07 | The content editor: branches, change requests, the block library, the fields and limits for service pages and the techniques guide | Release of C31 (proposed D-069, D-072) |
 | 1.2 | 2026-10-07 | Request alerts go to both matthew@ and info@; the daily check for new requests and notes is on | Owner, 2026-10-07: "both"; daily check "yes" |
 | 1.1 | 2026-10-07 | Requests move into TAB Practice → Website changes (statuses, notes, owner email); website admin accounts; content editor sign-in through Keystatic Cloud; the GitHub request forms are retired | Owner rulings 2026-10-07: "In app form and admin account", "Website only" (proposed D-071) |

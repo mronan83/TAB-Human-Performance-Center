@@ -295,7 +295,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-52 | Living traceability, architecture and data model pages | Verified | — (owner ruling) | Owner requests 2026-10-02 and 2026-10-03 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` | CI (`npm run docs:check`) |
 | F-55 | Website change requests (TAB Practice → Website changes) and the content guide | Verified | CMS-006, CMS-007 | D-069, D-070, D-071 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `lib/website-requests.ts`, `lib/website-requests-store.ts`, `app/(portal)/practice/website/`, migration `20261013000000` | CI (`npm run docs:check`), rls, `e2e/website-requests.spec.ts` |
 | F-56 | Website admin role | Verified | STAFF-011 | D-071 (proposed) | `lib/admins.ts`, `app/(portal)/practice/settings/page.tsx`, `components/portal/PortalShell.tsx`, migrations `20261012000000`, `20261013000000` | rls, `e2e/website-requests.spec.ts` |
-| F-57 | Content editor (Keystatic) and the block library: service pages and the massage techniques guide | Built (sign-in waits on A31) | CMS-001, CMS-004, CMS-005 | D-069, D-071, D-072 (proposed) | `keystatic.config.ts`, `content/schema.ts`, `content/services/*.json`, `content/massage-techniques.json`, `components/blocks/Blocks.tsx`, `app/keystatic`, `.github/workflows/content-pr.yml` | build (content rules), `e2e/content.spec.ts`, brand |
+| F-57 | Content editor (Keystatic) and the block library: service pages and the massage techniques guide | Live | CMS-001, CMS-004, CMS-005 | D-069, D-071, D-072 (proposed) | `keystatic.config.ts`, `content/schema.ts`, `content/services/*.json`, `content/massage-techniques.json`, `components/blocks/Blocks.tsx`, `app/keystatic`, `.github/workflows/content-pr.yml` | build (content rules), `e2e/content.spec.ts`, brand |
 
 ### Planned
 
@@ -425,6 +425,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.27 | CMS-006 and F-55: website change requests (two GitHub issue forms, linked from TAB Practice → Settings) and the Website content guide; F-44 is now Keystatic and the block library (C31) then the fast lane (C32), replacing Payload (C8) | Owner request 2026-10-07, proposed D-069 and D-070 |
 | 2026-10-07 | 1.28 | STAFF-011 and F-56: the website admin role; CMS-007: website requests move into TAB Practice (status, notes, owner alert), and the GitHub issue forms are retired; F-55 updated | Owner rulings 2026-10-07, proposed D-071 |
 | 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
+| 2026-10-07 | 1.31 | F-57: the content rules accept an optional text field the editor leaves out of the file (an empty one); `e2e/content.spec.ts` now checks what the editor saves, not only what it reads | The first editor save, on `main` (25723bb), failed the production build |
 | 2026-10-07 | 1.30 | F-57: the content editor and block library for the service pages and the techniques guide (C31); CMS-001, CMS-004, CMS-005 updated; F-44 is now the remaining pages (C35) and the fast lane | Release of C31, proposed D-069 and D-072 |
 
 ## Sources

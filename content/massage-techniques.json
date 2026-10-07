@@ -27,7 +27,6 @@
     {
       "slug": "deep-tissue",
       "name": "Deep tissue massage",
-      "aka": "",
       "group": "release",
       "pressure": "Firm",
       "summary": "Slower, firmer pressure that works through the surface muscles into the deeper layers of muscle and connective tissue.",
@@ -38,13 +37,11 @@
         "Areas that have been tense for a long time"
       ],
       "goodToKnow": "Some muscle soreness for a day or two afterwards is common. Gentle movement and staying hydrated help.",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "trigger-point",
       "name": "Trigger point therapy",
-      "aka": "",
       "group": "release",
       "pressure": "Firm",
       "summary": "Steady pressure on tight, tender spots in a muscle (trigger points) until they ease. These spots can send sensation elsewhere, like shoulder tension you feel as a tension headache.",
@@ -54,9 +51,7 @@
         "Tension that seems to travel, such as from the shoulders up into the head",
         "Tightness from desk work, driving or repetitive tasks"
       ],
-      "goodToKnow": "",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "neuromuscular",
@@ -71,9 +66,7 @@
         "Strain linked to posture or how you move at work",
         "Understanding your own tension patterns, not just easing them for a day"
       ],
-      "goodToKnow": "",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "active-release",
@@ -89,13 +82,11 @@
         "Getting back to an activity after a period of strain"
       ],
       "goodToKnow": "A.R.T. is a certified technique. We’ll use it where it fits your session, often alongside other work.",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "sports-massage",
       "name": "Sports massage",
-      "aka": "",
       "group": "release",
       "pressure": "Moderate",
       "summary": "Massage planned around your training and events: brisk and energizing before you compete, slower and deeper for recovery afterwards, and steady maintenance through a training block.",
@@ -106,13 +97,11 @@
         "Keeping hard-working muscles moving well between sessions"
       ],
       "goodToKnow": "Tell us your training plan and event dates. We keep work light in the day or two before an event and save deeper work for recovery days.",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "myofascial-release",
       "name": "Myofascial release",
-      "aka": "",
       "group": "move",
       "pressure": "Moderate",
       "summary": "Slow, sustained pressure and stretching of the fascia, the connective tissue that wraps and links your muscles, to ease restrictions between layers. Often uses little or no oil, and may include skin rolling.",
@@ -122,9 +111,7 @@
         "Restricted range of motion",
         "Areas around old, fully healed scars"
       ],
-      "goodToKnow": "",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "visceral",
@@ -140,13 +127,11 @@
         "Restriction after abdominal surgery, once fully healed and cleared"
       ],
       "goodToKnow": "After surgery, or during pregnancy, we’ll talk first and may ask for clearance from your healthcare team.",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "craniosacral",
       "name": "Craniosacral therapy",
-      "aka": "",
       "group": "calm",
       "pressure": "Very light",
       "summary": "Very light, still holds at the head, spine and sacrum, the area at the base of the spine, to help the body settle and release tension.",
@@ -156,9 +141,7 @@
         "Tension in the head, jaw and neck",
         "When firmer massage feels like too much"
       ],
-      "goodToKnow": "",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "lymphatic-drainage",
@@ -174,8 +157,7 @@
         "Gentle recovery when your body needs less, not more"
       ],
       "goodToKnow": "Not suitable with an active infection, a blood clot or some heart and kidney conditions. After surgery, or if you have lymphedema, we’ll ask for clearance and coordinate with your healthcare team.",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "prenatal",
@@ -191,8 +173,7 @@
         "Time to slow down and feel supported, through pregnancy and the months after"
       ],
       "goodToKnow": "Let us know how far along you are and about any pregnancy complications when you book. With some, such as a high-risk pregnancy, we’ll ask for your provider’s OK first.",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     },
     {
       "slug": "myomassology",
@@ -207,9 +188,7 @@
         "A first massage, or returning after a long break",
         "A session built around the whole person, not one area"
       ],
-      "goodToKnow": "",
-      "draft": false,
-      "reviewNote": ""
+      "draft": false
     }
   ]
 }
