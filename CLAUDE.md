@@ -106,6 +106,8 @@ Never print, log or commit token values.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",
   Claude promotes that exact deployment (no rebuild) and confirms. Rollback is promoting the previous one.
+  Before sending it, Claude lists every commit since the live deployment that didn't arrive by a merged PR (content
+  editor saves to `main`, A34 declined 2026-10-07) and the owner confirms each one with the promotion.
   Vercel's automatic aliases (`…-mronan83s-projects.vercel.app`, `…-git-main-…`) always follow the newest build;
   only `tab-human-performance-center.vercel.app` (the old `tab-wellness-collective.vercel.app` redirects to it since the
   project rename) and the custom domains (proposed D-066; `docs/runbooks/switch-over.md`) are held until promotion.

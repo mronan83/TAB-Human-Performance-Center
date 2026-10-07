@@ -24,7 +24,8 @@ export const COUNTS = { paragraphs: [0, 6], cards: [1, 12], steps: [1, 6], faqs:
 
 export const IMAGE_KEYS = Object.keys(images) as [ImageKey, ...ImageKey[]];
 const text = ([min, max]: readonly [number, number]) => z.string().trim().min(min).max(max);
-const optionalText = ([, max]: readonly [number, number]) => z.string().trim().max(max);
+// The editor saves an empty text field by leaving its key out of the file, so an optional field may be missing.
+const optionalText = ([, max]: readonly [number, number]) => z.string().trim().max(max).default("");
 const list = <T extends z.ZodTypeAny>(item: T, [min, max]: readonly [number, number]) => z.array(item).min(min).max(max);
 const tone = z.enum(TONES);
 const cta = z.object({ label: text(L.ctaLabel), kind: z.enum(["book", "start"]) });
@@ -70,7 +71,7 @@ export const techniquesContentSchema = z.object({
 });
 
 /** Parses a content file, naming the file and the field in the error, so a failed check says what to fix. */
-export function parseContent<T>(schema: z.ZodType<T>, data: unknown, file: string): T {
+export function parseContent<T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, data: unknown, file: string): T {
   const r = schema.safeParse(data);
   if (r.success) return r.data;
   const issues = r.error.issues.map((i) => `  ${i.path.join(".") || "(file)"}: ${i.message}`).join("\n");
