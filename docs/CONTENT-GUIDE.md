@@ -23,7 +23,7 @@ Every change to the website travels one of two lanes. Both end at the same autom
 
 <!-- lanes -->
 
-_Status, 7 October 2026: website requests live in **TAB Practice → Website changes**, with website admin accounts. The content editor (`/keystatic`) is built for the **five service pages** and the **massage techniques guide**; it opens once the owner connects its sign-in (backlog A31). Other pages follow; until then, and for anything else, file a **Content help** request. The automatic "fast lane" publish comes next (C32)._
+_Status, 7 October 2026: website requests live in **TAB Practice → Website changes**, with website admin accounts. The content editor (`/keystatic`) is live for the **five service pages** and the **massage techniques guide**, signed in through Keystatic Cloud. Until the public launch, the whole site sits behind Vercel's login, so only people with access to the Vercel project can reach the editor and TAB Practice. Other pages move into the editor next; until then, and for anything else, file a **Content help** request. The automatic "fast lane" publish comes next (C32)._
 
 ## Roles
 

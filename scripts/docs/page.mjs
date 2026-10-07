@@ -13,7 +13,7 @@
 import fs from "node:fs";
 import { execSync } from "node:child_process";
 
-export const REPO = "https://github.com/mronan83/TAB-Wellness-Collective";
+export const REPO = "https://github.com/mronan83/TAB-Human-Performance-Center";
 export const root = new URL("../../", import.meta.url).pathname;
 export const read = (p) => fs.readFileSync(root + p, "utf8");
 export const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

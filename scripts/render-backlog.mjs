@@ -12,7 +12,7 @@
 import fs from "node:fs";
 import { execSync } from "node:child_process";
 
-const REPO = "https://github.com/mronan83/TAB-Wellness-Collective";
+const REPO = "https://github.com/mronan83/TAB-Human-Performance-Center";
 const args = Object.fromEntries(process.argv.slice(2).reduce((acc, a, i, all) => (a.startsWith("--") ? [...acc, [a.slice(2), all[i + 1]]] : acc), []));
 if (!args.out) { console.error("Usage: npm run backlog:html -- --out <file.html> [--release text] [--deployment id] [--sha commit]"); process.exit(1); }
 const sha = args.sha ?? execSync("git rev-parse --short HEAD").toString().trim();
