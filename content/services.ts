@@ -26,8 +26,6 @@ export type Service = {
   summary: string; // one-line summary for cards (Step 13 at a glance)
   description: string; // client-facing description (Step 13)
   metaDescription: string; // search snippet, under ~155 characters (S16 §16.4)
-  whoItsFor: string[];
-  gains: string[];
   approachLead: string;
   approach: string[];
   /** Step 13 "Transform / Adapt / Balance lens" for this pillar. */
@@ -58,23 +56,6 @@ export const services: Service[] = [
       "Restore capacity: comfort, movement, recovery, body awareness and physical adaptability.",
     description:
       "Personalized massage and bodywork that supports comfort, movement, recovery, body awareness and physical adaptability. From everyday tension and training recovery to prenatal massage, post-surgical support, manual lymphatic drainage and comfort-focused care during chronic illness, each session is adapted to your needs, circumstances and goals.",
-    whoItsFor: [
-      "Everyday tension, soreness and restricted movement",
-      "Exercise and strength-training recovery",
-      "Pregnancy and prenatal comfort",
-      "Post-surgical support, when appropriate and medically cleared",
-      "Manual lymphatic drainage and swelling support, within scope",
-      "Chronic-illness comfort and supportive care, within scope",
-      "Restoration, mobility support or a less reactive relationship with your body",
-    ],
-    gains: [
-      "Reduced muscular tension and physical stress",
-      "Greater comfort and ease of movement",
-      "Improved recovery support",
-      "Better body awareness and confidence",
-      "Support for circulation and lymphatic needs where appropriate",
-      "A more useful recovery strategy, rather than waiting for breakdown",
-    ],
     approachLead:
       "Massage and bodywork at TAB are personalized around the individual—not just the appointment type.",
     approach: [
@@ -125,22 +106,6 @@ export const services: Service[] = [
       "Build capacity: practical strength, stability, confidence, movement and durability.",
     description:
       "Individualized strength and movement training designed to build practical capability for the way you actually live. Whether you’re new to strength training, returning after time away, focused on aging well or building strength for work, family or the outdoors, your training is built around your abilities, goals and life.",
-    whoItsFor: [
-      "People new to strength training",
-      "People returning after time away",
-      "Adults focused on aging, independence and durability",
-      "People building strength for work, recreation, parenting or outdoor life",
-      "People seeking better balance, stability, mobility and confidence",
-      "People returning after rehab, injury or surgery, when appropriately cleared",
-    ],
-    gains: [
-      "Strength and movement confidence",
-      "Stability, balance and coordination",
-      "Improved everyday physical capacity",
-      "Training literacy and self-efficacy",
-      "Greater durability and confidence under load",
-      "Sustainable movement habits",
-    ],
     approachLead: "Functional strength training at TAB starts with the person, not the workout.",
     approach: [
       "We consider where you are today, what you want your body to be capable of, what gets in the way, and what kind of training realistically fits your life.",
@@ -157,6 +122,8 @@ export const services: Service[] = [
       { title: "Returning after time away", body: "Rebuild capacity and confidence without starting from zero." },
       { title: "Healthy aging", body: "Strength, balance, and stability for independence over time." },
       { title: "Return to activity", body: "Progress back toward the sports and activities you love, when cleared." },
+      { title: "Strength for real life", body: "Capacity for the work, family, recreation and outdoor life you actually have." },
+      { title: "Balance and confidence", body: "Stability, mobility and the confidence to move without second-guessing." },
     ],
     whatToExpect: [
       { title: "Assessment", body: "We look at your current strength, movement, history, and goals—no judgment, no fitness test theatrics." },
@@ -187,20 +154,6 @@ export const services: Service[] = [
       "Support adaptation through changing life stages, stressors, priorities and needs.",
     description:
       "Personalized coaching for women navigating changing needs, responsibilities, habits and life stages, without reducing the experience to symptoms or a prescribed routine. Whether you’re building sustainable routines, moving through pregnancy, postpartum, perimenopause or menopause, or carrying more than your share, coaching helps you adapt and make informed choices.",
-    whoItsFor: [
-      "Women building sustainable routines around movement, nourishment and recovery",
-      "Pregnancy and postpartum lifestyle support, within scope",
-      "Perimenopause and menopause lifestyle support",
-      "Women navigating caregiving, stress, career shifts or major life transitions",
-      "Women rebuilding self-trust and agency around their bodies and choices",
-    ],
-    gains: [
-      "Greater clarity and self-awareness",
-      "Better adaptation to changing life stages",
-      "More sustainable routines",
-      "Improved self-advocacy and decision confidence",
-      "Stronger alignment between your wellbeing and real-life responsibilities",
-    ],
     approachLead:
       "Women’s Wellness at TAB starts with the whole person—not a checklist of symptoms, habits, or expectations.",
     approach: [
@@ -218,6 +171,8 @@ export const services: Service[] = [
       { title: "Pregnancy and postpartum", body: "Practical, supportive habits for a demanding season, within appropriate scope." },
       { title: "Caregiving and transitions", body: "Reconnect with your own needs when life has been about everyone else’s." },
       { title: "Health advocacy", body: "Organize your questions, goals, and observations for conversations with your healthcare team." },
+      { title: "Routines that last", body: "Sustainable rhythms for movement, nourishment and recovery that fit your real life." },
+      { title: "Self-trust and agency", body: "Rebuild confidence in your own body, judgment and choices." },
     ],
     whatToExpect: [
       { title: "Conversation", body: "We start with your goals, routines, stressors, and stage of life." },
@@ -247,25 +202,18 @@ export const services: Service[] = [
       "Nourish capacity: energy, recovery, strength, resilience and sustainable eating behaviors.",
     description:
       "Practical nutrition coaching that connects nourishment to energy, strength, recovery, stress, lifestyle, preferences and the realities of everyday life. The focus is workable routines, not rigid rules or another diet.",
-    whoItsFor: [
-      "People who want to eat in a way that supports strength and recovery",
-      "People overwhelmed by conflicting nutrition advice",
-      "People rebuilding consistency after restrictive or all-or-nothing approaches",
-      "People seeking practical meal structure, fueling habits and better energy",
-      "Clients whose training, recovery and nutrition need to work together",
-    ],
-    gains: [
-      "More consistent nourishment",
-      "Improved energy and recovery support",
-      "Greater confidence with food decisions",
-      "Practical meal and fueling routines",
-      "Less all-or-nothing thinking",
-      "Better integration with strength, recovery and life",
-    ],
     approachLead: "Integrated Nutrition at TAB starts with how you actually live, train, recover and eat.",
     approach: [
       "We look at your routines, preferences, energy, training and recovery together, then build fueling habits that fit your life rather than handing you a rigid plan.",
       "Because it sits alongside strength, massage and coaching at TAB, nutrition can be coordinated with the rest of your support when that genuinely helps.",
+    ],
+    focusAreas: [
+      { title: "Fuel for strength and recovery", body: "Eating in a way that supports your training, recovery and energy." },
+      { title: "Cutting through the noise", body: "A clear, practical approach when nutrition advice keeps contradicting itself." },
+      { title: "Beyond all-or-nothing", body: "Rebuild consistency after restrictive plans or on-and-off approaches." },
+      { title: "Practical meal structure", body: "Simple routines for meals and fueling that fit a busy week." },
+      { title: "Steadier energy", body: "Habits that support energy through the day, not just on good days." },
+      { title: "Working with your training", body: "Nutrition coordinated with strength, massage and recovery when that genuinely helps." },
     ],
     method: {
       transform: "Replace unhelpful food patterns with workable routines.",
@@ -302,26 +250,19 @@ export const services: Service[] = [
       "Integrate capacity into choices, boundaries, habits, relationships, priorities and action.",
     description:
       "Whole-person coaching that helps you create clarity, make intentional choices, navigate change and turn insight into sustainable action. Whether you’re navigating a transition, feeling stuck or overextended, or working on boundaries and follow-through, coaching helps you bring the way you live closer to what matters most.",
-    whoItsFor: [
-      "People navigating transitions or competing responsibilities",
-      "People who feel stuck or overextended",
-      "People working on boundaries, priorities, habits or follow-through",
-      "People seeking greater agency and alignment",
-      "People trying to integrate body, work, relationships, recovery and goals",
-    ],
-    gains: [
-      "Clarity and self-awareness",
-      "More confident decisions",
-      "Stronger boundaries",
-      "Greater agency and follow-through",
-      "Reduced overwhelm",
-      "Better integration between your values and daily life",
-    ],
     approachLead:
       "Holistic life coaching at TAB starts by looking at the whole picture—not just the goal in front of you.",
     approach: [
       "Work affects health. Stress affects relationships. Responsibilities affect routines. We help you step back and understand how those pieces interact.",
       "Coaching is collaborative and practical. Accountability is part of the process, and it should feel supportive rather than punitive.",
+    ],
+    focusAreas: [
+      { title: "Transitions and competing demands", body: "Find your footing when work, family and change all pull at once." },
+      { title: "Feeling stuck or stretched thin", body: "Step back, see what’s really in the way, and choose a next step." },
+      { title: "Boundaries and priorities", body: "Decide what matters most and protect time and energy for it." },
+      { title: "Habits and follow-through", body: "Supportive accountability for the changes you’ve chosen to make." },
+      { title: "Agency and alignment", body: "Make decisions that reflect your values, not just your obligations." },
+      { title: "Bringing it all together", body: "Connect body, work, relationships, recovery and goals into one picture." },
     ],
     method: {
       transform: "Change patterns and choices that limit agency.",
