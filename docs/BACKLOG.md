@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps its name (A27)._
+_Last updated: 2026-10-07, website content management: request forms and the content guide (C30); Keystatic (C31) and the fast lane (C32) next._
 
 ## P0 · Now
 
@@ -20,7 +20,6 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | ID | Item | Category | Owner | Effort | Blocker |
 |---|---|---|---|---|---|
 | A6 | Business facts: the gift cards link (Timely) is the last one; address, phone, hours and map link were set 2026-10-06 [GAP-003, GAP-020] | Content | Owner | S | None |
-| C29 | **In review.** Massage techniques guide: eleven techniques (the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports massage; training confirmed by the owner) at `/services/massage-bodywork/techniques`, linked from the Massage page; the old page redirects there; relaxation no longer listed as an offering (TAB doesn't offer Swedish/relaxation). Next pillars follow the same pattern if wanted [WEB-005] | Content | Claude | M | None |
 | A8 | Content: founder story, bio and the 14 draft service FAQs. Stock photography is fine for launch (owner, 2026-10-06) [GAP-012] | Content | Owner | M | None |
 | A10 | Switch-over access: web host DNS panel, GoDaddy, Google Workspace admin, Search Console [GAP-019] | Accounts | Owner | S | None |
 | A25 | Rulings from the traceability page: success measures per objective (Q-1); owner access to every client (Q-3, SEC-012); Step 14's six review outcomes (Q-5, TG-1); WEB-002 at 17 routes for Phase 1 (Q-6, TG-2); whether the pilot needs activity responses (Q-2, TG-4); whether clients may change their own contraindications (Q-7) | Decision | Owner | S | None |
@@ -29,6 +28,11 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | C24 | Tighten DMARC on `tabhumanperformance.com` to `quarantine`, then `reject`, one week after DKIM is authenticating and mail flows | Accounts | Claude | S | A29 |
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
 | C25 | Launch communications plan for 1 November: announcement sequence, channels, assets and the cutover timeline (a shared document for the owner) [A13] | Launch | Claude | M | None |
+| C30 | **In review.** Website change requests and the Website content guide: Content help and Design change forms (GitHub issues, linked from TAB Practice → Settings → Website changes); the guide covers both lanes step by step, what is and isn't editable, the checks, writing guidelines and a glossary of page parts; CI fails if a public page is missing from it [CMS-006, proposed D-069, D-070] | Content | Claude | S | None |
+| A31 | One-time: connect the Keystatic GitHub App to the repository (Claude sends the link and steps with C31), and give any admin a GitHub account with access | Accounts | Owner | S | C31 |
+| C31 | Keystatic content editor at `/keystatic` and the block library: content files move to Keystatic's format, service pages and the massage techniques first, then the home, About, Method, FAQ and Resources pages; field limits match the checks (search descriptions 40–160 characters, required alt text) [CMS-001 to CMS-005, proposed D-069; replaces C8] | Platform | Claude | L | None |
+| C32 | Fast lane: a GitHub Action that squash-merges an owner-authored, content-only, green PR and promotes that exact production build through the Vercel API; anything else keeps G2 and G3 [proposed D-070] | Platform | Claude | M | C31, A32 |
+| A32 | Create a Vercel token scoped to the team and add it as the GitHub secret `VERCEL_TOKEN` (Claude sends the steps with C32) | Accounts | Owner | S | C32 |
 
 ## P2 · My TAB go-live (`CLAUDE.md` guardrail 4)
 
@@ -51,7 +55,7 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 | C14 | Rule-based stage-readiness prompts in TAB Practice (design §5.1) | Portal | Claude | M | None |
 | C13 | AI program drafting, templates only, no client data (design §4) | Portal | Claude | M | A24 |
 | A24 | Anthropic API account and key for AI program drafting (Vercel Sensitive var `ANTHROPIC_API_KEY`) | Accounts | Owner | S | None |
-| C8 | Payload CMS, after Phase 1 [A-02] | Platform | Claude | L | Phase 1 launch |
+| C33 | Optional: a daily check for new website-change requests, so a request is triaged without the owner starting a session (a scheduled routine) | Process | Claude | S | Owner opts in |
 | C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude | L | None |
 | C10 | Correct handoff-document references [DIV-03] | Docs | Claude | S | None |
 | C11 | Before paid ads: keep the Meta pixel off `/start` and `/contact` after in-site navigation [GAP-022] | Analytics | Claude | S | Paid ads start |
@@ -71,9 +75,13 @@ _Last updated: 2026-10-05, TAB Performance Plan rename (A28); TAB Practice keeps
 
 ## Recently done
 
-- **Service pages without the repeated lists** (2026-10-07, in review): the "Who it's for" and "What you may gain" bullet lists are gone from all five service pages; How we help carries the same ground in focus-area cards (new cards for Integrated Nutrition and Holistic Life Coaching, two more each for Functional Strength and Women's Wellness). Owner request.
+- **Massage techniques guide** (live, C29): eleven techniques at `/services/massage-bodywork/techniques` (the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports massage), linked from the Massage page; the old page redirects there. Other pillars can follow the same pattern when wanted.
 
-- **Phone layout fix** (2026-10-07, in review): the massage techniques page was 666px wide on phones (its comparison table stretched the column), so the whole page scrolled sideways. On phones the comparison is now a stacked list; `/book` and `/accessibility` also fit 320px screens. A new check fails any page wider than the screen. Owner report.
+- **Payload CMS (C8) replaced** (2026-10-07): the owner chose Keystatic (proposed D-069), now C31.
+
+- **Service pages without the repeated lists** (live 2026-10-07): the "Who it's for" and "What you may gain" bullet lists are gone from all five service pages; How we help carries the same ground in focus-area cards (new cards for Integrated Nutrition and Holistic Life Coaching, two more each for Functional Strength and Women's Wellness). Owner request.
+
+- **Phone layout fix** (live 2026-10-07): the massage techniques page was 666px wide on phones (its comparison table stretched the column), so the whole page scrolled sideways. On phones the comparison is now a stacked list; `/book` and `/accessibility` also fit 320px screens. A new check fails any page wider than the screen. Owner report.
 
 - **Staff sign-in with a password** (live 2026-10-06, C27): email and password, then the authenticator code; the emailed link stays for a forgotten password. TAB Practice sessions end 30 days after sign-in (idle ones after 7); passwords need 12 characters and are checked against known breaches. Passkeys moved to C28: Supabase won't switch them on yet.
 

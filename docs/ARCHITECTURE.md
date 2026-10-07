@@ -3,7 +3,7 @@ title: TAB Human Performance Center Architecture
 eyebrow: TAB Human Performance Center · Technical architecture
 heading: Technical architecture
 owner: Matthew Ronan
-updated: 2026-10-03
+updated: 2026-10-07
 lede: TAB Human Performance Center is one Next.js application with three faces: the public website, My TAB for clients and TAB Practice for practitioners. The website is prebuilt and served from Vercel's edge; My TAB and TAB Practice render per request on the server and reach Postgres on Supabase with the signed-in person's own session, so row-level security decides what each person sees. Timely keeps scheduling and Stripe keeps payments; the site links to them instead of rebuilding them. Today the portal runs on demo data, behind Vercel login, until the go-live gate (A15).
 ---
 
@@ -18,7 +18,7 @@ lede: TAB Human Performance Center is one Next.js application with three faces: 
 | The database is the authority | Row-level security, guard triggers and checks decide who may read or change what. The app presents the rules; it can't bypass them, because portal reads and writes use the person's own session | D-042, SEC-015 to SEC-018 |
 | Systems of record stay where they are | Timely owns scheduling, Stripe owns payments; the site links out and stores only references | D-003, D-052 |
 | Nothing sensitive leaves through email | Emails carry no health details and no personal details in subjects; the details stay in My TAB | D-054, R-027 |
-| Business facts live in config, copy in content | `config/site.ts` holds settings and placeholders; `content/*.ts` holds copy, shaped for Payload CMS later | D-036, A-02 |
+| Business facts live in config, copy in content | `config/site.ts` holds settings and placeholders; `content/*.ts` holds copy, moving to Keystatic's git-based content files (C31) so edits pass the same checks as code | D-069 (proposed; replaces D-036's Payload) |
 | One repository interface, two implementations | Every portal read and write goes through `PortalRepository`; the demo store and Supabase implement it identically | Phase 2 design |
 | Nothing reaches production unreviewed | Pull requests only, CI on every one, owner approval to merge, a second approval to promote a build that is already built | G2, G3, owner ruling 2026-09-28 |
 | Model for a team, build for one | Roles are owner, practitioner and client; practitioners see only their assigned clients | D-045 |
@@ -111,7 +111,8 @@ There is no separate application server. Server code runs as Next.js server comp
 - **Pull requests.** `.github/workflows/ci.yml` runs on every pull request and on `main`: typecheck, the row-level security tests, the contrast check, the brand-consistency check, the documentation check, a production build, the Playwright end-to-end suite and a dependency audit. There are no retries; a failure is a finding.
 - **Tests.** `supabase/tests/rls.test.mjs` applies every migration to PGlite (in-process Postgres) with stub auth and checks each policy and guard as owner, practitioner and client. `e2e/` holds smoke, redirect-map, link-crawl, SEO, header-fit, CSP and WCAG 2.2 AA scans against the production build. `scripts/check-contrast.mjs` checks every token pairing. `scripts/check-brand.mjs` fails on retired names (TAB Wellness Collective, Human Performance Practice), the old philosophy and stage names, old service names any pillar count that differs from `content/services.ts`, the retired "Practice workspace" label and any hex colour written into a class instead of a token from `app/globals.css`.
 - **Guards on the process.** `.claude/hooks/guard-main.mjs` blocks pushes and writes to `main` and any merge that isn't a squash. Vercel login protects every deployment URL.
-- **Living documents.** The backlog page (`scripts/render-backlog.mjs`) is republished after each promotion. This page, the data model page and the traceability page are built by `scripts/docs/` from `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` and `docs/TRACEABILITY.md`; `npm run docs:check` fails CI when they fall behind the code.
+- **Living documents.** The backlog page (`scripts/render-backlog.mjs`) is republished after each promotion. This page, the data model page, the traceability page and the website content guide are built by `scripts/docs/` from `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json`, `docs/TRACEABILITY.md` and `docs/CONTENT-GUIDE.md`; `npm run docs:check` fails CI when they fall behind the code (for the guide: when a public page is missing from its page inventory).
+- **Website change requests.** Two GitHub issue forms in `.github/ISSUE_TEMPLATE/` (Content help and Design change, labelled `website-change`), linked from TAB Practice → Settings → Website changes (`siteConfig.websiteChanges`). The content and design lanes, and what each may change, are in `docs/CONTENT-GUIDE.md` (proposed D-069, D-070).
 - **Audit log off the platform.** `.github/workflows/audit-export.yml` runs nightly: it reads the last two days of `audit_events` as `audit_reader`, encrypts them with gpg and commits the file to the `audit-archive` branch, so a compromised database can't erase its own trail (SEC-019). Until the secrets exist (A26) it reports that it is waiting and succeeds.
 - **Backups and monitoring.** None yet: Supabase is on the free plan and production holds no client data. Daily backups with a tested restore (A14, A15) and post-launch monitoring (C2) come before real data.
 
@@ -125,7 +126,7 @@ There is no separate application server. Server code runs as Next.js server comp
 | Performance | Public pages prebuilt and cached at the edge; portal pages render only what one person needs | Core Web Vitals not measured (NFR-002) |
 | Integrity | Constraints, guard triggers, one-function database operations for version moves, plan saves and Stripe events; an append-only audit log | Plan saves still write the plan and its private details in separate calls |
 | Recoverability | Git holds code and schema; Vercel keeps every build for instant rollback | No database backups until Supabase Pro (A14) |
-| Maintainability | One repository interface, config and content kept out of components, living documents checked in CI | Content edits need a code change until Payload CMS (C8) |
+| Maintainability | One repository interface, config and content kept out of components, living documents checked in CI | Content edits need a code change until the Keystatic content editor (C31); the process is in `docs/CONTENT-GUIDE.md` |
 
 ## Risks and technical debt
 

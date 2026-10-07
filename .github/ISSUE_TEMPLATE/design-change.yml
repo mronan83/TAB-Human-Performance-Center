@@ -1,0 +1,72 @@
+# Design lane request (docs/CONTENT-GUIDE.md, "Design lane"): anything that changes how the site looks or works. Claude
+# triages it with questions and options; nothing is built until the owner chooses an approach, and nothing is released
+# until the owner approves the preview (G2) and the promotion (G3).
+name: Design change
+description: Ask for a new kind of section, a layout or mobile change, a new page, menu or form change, or anything in My TAB or TAB Practice.
+title: "Design: "
+labels: ["website-change", "design"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the **outcome** you want; Claude will come back with options, effort and any trade-offs (accessibility, phones, brand rules, search) before building anything.
+
+        **Please don't include any client's name or health details.** Requests are kept in the website's history.
+  - type: textarea
+    id: goal
+    attributes:
+      label: What do you want to achieve?
+      description: The outcome for visitors or clients, in a sentence or two.
+      placeholder: Visitors comparing coaching options should see what each includes side by side.
+    validations:
+      required: true
+  - type: textarea
+    id: today
+    attributes:
+      label: What's wrong or missing today?
+      placeholder: The coaching page lists everything in paragraphs, so it's hard to compare.
+    validations:
+      required: true
+  - type: input
+    id: pages
+    attributes:
+      label: Which pages or areas?
+      placeholder: Holistic Life Coaching page; maybe the other service pages later
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: What kind of change is it?
+      multiple: true
+      options:
+        - A new kind of section or block
+        - Layout, spacing or mobile behaviour
+        - A new page
+        - Menus or footer
+        - A form (Start Where You Are, contact)
+        - My TAB (client portal)
+        - TAB Practice (staff workspace)
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples or screenshots (optional)
+      description: Sites you like, a sketch, or a screenshot of the problem. Drag images into this box.
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Nice to have
+        - Important
+        - Needed for a date (say which below)
+    validations:
+      required: true
+  - type: input
+    id: deadline
+    attributes:
+      label: Deadline (optional)
+      placeholder: Before the 1 November newsletter

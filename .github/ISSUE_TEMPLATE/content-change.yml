@@ -1,0 +1,88 @@
+# Content lane request (docs/CONTENT-GUIDE.md, "Content lane"): words, FAQs, cards, photos and section order on an
+# existing page. Claude picks it up when asked ("pick up request #12") and moves it to the design lane if it belongs there.
+name: Content help
+description: Ask for words, FAQs, cards, photos or section order to be added, changed or removed on an existing page.
+title: "Content: "
+labels: ["website-change", "content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for changes to what an existing page **says**. For changes to how the site **looks or works** (a new kind of section, layout, menus, forms, a new page), use **Design change** instead. Not sure? Use either: Claude will move it.
+
+        **Please don't include any client's name or health details.** Requests are kept in the website's history.
+  - type: dropdown
+    id: page
+    attributes:
+      label: Which page?
+      multiple: true
+      options:
+        - Home
+        - Services overview
+        - Massage & Bodywork
+        - Massage techniques
+        - Functional Strength
+        - Women's Wellness
+        - Integrated Nutrition
+        - Holistic Life Coaching
+        - The TAB Method
+        - About
+        - Our Story
+        - Our Team
+        - Resources
+        - Events
+        - FAQ
+        - Book
+        - Start Where You Are
+        - Contact
+        - Client policies
+        - Privacy policy, terms or accessibility (needs legal review)
+        - Several or all pages
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of change?
+      options:
+        - Update existing text
+        - Add something new (a paragraph, FAQ, card, technique)
+        - Remove something
+        - Reorder or hide a section
+        - Swap or add a photo
+        - Search title or description
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: The change
+      description: Where on the page (the section's heading helps), what it says now, and what it should say. Paste the new wording if you have it.
+      placeholder: |
+        Section: How we help, card "Recovery and performance"
+        Now: …
+        Should say: …
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why (optional)
+      description: The reason helps Claude suggest wording that fits the rest of the site.
+  - type: dropdown
+    id: when
+    attributes:
+      label: How soon?
+      options:
+        - Whenever convenient
+        - This week
+        - Urgent (something on the site is wrong)
+    validations:
+      required: true
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Before you send
+      options:
+        - label: The wording makes no diagnosis or treatment claims, and names no credential, price or result TAB doesn't actually have.
+          required: true
