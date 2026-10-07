@@ -73,7 +73,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 {{fr.total}} functional requirements in six areas: {{fr.verified}} verified, {{fr.built}} built without a check, {{fr.partial}} partial, {{fr.planned}} planned. The public site is mostly built and waits on content; My TAB and TAB Practice are built in demo mode and wait on the go-live gate (A15). Requirement text is shortened here; the register holds the full wording.
 
-**Reading the columns.** *Verified by* names the check that fails if the requirement breaks: `smoke`, `a11y`, `seo`, `links`, `redirects`, `security`, `header` are `e2e/<name>.spec.ts`; `rls` is `supabase/tests/rls.test.mjs`; `contrast` is `scripts/check-contrast.mjs`. In *Status*, an A or C ID is a backlog item and TG-n is a gap found while tracing.
+**Reading the columns.** *Verified by* names the check that fails if the requirement breaks: `smoke`, `a11y`, `seo`, `links`, `redirects`, `security`, `header`, `layout` are `e2e/<name>.spec.ts`; `rls` is `supabase/tests/rls.test.mjs`; `contrast` is `scripts/check-contrast.mjs`. In *Status*, an A or C ID is a backlog item and TG-n is a gap found while tracing.
 
 ### Public website (WEB)
 
@@ -198,7 +198,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Requirement | How it is enforced | Phase | Priority | Status | Verified by |
 | --- | --- | --- | --- | --- | --- | --- |
-| NFR-001 | WCAG 2.2 AA across the site and My TAB | axe scans of every public page, menus, form errors and portal pages; no manual screen-reader pass yet | P1 | Must | Verified (automated rules) | a11y, header |
+| NFR-001 | WCAG 2.2 AA across the site and My TAB | axe scans of every public page, menus, form errors and portal pages; every public page fits 320 and 390 px screens without sideways scrolling (SC 1.4.10 Reflow); no manual screen-reader pass yet | P1 | Must | Verified (automated rules) | a11y, header, layout |
 | NFR-002 | Technical SEO: sitemap, robots, canonicals, 404, Core Web Vitals | Sitemap, canonicals and branded 404 checked; Core Web Vitals not measured | P1 | Must | Partial | seo, smoke |
 | NFR-003 | Titles, descriptions and structured data follow the pattern | Unique titles, descriptions and share tags on every sitemap page | P1 | Must | Verified | seo |
 | NFR-004 | Legacy redirect map complete before launch | `config/redirects.ts`, 64 mapped paths | P0/P1 | Must | Verified | redirects |
@@ -414,6 +414,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-06 | 1.22 | F-54: staff sign in with a password, then a passkey or the authenticator code; staff sessions end 30 days after sign-in (SEC-015, SEC-020) | Owner ruling 2026-10-06, proposed D-068 |
 | 2026-10-06 | 1.23 | F-54 live except passkeys: Supabase refused to switch on WebAuthn MFA, so the passkey screens are hidden (`PASSKEYS_AVAILABLE`) until it does (C28) | Release 2026-10-06 |
 | 2026-10-06 | 1.24 | F-03: massage techniques guide (eleven: the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports); linked from Massage & Bodywork; the old Introduction to Massage page redirects to it; relaxation no longer listed as an offering | Owner request and answers 2026-10-06 |
+| 2026-10-07 | 1.25 | NFR-001: reflow check (`e2e/layout.spec.ts`) after the massage techniques page scrolled sideways on phones; fixed there, on `/book` and on `/accessibility` at 320 px | Owner report 2026-10-07 |
 
 ## Sources
 

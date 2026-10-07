@@ -21,9 +21,9 @@ export function PressureScale({ pressure }: { pressure: Pressure }) {
 export function TechniqueCard({ t }: { t: Technique }) {
   const showNote = t.draft && t.reviewNote && process.env.NEXT_PUBLIC_SHOW_DRAFTS === "true";
   return (
-    <article id={t.slug} className="card scroll-mt-28 p-6 lg:p-8">
+    <article id={t.slug} className="card scroll-mt-28 p-5 sm:p-6 lg:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-        <h3 className="text-h3">{t.name}{t.aka && <span className="ml-2 text-base font-normal text-text-secondary">({t.aka})</span>}</h3>
+        <h3 className="text-h4 hyphens-auto sm:text-h3">{t.name}{t.aka && <span className="ml-2 text-base font-normal text-text-secondary">({t.aka})</span>}</h3>
         <p className="text-text-secondary"><span className="sr-only">Pressure: </span><PressureScale pressure={t.pressure} /></p>
       </div>
       <p className="mt-4">{t.summary} <DraftFlag show={t.draft} label="Draft: owner to confirm" /></p>
@@ -45,11 +45,33 @@ export function TechniqueCard({ t }: { t: Technique }) {
   );
 }
 
-/** The at-a-glance comparison: every technique, its pressure and what it's often chosen for, linking to its card. */
+/**
+ * The at-a-glance comparison: every technique, its pressure and what it's often chosen for, linking to its card. A table
+ * from small tablets up; on phones the same rows stack as a list, so nothing needs scrolling sideways.
+ */
 export function TechniqueTable() {
   return (
-    <div className="overflow-x-auto rounded-[20px] border border-border bg-white" tabIndex={0} role="region" aria-label="Massage techniques at a glance">
-      <table className="w-full min-w-[640px] border-collapse text-left">
+    <>
+      <ul className="divide-y divide-border rounded-[20px] border border-border bg-white sm:hidden" aria-label="Massage techniques at a glance">
+        {techniques.map((t) => (
+          <li key={t.slug} className="px-5 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+              <a href={`#${t.slug}`} className="font-semibold underline decoration-border-strong underline-offset-4 hover:decoration-primary">{t.name}</a>
+              <PressureScale pressure={t.pressure} />
+            </div>
+            <p className="mt-1 text-sm text-text-secondary">{t.oftenChosenFor[0]}</p>
+          </li>
+        ))}
+      </ul>
+      <TechniqueTableWide />
+    </>
+  );
+}
+
+function TechniqueTableWide() {
+  return (
+    <div className="hidden overflow-x-auto rounded-[20px] border border-border bg-white sm:block" tabIndex={0} role="region" aria-label="Massage techniques at a glance">
+      <table className="w-full min-w-[560px] border-collapse text-left">
         <caption className="sr-only">Massage techniques at a glance: pressure and what each is often chosen for</caption>
         <thead>
           <tr className="border-b border-border-strong text-sm text-text-secondary">
