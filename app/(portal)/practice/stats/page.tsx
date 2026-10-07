@@ -6,14 +6,14 @@ import { ViewsChart } from "@/components/portal/ViewsChart";
 export const metadata = { title: "Website stats" };
 
 /**
- * The owner's website counts (owner ruling A4: "Let's build our own"): daily totals from our own counter
+ * Website counts for the owner and admins (owner ruling A4: "Let's build our own"; proposed D-071): daily totals from our own counter
  * (lib/site-stats.ts). Visits to My TAB, TAB Practice and /contact are never counted, and nothing identifies a visitor,
  * so there are no "unique visitors": these are page views and actions.
  */
 export default async function StatsPage() {
   const viewer = await requireStaffViewer();
-  if (viewer.role !== "owner") {
-    return (<><PageTitle eyebrow="TAB Practice" title="Website stats" /><Panel><p>Only the owner can see the website stats.</p></Panel></>);
+  if (viewer.role !== "owner" && viewer.role !== "admin") {
+    return (<><PageTitle eyebrow="TAB Practice" title="Website stats" /><Panel><p>Only the owner and website admins can see the website stats.</p></Panel></>);
   }
   const s = await getSiteStats(30);
   const started = s.totals["Start Form: Started"], submitted = s.totals["Start Form: Submitted"];

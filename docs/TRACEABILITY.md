@@ -142,6 +142,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | STAFF-008 | Record the continuation outcome (Continue, Maintain, Independent, Shift, Pause, Return) | P2 | Should | Partial: review outcomes use a different set (TG-1) | F-33 | — |
 | STAFF-009 | Author program templates; assign and personalize per client | P2 | Must | Verified | F-35, F-36, F-37, F-38, F-47 | smoke, rls |
 | STAFF-010 | Assign resources to clients or programs | P2 | Must | Verified for clients; programs reach resources through activities | F-39 | smoke, rls |
+| STAFF-011 | Website admin role: website only, owner-invited, two-step sign-in, no client data | P1 | Must | Verified | F-56 | rls, e2e |
 
 ### Content and CMS (CMS)
 
@@ -153,6 +154,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Planned (C31) | F-44 | — |
 | CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: in content files, not yet owner-editable (C31) | F-02, F-44 | — |
 | CMS-006 | Documented content-management process: lanes, request forms, what is editable, checks, glossary | P1 | Must | Verified | F-55 | CI (`npm run docs:check`) |
+| CMS-007 | Website change requests filed and tracked in TAB Practice, with status and notes | P1 | Must | Verified | F-55 | rls, e2e |
 
 ### Integrations (INT)
 
@@ -291,7 +293,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-42 | Main-branch guard | Built | — (owner ruling) | Owner ruling 2026-09-28 | `.claude/hooks/guard-main.mjs` | — |
 | F-43 | Backlog page | Built | — (owner ruling) | Owner ruling 2026-10-02 | `scripts/render-backlog.mjs`, `docs/BACKLOG.md` | — |
 | F-52 | Living traceability, architecture and data model pages | Verified | — (owner ruling) | Owner requests 2026-10-02 and 2026-10-03 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` | CI (`npm run docs:check`) |
-| F-55 | Website change requests and content guide | Verified | CMS-006 | D-069, D-070 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `.github/ISSUE_TEMPLATE/`, `app/(portal)/practice/settings/page.tsx` | CI (`npm run docs:check`) |
+| F-55 | Website change requests (TAB Practice → Website changes) and the content guide | Verified | CMS-006, CMS-007 | D-069, D-070, D-071 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `lib/website-requests.ts`, `lib/website-requests-store.ts`, `app/(portal)/practice/website/`, migration `20261013000000` | CI (`npm run docs:check`), rls, `e2e/website-requests.spec.ts` |
+| F-56 | Website admin role | Verified | STAFF-011 | D-071 (proposed) | `lib/admins.ts`, `app/(portal)/practice/settings/page.tsx`, `components/portal/PortalShell.tsx`, migrations `20261012000000`, `20261013000000` | rls, `e2e/website-requests.spec.ts` |
 
 ### Planned
 
@@ -419,6 +422,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.25 | NFR-001: reflow check (`e2e/layout.spec.ts`) after the massage techniques page scrolled sideways on phones; fixed there, on `/book` and on `/accessibility` at 320 px | Owner report 2026-10-07 |
 | 2026-10-07 | 1.26 | WEB-005 / F-03: service pages drop the "Who it's for" and "What you may gain" lists; every pillar now has focus-area cards in How we help | Owner request 2026-10-07 |
 | 2026-10-07 | 1.27 | CMS-006 and F-55: website change requests (two GitHub issue forms, linked from TAB Practice → Settings) and the Website content guide; F-44 is now Keystatic and the block library (C31) then the fast lane (C32), replacing Payload (C8) | Owner request 2026-10-07, proposed D-069 and D-070 |
+| 2026-10-07 | 1.28 | STAFF-011 and F-56: the website admin role; CMS-007: website requests move into TAB Practice (status, notes, owner alert), and the GitHub issue forms are retired; F-55 updated | Owner rulings 2026-10-07, proposed D-071 |
 
 ## Sources
 

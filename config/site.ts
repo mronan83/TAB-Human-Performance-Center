@@ -158,15 +158,13 @@ export const siteConfig = {
     realStaffSignIn: portalDataSource === "supabase" || (isProductionDeployment && !!process.env.NEXT_PUBLIC_SUPABASE_URL),
   },
   /**
-   * How website changes are asked for (owner request 2026-10-07; proposed D-069, D-070): the two request forms are
-   * GitHub issue forms (.github/ISSUE_TEMPLATE), and the guide is the published docs/CONTENT-GUIDE.md. Shown in TAB
-   * Practice → Settings → Website changes. Opening a form needs a GitHub account with access to the repository.
+   * Website changes (owner rulings 2026-10-07; proposed D-069 to D-071): requests are filed and tracked in TAB Practice →
+   * Website changes (lib/website-requests.ts); the guide is the published docs/CONTENT-GUIDE.md. The owner is emailed when
+   * someone else files a request; the email carries its number only.
    */
   websiteChanges: {
-    contentRequest: "https://github.com/mronan83/TAB-Wellness-Collective/issues/new?template=content-change.yml",
-    designRequest: "https://github.com/mronan83/TAB-Wellness-Collective/issues/new?template=design-change.yml",
-    openRequests: "https://github.com/mronan83/TAB-Wellness-Collective/issues?q=is%3Aissue+is%3Aopen+label%3Awebsite-change",
     guide: "https://claude.ai/artifact/44nWF3p1ap6MbTkUPRWqtp",
+    alertRecipient: "matthew@tabhumanperformance.com",
   },
 } as const;
 

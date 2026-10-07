@@ -1,7 +1,0 @@
-# Website change requests (owner request 2026-10-07; proposed D-069, D-070). How each lane works is in
-# docs/CONTENT-GUIDE.md, published as the Website content guide.
-blank_issues_enabled: true
-contact_links:
-  - name: Website content guide
-    url: https://claude.ai/artifact/44nWF3p1ap6MbTkUPRWqtp
-    about: How website changes work, what you can edit yourself, and the names of every part of a page.

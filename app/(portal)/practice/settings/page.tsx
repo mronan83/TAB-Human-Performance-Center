@@ -4,31 +4,32 @@ import { privacyPolicy } from "@/content/legal";
 import { services } from "@/content/services";
 import { PageTitle, Panel } from "@/components/portal/ui";
 import { SettingsForm } from "@/components/portal/SettingsForm";
-import { siteConfig } from "@/config/site";
+import { listAdmins } from "@/lib/admins";
+import { InviteAdminForm, RemoveAdminButton } from "@/components/portal/WebsiteForms";
 
 export const metadata = { title: "Settings" };
 
-/**
- * Where website changes are asked for (owner request 2026-10-07; proposed D-069, D-070). Shown to all staff: anyone may
- * ask; only the owner approves design changes and releases (docs/CONTENT-GUIDE.md).
- */
-function WebsiteChanges() {
-  const w = siteConfig.websiteChanges;
-  const ext = { target: "_blank", rel: "noopener noreferrer" } as const;
+/** Website admins (proposed D-071): website requests, website stats and the content editor; never client data. */
+async function Admins() {
+  const admins = await listAdmins();
   return (
-    <Panel title="Website changes" className="mt-8">
+    <Panel title="Website admins" className="mt-8">
       <p className="max-w-2xl text-text-secondary">
-        Ask for a change to the public website. Content help covers words, FAQs, cards, photos and section order on an existing
-        page; a design change covers anything that changes how the site looks or works. The guide explains both, what you can
-        edit yourself, and the names of every part of a page.
+        An admin can ask for website changes and follow them, see the website stats and, once it arrives, edit content in the
+        content editor. Admins never see client records, Settings or the Team page. They sign in with a password and the
+        6-digit code, like you.
       </p>
-      <div className="mt-5 flex flex-wrap gap-3">
-        <a href={w.contentRequest} className="btn btn-primary" {...ext}>Content help<span className="sr-only"> (opens GitHub in a new tab)</span></a>
-        <a href={w.designRequest} className="btn btn-outline" {...ext}>Design change<span className="sr-only"> (opens GitHub in a new tab)</span></a>
-        <a href={w.openRequests} className="btn btn-outline" {...ext}>Open requests<span className="sr-only"> (opens GitHub in a new tab)</span></a>
-        <a href={w.guide} className="btn btn-outline" {...ext}>Website content guide<span className="sr-only"> (opens in a new tab)</span></a>
-      </div>
-      <p className="mt-4 text-sm text-text-secondary">The forms need a GitHub account with access to the website’s repository. Never include a client’s name or health details in a request.</p>
+      {admins.length > 0 && (
+        <ul className="mt-5 divide-y divide-border rounded-xl border border-border">
+          {admins.map((a) => (
+            <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+              <span><span className="font-semibold">{a.name}</span> <span className="text-text-secondary">· {a.email}</span></span>
+              <RemoveAdminButton id={a.id} name={a.name} />
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-6"><InviteAdminForm /></div>
     </Panel>
   );
 }
@@ -43,8 +44,7 @@ export default async function SettingsPage() {
     return (
       <>
         <PageTitle eyebrow="TAB Practice" title="Settings" />
-        <Panel><p>Only the owner can change TAB’s settings.</p></Panel>
-        <WebsiteChanges />
+        <Panel><p>Only the owner can change TAB’s settings. To ask for a website change, use <a href="/practice/website" className="text-primary underline">Website changes</a>.</p></Panel>
       </>
     );
   }
@@ -66,7 +66,7 @@ export default async function SettingsPage() {
         </p>
       )}
       <SettingsForm settings={settings} gate={gate} canGoLive={!isMock()} services={services.map((s) => ({ slug: s.slug, name: s.name }))} />
-      <WebsiteChanges />
+      <Admins />
     </>
   );
 }

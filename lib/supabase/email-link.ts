@@ -8,7 +8,8 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 /** The link types each callback accepts; anything else is refused before Supabase is asked. */
-export const LINK_TYPES = { practice: ["email", "magiclink"], myTab: ["email", "magiclink", "invite"] } as const satisfies Record<string, readonly EmailOtpType[]>;
+/** TAB Practice also takes "invite": an admin's invitation (proposed D-071) lands there, then two-step verification. */
+export const LINK_TYPES = { practice: ["email", "magiclink", "invite"], myTab: ["email", "magiclink", "invite"] } as const satisfies Record<string, readonly EmailOtpType[]>;
 
 export type EmailLink = { kind: "code"; code: string } | { kind: "token"; tokenHash: string; type: EmailOtpType } | null;
 

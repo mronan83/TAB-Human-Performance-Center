@@ -29,6 +29,7 @@ export async function getViewer(): Promise<Viewer | null> {
   if (isDemoSignIn()) {
     assertDemoAllowed();
     const role = (await cookies()).get("tab_demo_role")?.value;
+    if (role === "admin") return { userId: "demo-admin", role: "admin", name: "Website admin" };
     if (role !== "owner" && role !== "client") return null;
     return role === "owner"
       ? { userId: "demo-owner", role: "owner", name: "Your TAB practitioner", practitionerId: DEMO_PRACTITIONER_ID, capabilities: ["nutrition"], canPublish: true }
@@ -49,7 +50,7 @@ export async function getViewer(): Promise<Viewer | null> {
     const { data: aal } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
     staffVerified = profile?.mfa_required === false || aal?.currentLevel === "aal2";
     // Credentials that unlock gated plan types (e.g. nutrition). The database enforces the same (has_capability).
-    const { data: practitioner } = await sb.from("practitioners").select("capabilities, can_publish").eq("id", user.id).maybeSingle();
+    const { data: practitioner } = role === "admin" ? { data: null } : await sb.from("practitioners").select("capabilities, can_publish").eq("id", user.id).maybeSingle();
     capabilities = practitioner?.capabilities ?? [];
     // Publishing programs: owners, or practitioners with the publishing permission (can_publish_programs() in the database).
     canPublish = role === "owner" || practitioner?.can_publish === true;
@@ -57,7 +58,7 @@ export async function getViewer(): Promise<Viewer | null> {
   return {
     userId: user.id, role,
     name: client?.preferred_name ?? profile?.preferred_name ?? profile?.full_name ?? client?.full_name ?? "there",
-    clientId: client?.id, practitionerId: role === "client" ? undefined : user.id, staffVerified, capabilities, canPublish,
+    clientId: client?.id, practitionerId: role === "client" || role === "admin" ? undefined : user.id, staffVerified, capabilities, canPublish,
   };
 }
 
@@ -81,9 +82,11 @@ export async function requireStaffViewer(): Promise<Viewer> {
   return viewer;
 }
 
+/** Staff who work with clients: owner and practitioners. Admins are website-only (proposed D-071) and go to their page. */
 export async function requireStaff(): Promise<{ viewer: Viewer; repo: PortalRepository }> {
   const viewer = await requireStaffViewer();
-  if (!clientScreensAvailable()) redirect("/practice/settings");
+  if (viewer.role === "admin") redirect("/practice/website");
+  if (!clientScreensAvailable()) redirect(viewer.role === "owner" ? "/practice/settings" : "/practice/website");
   return { viewer, repo: await getRepository() };
 }
 

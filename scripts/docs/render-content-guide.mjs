@@ -61,7 +61,7 @@ const lanes = () => {
     box(206, 40, 150, 66, "Preview", ["private link,", "phone and computer"]),
     box(386, 40, 150, 66, "Submit", ["a change request", "with its preview"]),
     zone(10, 148, 540, 112, "Design lane: through Claude"),
-    box(26, 178, 150, 66, "Request form", ["or ask Claude", "in a session"]),
+    box(26, 178, 150, 66, "Request", ["TAB Practice →", "Website changes"]),
     box(206, 178, 150, 66, "Claude designs", ["options, then a build", "on its own branch"]),
     box(386, 178, 150, 66, "Owner approves", ["on the preview", "(review gate G2)"]),
     box(600, 104, 150, 76, "Automated checks", ["brand, scope of practice,", "accessibility, phones,", "links, search"], { accent: true }),
@@ -80,7 +80,7 @@ const lanes = () => {
 };
 
 const contentFlow = () => snake("Content lane, step by step", [
-  ["Open the editor", ["/keystatic,", "sign in with GitHub"]],
+  ["Open the editor", ["/keystatic, with your", "Keystatic account"]],
   ["Choose", ["a page, service,", "technique or FAQ"]],
   ["Edit", ["fields show their", "limits as you type"]],
   ["Save", ["a draft; the live", "site is untouched"]],
@@ -90,8 +90,8 @@ const contentFlow = () => snake("Content lane, step by step", [
 ], 4, "If a check fails, you get a plain message naming the rule and where; fix it and submit again. Nothing reaches the live site until every check passes.", { accent: [6] });
 
 const designFlow = () => snake("Design lane, step by step", [
-  ["Request", ["Design change form,", "or tell Claude"]],
-  ["Triage", ["questions, then", "options and effort"]],
+  ["Request", ["TAB Practice → Website", "changes, or tell Claude"]],
+  ["Triage", ["Claude's notes: questions,", "options and effort"]],
   ["Choose", ["you pick an option;", "nothing built before"]],
   ["Build", ["Claude's branch, tests,", "preview, screenshots"]],
   ["Review", ["ask for changes", "or say \"approved\""]],
@@ -134,7 +134,22 @@ const anatomy = () => {
     "A service page with its parts named. Every page is built from these parts; the glossary below defines each one.");
 };
 
-const directives = { lanes, "content-flow": contentFlow, "design-flow": designFlow, anatomy };
+/** A request's statuses, in order, with who acts at each; Declined leaves from any open step. */
+const statusFlow = () => {
+  const steps = [["New", ["Claude reads it"]], ["Questions or options", ["notes: questions,", "options, effort"]], ["Waiting on you", ["the owner answers", "or chooses"]],
+    ["In progress", ["Claude builds"]], ["In review", ["preview link on", "the request"]], ["Live", ["on the website"]]];
+  const w = 142, gap = 16, y = 20, h = 66;
+  const b = steps.map(([n, l], i) => box(10 + i * (w + gap), y, w, h, n, l, { accent: i === 2 || i === 4 }));
+  for (let i = 1; i < steps.length; i++) b.push(arrow([[10 + (i - 1) * (w + gap) + w, y + h / 2], [10 + i * (w + gap), y + h / 2]], ""));
+  const total = 10 + steps.length * (w + gap) - gap;
+  b.push(box(total / 2 - 90, 132, 180, 46, "Declined", ["the notes say why"], { muted: true }));
+  b.push(arrow([[10 + 2 * (w + gap) + w / 2, y + h], [total / 2 - 30, 132]], "", { dashed: true }));
+  b.push(arrow([[10 + 3 * (w + gap) + w / 2, y + h], [total / 2 + 30, 132]], "", { dashed: true }));
+  return figure(svg(total + 10, 190, "Request statuses: New, Questions or options, Waiting on you, In progress, In review, Live; or Declined", b.join("\n")),
+    "Shaded steps wait on the owner. Claude moves a request along as the work happens; the owner can change its status at any time, including declining or reopening it.");
+};
+
+const directives = { lanes, "content-flow": contentFlow, "design-flow": designFlow, "status-flow": statusFlow, anatomy };
 const css = `
 .wf-page { fill: var(--bg); stroke: var(--line-strong); }
 .wf-surface { fill: var(--surface); stroke: var(--line); }

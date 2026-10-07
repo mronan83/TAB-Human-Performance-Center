@@ -15,7 +15,9 @@
   "20261008000000_method_stages_adapt_balance.sql",
   "20261009000000_owner_settings.sql",
   "20261010000000_settings_booking_features.sql",
-  "20261011000000_site_stats.sql"
+  "20261011000000_site_stats.sql",
+  "20261012000000_admin_role.sql",
+  "20261013000000_website_requests.sql"
  ],
  "tables": [
   {
@@ -3848,10 +3850,10 @@
    "indexes": [],
    "policies": [
     {
-     "name": "site_stats_owner_read",
+     "name": "site_stats_read",
      "cmd": "SELECT",
      "roles": "{public}",
-     "using": "(current_app_role() = 'owner'::app_role)"
+     "using": "(current_app_role() = ANY (ARRAY['owner'::app_role, 'admin'::app_role]))"
     }
    ],
    "triggers": []
@@ -3969,6 +3971,295 @@
    "indexes": [],
    "policies": [],
    "triggers": []
+  },
+  {
+   "name": "website_request_notes",
+   "rls": true,
+   "comment": "The conversation on a website request: questions, options, answers and updates.",
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "request_id",
+     "type": "uuid"
+    },
+    {
+     "name": "author_id",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "author_name",
+     "type": "text",
+     "default": "'Claude'::text"
+    },
+    {
+     "name": "body",
+     "type": "text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    }
+   ],
+   "constraints": [
+    {
+     "name": "website_request_notes_body_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(body) >= 1) AND (char_length(body) <= 4000)))"
+    },
+    {
+     "name": "website_request_notes_author_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (author_id) REFERENCES auth.users(id) ON DELETE SET NULL",
+     "ref_table": "auth.users"
+    },
+    {
+     "name": "website_request_notes_request_id_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (request_id) REFERENCES website_requests(id) ON DELETE RESTRICT",
+     "ref_table": "website_requests"
+    },
+    {
+     "name": "website_request_notes_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    }
+   ],
+   "indexes": [
+    {
+     "name": "website_request_notes_request",
+     "def": "CREATE INDEX website_request_notes_request ON public.website_request_notes USING btree (request_id, created_at)"
+    }
+   ],
+   "policies": [
+    {
+     "name": "website_request_notes_insert",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "is_website_staff()"
+    },
+    {
+     "name": "website_request_notes_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "is_website_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "website_request_notes_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER website_request_notes_audit AFTER INSERT OR DELETE OR UPDATE ON public.website_request_notes FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "website_request_notes_keep",
+     "function": "forbid_note_change",
+     "def": "CREATE TRIGGER website_request_notes_keep BEFORE DELETE OR UPDATE ON public.website_request_notes FOR EACH ROW EXECUTE FUNCTION forbid_note_change()"
+    },
+    {
+     "name": "website_request_notes_stamp",
+     "function": "stamp_website_request_note",
+     "def": "CREATE TRIGGER website_request_notes_stamp BEFORE INSERT ON public.website_request_notes FOR EACH ROW EXECUTE FUNCTION stamp_website_request_note()"
+    }
+   ]
+  },
+  {
+   "name": "website_requests",
+   "rls": true,
+   "comment": "Website change requests (proposed D-071): content or design, with status. Never about a client; never deleted; audited.",
+   "columns": [
+    {
+     "name": "id",
+     "type": "uuid",
+     "default": "gen_random_uuid()"
+    },
+    {
+     "name": "number",
+     "type": "integer"
+    },
+    {
+     "name": "lane",
+     "type": "text"
+    },
+    {
+     "name": "pages",
+     "type": "text[]"
+    },
+    {
+     "name": "kind",
+     "type": "text"
+    },
+    {
+     "name": "title",
+     "type": "text"
+    },
+    {
+     "name": "details",
+     "type": "text"
+    },
+    {
+     "name": "reason",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "priority",
+     "type": "text",
+     "default": "'whenever'::text"
+    },
+    {
+     "name": "deadline",
+     "type": "date",
+     "nullable": true
+    },
+    {
+     "name": "status",
+     "type": "text",
+     "default": "'new'::text"
+    },
+    {
+     "name": "preview_url",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "change_url",
+     "type": "text",
+     "nullable": true
+    },
+    {
+     "name": "requested_by",
+     "type": "uuid",
+     "nullable": true
+    },
+    {
+     "name": "requested_by_name",
+     "type": "text",
+     "default": "'TAB'::text"
+    },
+    {
+     "name": "created_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "updated_at",
+     "type": "timestamp with time zone",
+     "default": "now()"
+    },
+    {
+     "name": "closed_at",
+     "type": "timestamp with time zone",
+     "nullable": true
+    }
+   ],
+   "constraints": [
+    {
+     "name": "website_requests_change_url_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(change_url) <= 500) AND (change_url ~ '^https://\\S+$'::text)))"
+    },
+    {
+     "name": "website_requests_details_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(details) >= 1) AND (char_length(details) <= 4000)))"
+    },
+    {
+     "name": "website_requests_kind_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(kind) >= 1) AND (char_length(kind) <= 80)))"
+    },
+    {
+     "name": "website_requests_lane_check",
+     "kind": "check",
+     "def": "CHECK ((lane = ANY (ARRAY['content'::text, 'design'::text])))"
+    },
+    {
+     "name": "website_requests_pages_check",
+     "kind": "check",
+     "def": "CHECK (((cardinality(pages) >= 1) AND (cardinality(pages) <= 25)))"
+    },
+    {
+     "name": "website_requests_preview_url_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(preview_url) <= 500) AND (preview_url ~ '^https://\\S+$'::text)))"
+    },
+    {
+     "name": "website_requests_priority_check",
+     "kind": "check",
+     "def": "CHECK ((priority = ANY (ARRAY['whenever'::text, 'soon'::text, 'urgent'::text])))"
+    },
+    {
+     "name": "website_requests_reason_check",
+     "kind": "check",
+     "def": "CHECK ((char_length(reason) <= 2000))"
+    },
+    {
+     "name": "website_requests_status_check",
+     "kind": "check",
+     "def": "CHECK ((status = ANY (ARRAY['new'::text, 'questions'::text, 'waiting_owner'::text, 'in_progress'::text, 'in_review'::text, 'live'::text, 'declined'::text])))"
+    },
+    {
+     "name": "website_requests_title_check",
+     "kind": "check",
+     "def": "CHECK (((char_length(title) >= 3) AND (char_length(title) <= 120)))"
+    },
+    {
+     "name": "website_requests_requested_by_fkey",
+     "kind": "foreign key",
+     "def": "FOREIGN KEY (requested_by) REFERENCES auth.users(id) ON DELETE SET NULL",
+     "ref_table": "auth.users"
+    },
+    {
+     "name": "website_requests_pkey",
+     "kind": "primary key",
+     "def": "PRIMARY KEY (id)"
+    },
+    {
+     "name": "website_requests_number_key",
+     "kind": "unique",
+     "def": "UNIQUE (number)"
+    }
+   ],
+   "indexes": [],
+   "policies": [
+    {
+     "name": "website_requests_insert",
+     "cmd": "INSERT",
+     "roles": "{public}",
+     "with_check": "is_website_staff()"
+    },
+    {
+     "name": "website_requests_owner_update",
+     "cmd": "UPDATE",
+     "roles": "{public}",
+     "using": "(current_app_role() = 'owner'::app_role)",
+     "with_check": "(current_app_role() = 'owner'::app_role)"
+    },
+    {
+     "name": "website_requests_read",
+     "cmd": "SELECT",
+     "roles": "{public}",
+     "using": "is_website_staff()"
+    }
+   ],
+   "triggers": [
+    {
+     "name": "website_requests_audit",
+     "function": "audit_row",
+     "def": "CREATE TRIGGER website_requests_audit AFTER INSERT OR DELETE OR UPDATE ON public.website_requests FOR EACH ROW EXECUTE FUNCTION audit_row()"
+    },
+    {
+     "name": "website_requests_stamp",
+     "function": "stamp_website_request",
+     "def": "CREATE TRIGGER website_requests_stamp BEFORE INSERT OR UPDATE ON public.website_requests FOR EACH ROW EXECUTE FUNCTION stamp_website_request()"
+    }
+   ]
   },
   {
    "name": "wellness_plans",
@@ -4349,7 +4640,8 @@
    "values": [
     "owner",
     "practitioner",
-    "client"
+    "client",
+    "admin"
    ]
   },
   {
@@ -4647,6 +4939,13 @@
    "volatility": "volatile"
   },
   {
+   "name": "forbid_note_change",
+   "args": "",
+   "returns": "trigger",
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
    "name": "grant_stripe_purchase",
    "args": "p_session jsonb",
    "returns": "void",
@@ -4799,6 +5098,14 @@
    "volatility": "stable"
   },
   {
+   "name": "is_website_staff",
+   "args": "",
+   "returns": "boolean",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
    "name": "move_client_program",
    "args": "program uuid, target uuid",
    "returns": "integer",
@@ -4904,6 +5211,14 @@
    "volatility": "volatile"
   },
   {
+   "name": "staff_display_name",
+   "args": "uid uuid",
+   "returns": "text",
+   "security_definer": true,
+   "language": "sql",
+   "volatility": "stable"
+  },
+  {
    "name": "stamp_author",
    "args": "",
    "returns": "trigger",
@@ -4929,6 +5244,22 @@
   },
   {
    "name": "stamp_setting",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "stamp_website_request",
+   "args": "",
+   "returns": "trigger",
+   "security_definer": true,
+   "language": "plpgsql",
+   "volatility": "volatile"
+  },
+  {
+   "name": "stamp_website_request_note",
    "args": "",
    "returns": "trigger",
    "security_definer": true,

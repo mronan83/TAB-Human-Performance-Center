@@ -23,6 +23,8 @@ const ICONS = {
   settings: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4",
   stats: "M4 20V10M10 20V4M16 20v-7M22 20H2",
   lock: "M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4M12 15v2",
+  more: "M5 12h.01M12 12h.01M19 12h.01",
+  website: "M3 5h18v14H3zM3 9h18M7 7h.01M10 7h.01M8 13l-2 2 2 2M16 13l2 2-2 2M13 12l-2 6",
 } as const;
 
 export function Icon({ name, className }: { name: keyof typeof ICONS; className?: string }) {
