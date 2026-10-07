@@ -8,7 +8,7 @@ refer to `docs/requirements-register.md`.
 **Priority:** P0 now (risk or blocks most other work) · P1 public-site launch · P2 My TAB go-live · P3 later or optional.
 **Effort:** S hours · M about a day · L several days, or waiting on someone else. **Blocker:** `None` means it can start now.
 
-_Last updated: 2026-10-07, website content management: request forms and the content guide (C30); Keystatic (C31) and the fast lane (C32) next._
+_Last updated: 2026-10-07, website admins and requests in TAB Practice (C34); Keystatic Cloud (C31) and the fast lane (C32) next._
 
 ## P0 · Now
 
@@ -28,10 +28,10 @@ _Last updated: 2026-10-07, website content management: request forms and the con
 | C24 | Tighten DMARC on `tabhumanperformance.com` to `quarantine`, then `reject`, one week after DKIM is authenticating and mail flows | Accounts | Claude | S | A29 |
 | C2 | Launch day: indexing on, Search Console and sitemap, e2e run against the live domain, HSTS for subdomains after the switch-over [NFR-009] (G3) | Launch | Claude | M | A1–A11 |
 | C25 | Launch communications plan for 1 November: announcement sequence, channels, assets and the cutover timeline (a shared document for the owner) [A13] | Launch | Claude | M | None |
-| C30 | **In review.** Website change requests and the Website content guide: Content help and Design change forms (GitHub issues, linked from TAB Practice → Settings → Website changes); the guide covers both lanes step by step, what is and isn't editable, the checks, writing guidelines and a glossary of page parts; CI fails if a public page is missing from it [CMS-006, proposed D-069, D-070] | Content | Claude | S | None |
-| A31 | One-time: connect the Keystatic GitHub App to the repository (Claude sends the link and steps with C31), and give any admin a GitHub account with access | Accounts | Owner | S | C31 |
-| C31 | Keystatic content editor at `/keystatic` and the block library: content files move to Keystatic's format, service pages and the massage techniques first, then the home, About, Method, FAQ and Resources pages; field limits match the checks (search descriptions 40–160 characters, required alt text) [CMS-001 to CMS-005, proposed D-069; replaces C8] | Platform | Claude | L | None |
-| C32 | Fast lane: a GitHub Action that squash-merges an owner-authored, content-only, green PR and promotes that exact production build through the Vercel API; anything else keeps G2 and G3 [proposed D-070] | Platform | Claude | M | C31, A32 |
+| C34 | **In review.** Website admin role (website only: requests, stats, content editor; never client data) and website requests inside TAB Practice → Website changes: numbered requests, statuses, notes, owner-only status changes, an email to the owner naming the number; admins invited and removed in Settings; GitHub issue forms retired; content guide updated. Needs G3 for migrations `20261012000000` and `20261013000000` [STAFF-011, CMS-007, proposed D-071] | Platform | Claude | M | None |
+| A31 | One-time, with C31: create the free Keystatic Cloud team and connect it to the repository (Claude sends the steps); then add up to two admins as editors (3 users free; a fourth needs Keystatic's paid plan) | Accounts | Owner | S | C31 |
+| C31 | Keystatic Cloud content editor at `/keystatic` (editors sign in with Keystatic Cloud, no GitHub account; proposed D-071) and the block library: content files move to Keystatic's format, service pages and the massage techniques first, then the home, About, Method, FAQ and Resources pages; field limits match the checks (search descriptions 40–160 characters, required alt text) [CMS-001 to CMS-005, proposed D-069; replaces C8] | Platform | Claude | L | None |
+| C32 | Fast lane: a GitHub Action that squash-merges an owner-authored, content-only, green PR and promotes that exact production build through the Vercel API; anything else keeps G2 and G3 First confirm that a Keystatic Cloud edit can still be traced to the owner; if not, the fast lane covers only the owner's direct edits [proposed D-070] | Platform | Claude | M | C31, A32 |
 | A32 | Create a Vercel token scoped to the team and add it as the GitHub secret `VERCEL_TOKEN` (Claude sends the steps with C32) | Accounts | Owner | S | C32 |
 
 ## P2 · My TAB go-live (`CLAUDE.md` guardrail 4)
@@ -55,7 +55,6 @@ _Last updated: 2026-10-07, website content management: request forms and the con
 | C14 | Rule-based stage-readiness prompts in TAB Practice (design §5.1) | Portal | Claude | M | None |
 | C13 | AI program drafting, templates only, no client data (design §4) | Portal | Claude | M | A24 |
 | A24 | Anthropic API account and key for AI program drafting (Vercel Sensitive var `ANTHROPIC_API_KEY`) | Accounts | Owner | S | None |
-| C33 | Optional: a daily check for new website-change requests, so a request is triaged without the owner starting a session (a scheduled routine) | Process | Claude | S | Owner opts in |
 | C9 | Major upgrades: Next 16, zod 4, TypeScript 7 [UPG-01 to UPG-03] | Platform | Claude | L | None |
 | C10 | Correct handoff-document references [DIV-03] | Docs | Claude | S | None |
 | C11 | Before paid ads: keep the Meta pixel off `/start` and `/contact` after in-site navigation [GAP-022] | Analytics | Claude | S | Paid ads start |
@@ -74,6 +73,10 @@ _Last updated: 2026-10-07, website content management: request forms and the con
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Daily website request check** (on 2026-10-07, C33): a routine runs every morning at 07:52 (Detroit time), reads new requests and staff replies, answers in the notes with questions or options and moves the status. It never builds, merges or releases. Request alerts go to both matthew@ and info@ (owner: "both").
+
+- **Website change requests and the content guide** (live 2026-10-07, C30): the first version used GitHub issue forms; replaced the same day by requests inside TAB Practice (C34), at the owner's direction.
 
 - **Massage techniques guide** (live, C29): eleven techniques at `/services/massage-bodywork/techniques` (the eight tabmassage.com modalities rewritten, plus manual lymphatic drainage, prenatal and sports massage), linked from the Massage page; the old page redirects there. Other pillars can follow the same pattern when wanted.
 

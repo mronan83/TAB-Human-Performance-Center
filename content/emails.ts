@@ -52,3 +52,29 @@ export const staffInquiryEmail = {
   messageTitle: "Message",
   reply: (first: string) => `Reply to ${first}`,
 } as const;
+
+/** An admin's invitation to TAB Practice (proposed D-071). The link is single-use; two-step verification comes next. */
+export const adminInviteEmail = {
+  subject: "You're invited to TAB Practice",
+  preheader: "Set up your TAB Practice account for the website.",
+  eyebrow: "TAB Practice",
+  heading: "You've been added as a website admin",
+  greeting: (name: string) => `Hi ${name},`,
+  body: [
+    "You've been added to TAB Practice, the staff side of the TAB Human Performance Center website, as a website admin. You'll be able to ask for website changes, follow them through to the live site, and see the website stats.",
+    "The button below signs you in once. Next you'll set up an authenticator app for the 6-digit sign-in code, then choose a password under Sign-in & security.",
+  ],
+  cta: "Set up my account",
+  footer: "This link works once and expires after 24 hours. If you weren't expecting it, you can ignore this email.",
+} as const;
+
+/** Tells the owner a website request came in (proposed D-071). It names the number and lane only, never what was asked. */
+export const websiteRequestAlertEmail = {
+  subject: (n: number) => `New website request #${n}`,
+  preheader: "A website change request is waiting in TAB Practice.",
+  eyebrow: "TAB Practice",
+  heading: (n: number) => `Website request #${n}`,
+  body: (who: string, lane: string) => `${who} asked for a ${lane.toLowerCase()} change. The details are in TAB Practice.`,
+  cta: "Open the request",
+  footer: "Sent to TAB's owner and info addresses. Requests never carry client details.",
+} as const;

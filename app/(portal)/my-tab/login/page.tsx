@@ -18,6 +18,9 @@ function DemoLogin() {
         <form action={setDemoRoleAction.bind(null, "owner")}>
           <button className="btn btn-outline w-full">Practitioner: TAB Practice</button>
         </form>
+        <form action={setDemoRoleAction.bind(null, "admin")}>
+          <button className="btn btn-outline w-full">Website admin: TAB Practice</button>
+        </form>
       </div>
       <NewToTab />
     </SignInFrame>

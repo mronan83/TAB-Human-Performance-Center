@@ -91,10 +91,14 @@ Never print, log or commit token values.
   After every merge, render them with `npm run docs:html -- --out-dir <folder>` and republish each to its artifact
   (addresses in `docs/living-docs.json`; pass them as `url` from a new session), then confirm to the owner which pages
   were revised and how, or that each was assessed and needed nothing.
-- **Website change requests (owner request 2026-10-07, proposed D-069 and D-070):** content help and design changes
-  arrive as GitHub issues labelled `website-change` (forms in `.github/ISSUE_TEMPLATE/`), or in a session ("pick up
-  request #12"). Design-lane requests: reply with questions, then options with effort and risks; build nothing until
-  the owner chooses one; then the normal G2 and G3 gates. A request that fits the content lane can be moved there.
+- **Website change requests (owner requests 2026-10-07, proposed D-069 to D-071):** content help and design changes are
+  filed in TAB Practice → Website changes (`website_requests`, `website_request_notes`) by the owner, practitioners or
+  admins, or raised in a session ("pick up website request #12"). Read them with the service role (Supabase REST, project
+  ref passed explicitly); reply in the request's notes (no client details, ever) and keep its status current: Questions
+  or options → Waiting on you → In progress → In review (set `preview_url` and `change_url`) → Live, or Declined with the
+  reason. Design-lane requests: questions, then options with effort and risks; build nothing until the owner chooses
+  one; then the normal G2 and G3 gates. A request that fits the content lane can be moved there. A daily routine
+  ("Website request check", 07:52 Detroit time, C33) does the triage step only; it never builds or releases.
   **Fast lane (in force once C32 ships the automation):** a PR authored by the owner that changes only content files
   and is green is merged and promoted by the workflow without a separate approval. It never covers Claude's PRs, an
   admin's PR, or any change outside the content files; those keep G2 and G3.
@@ -153,7 +157,8 @@ Never print, log or commit token values.
 ## Architecture conventions
 - Business settings live in `config/site.ts`; copy lives in `content/*.ts`. Pages read from these;
   don't hardcode business facts in components.
-- Content files move to **Keystatic** (proposed D-069, replacing D-036's Payload CMS; backlog C31), a git-based editor
+- Content files move to **Keystatic** (proposed D-069, replacing D-036's Payload CMS; backlog C31; Keystatic Cloud sign-in
+  so editors need no GitHub account, proposed D-071), a git-based editor
   whose edits are PRs that pass every check: `services` → collection, `home`/`about`/`method` → singletons,
   `faqs`/`resourceClusters`/techniques → collections. Page layout comes from a fixed block library; a new block type is
   a design-lane change, and `docs/CONTENT-GUIDE.md` lists what is and isn't editable.
@@ -173,8 +178,9 @@ Never print, log or commit token values.
   (`supabase/migrations/20260929000000_portal_security_gate.sql`): `guard_client_columns` for what a client may
   change, `stamp_author` for who wrote a row, `guard_same_client` for links between client records. Staff access
   counts only in two-step-verified sessions (`current_app_role()`).
-- Model for a team, build for one (D-045): roles `owner | practitioner | client`; practitioners see
-  only assigned clients.
+- Model for a team, build for one (D-045): roles `owner | practitioner | admin | client`; practitioners see
+  only assigned clients; an admin (proposed D-071) is website-only: requests, website stats and the content editor,
+  never client data (`requireStaff()` and `is_staff()` exclude the role).
 
 ## Checks before every push
 `npm run typecheck`, `npm run test:brand`, `npm run build`, `npm run test:rls`, then `npm run test:e2e` (Playwright smoke, redirect-map,

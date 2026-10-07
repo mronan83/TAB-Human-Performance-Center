@@ -2,7 +2,8 @@
 import type { ServiceSlug } from "@/content/services";
 import type { RoutingOutcome } from "@/lib/inquiry";
 
-export type Role = "owner" | "practitioner" | "client";
+/** `admin`: a website-only staff account (proposed D-071): website requests and stats, never client data. */
+export type Role = "owner" | "practitioner" | "admin" | "client";
 export type MethodStage = "start" | "transform" | "adapt" | "balance" | "evolve";
 
 /** `staffVerified` is false for a staff sign-in without two-step verification (SEC-015): the database then grants no staff access. */

@@ -74,7 +74,7 @@ const check = (label, got, want) => {
   console.log(ok ? "PASS" : "FAIL", label, JSON.stringify(got));
 };
 // A blocked write must fail for an authorization reason (RLS or a guard trigger), not for any error at all.
-const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|can only move to a newer published version|Only practitioners can move|Only practitioners can change a client's program|Program not found|A form the client has started stays assigned|Only published forms can be assigned|A form assignment keeps its client|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely|care team can use internal notes|append-only|Only the owner can decide/i;
+const DENIED = /row-level security|Nutrition plans need|A service plan must|Only published programs can be assigned|keeps its client, program and version|not part of this program|Publishing needs the publishing permission|can't be edited; start a new version|New programs start as drafts|Published programs are kept|keeps its program and number|Only practitioners can edit programs|can only move to a newer published version|Only practitioners can move|Only practitioners can change a client's program|Program not found|A form the client has started stays assigned|Only published forms can be assigned|A form assignment keeps its client|permission denied|Only the owner can change|Clients may only update|You can change only your name|Clients can only save or submit|was not assigned to you|belongs to another client|Consent records are kept|Submitted answers cannot be changed|kept indefinitely|care team can use internal notes|append-only|Only the owner can decide|Only the owner can change a website request|kept as written/i;
 const expectDenied = async (label, fn) => {
   let message = null;
   try { await fn(); } catch (e) { message = e.message; }
@@ -551,6 +551,58 @@ await expectDenied('a visitor cannot record a count directly', () => asAnon(`sel
 await expectDenied('a signed-in person cannot record a count directly', () => as(O, `select record_site_stat('pageview','/')`));
 await expectDenied('nobody signed in can write counts', () => as(O, `insert into site_stats (day, kind, key, count) values (current_date, 'pageview', '/', 999)`));
 check('only the three kinds of count exist', await attempt(() => superuser(`select record_site_stat('visitor','someone@example.com')`)), false);
+
+
+// Admin role and website requests (proposed D-071): a website-only staff account; requests readable and addable by
+// website staff, changed only by the owner (or Claude through the service role), never deleted, audited.
+const A='00000000-0000-0000-0000-0000000000a1';
+await superuser(`insert into auth.users (id,email,email_confirmed_at) values ('${A}','admin@x.com',now())`);
+await superuser(`update profiles set role='admin', full_name='Alex Admin' where id='${A}'`);
+check('an admin sees no clients', (await as(A, 'select id from clients')).length, 0);
+check('an admin sees no plans or notes', [(await as(A, 'select id from wellness_plans')).length, (await as(A, 'select id from session_notes')).length], [0, 0]);
+check('an admin sees no submissions or audit log', [(await as(A, 'select id from inquiries')).length, (await as(A, 'select id from audit_events')).length], [0, 0]);
+check('an admin sees only their own profile', (await as(A, 'select id from profiles')).map(r => r.id), [A]);
+await expectDenied('an admin cannot add a client', () => as(A, `insert into clients (full_name) values ('Eve')`));
+await expectDenied('an admin cannot make themselves owner', () => as(A, `update profiles set role='owner' where id='${A}'`).then(async () => { if ((await superuser(`select role from profiles where id='${A}'`))[0].role !== 'admin') throw new Error('escalated'); throw new Error('permission denied'); }));
+await as(A, `update app_settings set value='false' where key='start_form_open'`);
+check('an admin cannot change a setting', await setting('start_form_open'), true);
+check('an admin reads the website counts', (await as(A, `select kind from site_stats order by kind`)).map(r => r.kind), ['event', 'pageview']);
+check('an admin without two-step verification reads no counts', (await as(A, `select kind from site_stats`, 'aal1')).length, 0);
+
+await as(A, `insert into website_requests (lane, pages, kind, title, details, status, requested_by, requested_by_name, preview_url)
+  values ('content', '{"Massage & Bodywork"}', 'Update existing text', 'Fix the hours line', 'Saturday hours are 9 to 1', 'live', '${O}', 'Someone else', 'https://evil.example.com')`);
+const req1 = (await superuser(`select * from website_requests where title='Fix the hours line'`))[0];
+check('an admin can file a request', !!req1, true);
+check('a new request starts as new, without links, stamped with who asked', [req1.status, req1.preview_url, req1.requested_by, req1.requested_by_name, req1.number], ['new', null, A, 'Alex Admin', 1]);
+await as(P, `insert into website_requests (lane, pages, kind, title, details) values ('design', '{"Home"}', 'A new kind of section', 'Add a timeline', 'Show the TAB story as a timeline')`);
+check('a practitioner can file a request and everyone on staff sees both', [(await as(P, 'select number from website_requests order by number')).map(r => r.number), (await as(A, 'select number from website_requests order by number')).map(r => r.number)], [[1, 2], [1, 2]]);
+check('a client sees no requests', (await as(C1, 'select id from website_requests')).length, 0);
+check('a visitor sees no requests', (await asAnon('select id from website_requests').catch(() => [])).length, 0);
+check('an admin without two-step verification sees no requests', (await as(A, 'select id from website_requests', 'aal1')).length, 0);
+await expectDenied('a client cannot file a request', () => as(C1, `insert into website_requests (lane, pages, kind, title, details) values ('content', '{"Home"}', 'x', 'Client ask', 'x')`));
+check('a request needs at least one page', await attempt(() => as(A, `insert into website_requests (lane, pages, kind, title, details) values ('content', '{}', 'x', 'No pages', 'x')`)), false);
+await expectDenied('an admin cannot change a request\'s status', () => as(A, `update website_requests set status='live' where number=1`).then(async () => { if ((await superuser(`select status from website_requests where number=1`))[0].status !== 'new') throw new Error('changed'); throw new Error('permission denied'); }));
+await expectDenied('a practitioner cannot change a request\'s status', () => as(P, `update website_requests set status='declined' where number=1`).then(async () => { if ((await superuser(`select status from website_requests where number=1`))[0].status !== 'new') throw new Error('changed'); throw new Error('permission denied'); }));
+await as(O, `update website_requests set status='live', requested_by='${O}' where number=1`);
+const req1b = (await superuser(`select status, requested_by, closed_at from website_requests where number=1`))[0];
+check('the owner can close a request, which stamps when; who asked stays', [req1b.status, req1b.requested_by, !!req1b.closed_at], ['live', A, true]);
+await superuser(`update website_requests set status='questions', preview_url='https://tab-human-performance-center-git-x.vercel.app' where number=2`);
+check('Claude (service role) moves a request and adds its preview', (await as(A, `select status, preview_url from website_requests where number=2`))[0], { status: 'questions', preview_url: 'https://tab-human-performance-center-git-x.vercel.app' });
+check('a preview link must be https', await attempt(() => superuser(`update website_requests set preview_url='javascript:alert(1)' where number=2`)), false);
+await as(O, `delete from website_requests where number=2`).catch(() => {});
+check('nobody can delete a request', (await superuser(`select count(*)::int n from website_requests`))[0].n, 2);
+
+await superuser(`insert into website_request_notes (request_id, body) select id, 'Two options: a timeline band or a photo story. Which?' from website_requests where number=2`);
+await as(A, `insert into website_request_notes (request_id, body, author_name) select id, 'The timeline, please', 'The owner' from website_requests where number=2`);
+check('notes are stamped with their author; Claude\'s notes are signed Claude', (await as(P, `select author_name from website_request_notes order by created_at`)).map(r => r.author_name), ['Claude', 'Alex Admin']);
+check('a client sees no notes', (await as(C1, 'select id from website_request_notes')).length, 0);
+const req2Id = (await superuser(`select id from website_requests where number=2`))[0].id;
+await expectDenied('a client cannot add a note', () => as(C1, `insert into website_request_notes (request_id, body) values ('${req2Id}', 'hi')`));
+await expectDenied('a note cannot be edited', () => as(A, `update website_request_notes set body='changed'`));
+await expectDenied('a note cannot be deleted, even by the owner', () => as(O, `delete from website_request_notes`));
+check('requests and notes are audited', (await superuser(`select count(*)::int n from audit_events where table_name in ('website_requests','website_request_notes')`))[0].n >= 5, true);
+await as(O, `update profiles set role='client' where id='${A}'`);
+check('the owner can remove an admin, who then sees no requests', (await as(A, 'select id from website_requests')).length, 0);
 
 console.log(`\n${failures === 0 ? "OK" : "FAILED"}: ${failures} failure(s); ${openGaps} known gap(s) open (must be 0 before Phase 2 go-live)`);
 process.exit(failures ? 1 : 0);

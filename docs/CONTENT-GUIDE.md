@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 1.0
+version: 1.2
 updated: 2026-10-07
 owner: Matthew Ronan
 ---
@@ -10,7 +10,7 @@ owner: Matthew Ronan
 <!-- How TAB Human Performance Center's website content is changed: who does what, step by step, what can and can't be
 edited, and the names of every part of a page. Rendered by scripts/docs/render-content-guide.mjs; `npm run docs:check`
 fails if a public page is missing from "Pages and where their content lives". Update this file in the same PR as any
-change to what is editable, the block library or the workflow. -->
+change to what is editable, the block library, the request workflow or who may do what. -->
 
 ## At a glance | Two lanes, one set of checks
 
@@ -18,20 +18,21 @@ Every change to the website travels one of two lanes. Both end at the same autom
 
 | Lane | For | Who does it | How long |
 |---|---|---|---|
-| **Content lane** | Words, FAQs, cards, techniques, photos, the order of sections built from approved blocks | You or another admin, in the content editor | About 10 minutes from saving to live |
-| **Design lane** | New kinds of section, layout changes, new pages, menus, forms, anything that changes how the site looks or works | You request it; Claude designs and builds it; you approve | Small: same session. Larger: a few days |
+| **Content lane** | Words, FAQs, cards, techniques, photos, the order of sections built from approved blocks | You or a website admin, in the content editor; or anyone on staff asks for it with a **Content help** request | About 10 minutes from saving to live |
+| **Design lane** | New kinds of section, layout changes, new pages, menus, forms, anything that changes how the site looks or works | Anyone on staff asks for it with a **Design change** request; Claude designs and builds it; you approve | Small: same session. Larger: a few days |
 
 <!-- lanes -->
 
-_Status, 7 October 2026: the request forms and this guide are live. The content editor (Keystatic) arrives with the next release, starting with the service pages; until then, use the content request form for content changes too. The automatic "fast lane" publish follows in the release after that._
+_Status, 7 October 2026: website requests live in **TAB Practice → Website changes**, and website admin accounts are available. The content editor (Keystatic) arrives with the next release, starting with the service pages; until then, ask for content changes with a **Content help** request. The automatic "fast lane" publish follows in the release after that._
 
 ## Roles
 
 | Role | Can | Can't |
 |---|---|---|
-| **Owner** | Edit content; approve design changes; publish; roll back; add or remove admins | Bypass the automated checks |
-| **Admin** | Edit content in the content editor; submit content and design requests | Approve design changes or production releases |
-| **Claude** | Build design-lane changes; maintain the block library, the checks and this guide; publish approved releases | Publish a design change without the owner's approval |
+| **Owner** | Edit content; file and follow requests; change a request's status; choose between options; approve design changes; publish; roll back; invite and remove website admins (TAB Practice → Settings) | Bypass the automated checks |
+| **Website admin** | Sign in to TAB Practice (password and 6-digit code); file and follow requests and add notes; see the website stats; edit content in the content editor once it arrives | See client records, Settings or Team; change a request's status; approve design changes or releases |
+| **Practitioner** | File and follow requests and add notes, alongside their client work | Change a request's status; approve design changes or releases |
+| **Claude** | Read requests; reply in their notes with questions, options, effort and risks; keep each status current; build design-lane changes; maintain the block library, the checks and this guide; publish approved releases | Build a design change before the owner chooses an option, or publish one without the owner's approval |
 | **Automated checks** | Block any change that breaks a rule (see "Rules every change must pass") | Be skipped |
 
 ## Which lane is my change in?
@@ -45,20 +46,60 @@ _Status, 7 October 2026: the request forms and this guide are live. The content 
 | Move a section up or down, hide one, or add another section of an existing type | Content |
 | Change a section's background between the approved tones | Content |
 | Change a page's search title or description | Content |
-| Change booking links, the banner, page switches or whether Start takes submissions | Content, in **TAB Practice → Settings** (already live) |
+| Change booking links, the banner, page switches or whether Start takes submissions | The owner, in **TAB Practice → Settings** (already live) |
 | Add a kind of section the site doesn't have yet (a timeline, a pricing table, a video) | Design |
 | Change how a section looks or behaves (spacing, columns, mobile layout, colours) | Design |
 | Add a new page or change the menus | Design |
 | Change a form (Start Where You Are, contact) or anything in My TAB or TAB Practice | Design |
 | Change the logo, brand colours, fonts or the business name | Locked (brand standards) |
 
-_Not sure? Use the design request form. Claude will move it to the content lane if it fits there._
+_Not sure? File either kind of request. Claude will move it to the other lane if it fits there._
+
+## Asking for a change | Requests in TAB Practice
+
+Every request, in either lane, starts in the same place: **TAB Practice → Website changes**. Anyone on staff can file one; nobody needs a GitHub account.
+
+1. **Sign in to TAB Practice** and open **Website changes**, then **New request**.
+2. **Choose the kind:** **Content help** (what a page says) or **Design change** (how the site looks or works).
+3. **Answer the form.** Tick every page it affects, choose the kind of change, give it a short title, and describe it: where on the page, what it says now and what it should say (content), or what you want to achieve and what's wrong today (design). Add why, how soon and any deadline.
+4. **Send.** The request gets a number, for example **#12**, and its status is **New**. If an admin or practitioner sent it, an email naming the number (never what was asked) goes to matthew@ and info@tabhumanperformance.com.
+5. **Claude picks it up** at the daily check each morning, or straight away if you start a session and say "pick up website request #12".
+6. **Follow it** on the request's page: its status, where it stands, Claude's notes, and the preview link when there is one. Answer questions or choose an option by adding a note.
+
+_Never put a client's name or health details in a request or a note. Requests are about the website only, and they are kept._
+
+<!-- status-flow -->
+
+| Status | What it means | Who acts next |
+|---|---|---|
+| **New** | Filed; Claude hasn't read it yet | Claude |
+| **Questions or options** | Claude has replied in the notes with questions, or options with effort and trade-offs | Whoever filed it, or the owner |
+| **Waiting on you** | Needs the owner: an answer, a choice between options, or an approval | The owner |
+| **In progress** | Being built | Claude |
+| **In review** | A preview is ready; the request shows its link | The owner checks it and says "approved" |
+| **Live** | On the website | — |
+| **Declined** | Not going ahead; the notes say why. The owner can reopen it | — |
+
+The owner can change a request's status on its page at any time (for example, to decline one or reopen it). Claude keeps the status current as the work moves.
+
+## Website admins | Accounts for the website only
+
+A **website admin** is a TAB Practice account for someone who helps with the website but doesn't work with clients.
+
+1. **The owner invites them** in **TAB Practice → Settings → Website admins**: their name and a work email (not an address on a client record).
+2. **They get an email** with a single-use link, valid for 24 hours.
+3. **They set up two-step sign-in:** the link signs them in once, then they add an authenticator app for the 6-digit code.
+4. **They choose a password** under **Sign-in & security**. From then on they sign in with email, password and code, like all staff.
+5. **What they see:** Website changes, Website stats and Sign-in & security; and the content editor once it arrives. Never client records, Settings or Team.
+6. **Removing one:** the owner presses **Remove** next to their name in Settings. Access ends straight away; they can be invited again later.
+
+_The content editor is free for up to three editors (you and two admins). A fourth editor needs its paid plan; anyone can still file requests._
 
 ## Content lane | Step by step
 
 <!-- content-flow -->
 
-1. **Open the content editor** at `/keystatic` on the website and sign in with GitHub. The first time, the owner adds you as an editor.
+1. **Open the content editor** at `/keystatic` on the website and sign in with your Keystatic account (no GitHub account needed). The first time, the owner adds you as an editor.
 2. **Choose what to edit**: a page, a service, a technique or an FAQ. Everything appears as labelled fields and blocks (see the glossary).
 3. **Make your change.** Fields show their limits as you type (for example, a search description must be 40 to 160 characters). Required fields such as photo descriptions can't be left empty.
 4. **Save.** Your change is kept as a draft and doesn't touch the live site. You can come back to it later.
@@ -72,15 +113,15 @@ _Not sure? Use the design request form. Claude will move it to the content lane 
 
 <!-- design-flow -->
 
-1. **Submit a request** with the **Design change** form (link in TAB Practice → Settings → Website changes), or describe it to Claude in a session. Say what you want to achieve and why, which pages, what's wrong today, and any examples or screenshots. Mark the priority and any deadline.
-2. **Triage.** Claude reads it and replies with questions if anything is unclear, then options with trade-offs, effort and any risk (to accessibility, phones, brand rules or search).
-3. **Choose an approach.** You pick an option. Nothing is built before this.
-4. **Build.** Claude builds it on its own branch, with tests, and sends a preview link plus screenshots on a phone and a computer.
-5. **Review.** You check the preview. Ask for changes, or say "approved".
-6. **Release.** Claude merges it and sends the production build. You say "promote" and it goes live. Rolling back is one step.
+1. **Request it** in **TAB Practice → Website changes → New request → Design change**, or describe it to Claude in a session. Say what you want to achieve and why, which pages, and what's wrong today. Mark how soon and any deadline. Screenshots or examples can go in a session with Claude.
+2. **Triage.** Claude reads it and replies in the request's notes with questions if anything is unclear, then options with trade-offs, effort and any risk (to accessibility, phones, brand rules or search). The status becomes **Questions or options**, then **Waiting on you**.
+3. **Choose an approach.** You pick an option in a note or in a session. Nothing is built before this.
+4. **Build.** The status becomes **In progress**. Claude builds it on its own branch, with tests, then adds the preview link to the request and sets it to **In review**.
+5. **Review.** You check the preview on a phone and a computer. Ask for changes in a note, or say "approved".
+6. **Release.** Claude merges it and sends the production build. You say "promote" and it goes live; the request becomes **Live**. Rolling back is one step.
 7. **Hand-off.** New section types are added to the block library, so they become available in the content lane, and this guide is updated in the same release.
 
-_Telling Claude a request is waiting: start a session and say "pick up request #12" (the number is on the request). A daily check for new requests can be switched on if you want one._
+_Claude checks for new requests and new notes every morning. For anything sooner, start a session and say "pick up website request #12" (the number is on the request)._
 
 ## What you can and can't edit
 
@@ -93,7 +134,7 @@ _Telling Claude a request is waiting: start a session and say "pick up request #
 | Sections on a page | Reorder, hide, add another of an existing type, choose an approved background tone | A new section type; how a section looks | — |
 | Buttons | The label | Where a button goes (booking and Start links come from Settings) | Every call to action uses the shared button component |
 | Search title and description | Yes, within limits | — | Page titles always end with the full business name |
-| Settings: booking links, banner, page switches, Start form open | Yes, in TAB Practice → Settings | — | — |
+| Settings: booking links, banner, page switches, Start form open | The owner, in TAB Practice → Settings | — | — |
 | New pages | — | Yes | — |
 | Menus and footer links | — | Yes | — |
 | Forms (Start Where You Are, contact) | — | Yes; questions are predefined options by design (no free text, D-059) | No health details by email (guardrail 5) |
@@ -162,9 +203,14 @@ These run automatically on every change, in either lane. A change that breaks on
 | **Publish / promote** | Making a checked change live. Promote is the final step that switches the live site to the new version. |
 | **Rollback** | Switching the live site back to the previous version. |
 | **Fast lane** | Owner-made content-only changes that pass every check go live without a separate approval round (D-070). |
-| **Content editor (Keystatic)** | The editing screens at `/keystatic`. Edits are saved as reviewable changes to the website's own files, so every edit has a history and can be undone. |
+| **Content editor (Keystatic)** | The editing screens at `/keystatic`, signed in with a Keystatic Cloud account (no GitHub account). Edits are saved as reviewable changes to the website's own files, so every edit has a history and can be undone. |
 | **Change request (PR)** | A proposed change, with its preview and check results, waiting to be published. |
-| **Request form** | The two forms for asking for help: **Content help** and **Design change** (TAB Practice → Settings → Website changes). |
+| **Website changes** | The page in TAB Practice where every request is filed and followed (`/practice/website`). |
+| **Website request** | A numbered ask for a change (for example **#12**): either **Content help** (what a page says) or a **Design change** (how the site looks or works). |
+| **Request status** | Where a request stands: New, Questions or options, Waiting on you, In progress, In review, Live or Declined (see "Asking for a change"). |
+| **Notes** | The conversation on a request: Claude's questions, options and updates, and your answers. Kept as written. |
+| **Website admin** | A TAB Practice account for the website only: requests, website stats and the content editor; never client records. |
+| **Website stats** | Our own count of page views, Book clicks and Start forms, in TAB Practice. No cookies and nothing that identifies a visitor. |
 
 ## Pages and where their content lives
 
@@ -194,8 +240,10 @@ _Content sources move into the content editor's format with the Keystatic releas
 
 ## Changing this guide
 
-This guide is a living document. Claude updates it in the same release as any change to the block library, what is editable, the checks or the workflow, and republishes this page. To suggest a change, use either request form.
+This guide is a living document. Claude updates it in the same release as any change to the block library, what is editable, the checks or the workflow, and republishes this page. To suggest a change, file a Content help request in TAB Practice → Website changes.
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.2 | 2026-10-07 | Request alerts go to both matthew@ and info@; the daily check for new requests and notes is on | Owner, 2026-10-07: "both"; daily check "yes" |
+| 1.1 | 2026-10-07 | Requests move into TAB Practice → Website changes (statuses, notes, owner email); website admin accounts; content editor sign-in through Keystatic Cloud; the GitHub request forms are retired | Owner rulings 2026-10-07: "In app form and admin account", "Website only" (proposed D-071) |
 | 1.0 | 2026-10-07 | First version: lanes, roles, step-by-step workflows, what is editable, rules, writing guidelines, glossary, page inventory | Owner request 2026-10-07; decisions D-069 (Keystatic) and D-070 (fast lane) |

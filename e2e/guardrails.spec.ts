@@ -17,7 +17,7 @@ import { PASSWORD_MIN, STAFF_SESSION_MAX_DAYS, fromBase64Url, passkeyOptionsToJS
  */
 
 test("analytics never runs on My TAB, TAB Practice or the contact form; no ad pixel on Start either (NFR-005)", () => {
-  for (const path of ["/my-tab", "/my-tab/plan", "/practice", "/practice/settings", "/practice/inquiries/abc", "/contact"]) {
+  for (const path of ["/my-tab", "/my-tab/plan", "/practice", "/practice/settings", "/practice/website/3", "/practice/inquiries/abc", "/contact"]) {
     expect(analyticsAllowed(path), path).toBe(false);
     expect(pixelAllowed(path), path).toBe(false);
   }
@@ -118,8 +118,11 @@ test("sign-in and invitation links work in any browser, and only the expected ki
   expect(authEmails.invite.content.cta?.href).toBe("{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=invite");
   expect(readEmailLink(at("token_hash=pkce_abc123def&type=invite"), LINK_TYPES.myTab)).toEqual({ kind: "token", tokenHash: "pkce_abc123def", type: "invite" });
   expect(readEmailLink(at("token_hash=abc123def456&type=email", "/practice/auth/callback"), LINK_TYPES.practice)).toEqual({ kind: "token", tokenHash: "abc123def456", type: "email" });
-  // Staff can't be invited through the client flow, and nothing else is passed to Supabase.
-  expect(readEmailLink(at("token_hash=abc123def456&type=invite", "/practice/auth/callback"), LINK_TYPES.practice)).toBeNull();
+  // An admin's invitation lands in TAB Practice (proposed D-071). The link only signs someone in: the role comes from
+  // their profile, which only the owner sets, so a client's invitation opened here still gets no staff access.
+  expect(readEmailLink(at("token_hash=abc123def456&type=invite", "/practice/auth/callback"), LINK_TYPES.practice)).toEqual({ kind: "token", tokenHash: "abc123def456", type: "invite" });
+  // Nothing else is passed to Supabase.
+  expect(readEmailLink(at("token_hash=abc123def456&type=recovery", "/practice/auth/callback"), LINK_TYPES.practice)).toBeNull();
   expect(readEmailLink(at("token_hash=abc123def456&type=recovery"), LINK_TYPES.myTab)).toBeNull();
   expect(readEmailLink(at("token_hash=%3Cscript%3E&type=email"), LINK_TYPES.myTab)).toBeNull();
   // Links already sent in the older form keep working.
@@ -144,14 +147,14 @@ test("our own counts keep nothing that identifies a visitor (A4, NFR-005)", () =
   expect(isBot("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1")).toBe(false);
 });
 
-test("website stats: the owner sees them, nobody else does, and the counter answers nothing (A4)", async ({ page, context, baseURL, request }) => {
+test("website stats: the owner and admins see them, clients never do, and the counter answers nothing (A4, proposed D-071)", async ({ page, context, baseURL, request }) => {
   await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]);
   await page.goto("/practice/stats");
   await expect(page.locator("main h1")).toHaveText("Website stats");
   await expect(page.getByText("Demo: these numbers are a fixed sample.")).toBeVisible();
   await expect(page.getByRole("cell", { name: "Massage & Bodywork" })).toBeVisible(); // page names, not paths
-  // A client never reaches it (the demo has no non-owner staff; on live data row-level security allows the owner only,
-  // which supabase/tests/rls.test.mjs checks).
+  // A client never reaches it. On live data row-level security allows the owner and admins only, which
+  // supabase/tests/rls.test.mjs checks; e2e/website-requests.spec.ts covers the admin's view.
   await context.addCookies([{ name: "tab_demo_role", value: "client", url: baseURL! }]);
   await page.goto("/practice/stats");
   await expect(page).not.toHaveURL(/\/practice\/stats/);

@@ -3,7 +3,7 @@ title: TAB Human Performance Center Data Model
 eyebrow: TAB Human Performance Center · Data model
 heading: Data model
 owner: Matthew Ronan
-updated: 2026-10-03
+updated: 2026-10-07
 lede: My TAB and TAB Practice keep their data in Postgres on Supabase. Everything about a client hangs off one clients row, and row-level security decides who sees it: the client, the practitioners on their care team, and the owner. Each table below is read from docs/schema.json, which CI keeps identical to what the migrations build. No migration has been applied to a real database yet; the portal runs on demo data until the go-live gate (A15).
 ---
 
@@ -23,7 +23,7 @@ Every client-data table carries `client_id`, which is what row-level security ch
 
 | Table | What it holds | Who reads and writes |
 | --- | --- | --- |
-| `profiles` | One row per sign-in account (Supabase Auth user): role, name, email, whether MFA is required | The person themselves; the owner. Created by `handle_new_user` |
+| `profiles` | One row per sign-in account (Supabase Auth user): role (`owner`, `practitioner`, `admin` or `client`), name, email, whether MFA is required | The person themselves; the owner. Created by `handle_new_user`; only the owner changes a role |
 | `practitioners` | A staff member's public details, services, credentials (`capabilities`) and the publishing permission (`can_publish`) | Everyone signed in reads; the owner writes |
 | `clients` | The client record: contact details, status, TAB Method stage, primary practitioner, Timely and Stripe references, invitation and first sign-in | The client (own contact details only); the care team; the owner |
 | `practitioner_assignments` | Which practitioner works with which client, per service. This is the care team | The owner writes; the care team and the client read |
@@ -87,7 +87,9 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | --- | --- | --- |
 | `inquiries` | Start Where You Are and contact submissions: the whole form, flags, the linked client and the routing outcome. Never deleted | Written by the website with the service role. The owner reads all and records routing; a practitioner reads only those linked to their clients |
 | `appointment_refs` | References to Timely appointments, for display in My TAB | The client reads their own; staff write |
-| `site_stats` | Website counts (owner ruling A4): one row per day, kind (`pageview`, `event`, `referrer`) and key (a public page, a fixed event name, or a referring site's hostname), with a count. No cookies, IP addresses or visitor identifiers exist anywhere | Only the two-step-verified owner reads; only `record_site_stat()` (service role) writes |
+| `site_stats` | Website counts (owner ruling A4): one row per day, kind (`pageview`, `event`, `referrer`) and key (a public page, a fixed event name, or a referring site's hostname), with a count. No cookies, IP addresses or visitor identifiers exist anywhere | The two-step-verified owner and admins read (proposed D-071); only `record_site_stat()` (service role) writes |
+| `website_requests` | Website change requests (proposed D-071): a number (#12), lane (`content` or `design`), pages, kind, title, the change, why, priority, deadline, status (`new`, `questions`, `waiting_owner`, `in_progress`, `in_review`, `live`, `declined`), preview and change links, who asked and when. About the website only: no column refers to a client | Owner, practitioners and admins read and add (two-step-verified). Only the owner changes one, and Claude through the service role; who asked, the number and the dates are stamped; nobody deletes; audited |
+| `website_request_notes` | The conversation on a request: Claude's questions, options and updates, and staff answers, each with its author | Owner, practitioners and admins read and add; notes are kept as written (no edits or deletes); audited |
 | `app_settings` | Owner settings (C23, proposed D-067): whether the client portal is open (`off` or `live`), the transition banner, whether the Start form is open, and (C23b) a Timely link per service (`booking_<service>`, https only, or null for the main booking page) and the optional pages (`feature_resources`, `feature_team`, `feature_events`). One row per setting, no personal data | Anyone reads (the site reads them on every page). Only the owner, two-step-verified, inserts or changes; nobody deletes; every change is stamped and audited |
 
 ### Private
@@ -159,6 +161,11 @@ Every client-data table carries `client_id`, which is what row-level security ch
 | `apply_stripe_event` | Applies one Stripe event in one transaction: grants, pauses, cancels or refunds a purchase, or flags a partial refund. Service role only |
 | `grant_stripe_purchase` | Grants a paid checkout: the purchase, the Stripe customer link and, for a program, its assignment (once) |
 | `resolve_purchase_review` | The owner's decision on a flagged purchase: keep access or end it, stamped with who and when |
+| `is_website_staff` | True for the owner, a practitioner or an admin, through `current_app_role`: who may read and add website requests (proposed D-071) |
+| `staff_display_name` | The name a staff member is shown by on a request or note: preferred name, full name, or the start of their email |
+| `stamp_website_request` | Trigger: a new request starts as `new`, without links, stamped with who asked; afterwards only the owner (or the service role) changes it, never who asked, its number or when, and closing or reopening sets `closed_at` |
+| `stamp_website_request_note` | Trigger: a note is stamped with its author and time from the session; notes from the service role are signed Claude |
+| `forbid_note_change` | Trigger: website request notes are kept as written; updates and deletes fail |
 
 ## Enums
 
@@ -175,13 +182,14 @@ Every client-data table carries `client_id`, which is what row-level security ch
 - **History is kept.** Consents are insert-only, submissions are never deleted, stage changes are recorded, every change to client data is audited, and so is every read of internal notes. The audit log is append-only and copied off Supabase nightly once A26 is done.
 - **Purchases follow Stripe in one step.** Each Stripe event applies whole or not at all, and an event that can't be applied fails loudly so Stripe retries it. A partial refund keeps access until the owner decides (owner ruling 2026-10-03).
 - **Settings are the owner's.** Only the owner, in a two-step-verified session, may change `app_settings`; the keys and value shapes are fixed by check constraints (a booking link must be `https://` with no spaces, at most 500 characters), and no setting can be deleted. A `live` portal setting is the owner's intent only: the app opens My TAB to clients only in a build whose portal data is real (guardrail 4).
+- **Website requests are the website's.** Every staff role reads and files them; only the owner (or Claude, by the service role) moves one; nothing is deleted. An admin holds no client access at all: `is_staff()` and `can_access_client()` are false for the role (proposed D-071).
 - **Links stay within one client.** A plan, review, form submission or activity log can only point to records of the same client.
 
 ## Security model
 
 <!-- generated:security -->
 
-Row-level security is on for every table. A table with no policy for a role refuses that role entirely; `stripe_events` has no policies, so only the server's service role can use it. The `private` schema goes further: signed-in roles have no access to the schema at all, so its tables are reachable only through the functions listed above. Supabase's default grants give `anon` and `authenticated` table access, which is why every rule above lives in a policy or trigger, not in grants. The policies are tested as owner, practitioner, client and signed-out in `supabase/tests/rls.test.mjs`; testing against a real Supabase stack is C6.
+Row-level security is on for every table. A table with no policy for a role refuses that role entirely; `stripe_events` has no policies, so only the server's service role can use it. The `private` schema goes further: signed-in roles have no access to the schema at all, so its tables are reachable only through the functions listed above. Supabase's default grants give `anon` and `authenticated` table access, which is why every rule above lives in a policy or trigger, not in grants. The policies are tested as owner, practitioner, admin, client and signed-out in `supabase/tests/rls.test.mjs`; testing against a real Supabase stack is C6.
 
 ## Local verification
 

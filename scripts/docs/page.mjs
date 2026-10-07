@@ -4,7 +4,7 @@
  * that source into one self-contained HTML page in TAB Human Performance Center's design tokens (app/globals.css).
  *
  * Markdown supported: front matter (key: value between --- lines), ## sections (become the contents rail), ### headings,
- * paragraphs, "- " lists, tables, and directives on a line of their own: <!-- name args -->, which the page script
+ * paragraphs, "- " lists, "1. " numbered steps (with "   - " sub-points), tables, and directives on a line of their own: <!-- name args -->, which the page script
  * expands (diagrams, charts, generated inventories). {{name}} in text is replaced by a value the page computes, so a
  * count in a sentence can never disagree with the tables it counts; an unknown name fails the build.
  *
@@ -50,6 +50,21 @@ export function parse(src) {
       i--;
       const cells = (r) => r.replace(/^\||\|$/g, "").split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, "|"));
       blocks.push({ type: "table", head: cells(rows[0]), rows: rows.slice(2).map(cells) });
+      continue;
+    }
+    if (/^\d+\. /.test(l)) {
+      // Numbered steps; "   - " lines under a step become its sub-points.
+      flush();
+      const items = [];
+      while (i < lines.length && /^(\d+\. |\s{2,}\S)/.test(lines[i])) {
+        const line = lines[i];
+        if (/^\d+\. /.test(line)) items.push({ text: line.replace(/^\d+\. /, ""), sub: [] });
+        else if (/^\s{2,}- /.test(line)) items[items.length - 1].sub.push(line.trim().slice(2));
+        else { const it = items[items.length - 1]; if (it.sub.length) it.sub[it.sub.length - 1] += " " + line.trim(); else it.text += " " + line.trim(); }
+        i++;
+      }
+      i--;
+      blocks.push({ type: "ol", items });
       continue;
     }
     if (/^- /.test(l)) {
@@ -164,6 +179,10 @@ export function render(doc, ctx) {
       continue;
     }
     if (b.type === "ul") { html += `<ul>${b.items.map((it) => `<li>${inline(it, ctx)}</li>`).join("")}</ul>\n`; continue; }
+    if (b.type === "ol") {
+      html += `<ol class="steps">${b.items.map((it) => `<li>${inline(it.text, ctx)}${it.sub.length ? `<ul>${it.sub.map((x) => `<li>${inline(x, ctx)}</li>`).join("")}</ul>` : ""}</li>`).join("")}</ol>\n`;
+      continue;
+    }
     if (b.type === "table") { html += table(b.head, b.rows, ctx) + "\n"; continue; }
     if (b.type === "directive") {
       const fn = ctx.directives?.[b.name];
@@ -234,6 +253,9 @@ h2 { font-size: 1.45rem; line-height: 1.2; padding-top: 10px; font-weight: 700; 
 h3 { font-size: 1.32rem; line-height: 1.2; margin-top: 10px; }
 p { margin: 0; max-width: 74ch; }
 section > ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 78ch; }
+section > ol.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 10px; max-width: 78ch; }
+ol.steps li::marker { font-weight: 700; color: var(--brand); }
+ol.steps ul { margin: 6px 0 0; padding-left: 1.1em; display: grid; gap: 4px; }
 .eyebrow { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0; }
 .hero { display: grid; gap: 12px; }
 .meta, .note, .source, .sub { color: var(--muted); font-size: 0.92rem; }

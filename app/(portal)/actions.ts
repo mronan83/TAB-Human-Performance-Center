@@ -17,6 +17,10 @@ import { sendStageUpdatedEmail } from "@/lib/email";
 import { getService, type ServiceSlug } from "@/content/services";
 import { routingOptions, type RoutingOutcome } from "@/lib/inquiry";
 import { limiter, verifyHuman } from "@/lib/spam";
+import { LANES, LIMITS as REQUEST_LIMITS, STATUSES, parseRequest, type RequestStatus } from "@/lib/website-requests";
+import { addNote, createRequest, setStatus } from "@/lib/website-requests-store";
+import { inviteAdmin, isEmail, removeAdmin } from "@/lib/admins";
+import { sendWebsiteRequestAlert } from "@/lib/email";
 import { PASSKEYS_AVAILABLE, isBreachedPassword, passkeyOptionsToJSON, passkeyRelyingParty, passwordProblem } from "@/lib/staff-auth";
 
 export async function toggleActivityAction(programId: string, activityId: string, done: boolean) {
@@ -392,10 +396,10 @@ export async function createClientFromInquiryAction(id: string) {
 }
 
 /** Demo only: switch between the client and practitioner views. */
-export async function setDemoRoleAction(role: "client" | "owner") {
+export async function setDemoRoleAction(role: "client" | "owner" | "admin") {
   if (!isDemoSignIn()) return;
   (await cookies()).set("tab_demo_role", role, { path: "/", sameSite: "lax" });
-  redirect(role === "owner" ? "/practice" : "/my-tab");
+  redirect(role === "owner" ? "/practice" : role === "admin" ? "/practice/website" : "/my-tab");
 }
 
 /**
@@ -640,3 +644,77 @@ export async function saveSettingsAction(_prev: unknown, fd: FormData): Promise<
   return { ok: true };
 }
 
+
+// ---------------------------------------------------------------------------
+// Website change requests and admins (owner rulings 2026-10-07, proposed D-071)
+// ---------------------------------------------------------------------------
+
+/** Files a website request (any staff role) and, when someone other than the owner asks, emails the owner its number. */
+export async function createWebsiteRequestAction(_prev: unknown, fd: FormData): Promise<{ ok: false; error: string } | undefined> {
+  const viewer = await requireStaffViewer();
+  const parsed = parseRequest(fd);
+  if (!parsed.ok) return { ok: false, error: parsed.error };
+  let number: number;
+  try {
+    number = await createRequest(parsed.input, viewer);
+  } catch (e) {
+    console.error("[website] request failed", e);
+    return { ok: false, error: "We couldn’t save your request. Please try again." };
+  }
+  if (viewer.role !== "owner" && !isDemoSignIn()) await sendWebsiteRequestAlert(number, viewer.name, LANES.find((l) => l.value === parsed.input.lane)!.label);
+  revalidatePath("/practice/website");
+  redirect(`/practice/website/${number}?filed=1`);
+}
+
+export async function addWebsiteRequestNoteAction(requestId: string, number: number, _prev: unknown, fd: FormData): Promise<{ ok: boolean; error?: string }> {
+  const viewer = await requireStaffViewer();
+  const body = String(fd.get("body") ?? "").trim();
+  if (!body) return { ok: false, error: "Write a note first." };
+  if (body.length > REQUEST_LIMITS.note) return { ok: false, error: `Keep a note under ${REQUEST_LIMITS.note} characters.` };
+  try {
+    await addNote(requestId, body, viewer);
+  } catch (e) {
+    console.error("[website] note failed", e);
+    return { ok: false, error: "We couldn’t save your note. Please try again." };
+  }
+  revalidatePath(`/practice/website/${number}`);
+  return { ok: true };
+}
+
+/** The owner moves a request: approve, decline or reopen. */
+export async function setWebsiteRequestStatusAction(requestId: string, number: number, _prev: unknown, fd: FormData): Promise<{ ok: boolean; error?: string }> {
+  await requireOwnerViewer();
+  const status = String(fd.get("status") ?? "") as RequestStatus;
+  if (!STATUSES.some((s) => s.value === status)) return { ok: false, error: "Choose a status." };
+  try {
+    await setStatus(requestId, status);
+  } catch (e) {
+    console.error("[website] status failed", e);
+    return { ok: false, error: "We couldn’t change the status. Please try again." };
+  }
+  revalidatePath("/practice/website");
+  revalidatePath(`/practice/website/${number}`);
+  return { ok: true };
+}
+
+export async function inviteAdminAction(_prev: unknown, fd: FormData): Promise<{ ok: boolean; message: string }> {
+  await requireOwnerViewer();
+  const name = String(fd.get("name") ?? "").trim().replace(/\s+/g, " ");
+  const email = String(fd.get("email") ?? "").trim().toLowerCase();
+  if (name.length < 2 || name.length > 80) return { ok: false, message: "Enter their name." };
+  if (!isEmail(email)) return { ok: false, message: "Enter a valid email address." };
+  const r = await inviteAdmin(name, email);
+  revalidatePath("/practice/settings");
+  return r.ok ? { ok: true, message: r.message } : { ok: false, message: r.error };
+}
+
+export async function removeAdminAction(id: string, _prev: unknown, _fd: FormData): Promise<{ ok: boolean; message: string }> {
+  await requireOwnerViewer();
+  try {
+    await removeAdmin(id);
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "We couldn’t remove them." };
+  }
+  revalidatePath("/practice/settings");
+  return { ok: true, message: "Removed." };
+}
