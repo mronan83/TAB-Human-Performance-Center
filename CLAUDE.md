@@ -106,8 +106,9 @@ Never print, log or commit token values.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",
   Claude promotes that exact deployment (no rebuild) and confirms. Rollback is promoting the previous one.
-  Before sending it, Claude lists every commit since the live deployment that didn't arrive by a merged PR (content
-  editor saves to `main`, A34 declined 2026-10-07) and the owner confirms each one with the promotion.
+  Before sending it, Claude lists every commit since the live deployment that didn't arrive by a merged PR, and the owner
+  confirms each one with the promotion. The editor refuses saves to `main` (proposed D-076) and `content-main-guard.yml`
+  reverts any editor commit that still lands there, moving it to a PR; a revert and its original cancel out in the list.
   Vercel's automatic aliases (`…-mronan83s-projects.vercel.app`, `…-git-main-…`) always follow the newest build;
   only `tab-human-performance-center.vercel.app` (the old `tab-wellness-collective.vercel.app` redirects to it since the
   project rename) and the custom domains (proposed D-066; `docs/runbooks/switch-over.md`) are held until promotion.
@@ -159,7 +160,7 @@ Never print, log or commit token values.
 ## Architecture conventions
 - Business settings live in `config/site.ts`; copy lives in `content/*.ts`. Pages read from these;
   don't hardcode business facts in components.
-- **Content editor (Keystatic, proposed D-069, D-071 to D-074):** the service pages, the techniques guide, Home, the TAB
+- **Content editor (Keystatic, proposed D-069, D-071 to D-076):** the service pages, the techniques guide, Home, the TAB
   Method, About, Our Story, Our Team (`content/pages/*.json`) and the resource library (`content/resources/`,
   `content/resource-topics/`, PDFs in `content/resource-files/`, read through `lib/resources.ts`) are JSON files edited at
   `/keystatic` (Keystatic Cloud sign-in) on `content/…` branches; `content-pr.yml` opens a PR per branch and CI runs on every save. `content/schema.ts` is the

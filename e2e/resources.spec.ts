@@ -4,25 +4,30 @@ import { signedDownloadPath, validDownloadSignature } from "../lib/resources";
 import { MIN_FILL_MS } from "../lib/spam";
 
 /**
- * The resource library (C35, owner request 2026-10-07), against its fixture copy (e2e/fixtures/resource-library; the
- * build and server read it through RESOURCE_LIBRARY_ROOT): a link, an open PDF, a PDF that asks for an email address
- * first, a draft, and a topic with nothing published yet.
+ * The resource library (C35, owner requests 2026-10-07 and 2026-10-08), against its fixture copy
+ * (e2e/fixtures/resource-library; the build and server read it through RESOURCE_LIBRARY_ROOT). The "Recovery" topic lists
+ * a subject linked to an email-first PDF, one linked to an open PDF, one still to come, one linked to a draft, then two
+ * published resources no subject names (a page on this site and another website); "Planned topic" has nothing yet.
  */
 const WCAG = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 // The form route allows five submissions per address per ten minutes (lib/spam.ts); these requests come from their own
 // test address (TEST-NET-3), so the rest of the suite's form tests keep theirs. Vercel sets this header itself.
 test.use({ extraHTTPHeaders: { "x-forwarded-for": "203.0.113.35" } });
 
-test("the Resources page lists published entries by topic, hides drafts and shows planned topics", async ({ page }) => {
+test("each topic lists its subjects: ready ones are clickable, the rest say coming soon", async ({ page }) => {
   await page.goto("/resources");
   const topic = page.getByRole("region", { name: "Recovery" });
-  await expect(topic.getByRole("heading", { level: 3 })).toHaveText(["Your recovery week", "Sleep basics", "An outside guide"]); // newest first
-  await expect(page.getByText("An unfinished draft")).toHaveCount(0);
-  await expect(topic.getByText("Guide · PDF · 1 KB")).toHaveCount(2);
-  await expect(topic.getByRole("link", { name: /Visit example\.org/ })).toHaveAttribute("href", "/resources/go/outside-guide");
-  await expect(topic.getByRole("link", { name: /Download the PDF: Sleep basics/ })).toHaveAttribute("href", "/resources/download/sleep-basics");
-  await expect(page.getByRole("heading", { name: "Coming soon" })).toBeVisible();
-  await expect(page.getByText("A planned subject")).toBeVisible();
+  const rows = topic.getByRole("listitem");
+  await expect(rows).toHaveCount(6);
+  // Subjects in the topic's order, then the topic's other published resources, newest first.
+  await expect(rows.nth(0).getByRole("button", { name: "Your recovery week: PDF · 1 KB, we’ll email you the link" })).toHaveAttribute("aria-expanded", "false");
+  await expect(rows.nth(1).getByRole("link", { name: "Sleep basics: PDF · 1 KB" })).toHaveAttribute("href", "/resources/download/sleep-basics");
+  await expect(rows.nth(2)).toHaveText(/Stretching after training\s*Coming soon/);
+  await expect(rows.nth(3)).toHaveText(/An unfinished draft\s*Coming soon/); // its resource is still a draft
+  await expect(rows.nth(3).getByRole("link")).toHaveCount(0);
+  await expect(rows.nth(4).getByRole("link", { name: "The TAB Method page: Page on our website" })).toHaveAttribute("href", "/resources/go/site-page");
+  await expect(rows.nth(5).getByRole("link", { name: "An outside guide: Link · example.org, another website" })).toHaveAttribute("href", "/resources/go/outside-guide");
+  await expect(page.getByRole("region", { name: "Planned topic" })).toHaveText(/A planned subject\s*Coming soon/);
   const { violations } = await new AxeBuilder({ page }).withTags(WCAG).analyze();
   expect(violations.map((v) => v.id)).toEqual([]);
 });
@@ -35,6 +40,9 @@ test("an open document downloads; a link goes to the other site; drafts and unkn
   const go = await request.get("/resources/go/outside-guide", { maxRedirects: 0 });
   expect(go.status()).toBe(307);
   expect(go.headers()["location"]).toBe("https://example.org/guide");
+  const onSite = await request.get("/resources/go/site-page", { maxRedirects: 0 });
+  expect(onSite.status()).toBe(307);
+  expect(new URL(onSite.headers()["location"]).pathname).toBe("/tab-method");
   for (const p of ["/resources/go/unfinished", "/resources/go/sleep-basics", "/resources/download/outside-guide", "/resources/download/nothing-here"]) {
     expect((await request.get(p, { maxRedirects: 0 })).status(), p).toBe(404);
   }
@@ -63,7 +71,8 @@ test("a document that asks for an email address needs a valid, unexpired signed 
 test("asking for a guide: name and email only, the spam layers apply, and it says to check your inbox", async ({ page, request }) => {
   await page.goto("/resources");
   const card = page.locator("#recovery-week");
-  await card.getByRole("button", { name: /Email me the PDF/ }).click();
+  await card.getByRole("button", { name: /^Your recovery week/ }).click();
+  await expect(card.getByRole("button", { name: /^Your recovery week/ })).toHaveAttribute("aria-expanded", "true");
   await expect(card.getByLabel("Your name")).toBeFocused();
   await card.getByRole("button", { name: "Send me the link" }).click();
   await expect(card.getByRole("alert")).toBeVisible();
@@ -88,4 +97,5 @@ test("an expired link brings people back to the guide with a note", async ({ pag
   await page.goto("/resources/download/recovery-week");
   await expect(page).toHaveURL(/\/resources\?link=expired&r=recovery-week#recovery-week$/);
   await expect(page.getByRole("status").filter({ hasText: "That download link has expired." })).toBeVisible();
+  await expect(page.locator("#recovery-week").getByLabel("Your name")).toBeVisible(); // its form is already open
 });

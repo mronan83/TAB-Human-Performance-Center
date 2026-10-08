@@ -1,10 +1,19 @@
 {
   "title": "Massage and recovery",
   "order": 1,
-  "comingSoon": [
-    "Your first massage",
-    "Training recovery",
-    "Prenatal comfort",
-    "Lymphatic drainage basics"
+  "subjects": [
+    {
+      "title": "Your first massage",
+      "resource": "your-first-massage"
+    },
+    {
+      "title": "Training recovery"
+    },
+    {
+      "title": "Prenatal comfort"
+    },
+    {
+      "title": "Lymphatic drainage basics"
+    }
   ]
 }

@@ -10,8 +10,8 @@ import { LINK_DAYS } from "@/lib/resources";
  * (D-054), and the person's email names only the guide. Nothing is stored (proposed D-058: only once guardrail 4's
  * conditions are met).
  */
-export function buildResourceEmails(d: { name: string; email: string; marketingOptIn?: boolean }, guide: { title: string }, downloadPath: string, ref: string, flags: SpamFlag[]) {
-  const link = `${siteUrl}${downloadPath}`;
+export function buildResourceEmails(d: { name: string; email: string; marketingOptIn?: boolean }, guide: { title: string }, downloadPath: string, ref: string, flags: SpamFlag[], base = siteUrl) {
+  const link = `${base}${downloadPath}`;
   const first = firstName(d.name);
   const rows: [string, string][] = [["Name", d.name], ["Email", d.email], ["Guide", guide.title], ["News and events by email", d.marketingOptIn ? "Yes" : "No"]];
   const flagNote = flags.length ? `${e.staff.notSent} (${flags.map((f) => flagLabels[f]).join("; ")})` : "";

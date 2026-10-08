@@ -1,0 +1,14 @@
+{
+  "title": "The TAB Method page",
+  "summary": "A page on this site, used by the checks.",
+  "topic": "recovery",
+  "pillar": "none",
+  "kind": {
+    "discriminant": "link",
+    "value": {
+      "url": "/tab-method"
+    }
+  },
+  "status": "published",
+  "added": "2026-10-05"
+}

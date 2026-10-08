@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 1.5
+version: 1.6
 updated: 2026-10-07
 owner: Matthew Ronan
 ---
@@ -101,7 +101,7 @@ _The content editor is free for up to three editors (you and two admins). A four
 <!-- content-flow -->
 
 1. **Open the content editor** at `/keystatic` and sign in with your Keystatic account (no GitHub account needed). The owner invites editors; up to three are free.
-2. **Start a branch.** In the editor's branch menu choose **New branch** and give it a short name, such as `parking-faq`. The editor adds `content/` in front. Each branch is one change request, so keep one topic per branch. _Never edit on `main`: changes there skip the review step (see the note below)._
+2. **Start a branch.** In the editor's branch menu choose **New branch** and give it a short name, such as `parking-faq`. The editor adds `content/` in front. Each branch is one change request, so keep one topic per branch. _The editor opens on `main` (the live website's branch), where saving is turned off: start your branch first (see the note below)._
 3. **Choose what to edit**: under **Service pages**, one of the five; under **Guides**, the massage techniques guide; under **Pages**, Home, The TAB Method, About, Our Story or Our Team; under **Resources**, the resource library and its topics.
 4. **Make your change.** Fields show their limits as you type (a search description must be 40 to 160 characters, for example). Under **Sections** you can add a section, drag sections into a new order, or remove one; each section's own fields are inside it.
 5. **Save.** Each save is kept on your branch. It doesn't touch the live site, and you can come back to it later.
@@ -110,23 +110,32 @@ _The content editor is free for up to three editors (you and two admins). A four
    - **A check fails:** the change request says which rule and where (for example, "content/services/massage-bodywork.json: sections.5.value.items.2.a: String must contain at most 900 character(s)" or "Use 'TAB Human Performance Center' in full"). Fix it in the editor on the same branch and save again.
 7. **Live.** The owner approves, Claude merges it and sends the production build, and the owner promotes it. If something looks wrong, rolling back is one step.
 
-_Why branches: the editor lets anyone with access save straight to `main`, the branch the live site is built from. A save there skips the change request and the preview: GitHub shows only the checks on that one save, and it rides into the next release. It still can't go live without the owner's promotion, and before every promotion Claude lists any change that reached `main` without a change request so the owner sees it first. GitHub branch protection would block these saves outright, but it needs a paid plan, which the owner has declined for now (A34)._
+_Saving on `main` is turned off (owner request 2026-10-08). The editor opens on `main`, the branch the live site is built from, and shows a green notice at the bottom while you're there: choose **New branch** first. If you try to save on `main` anyway, the editor refuses with the same instructions, and nothing is saved._
 
-_Saved to `main` by mistake? Nothing is live. Tell Claude (or file a Content help request): Claude checks the change, and you confirm it before the next promotion, or Claude takes it back out._
+_Safety net: if a change still reaches `main` some other way, an automatic check moves it within a minute onto the branch `content/saved-on-main`, opens a change request for it, and takes it back out of `main`. Nothing goes live either way: every release needs the owner's promotion, and before each one Claude lists anything that reached `main` without a change request._
 
 _Empty optional fields are fine. When you clear an optional field (a card grid's heading, say), the editor leaves it out of the file, and the site treats it as empty._
 
 ## Resources | Links and documents
 
-The Resources page is a library you build in the editor, under **Resources**. Each entry is either a **link** to another website or a **document**: a PDF TAB wrote, uploaded in the editor. Entries are grouped by **topic**; a topic with nothing published yet lists its "Coming soon" subjects instead.
+The Resources page is a library you build in the editor, under **Resources**. Each **topic** (for example "Massage and recovery") is a card listing its **subjects**. A subject linked to a published **resource** is clickable; the rest say "Coming soon". A resource is either a **link** (another website, or a page on this site) or a **document** (a PDF TAB wrote, uploaded in the editor).
 
-1. **Add an entry**: Resources → **Add**. Give it a title (it also sets the entry's address) and a one-line summary of what it is and who it's for.
-2. **Choose the topic** and, if it relates to one, the service. To add a topic, use **Resource topics** (its order number sets where it appears; 1 comes first).
+What a visitor gets when they click a subject:
+
+| The resource is | Clicking the subject |
+|---|---|
+| A document | Downloads and opens the PDF |
+| A document that asks for an email address first | Opens a short name-and-email form under the subject; the download link is emailed to them, and TAB gets an email saying who asked |
+| A link | Opens that page, on this site or another |
+
+1. **Start a branch** (see "Content lane"). Saving on `main` is turned off.
+2. **Add the resource**: Resources → **Add**. Give it a title (it also sets its address), a one-line summary, its **topic** and, if it relates to one, the service.
 3. **Choose the kind.**
-   - **Link:** paste the web address (it must start with `https://`). Link to other organisations' material rather than uploading it.
-   - **Document:** upload the PDF and choose whether to **ask for an email address first** (on by default). With it on, visitors give their name and email, and the download link is emailed to them; TAB gets an email saying who asked. With it off, anyone can download it straight away.
-4. **Set the status.** **Draft** shows on previews only; **Published** shows on the live site once the change is published. Leave it as a draft until you're happy with it.
-5. **Update or remove.** Open an entry to change it, or upload a new PDF to replace the old one. **Delete** removes it from the page. Save on your branch as usual.
+   - **Link:** another website's address (starting with `https://`), or a page on this site (starting with `/`, for example `/services/massage-bodywork`). Link to other organisations' material rather than uploading it.
+   - **Document:** upload the PDF and choose whether to **ask for an email address first** (on by default). With it off, anyone can download it straight away.
+4. **Set the status.** **Draft** shows on previews only; **Published** shows on the live site once the change is published.
+5. **Link it to its subject**: Resource topics → open the topic → under **Subjects**, choose the resource in **Opens this resource** next to the subject it fulfils (for example "Your first massage"). A published resource you don't link to a subject still appears, at the end of its topic's list.
+6. **Update or remove.** Open a resource to change it, or upload a new PDF to replace the old one. **Delete** removes it; unlink it from its subject first (the checks say so if you forget). To add or reorder subjects, or add a topic, use **Resource topics** (a topic's order number sets where it appears; 1 comes first).
 
 _Before you upload a document:_
 - _**It becomes public.** Anyone can download a published document, and search engines can find one that doesn't ask for an email. Never upload anything about a client._
@@ -166,7 +175,7 @@ _Claude checks for new requests and new notes every morning. For anything sooner
 | Home and The TAB Method | Every word, the search description, and the photo beside "Human performance for real life" | The order of sections, the hero photo, the closing photo | The stage names (Start Where You Are, Transform, Adapt, Balance, Evolve); the figures in "Real people" (founding year, years of experience, pillar count) come from the business settings |
 | About and Our Story | Add, edit, remove and reorder sections and paragraphs; mark Our Story as a draft | How the page looks | — |
 | Our Team | Add, edit and remove people; upload their photos; confirm credentials | How the page looks | Credentials show only once confirmed |
-| Resources | Add, update and remove links and PDF documents; topics; whether a document asks for an email address; draft or published | How the page looks; gated downloads that ask for more than a name and email | Documents are PDFs up to 10 MB; links are https |
+| Resources | Add, update and remove links and PDF documents; topics and their subjects, and which resource each subject opens; whether a document asks for an email address; draft or published | How the page looks; gated downloads that ask for more than a name and email | Documents are PDFs up to 10 MB; links are https or a page on this site |
 | FAQs (service pages) | Add, edit, remove, reorder; mark an answer as a draft | — | — |
 | Cards: focus areas, techniques | Add, edit, remove, reorder (up to 12 cards a section; techniques: up to 20) | A new kind of card | A technique's address (slug) |
 | Photos | Choose from the photo library | Adding new photos to the library; hero image style, cropping | Library photos stay decorative (no people's names, no proof) |
@@ -196,7 +205,8 @@ These run automatically on every change, in either lane. A change that breaks on
 | Links | Every link on the site works | Launch checks |
 | Search | Each page has a unique title and a 40 to 160 character description | NFR-002, NFR-003 |
 | Colours | Only the approved palette; white text only on Deep Olive, Clay Dark or Graphite | Guardrail 3 |
-| Resources | Every entry has a topic that exists; links start with https; every document is a real PDF of at most 10 MB | C35 |
+| Resources | Every entry has a topic that exists; links start with https:// or /; every document is a real PDF of at most 10 MB; a subject opens an existing resource of its own topic, and a resource sits under one subject | C35 |
+| Branches | Saving on `main` is refused in the editor; anything that reaches `main` anyway is moved to a change request | Owner request 2026-10-08 |
 | Team photos | A JPEG, PNG or WebP of at most 5 MB, with a description | Guardrail 9 |
 
 ## Writing guidelines
@@ -269,7 +279,8 @@ _Sections next to each other on the same background read as one band. Draft answ
 | **Website admin** | A TAB Practice account for the website only: requests, website stats and the content editor; never client records. |
 | **Website stats** | Our own count of page views, Book clicks, Start forms and resources opened, in TAB Practice. No cookies and nothing that identifies a visitor. |
 | **Resource** | An entry on the Resources page: a **link** to another website or a **document** (a PDF TAB wrote). |
-| **Topic** | A group on the Resources page, such as "Massage and recovery". |
+| **Topic** | A group on the Resources page, such as "Massage and recovery", shown as a card listing its subjects. |
+| **Subject** | A line in a topic's list, such as "Your first massage". Linked to a published resource it's clickable; otherwise it says "Coming soon". |
 | **Email-first document** | A document that asks for a name and email address; the download link is emailed and works for 14 days. |
 | **Fixed layout** | A page whose sections stay in a set order (Home, The TAB Method); editors change the words, not the arrangement. |
 
@@ -305,6 +316,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.6 | 2026-10-08 | Topics list their subjects and a subject opens its resource (a document downloads, an email-first one opens its form, a link opens its page); links can be pages on this site; saving on `main` is turned off, with a safety net that moves anything there into a change request | Owner requests 2026-10-08: "if the artifact is an uploaded document, download it; if it's a hyperlink… it takes them to that link"; "we need a better process to prevent this from being saved to main" |
 | 1.5 | 2026-10-07 | Home, The TAB Method, About, Our Story and Our Team in the editor; the resource library (links, PDF documents, email-first downloads, counts); team photos and confirmed credentials; new rules, pages and terms | Owner request, 2026-10-07 (C35): all three in one change, email required for downloads, daily counts, documents stored with the site |
 | 1.4 | 2026-10-07 | What happens when a save lands on `main` instead of a branch, and how it's caught before release; empty optional fields | The first editor save (on `main`) broke the build; owner declined GitHub Pro (A34) |
 | 1.3 | 2026-10-07 | The content editor: branches, change requests, the block library, the fields and limits for service pages and the techniques guide | Release of C31 (proposed D-069, D-072) |

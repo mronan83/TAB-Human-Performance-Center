@@ -1,10 +1,18 @@
 {
   "title": "Life and agency",
   "order": 5,
-  "comingSoon": [
-    "Priorities",
-    "Boundaries",
-    "Overwhelm",
-    "Values and decisions"
+  "subjects": [
+    {
+      "title": "Priorities"
+    },
+    {
+      "title": "Boundaries"
+    },
+    {
+      "title": "Overwhelm"
+    },
+    {
+      "title": "Values and decisions"
+    }
   ]
 }

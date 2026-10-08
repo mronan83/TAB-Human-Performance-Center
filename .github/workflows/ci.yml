@@ -6,6 +6,8 @@ on:
     # content/** : the content editor's branches (proposed D-069). Their change requests are opened by
     # content-pr.yml with the workflow token, which doesn't start pull_request runs, so the checks run on the push.
     branches: [main, "content/**"]
+  # Started by content-main-guard.yml for the change request it opens (its pushes don't start workflows themselves).
+  workflow_dispatch:
 
 permissions:
   contents: read

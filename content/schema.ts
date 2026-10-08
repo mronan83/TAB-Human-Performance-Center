@@ -79,13 +79,16 @@ export function parseContent<T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, dat
 }
 
 /**
- * The resource library (C35, owner request 2026-10-07): links to other sites and documents TAB has written (PDFs,
- * uploaded in the editor). A document can ask for an email address first; the download link then arrives by email
- * (lib/resources.ts). Topics group the page; a topic with nothing published shows its planned subjects instead.
+ * The resource library (C35, owner requests 2026-10-07 and 2026-10-08): links and documents TAB has written (PDFs,
+ * uploaded in the editor). Each topic lists its subjects; a subject linked to a published resource becomes clickable
+ * (a document downloads, a link opens its page, an email-first document asks for a name and email), the rest say
+ * coming soon, and a published resource no subject names is added to the end of its topic's list (lib/resources.ts).
  */
 export const SERVICE_KEYS = ["massage-bodywork", "personal-strength-training", "womens-wellness-coaching", "integrated-nutrition", "holistic-life-coaching"] as const;
 export const PILLAR_KEYS = ["none", ...SERVICE_KEYS] as const;
-export const RESOURCE_LIMITS = { title: [3, 90], summary: [10, 220], topicTitle: [3, 60], topicIntro: [0, 240], comingSoon: [3, 60], url: [12, 500] } as const satisfies Record<string, readonly [number, number]>;
+export const RESOURCE_LIMITS = { title: [3, 90], summary: [10, 220], topicTitle: [3, 60], topicIntro: [0, 240], subject: [3, 90], url: [2, 500] } as const satisfies Record<string, readonly [number, number]>;
+/** A link is another website (https) or a page on this site (a path such as /services/massage-bodywork). */
+export const RESOURCE_LINK = /^(https:\/\/[^\s]+|\/(?!\/)[^\s]*)$/;
 /** Largest document the editor may upload (bytes). Larger files belong in a separate file store (backlog). */
 export const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
 export const RESOURCE_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -94,7 +97,11 @@ export const resourceTopicSchema = z.object({
   title: text(RESOURCE_LIMITS.topicTitle),
   intro: optionalText(RESOURCE_LIMITS.topicIntro),
   order: z.number().int().min(1).max(99),
-  comingSoon: z.array(text(RESOURCE_LIMITS.comingSoon)).max(8).default([]),
+  subjects: z.array(z.object({
+    title: text(RESOURCE_LIMITS.subject),
+    // The resource this subject opens, by its address; empty until it exists (the subject then says coming soon).
+    resource: z.string().regex(RESOURCE_SLUG).nullable().optional(),
+  })).max(12).default([]),
 });
 export type ResourceTopicContent = z.infer<typeof resourceTopicSchema>;
 
@@ -104,7 +111,7 @@ export const resourceSchema = z.object({
   topic: z.string().regex(RESOURCE_SLUG, "Choose a topic."),
   pillar: z.enum(PILLAR_KEYS).default("none"),
   kind: z.discriminatedUnion("discriminant", [
-    z.object({ discriminant: z.literal("link"), value: z.object({ url: z.string().trim().url().max(RESOURCE_LIMITS.url[1]).refine((u) => u.startsWith("https://"), "Links must start with https://") }) }),
+    z.object({ discriminant: z.literal("link"), value: z.object({ url: z.string().trim().max(RESOURCE_LIMITS.url[1]).regex(RESOURCE_LINK, "A link is a web address starting with https:// or a page on this site starting with /") }) }),
     z.object({ discriminant: z.literal("document"), value: z.object({ file: z.string().min(1, "Upload the PDF."), requireEmail: z.boolean().default(true) }) }),
   ]),
   status: z.enum(["draft", "published"]).default("draft"),

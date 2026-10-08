@@ -1,6 +1,6 @@
 import { collection, config, fields, singleton } from "@keystatic/core";
 import { images } from "./content/images";
-import { COUNTS, GROUPS, L, METHOD_STAGES, PAGE_LIMITS as P, PILLAR_KEYS, PRESSURES, RESOURCE_LIMITS as R, SERVICE_KEYS, TONES } from "./content/schema";
+import { COUNTS, GROUPS, L, METHOD_STAGES, PAGE_LIMITS as P, PILLAR_KEYS, PRESSURES, RESOURCE_LIMITS as R, RESOURCE_LINK, SERVICE_KEYS, TONES } from "./content/schema";
 
 /**
  * The content editor (proposed D-069 and D-071, backlog C31), at /keystatic. It edits the content files in this
@@ -126,7 +126,11 @@ const resources = collection({
       fields.select({ label: "Kind", options: [{ label: "Link to another website", value: "link" }, { label: "Document TAB wrote (PDF upload)", value: "document" }], defaultValue: "link" }),
       {
         link: fields.object({
-          url: fields.url({ label: "Web address", description: "Starts with https://. Link to other organizations' material rather than uploading it.", validation: { isRequired: true } }),
+          url: fields.text({
+            label: "Web address or page",
+            description: "Another website (starting with https://), or a page on this site (starting with /, e.g. /services/massage-bodywork). Link to other organizations' material rather than uploading it.",
+            validation: { length: { min: R.url[0], max: R.url[1] }, pattern: { regex: RESOURCE_LINK, message: "Start with https:// for another website, or / for a page on this site." } },
+          }),
         }),
         document: fields.object({
           file: fields.file({ label: "PDF", description: "A PDF TAB wrote, up to 10 MB, exported with 'Tagged PDF' (accessible) turned on. Anyone can download a published document: never upload anything about a client.", directory: FILES_DIR, publicPath: FILES_PUBLIC_PATH, validation: { isRequired: true } }),
@@ -148,7 +152,13 @@ const resourceTopics = collection({
     title: fields.slug({ name: { label: "Topic", validation: { length: { min: R.topicTitle[0], max: R.topicTitle[1] } } } }),
     intro: text("Introduction", R.topicIntro, { multiline: true }),
     order: fields.integer({ label: "Order on the page", description: "1 comes first.", defaultValue: 10, validation: { min: 1, max: 99, isRequired: true } }),
-    comingSoon: fields.array(text("Subject", R.comingSoon), { label: "Coming soon", description: "Shown under the topic until it has a published resource.", itemLabel: (p) => p.value, validation: { length: { max: 8 } } }),
+    subjects: fields.array(
+      fields.object({
+        title: text("Subject", R.subject, { description: "As it appears in the topic's list, e.g. Your first massage." }),
+        resource: fields.relationship({ label: "Opens this resource", description: "Choose the resource this subject opens: a document downloads, a link opens its page. Leave it empty and the subject says Coming soon. The resource must be filed under this topic.", collection: "resources" }),
+      }),
+      { label: "Subjects", description: "The topic's list, in order. Published resources you haven't linked here are added at the end.", itemLabel: (p) => `${p.fields.title.value}${p.fields.resource.value ? " → linked" : " (coming soon)"}`, validation: { length: { max: 12 } } },
+    ),
   },
 });
 

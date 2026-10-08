@@ -11,6 +11,7 @@ import {
   storyContentSchema, teamContentSchema, techniquesContentSchema,
 } from "../content/schema";
 import { loadLibrary } from "../lib/resources";
+import { BLOCKED_MESSAGE, guardFetch, isCommitToProtectedBranch, onProtectedBranch } from "../lib/keystatic-guard";
 
 /**
  * The content editor and the site read the same files the same way (proposed D-069, backlog C31). If keystatic.config.ts
@@ -80,7 +81,7 @@ test("the editor's collections (resources and their topics) read as the site rea
 test("the resource library's own checks catch a broken entry, naming the file", () => {
   const fixtures = path.join(root, "e2e/fixtures/resource-library");
   const lib = loadLibrary(fixtures);
-  expect(lib.resources.map((r) => r.slug).sort()).toEqual(["outside-guide", "recovery-week", "sleep-basics", "unfinished"]);
+  expect(lib.resources.map((r) => r.slug).sort()).toEqual(["outside-guide", "recovery-week", "site-page", "sleep-basics", "unfinished"]);
   expect(lib.resources.find((r) => r.slug === "recovery-week")?.document).toMatchObject({ requireEmail: true });
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "library-"));
   fs.cpSync(fixtures, tmp, { recursive: true });
@@ -92,7 +93,45 @@ test("the resource library's own checks catch a broken entry, naming the file", 
   expect(() => loadLibrary(tmp)).toThrow(/topic "nowhere" doesn't exist/);
   fs.writeFileSync(entry, good.replace('"/resource-files/sleep-basics/file.pdf"', '"/somewhere/else.pdf"'));
   expect(() => loadLibrary(tmp)).toThrow(/must start with \/resource-files\//);
+  fs.writeFileSync(entry, good.replace('"/resource-files/sleep-basics/file.pdf"', '"/resource-files/../../package.json"'));
+  expect(() => loadLibrary(tmp)).toThrow(/documents must be PDF files/);
+  fs.writeFileSync(entry, good);
+  fs.copyFileSync(path.join(fixtures, "content/resource-files/sleep-basics/file.pdf"), path.join(tmp, "content/resource-files/sleep-basics/file.pdf"));
+  // A subject opens one existing resource of its own topic, and a resource sits under one subject.
+  const topicFile = path.join(tmp, "content/resource-topics/recovery.json");
+  const topic = fs.readFileSync(topicFile, "utf8");
+  fs.writeFileSync(topicFile, topic.replace('"resource": "sleep-basics"', '"resource": "no-such-guide"'));
+  expect(() => loadLibrary(tmp)).toThrow(/subject "Sleep basics": resource "no-such-guide" doesn't exist/);
+  fs.writeFileSync(topicFile, topic.replace('"resource": "sleep-basics"', '"resource": "recovery-week"'));
+  expect(() => loadLibrary(tmp)).toThrow(/"Your recovery week" is already linked from the subject "Your recovery week"/);
+  fs.writeFileSync(topicFile, topic);
+  fs.writeFileSync(path.join(tmp, "content/resource-topics/planned.json"), JSON.stringify({ title: "Planned topic", order: 2, subjects: [{ title: "Borrowed", resource: "outside-guide" }] }));
+  expect(() => loadLibrary(tmp)).toThrow(/"An outside guide" is filed under another topic/);
   fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test("the editor refuses to save on main, in Keystatic's own request format, and lets everything else through", async () => {
+  // Keystatic still saves with this GraphQL mutation and branch field; if an upgrade changes them, the guard must too.
+  const ui = fs.readFileSync(path.join(root, "node_modules/@keystatic/core/dist/keystatic-core-ui.js"), "utf8");
+  expect(ui).toContain("mutation CreateCommit($input: CreateCommitOnBranchInput!)");
+  expect(ui).toMatch(/branchName: \(_override\$branch = override === null/);
+  const commit = (branchName: string) => JSON.stringify({
+    query: "mutation CreateCommit($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { ref { id } } }",
+    variables: { input: { branch: { branchName, repositoryNameWithOwner: "mronan83/TAB-Human-Performance-Center" }, expectedHeadOid: "abc", message: { headline: "Update" }, fileChanges: {} } },
+  });
+  expect(isCommitToProtectedBranch(commit("main"))).toBe(true);
+  expect(isCommitToProtectedBranch(commit("content/first-massage-guide"))).toBe(false);
+  expect(isCommitToProtectedBranch(JSON.stringify({ query: "mutation CreateBranch { createRef(input: {}) { ref { id } } }" }))).toBe(false);
+  expect(isCommitToProtectedBranch("not json createCommitOnBranch")).toBe(false);
+  const sent: string[] = [];
+  let blocked = 0;
+  const guarded = guardFetch((async (_u: RequestInfo | URL, init?: RequestInit) => { sent.push(String(init?.body)); return new Response("{}"); }) as typeof fetch, () => blocked++);
+  const refused = await guarded("https://api.keystatic.cloud/v1/github/graphql", { method: "POST", body: commit("main") });
+  expect(await refused.json()).toMatchObject({ errors: [{ message: BLOCKED_MESSAGE }] });
+  await guarded("https://api.keystatic.cloud/v1/github/graphql", { method: "POST", body: commit("content/first-massage-guide") });
+  expect([sent.length, blocked]).toEqual([1, 1]);
+  expect(onProtectedBranch("/keystatic/branch/main/collection/resources")).toBe(true);
+  expect(onProtectedBranch("/keystatic/branch/content%2Fguide/collection/resources")).toBe(false);
 });
 
 /** Keystatic reads an uploaded file as its bytes; put back the stored path so the two can be compared. */

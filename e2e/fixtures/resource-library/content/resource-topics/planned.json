@@ -1,7 +1,9 @@
 {
   "title": "Planned topic",
   "order": 2,
-  "comingSoon": [
-    "A planned subject"
+  "subjects": [
+    {
+      "title": "A planned subject"
+    }
   ]
 }
