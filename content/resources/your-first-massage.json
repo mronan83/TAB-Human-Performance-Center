@@ -1,0 +1,15 @@
+{
+  "title": "Your First Massage",
+  "summary": "What to expect as a first time massage client",
+  "topic": "massage-and-recovery",
+  "pillar": "massage-bodywork",
+  "kind": {
+    "discriminant": "document",
+    "value": {
+      "file": "/resource-files/your-first-massage/kind/value/file.pdf",
+      "requireEmail": true
+    }
+  },
+  "status": "published",
+  "added": "2026-10-08"
+}
