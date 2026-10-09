@@ -1,9 +1,15 @@
 {
   "title": "The TAB Method",
   "order": 6,
-  "comingSoon": [
-    "Starting where you are",
-    "Defining progress",
-    "Maintenance and independence"
+  "subjects": [
+    {
+      "title": "Starting where you are"
+    },
+    {
+      "title": "Defining progress"
+    },
+    {
+      "title": "Maintenance and independence"
+    }
   ]
 }

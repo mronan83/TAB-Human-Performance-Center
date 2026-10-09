@@ -1,10 +1,18 @@
 {
   "title": "Women’s wellness",
   "order": 3,
-  "comingSoon": [
-    "Sustainable routines",
-    "Sleep and recovery",
-    "Perimenopause and menopause",
-    "Health advocacy"
+  "subjects": [
+    {
+      "title": "Sustainable routines"
+    },
+    {
+      "title": "Sleep and recovery"
+    },
+    {
+      "title": "Perimenopause and menopause"
+    },
+    {
+      "title": "Health advocacy"
+    }
   ]
 }

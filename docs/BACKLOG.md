@@ -30,8 +30,8 @@ _Last updated: 2026-10-07, the content editor (C31) live and connected to Keysta
 | C25 | Launch communications plan for 1 November: announcement sequence, channels, assets and the cutover timeline (a shared document for the owner) [A13] | Launch | Claude | M | None |
 | C34 | **In review.** Website admin role (website only: requests, stats, content editor; never client data) and website requests inside TAB Practice → Website changes: numbered requests, statuses, notes, owner-only status changes, an email to the owner naming the number; admins invited and removed in Settings; GitHub issue forms retired; content guide updated. Needs G3 for migrations `20261012000000` and `20261013000000` [STAFF-011, CMS-007, proposed D-071] | Platform | Claude | M | None |
 | A31 | Keystatic Cloud: invite up to two editors (project `tab-hpc/website`, Project URLs set 2026-10-07). They can reach `/keystatic` only once the site is past Vercel login, or as Vercel team members | Accounts | Owner | S | None |
-| C35 | Content editor, part 2 (PR open): Home, the TAB Method, About, Our Story, Our Team (photo uploads, confirmed credentials) and the resource library (links, PDFs, email-first downloads, open counts). Left after it: FAQ, Start's text and client policies, and adding photos to the library | Platform | Claude | M | Owner review |
-| A35 | First resources: add your guides and links in the editor (Resources), marking each Draft until you're happy; tell Claude which documents should ask for an email address | Content | Owner | S | C35 |
+| C35b | Content editor, last pages: FAQ, Start's text and client policies; adding photos to the library | Platform | Claude | M | — |
+| A35 | Resources: add your guides and links (Resources → Add) on a new branch, then link each to its subject (Resource topics → Opens this resource). "Your first massage" is done (2026-10-08) | Content | Owner | S | — |
 | C36 | Store resource requests (who asked for which guide) alongside Start and contact submissions once guardrail 4's conditions are met, so TAB Practice lists them; and a mailing-list export for those who ticked news | Portal | Claude | S | A15 |
 | C32 | Fast lane: a GitHub Action that squash-merges an owner-authored, content-only, green PR and promotes that exact production build through the Vercel API; anything else keeps G2 and G3 First confirm that a Keystatic Cloud edit can still be traced to the owner; if not, the fast lane covers only the owner's direct edits [proposed D-070] | Platform | Claude | M | C31, A32 |
 | A32 | Create a Vercel token scoped to the team and add it as the GitHub secret `VERCEL_TOKEN` (Claude sends the steps with C32) | Accounts | Owner | S | C32 |
@@ -75,6 +75,10 @@ _Last updated: 2026-10-07, the content editor (C31) live and connected to Keysta
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Recently done
+
+- **Resource subjects open their resource; saving on main turned off** (2026-10-08, PR open): topic cards list their subjects, and a subject opens its PDF, its email-first form or its link (also pages on this site). The editor refuses to save on `main` and says to start a branch; a safety-net Action moves anything that still lands there into a change request. The owner's first guide, "Your first massage" (an 11-page PDF, email first), is linked to its subject.
+
+- **Content editor, part 2** (live 2026-10-07, C35): Home, the TAB Method, About, Our Story, Our Team (photo uploads, confirmed credentials) and the resource library (links, PDFs, email-first downloads, open counts).
 
 - **Editor saves always build** (2026-10-07, C31 follow-up): the first editor save, made on `main`, cleared a card grid's optional heading; the editor leaves an empty field out of the file and the content rules required it, so the production build failed (nothing went live). The rules now accept it, and a test checks what the editor saves. GitHub Pro was declined (A34), so before each promotion Claude lists any change that reached `main` without a change request.
 

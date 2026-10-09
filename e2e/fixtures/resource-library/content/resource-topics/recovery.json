@@ -2,5 +2,21 @@
   "title": "Recovery",
   "intro": "Fixture topic for the checks.",
   "order": 1,
-  "comingSoon": []
+  "subjects": [
+    {
+      "title": "Your recovery week",
+      "resource": "recovery-week"
+    },
+    {
+      "title": "Sleep basics",
+      "resource": "sleep-basics"
+    },
+    {
+      "title": "Stretching after training"
+    },
+    {
+      "title": "An unfinished draft",
+      "resource": "unfinished"
+    }
+  ]
 }

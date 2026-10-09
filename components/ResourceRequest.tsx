@@ -5,10 +5,12 @@ import { siteConfig } from "@/config/site";
 import { useTurnstile } from "@/components/Turnstile";
 
 /**
- * "Email me the PDF" for a document that asks for an email address first (C35). A name and an email address only; it
- * posts to /api/inquiry with the same spam layers as the other forms (SEC-013), and the link arrives by email.
+ * A document that asks for an email address first (C35), as a line in its topic's list: the subject is a button that
+ * opens a short form under it (owner request 2026-10-08). A name and an email address only; it posts to /api/inquiry
+ * with the same spam layers as the other forms (SEC-013), and the link arrives by email. An expired emailed link comes
+ * back here (/resources?link=expired&r=<slug>) with the form already open.
  */
-export function ResourceRequest({ slug, title }: { slug: string; title: string }) {
+export function ResourceRequest({ slug, title, label, meta, children }: { slug: string; title: string; label: string; meta: string; children?: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [sent, setSent] = useState(false);
@@ -24,7 +26,8 @@ export function ResourceRequest({ slug, title }: { slug: string; title: string }
 
   useEffect(() => {
     mountedAt.current = Date.now();
-  }, []);
+    if (new URLSearchParams(window.location.search).get("r") === slug) setOpen(true);
+  }, [slug]);
   useEffect(() => {
     if (open && status === "idle") firstRef.current?.focus();
     if (status === "sent") doneRef.current?.focus();
@@ -66,23 +69,25 @@ export function ResourceRequest({ slug, title }: { slug: string; title: string }
     });
   }
 
-  if (status === "sent") {
-    return (
-      <p ref={doneRef} tabIndex={-1} role="status" className="mt-6 rounded-xl bg-linen p-4 outline-none">
-        {sent ? "Check your inbox: we’ve emailed you the link." : "Thank you. We’ll email you the link shortly."}
-      </p>
-    );
-  }
-  if (!open) {
-    return (
-      <button type="button" className="btn btn-primary mt-6 self-start" onClick={() => setOpen(true)} aria-expanded={false} aria-label={`Email me the PDF: ${title}`}>
-        Email me the PDF
-      </button>
-    );
-  }
   const err = (k: string) => errors[k]?.[0];
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate className="mt-6 space-y-4 border-t border-border pt-6" aria-label={`Email me ${title}`}>
+    <div>
+      <button
+        type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls={f("panel")}
+        aria-label={`${label}: ${meta}, we’ll email you the link`}
+        className="text-left font-semibold text-primary underline decoration-border-strong underline-offset-4 hover:decoration-primary"
+      >
+        {label}
+      </button>
+      <p className="mt-1 text-sm text-text-secondary">{meta} · we’ll email you the link</p>
+      {children}
+      <div id={f("panel")} hidden={!open}>
+        {status === "sent" ? (
+          <p ref={doneRef} tabIndex={-1} role="status" className="mt-4 rounded-xl bg-linen p-4 outline-none">
+            {sent ? "Check your inbox: we’ve emailed you the link." : "Thank you. We’ll email you the link shortly."}
+          </p>
+        ) : open && (
+    <form ref={formRef} onSubmit={onSubmit} noValidate className="mt-4 space-y-4 rounded-xl border border-border p-4" aria-label={`Email me ${title}`}>
       {formError && <p role="alert" tabIndex={-1} className="rounded-xl bg-accent-soft p-3 text-sm font-medium text-danger">{formError}</p>}
       <div>
         <label htmlFor={f("name")} className="field-label">Your name</label>
@@ -110,6 +115,9 @@ export function ResourceRequest({ slug, title }: { slug: string; title: string }
       </label>
       <button type="submit" className="btn btn-primary" disabled={status === "sending"}>{status === "sending" ? "Sending…" : "Send me the link"}</button>
     </form>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -120,5 +128,5 @@ export function ExpiredLinkNotice() {
     setShow(new URLSearchParams(window.location.search).get("link") === "expired");
   }, []);
   if (!show) return null;
-  return <p role="status" className="mb-10 max-w-2xl rounded-xl bg-linen p-4">That download link has expired. Ask for the guide again below and we’ll email you a fresh link.</p>;
+  return <p role="status" className="mb-10 max-w-2xl rounded-xl bg-linen p-4">That download link has expired. We’ve opened the guide’s form below: ask again and we’ll email you a fresh link.</p>;
 }

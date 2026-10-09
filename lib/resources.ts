@@ -7,7 +7,7 @@ import {
 } from "@/content/schema";
 
 /**
- * The resource library (C35, owner request 2026-10-07). Entries are JSON files the content editor writes
+ * The resource library (C35, owner requests 2026-10-07 and 2026-10-08). Entries are JSON files the content editor writes
  * (keystatic.config.ts: `resources` and `resourceTopics`); uploaded PDFs live in content/resource-files, outside
  * public/, so a document that asks for an email address can only be fetched with a signed link (/resources/download).
  * Every file is checked here, and the Resources page is built from this at build time, so a broken entry fails CI.
@@ -70,6 +70,20 @@ export function loadLibrary(root = ROOT): { topics: ResourceTopic[]; resources: 
     if (head.toString("latin1") !== "%PDF-") throw new Error(`${file}: ${rel} isn't a PDF. Export it as a PDF and upload it again.`);
     return { ...base, document: { path: rel, bytes, requireEmail } };
   });
+  // A subject opens one resource of its own topic, and a resource sits under at most one subject.
+  const bySlug = new Map(resources.map((r) => [r.slug, r]));
+  const claimed = new Map<string, string>();
+  for (const t of topics) {
+    for (const sj of t.subjects) {
+      if (!sj.resource) continue;
+      const where = `${TOPICS_DIR}/${t.slug}.json, subject "${sj.title}"`;
+      const r = bySlug.get(sj.resource);
+      if (!r) throw new Error(`${where}: resource "${sj.resource}" doesn't exist.`);
+      if (r.topic !== t.slug) throw new Error(`${where}: "${r.title}" is filed under another topic. Choose the same topic on the resource, or link it from that topic.`);
+      if (claimed.has(r.slug)) throw new Error(`${where}: "${r.title}" is already linked from the subject "${claimed.get(r.slug)}".`);
+      claimed.set(r.slug, sj.title);
+    }
+  }
   if (root !== ROOT) return { topics, resources };
   cache = { topics, resources };
   return cache;
@@ -81,6 +95,37 @@ export function visibleResources(): Resource[] {
   return loadLibrary().resources.filter((r) => !r.draft || showDrafts()).sort((a, b) => b.added.localeCompare(a.added) || a.title.localeCompare(b.title));
 }
 export const findResource = (slug: string) => visibleResources().find((r) => r.slug === slug);
+/** One line in a topic's list: a resource people can open, or a subject still to come. */
+export type TopicRow = { kind: "resource"; title: string; resource: Resource } | { kind: "planned"; title: string };
+
+/**
+ * Each topic's list for the Resources page: its subjects in order, a subject linked to a visible resource becoming that
+ * resource (a draft one stays "coming soon" on the live site), then the topic's other visible resources, newest first.
+ * Topics with nothing to list are left out.
+ */
+export function topicLists(): (ResourceTopic & { rows: TopicRow[] })[] {
+  const { topics } = loadLibrary();
+  const visible = visibleResources();
+  const bySlug = new Map(visible.map((r) => [r.slug, r]));
+  return topics
+    .map((t) => {
+      const linked = new Set(t.subjects.map((sj) => sj.resource).filter(Boolean));
+      const rows: TopicRow[] = [
+        ...t.subjects.map((sj): TopicRow => {
+          const r = sj.resource ? bySlug.get(sj.resource) : undefined;
+          return r ? { kind: "resource", title: sj.title, resource: r } : { kind: "planned", title: sj.title };
+        }),
+        ...visible.filter((r) => r.topic === t.slug && !linked.has(r.slug)).map((r): TopicRow => ({ kind: "resource", title: r.title, resource: r })),
+      ];
+      return { ...t, rows };
+    })
+    .filter((t) => t.rows.length > 0);
+}
+
+/** Where a resource opens: a link's page, a document's download, or (email-first) its place on the Resources page. */
+export const resourceHref = (r: Resource) =>
+  r.kind.discriminant === "link" ? r.kind.value.url : r.document?.requireEmail ? `/resources#${r.slug}` : `/resources/download/${r.slug}`;
+
 /** The file on disk for a document. */
 export const documentFile = (r: Resource) => (r.document ? path.join(ROOT, r.document.path) : null);
 
@@ -116,18 +161,10 @@ export function validDownloadSignature(slug: string, e: string | null, s: string
 }
 
 /**
- * Quick picks for sharing with a client in TAB Practice (C4): each published resource, then each topic's planned
- * subjects (which point to the Resources page). A document that asks for an email address points to its card, so the
- * client asks for it there like anyone else.
+ * Quick picks for sharing with a client in TAB Practice (C4): each topic's list, in the same order as the Resources
+ * page. A subject still to come points to the Resources page; a document that asks for an email address points to its
+ * place there, so the client asks for it like anyone else.
  */
 export function resourcePicks(): { title: string; group: string; href: string }[] {
-  const { topics } = loadLibrary();
-  const resources = visibleResources();
-  return topics.flatMap((t) => [
-    ...resources.filter((r) => r.topic === t.slug).map((r) => ({
-      title: r.title, group: t.title,
-      href: r.kind.discriminant === "link" ? r.kind.value.url : r.document?.requireEmail ? `/resources#${r.slug}` : `/resources/download/${r.slug}`,
-    })),
-    ...t.comingSoon.map((s) => ({ title: s, group: t.title, href: "/resources" })),
-  ]);
+  return topicLists().flatMap((t) => t.rows.map((row) => ({ title: row.title, group: t.title, href: row.kind === "resource" ? resourceHref(row.resource) : "/resources" })));
 }

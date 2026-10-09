@@ -1,10 +1,18 @@
 {
   "title": "Strength and capability",
   "order": 2,
-  "comingSoon": [
-    "Beginner strength",
-    "Healthy aging",
-    "Balance and stability",
-    "Building confidence in the gym"
+  "subjects": [
+    {
+      "title": "Beginner strength"
+    },
+    {
+      "title": "Healthy aging"
+    },
+    {
+      "title": "Balance and stability"
+    },
+    {
+      "title": "Building confidence in the gym"
+    }
   ]
 }

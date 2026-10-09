@@ -1,0 +1,33 @@
+# Safety net for content saved on main (owner request 2026-10-08): the content editor refuses to save on main
+# (lib/keystatic-guard.ts), and if an editor commit still lands there this moves it onto content/saved-on-main with a
+# change request, and reverts it on main, within a minute. Only the editor's own content commits are moved
+# (scripts/content-main-guard.sh). Nothing on main goes live without a promotion either way (CLAUDE.md, G3).
+name: Content saved on main
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: content-main-guard
+  cancel-in-progress: false
+
+jobs:
+  move:
+    name: Move content editor saves off main
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Move them to content/saved-on-main for review
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/content-main-guard.sh "${{ github.event.before }}" "${{ github.sha }}"
