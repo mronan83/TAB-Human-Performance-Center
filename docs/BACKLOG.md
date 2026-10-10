@@ -540,6 +540,8 @@ Improvements and options with no launch or go-live date riding on them.
 
 ## Release notes
 
+- **Merged branches deleted automatically** (2026-10-10, owner setting in GitHub): a content branch disappears once its change is merged, so the editor's branch list shows only work in progress; the guide says what "Branch not found" means.
+
 - **TAB Practice opens with its menu after signing in** (live 2026-10-10, C40, #66): signing in no longer lands on an unscaled page without the sidebar that needed a refresh; the same fix covers My TAB for when it opens.
 
 - **Editor fixes and the editing guide** (live 2026-10-10, C39, #65): every entry opens in the editor again (the resource topics didn't); a change request waits for a branch's first save, and its description says not to merge it by hand; a subject left unlinked opens its topic's resource with the same title, so "Lymphatic drainage basics" is listed once; the Website content guide leads with a step-by-step walkthrough, a map of the editor, a timeline from save to live, screenshots, worked examples and troubleshooting. The fast lane is on (A32, the owner's Vercel key).
