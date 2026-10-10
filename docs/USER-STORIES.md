@@ -523,8 +523,9 @@ What each person needs from TAB Human Performance Center's public website, My TA
 
 1. **Given** Resources is switched on **when** a visitor opens /resources **then** each topic is a card listing its subjects, **and** resources are tagged by pillar where they relate to one.
 2. **Given** a subject linked to a published resource **when** the visitor clicks it **then** a document downloads as a PDF, or a link opens its page on this site or another, **and** a subject without one says "Coming soon".
-3. **Given** a resource is opened **when** the open is counted **then** one is added to that resource's daily total, with no cookie and nothing that identifies the visitor.
-4. **Given** Events & Workshops has no real events **when** the site renders **then** it stays switched off, with no Events link in the menus, footer or sitemap.
+3. **Given** a subject left unlinked and a published resource of the same topic with the same title (ignoring capitals and spacing) **when** the page is built **then** the subject opens that resource in its own place, **and** the resource isn't listed a second time.
+4. **Given** a resource is opened **when** the open is counted **then** one is added to that resource's daily total, with no cookie and nothing that identifies the visitor.
+5. **Given** Events & Workshops has no real events **when** the site renders **then** it stays switched off, with no Events link in the menus, footer or sitemap.
 
 ### US-502 · Get an email-first guide sent to me
 - **As a** visitor **I want** to request a guide by email **so that** I get the download without creating an account
@@ -1122,12 +1123,13 @@ What each person needs from TAB Human Performance Center's public website, My TA
 - **Priority:** Must
 - **Phase:** P1
 - **Requirements:** CMS-006
-- **Delivered by:** F-55
+- **Delivered by:** F-55, C39
 - **Draft:** yes
 
-1. **Given** the Website content guide **when** an editor reads it **then** it explains the two lanes, who can do what, each step of each lane, what is and isn't editable, the checks every change passes and a glossary naming every part of a page.
-2. **Given** a new public page **when** CI runs **then** the documentation check fails until the guide lists the page.
-3. **Given** a change to the block library, what is editable, the checks or the request workflow **when** it is released **then** the guide is updated in the same release.
+1. **Given** the Website content guide **when** an editor opens it **then** it starts with a step-by-step walkthrough of a change, from opening the editor to seeing it live, using the editor's own button names, with a map of the editor, a timeline, screenshots, worked examples and what to do when something looks wrong.
+2. **Given** the Website content guide **when** an editor reads on **then** it explains the two lanes, who can do what, each step of each lane, what is and isn't editable, the checks every change passes and a glossary naming every part of a page.
+3. **Given** a new public page **when** CI runs **then** the documentation check fails until the guide lists the page.
+4. **Given** a change to the block library, what is editable, the checks or the request workflow **when** it is released **then** the guide is updated in the same release.
 
 ### US-911 · Give a helper website-only access
 - **As a** business owner **I want** to invite someone to help with the website without giving them client data **so that** I can share the website work safely
@@ -1151,12 +1153,13 @@ What each person needs from TAB Human Performance Center's public website, My TA
 - **Priority:** Could
 - **Phase:** P1
 - **Requirements:** CMS-004
-- **Delivered by:** F-44, C32, A32
+- **Delivered by:** F-60, C32, A32, C39
 - **Draft:** yes
 
 1. **Given** a change request authored by the owner that touches only content files and passes every check **when** CI finishes **then** it is squash-merged **and** that exact production build is promoted without a separate approval.
 2. **Given** a change request by an admin or Claude, or one touching anything outside the content files, **when** it is green **then** it still waits for the owner's approval (G2) and promotion (G3).
 3. **Given** a Keystatic Cloud edit can't be traced to the owner **when** the fast lane is built **then** it covers only the owner's direct edits.
+4. **Given** the owner's change request **when** it opens **then** its description says what happens next and not to merge it by hand, **and** a change request merged by hand before the checks finish goes live only with the next promotion.
 
 ### US-913 · Switch the banner and optional pages from Settings
 - **As a** business owner **I want** to switch site-wide features on and off myself **so that** I don't need to ask for a release to change them

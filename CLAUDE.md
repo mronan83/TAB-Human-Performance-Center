@@ -102,7 +102,7 @@ Never print, log or commit token values.
   reason. Design-lane requests: questions, then options with effort and risks; build nothing until the owner chooses
   one; then the normal G2 and G3 gates. A request that fits the content lane can be moved there. A daily routine
   ("Website request check", 07:52 Detroit time, C33) does the triage step only; it never builds or releases.
-  **Fast lane (C32, `content-fast-lane.yml`, in force once the `VERCEL_TOKEN` secret exists, A32):** a content change
+  **Fast lane (C32, `content-fast-lane.yml`, in force since 2026-10-10, when the owner added the `VERCEL_TOKEN` secret, A32):** a content change
   request whose every commit the owner made in the editor (`keystatic-cloud[bot]`, the owner as only co-author), that
   changes only content files and is green, is merged and promoted by the workflow without a separate approval; if other
   changes wait for release it merges without promoting. It never covers Claude's PRs, an admin's PR, or any change

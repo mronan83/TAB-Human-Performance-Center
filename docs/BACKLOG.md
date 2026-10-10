@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.1
+version: 3.2
 updated: 2026-10-10
 ---
 
@@ -107,6 +107,14 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - Owner ruling 2026-10-10 (proposed D-077). Single sign-on into Keystatic Cloud isn't available, so this makes TAB Practice the one door: Keystatic asks for its own sign-in only when its session on that device lapses.
 - Also closes a launch gap: once Vercel login comes off (C1), the editor's sign-in page would otherwise be open to anyone.
 
+### C39 · Editor fixes and the editing guide
+- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Depends on:** C38, A32
+- **Requirements:** CMS-001, CMS-005, CMS-006, SEC-013
+- **Done when:** every entry opens in the hosted editor, the resource topics included; creating a branch no longer fails a run; an unlinked subject opens its topic's resource with the same title; the content guide walks through a change from opening the editor to seeing it live; and the owner's first content change after this release goes live through the fast lane with a **Live** comment.
+- Owner report 2026-10-10: the resource topics wouldn't open in the editor, and "Lymphatic drainage basics", merged by hand, wasn't on the site, then showed as both "Coming soon" and the PDF. The topics failed because this public repository makes Keystatic read files from raw.githubusercontent.com, which the editor's security policy didn't allow; the merge published nothing because only a promotion does, and merging by hand stops the fast lane.
+- Owner request 2026-10-10: "a user guide and workflow instructions on how to make edits to the website… where to start, what to do, and how to do it". The Website content guide now leads with it.
+
 ### C35b · Content editor, last pages
 - **Status:** Ready · **Owner:** Claude · **Category:** Platform · **Size:** M
 - **Requirements:** CMS-001, CMS-002, CMS-005
@@ -121,11 +129,12 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - Add your guides and links, then link each to its subject (Resource topics → Opens this resource). "Your first massage" is done (2026-10-08).
 
 ### A32 · Switch on the fast lane
-- **Status:** Waiting on you · **Owner:** Owner · **Category:** Accounts · **Size:** S
+- **Status:** Done · **Owner:** Owner · **Category:** Accounts · **Size:** S
+- **Done:** 2026-10-10
 - **Depends on:** C32
 - **Where:** Vercel → Account Settings → Tokens; GitHub → repository → Settings → Secrets and variables → Actions
 - **Requirements:** CMS-004, CMS-006
-- **Done when:** a content change you make in the editor goes live on its own after CI, with a comment on its change request.
+- **Done when:** the `VERCEL_TOKEN` repository secret exists, so a content change you make in the editor goes live on its own after CI, with a comment on its change request. The owner added it on 2026-10-10; the first change through the lane is confirmed under C39.
 - In Vercel, create a token named "GitHub fast lane", scope "mronan83's projects", expiry 1 year. In GitHub, add a repository secret named `VERCEL_TOKEN` and paste the token. Until then your content changes wait for approval as now.
 
 ### C34 · Website admins and website requests
@@ -522,6 +531,8 @@ Improvements and options with no launch or go-live date riding on them.
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Release notes
+
+- **Editor fixes and the editing guide** (2026-10-10, C39, PR open): every entry opens in the editor again (the resource topics didn't); a change request waits for a branch's first save, and its description says not to merge it by hand; a subject left unlinked opens its topic's resource with the same title, so "Lymphatic drainage basics" is listed once; the Website content guide leads with a step-by-step walkthrough, a map of the editor, a timeline from save to live, screenshots, worked examples and troubleshooting. The fast lane is on (A32, the owner's Vercel key).
 
 - **The content editor's front door** (live 2026-10-10, C38, #64): the editor opens from TAB Practice → Edit the website, for the owner and website admins only, after the usual password and two-step sign-in; starting at `/keystatic` signs you in and brings you back. Owner ruling: "yes, build the front door, owner and admins only".
 

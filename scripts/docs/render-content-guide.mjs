@@ -58,9 +58,9 @@ const snake = (label, steps, perRow, caption, opts = {}) => {
 const lanes = () => {
   const b = [
     zone(10, 10, 540, 112, "Content lane: self-serve"),
-    box(26, 40, 150, 66, "Owner or admin", ["edits in the", "content editor"]),
-    box(206, 40, 150, 66, "Preview", ["private link,", "phone and computer"]),
-    box(386, 40, 150, 66, "Submit", ["a change request", "with its preview"]),
+    box(26, 40, 150, 66, "Owner or admin", ["edits on a branch in", "the content editor"]),
+    box(206, 40, 150, 66, "Save", ["the change request", "opens by itself"]),
+    box(386, 40, 150, 66, "Preview", ["private link,", "phone and computer"]),
     zone(10, 148, 540, 112, "Design lane: through Claude"),
     box(26, 178, 150, 66, "Request", ["TAB Practice →", "Website changes"]),
     box(206, 178, 150, 66, "Claude designs", ["options, then a build", "on its own branch"]),
@@ -80,15 +80,84 @@ const lanes = () => {
     "Both lanes end at the same checks. Only the owner's own content-only changes skip the separate approval round (the fast lane, D-070); everything else waits for the owner.");
 };
 
-const contentFlow = () => snake("Content lane, step by step", [
-  ["Open the editor", ["/keystatic, with your", "Keystatic account"]],
-  ["New branch", ["one topic per branch,", "content/…"]],
-  ["Choose", ["a service page or", "the techniques guide"]],
-  ["Edit", ["fields and sections,", "limits as you type"]],
-  ["Save", ["kept on your branch;", "live site untouched"]],
-  ["Change request", ["opens itself: checks", "and a preview"]],
-  ["Live", ["owner approves and", "promotes"]],
-], 4, "If a check fails, the change request names the rule and the field; fix it in the editor on the same branch and save again. Nothing reaches the live site until the owner promotes it.", { accent: [6] });
+const contentFlow = () => snake("Editing the website, step by step", [
+  ["Open the editor", ["TAB Practice →", "Edit the website"]],
+  ["New branch…", ["⋯ menu; one change,", "one branch: content/…"]],
+  ["Find the page", ["service pages, guides,", "resources, pages"]],
+  ["Edit", ["fields and lists,", "limits as you type"]],
+  ["Save", ["the change request", "opens by itself"]],
+  ["Checks", ["about 5 minutes;", "preview link"]],
+  ["Fast lane", ["merges and promotes;", "don't merge by hand"]],
+  ["Live", ["comment says Live.;", "reload the page"]],
+], 4, "Steps 1 to 5 are yours, in the editor; 6 to 8 happen by themselves for the owner's own changes. If a check fails, the change request names the rule and the field: fix it in the editor on the same branch and save again. Anyone else's change waits for the owner's approval after step 6.", { accent: [4, 7] });
+
+/** From the last save to the live site, in minutes (CI and production build times measured October 2026). */
+const timeline = () => {
+  const y = 170, xs = { 0: 80, 1: 210, 5: 470, 6: 590, 8: 770, 10: 905 };
+  const w = 150, h = 62;
+  const p = [
+    `<rect x="${xs[1]}" y="${y - 7}" width="${xs[5] - xs[1]}" height="14" rx="7" class="tl-band"/>`,
+    `<text x="${(xs[1] + xs[5]) / 2}" y="${y + 26}" text-anchor="middle" class="t-edge">checks run, about 5 minutes</text>`,
+    arrow([[40, y], [975, y]], ""),
+    ...Object.entries(xs).map(([m, x]) => `<circle cx="${x}" cy="${y}" r="5" class="tl-dot"/><text x="${x}" y="${y - 14}" text-anchor="middle" class="t-quiet">${m === "10" ? "~10 min" : `${m} min`}</text>`),
+  ];
+  const at = (x, above, name, lines, opts = {}) => {
+    const by = above ? y - 40 - h - 22 : y + 44;
+    p.push(arrow([[x, above ? by + h : by], [x, above ? y - 24 : y + 30]], "", { none: true, dashed: true }));
+    p.push(box(x - w / 2, by, w, h, name, lines, opts));
+  };
+  at(xs[0], true, "You save", ["in the editor,", "on your branch"], { accent: true });
+  at(xs[5], true, "Preview ready", ["Vercel's comment:", "Visit Preview"]);
+  at(xs[10], true, "You check the page", ["reload it on the", "live website"], { accent: true });
+  at(xs[1], false, "Change request", ["opens by itself", "(first save only)"]);
+  at(xs[6], false, "Fast lane merges", ["owner's own content", "change, checks green"]);
+  at(xs[8], false, "Build and promote", ["comment on the change", "request: Live."], { accent: true });
+  p.push(box(290 - 85, y - 40 - h - 22, 170, h, "Don't merge here", ["a merge by hand stops", "the fast lane"], { muted: true }));
+  return figure(svg(990, 330, "Timeline from your last save to the live site: the change request opens within a minute, the checks run for about five minutes and the preview appears, the fast lane merges at about six minutes, the build is promoted at about eight, and you check the page at about ten", p.join("\n")),
+    "Typical times for the owner's own change. Everything below the line happens by itself; the change request shows each step. If a release from Claude is already waiting for your \"promote\", your change is merged but waits for that release (\"Not live yet\").");
+};
+
+/** A map of the content editor's screen: where the branch box, the ⋯ menu, Save and the badges are. */
+const editorMap = () => {
+  const p = [];
+  const r = (x, y, w, h, cls, rx = 6) => p.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" class="${cls}"/>`);
+  const t = (x, y, s, cls = "t-in", anchor = "start") => p.push(`<text x="${x}" y="${y}" text-anchor="${anchor}" class="${cls}">${esc(s)}</text>`);
+  const mark = (x, y, n) => p.push(`<circle cx="${x}" cy="${y}" r="11" class="mk"/><text x="${x}" y="${y + 4}" text-anchor="middle" class="mk-t">${n}</text>`);
+  r(20, 20, 950, 420, "wf-page", 10);
+  // Sidebar
+  r(20, 20, 250, 420, "wf-linen", 10);
+  t(40, 50, "TAB Human Performance Center", "t-name");
+  r(36, 66, 166, 32, "wf-surface"); t(48, 87, "content/lymphatic-guide ⌄", "t-in");
+  r(208, 66, 46, 32, "wf-surface"); t(231, 87, "⋯", "t-name", "middle");
+  mark(30, 82, 1); mark(262, 72, 2);
+  const menu = [["Dashboard", 0], ["SERVICE PAGES", 1], ["Massage & Bodywork …", 0], ["GUIDES", 1], ["Massage techniques", 0], ["RESOURCES", 1], ["Resources", 0], ["Resource topics", 0], ["PAGES", 1], ["Home, The TAB Method …", 0]];
+  menu.forEach(([s, head], i) => t(40, 128 + i * 27, s, head ? "t-zone" : "t-in"));
+  r(178, 300, 70, 20, "wf-badge", 10); t(213, 314, "Changed", "t-badge", "middle"); mark(258, 310, 3);
+  // The ⋯ menu, open
+  r(262, 104, 196, 150, "wf-menu", 8);
+  t(276, 126, "BRANCHES", "t-zone"); t(276, 146, "New branch…", "t-name"); t(276, 166, "Delete branch", "t-quiet");
+  t(276, 192, "PULL REQUESTS", "t-zone"); t(276, 212, "Pull request #65", "t-name");
+  t(276, 238, "Github repo", "t-quiet");
+  // Main area
+  t(300, 52, "Resources  ›  lymphatic-drainage-basics", "t-name");
+  r(740, 36, 66, 22, "wf-badge", 11); t(773, 51, "Unsaved", "t-badge", "middle"); mark(728, 47, 4);
+  t(824, 52, "↺  🗑  ⧉", "t-quiet");
+  r(880, 32, 74, 30, "wf-btn", 15); t(917, 52, "Save", "t-in-on", "middle"); mark(962, 22, 5);
+  [["Title *", 80], ["One-line summary *", 150], ["Topic *", 220], ["Kind", 290]].forEach(([l, y]) => { t(480, y, l, "t-name"); r(480, y + 8, 440, 30, "wf-surface"); });
+  r(480, 372, 470, 52, "wf-dark-note", 10); t(496, 394, "You’re looking at main, the live website", "t-in-on"); t(496, 412, "Saving here is turned off … choose New branch", "t-in-on"); mark(470, 380, 6);
+  return figure(svg(990, 450, "Map of the content editor: 1 the branch box at the top of the left-hand menu, 2 the ⋯ menu beside it with New branch… and Pull request, 3 the Changed badge on entries that differ from the live site, 4 the Unsaved badge, 5 the Save button at the top right, 6 the notice shown only while you're on main", p.join("\n")),
+    "<strong>1</strong> Branch box: which branch you're on; open it to switch. <strong>2</strong> ⋯ menu: <strong>New branch…</strong>, and <strong>Pull request #…</strong> once you've saved. <strong>3</strong> <strong>Changed</strong>: differs from the live website. <strong>4</strong> <strong>Unsaved</strong>: edits not saved yet. <strong>5</strong> <strong>Save</strong>. <strong>6</strong> The notice you see only on <code>main</code>. A drawing, not a screenshot: the branch box and ⋯ menu appear in the hosted editor only.");
+};
+
+/** A screenshot of the editor, from docs/images/content-guide (taken in the editor's local mode). */
+const shot = (args) => {
+  const m = String(args).match(/^([\w-]+)\s+"(.+)"$/);
+  if (!m) throw new Error(`<!-- shot ${args} -->: expected <!-- shot name "description" -->`);
+  const file = `docs/images/content-guide/${m[1]}.png`;
+  if (!fs.existsSync(root + file)) throw new Error(`${FILE}: ${file} doesn't exist`);
+  const data = fs.readFileSync(root + file).toString("base64");
+  return `<figure class="shot"><img src="data:image/png;base64,${data}" alt="${esc(m[2])}"><figcaption aria-hidden="true">${esc(m[2])}</figcaption></figure>`;
+};
 
 const designFlow = () => snake("Design lane, step by step", [
   ["Request", ["TAB Practice → Website", "changes, or tell Claude"]],
@@ -150,7 +219,7 @@ const statusFlow = () => {
     "Shaded steps wait on the owner. Claude moves a request along as the work happens; the owner can change its status at any time, including declining or reopening it.");
 };
 
-const directives = { lanes, "content-flow": contentFlow, "design-flow": designFlow, "status-flow": statusFlow, anatomy };
+const directives = { lanes, "content-flow": contentFlow, "design-flow": designFlow, "status-flow": statusFlow, anatomy, timeline, "editor-map": editorMap, shot };
 const css = `
 .wf-page { fill: var(--bg); stroke: var(--line-strong); }
 .wf-surface { fill: var(--surface); stroke: var(--line); }
@@ -165,6 +234,18 @@ const css = `
 .wf-btn-light { fill: var(--on-primary); }
 .wf-outline { fill: none; stroke: var(--primary); stroke-width: 1.5; }
 .wf-photo { fill: var(--linen); stroke: var(--line); }
+.wf-menu { fill: var(--surface); stroke: var(--line-strong); }
+.wf-badge { fill: var(--surface-2); stroke: var(--primary); }
+.wf-dark-note { fill: var(--primary); }
+.t-badge { fill: var(--text); font-size: 11px; font-weight: 600; }
+.t-in-on { font-size: 11px; font-weight: 700; fill: var(--on-primary); }
+.mk { fill: var(--text); }
+.mk-t { fill: var(--bg); font-size: 12px; font-weight: 700; }
+.tl-band { fill: var(--surface-2); stroke: var(--line); }
+.tl-dot { fill: var(--primary); }
+.shot { margin: 1.25rem 0; }
+.shot img { display: block; max-width: 100%; height: auto; border: 1px solid var(--line); border-radius: 10px; }
+.shot figcaption { margin-top: .5rem; font-size: .875rem; color: var(--muted-fg); }
 `;
 
 const m = assertModel(model());
@@ -173,7 +254,7 @@ const ctx = { file: FILE, vars: {}, codeLinks: true, directives };
 const { html, sections } = render(doc, ctx);
 const out = page({
   key: "contentGuide", title: doc.front.title, eyebrow: "TAB Human Performance Center · Website content guide", heading: doc.front.title, file: FILE, version: doc.front.version, commit: a.sha, date: doc.front.updated,
-  lede: "How the website's content is changed: the two lanes, who does what, step by step, what can and can't be edited, and the names of every part of a page.",
+  lede: "Start here to change the website: a step-by-step walkthrough of the content editor from opening it to seeing your change live, worked examples, and what to do when something doesn't look right. Then the reference behind it: the two lanes, who does what, what can and can't be edited, the rules, and the names of every part of a page.",
   stats: [{ n: 2, label: "lanes" }, { n: routes.length, label: "public pages" }, { n: terms, label: "glossary terms" }],
   sections,
   body: html.replace(/<td>/g, "<td data-label>"),
