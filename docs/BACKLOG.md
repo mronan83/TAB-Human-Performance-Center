@@ -127,7 +127,8 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - Website-only admin role; numbered website requests with statuses and notes in TAB Practice → Website changes; the GitHub issue forms retired [proposed D-071]. Migrations `20261012000000` and `20261013000000` applied to production (G3).
 
 ### C32 · Content fast lane
-- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** M
+- **Status:** Done · **Owner:** Claude · **Category:** Platform · **Size:** M
+- **Done:** 2026-10-10 · #61
 - **Depends on:** C31
 - **Requirements:** CMS-004, CMS-006
 - **Done when:** an owner-authored, content-only change from the editor is merged and its exact production build promoted after CI, and anything else gets a comment saying why it waits.
@@ -516,9 +517,9 @@ Improvements and options with no launch or go-live date riding on them.
 
 - **Living documents redesigned** (2026-10-10, PR open): the architecture, data model, requirements, backlog and content guide pages rebuilt as one connected set with a new user stories page; every ID links to its home and shows a hover card; the backlog lists every item with its status, dependencies and what it unblocks.
 
-- **Content fast lane** (built 2026-10-10, C32, PR open): the owner's own content changes from the editor are merged and promoted automatically after CI; anyone else's change, or one touching code, gets a comment and waits for approval. Off until A32 (the Vercel key).
+- **Content fast lane** (merged 2026-10-10, C32, #61): the owner's own content changes from the editor are merged and promoted automatically after CI; anyone else's change, or one touching code, gets a comment and waits for approval. Off until A32 (the Vercel key).
 
-- **Website stats error fixed** (2026-10-10, PR 60): Website stats, the client page's resource picks and guide requests failed on the live site once the first PDF was uploaded, because a deployed page carries only the files traced into it. Uploads are now checked at build time only, every page that reads the library ships it, and a check inspects the build so it can't recur.
+- **Website stats error fixed** (live 2026-10-10, #60): Website stats, the client page's resource picks and guide requests failed on the live site once the first PDF was uploaded, because a deployed page carries only the files traced into it. Uploads are now checked at build time only, every page that reads the library ships it, and a check inspects the build so it can't recur.
 
 - **Resource subjects open their resource; saving on main turned off** (live 2026-10-09): topic cards list their subjects, and a subject opens its PDF, its email-first form or its link (also pages on this site). The editor refuses to save on `main` and says to start a branch; a safety-net Action moves anything that still lands there into a change request. The owner's first guide, "Your first massage" (an 11-page PDF, email first), is linked to its subject.
 
