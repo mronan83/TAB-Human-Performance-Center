@@ -17,7 +17,15 @@ export default async function StatsPage() {
     return (<><PageTitle eyebrow="TAB Practice" title="Website stats" /><Panel><p>Only the owner and website admins can see the website stats.</p></Panel></>);
   }
   const s = await getSiteStats(30);
-  const titles = new Map(loadLibrary().resources.map((r) => [r.slug, r.title]));
+  // Resource names for the counts; the counts still show (by address) if the library can't be read.
+  const titles = new Map<string, string>(((): [string, string][] => {
+    try {
+      return loadLibrary().resources.map((r) => [r.slug, r.title]);
+    } catch (e) {
+      console.error("[stats] resource names unavailable", e instanceof Error ? e.message : e);
+      return [];
+    }
+  })());
   const started = s.totals["Start Form: Started"], submitted = s.totals["Start Form: Submitted"];
   const tiles = [
     { label: "Page views", value: s.totals.views, note: "last 30 days" },

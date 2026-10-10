@@ -17,7 +17,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
   if (r.document.requireEmail && !validDownloadSignature(slug, url.searchParams.get("e"), url.searchParams.get("s"))) {
     return NextResponse.redirect(new URL(`/resources?link=expired&r=${slug}#${slug}`, url), 303);
   }
-  const data = await fs.readFile(file);
+  const data = await fs.readFile(file).catch(() => null);
+  if (!data) {
+    // The build checks every upload; a file missing here means it wasn't shipped with this function (next.config.ts).
+    console.error("[resources] document not in this deployment:", r.document.path);
+    return new NextResponse("This guide isn’t available right now. Please try again later.", { status: 503 });
+  }
   await countResourceOpen(req, slug);
   return new NextResponse(new Uint8Array(data), {
     headers: {

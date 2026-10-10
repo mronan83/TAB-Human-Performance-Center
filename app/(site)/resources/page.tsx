@@ -75,7 +75,7 @@ function ResourceRow({ label, r }: { label: string; r: Resource }) {
   const isLink = r.kind.discriminant === "link";
   const target = r.kind.discriminant === "link" ? r.kind.value.url : "";
   const onSite = isLink && target.startsWith("/");
-  const meta = isLink ? (onSite ? "Page on our website" : `Link · ${new URL(target).hostname.replace(/^www\./, "")}`) : documentLabel(r.document?.bytes ?? 0);
+  const meta = isLink ? (onSite ? "Page on our website" : `Link · ${new URL(target).hostname.replace(/^www\./, "")}`) : documentLabel(r.document?.bytes);
   return (
     <div>
       <a

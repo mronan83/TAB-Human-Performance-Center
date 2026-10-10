@@ -29,7 +29,7 @@ export const FILES_PUBLIC_PATH = "/resource-files/";
 export const LINK_DAYS = 14;
 
 export type ResourceTopic = ResourceTopicContent & { slug: string };
-export type Resource = ResourceContent & { slug: string; draft: boolean; document?: { path: string; bytes: number; requireEmail: boolean } };
+export type Resource = ResourceContent & { slug: string; draft: boolean; document?: { path: string; bytes?: number; requireEmail: boolean } };
 
 const readJsonDir = (root: string, dir: string) => {
   const abs = path.join(root, dir);
@@ -44,9 +44,18 @@ const readJsonDir = (root: string, dir: string) => {
 
 let cache: { topics: ResourceTopic[]; resources: Resource[] } | null = null;
 
+/**
+ * Uploaded files are checked where all of them are present: while the site is built (a broken upload fails the build)
+ * and in the checks. A deployed function carries only the files it needs (next.config.ts), so the Website stats page,
+ * say, has the entries but not the PDFs; there a missing file isn't an error and its size is left out. Without this, a
+ * page that only lists titles failed once the first PDF was uploaded (2026-10-09).
+ */
+const checkFilesByDefault = () => process.env.NEXT_PHASE === "phase-production-build" || !process.env.VERCEL;
+
 /** Every topic and resource, checked. Throws, naming the file and field, if anything breaks the rules. */
-export function loadLibrary(root = ROOT): { topics: ResourceTopic[]; resources: Resource[] } {
-  if (root === ROOT && cache && process.env.NODE_ENV === "production") return cache;
+export function loadLibrary(root = ROOT, opts: { checkFiles?: boolean } = {}): { topics: ResourceTopic[]; resources: Resource[] } {
+  const checkFiles = opts.checkFiles ?? checkFilesByDefault();
+  if (root === ROOT && opts.checkFiles === undefined && cache && process.env.NODE_ENV === "production") return cache;
   const topics = readJsonDir(root, TOPICS_DIR)
     .map(({ slug, file, data }) => ({ slug, ...parseContent(resourceTopicSchema, data, file) }))
     .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
@@ -61,7 +70,10 @@ export function loadLibrary(root = ROOT): { topics: ResourceTopic[]; resources: 
     const rel = path.posix.normalize(`${FILES_DIR}/${stored.slice(FILES_PUBLIC_PATH.length)}`);
     if (!rel.startsWith(`${FILES_DIR}/`) || !rel.toLowerCase().endsWith(".pdf")) throw new Error(`${file}: documents must be PDF files.`);
     const abs = path.join(root, rel);
-    if (!fs.existsSync(abs)) throw new Error(`${file}: the uploaded file ${rel} is missing.`);
+    if (!fs.existsSync(abs)) {
+      if (checkFiles) throw new Error(`${file}: the uploaded file ${rel} is missing.`);
+      return { ...base, document: { path: rel, requireEmail } };
+    }
     const bytes = fs.statSync(abs).size;
     if (bytes > MAX_DOCUMENT_BYTES) throw new Error(`${file}: ${rel} is ${(bytes / 1048576).toFixed(1)} MB; the limit is ${MAX_DOCUMENT_BYTES / 1048576} MB.`);
     const head = Buffer.alloc(5);
@@ -84,7 +96,7 @@ export function loadLibrary(root = ROOT): { topics: ResourceTopic[]; resources: 
       claimed.set(r.slug, sj.title);
     }
   }
-  if (root !== ROOT) return { topics, resources };
+  if (root !== ROOT || opts.checkFiles !== undefined) return { topics, resources };
   cache = { topics, resources };
   return cache;
 }
@@ -129,8 +141,9 @@ export const resourceHref = (r: Resource) =>
 /** The file on disk for a document. */
 export const documentFile = (r: Resource) => (r.document ? path.join(ROOT, r.document.path) : null);
 
-/** "PDF · 1.2 MB", so people know what they're opening. */
-export const documentLabel = (bytes: number) => `PDF · ${bytes < 1048576 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1048576).toFixed(1)} MB`}`;
+/** "PDF · 1.2 MB", so people know what they're opening ("PDF" where the file isn't at hand to measure). */
+export const documentLabel = (bytes?: number) =>
+  bytes === undefined ? "PDF" : `PDF · ${bytes < 1048576 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1048576).toFixed(1)} MB`}`;
 
 /**
  * Signed download links for documents that ask for an email address. The link names the resource and an expiry, and
@@ -166,5 +179,11 @@ export function validDownloadSignature(slug: string, e: string | null, s: string
  * place there, so the client asks for it like anyone else.
  */
 export function resourcePicks(): { title: string; group: string; href: string }[] {
-  return topicLists().flatMap((t) => t.rows.map((row) => ({ title: row.title, group: t.title, href: row.kind === "resource" ? resourceHref(row.resource) : "/resources" })));
+  try {
+    return topicLists().flatMap((t) => t.rows.map((row) => ({ title: row.title, group: t.title, href: row.kind === "resource" ? resourceHref(row.resource) : "/resources" })));
+  } catch (e) {
+    // Sharing still works by typing a link; a library problem mustn't take the client's page down.
+    console.error("[resources] quick picks unavailable", e instanceof Error ? e.message : e);
+    return [];
+  }
 }

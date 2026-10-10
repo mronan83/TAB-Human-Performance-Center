@@ -5,10 +5,18 @@ import path from "node:path";
 export const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 
 /**
+ * Where the photos are all present: while building and in the checks. A deployed function rebuilding the page may not
+ * carry public/ (Vercel serves it separately), so the check doesn't run there; the build already ran it (as with the
+ * resource library's PDFs, lib/resources.ts).
+ */
+const checkFilesByDefault = () => process.env.NEXT_PHASE === "phase-production-build" || !process.env.VERCEL;
+
+/**
  * Checks the team photos uploaded in the content editor (C35): each one exists under public/images/team, is a JPEG,
  * PNG or WebP, and is at most 5 MB. Called while /about/team is built, so a bad upload fails the checks, naming it.
  */
-export function checkTeamPhotos(members: { name: string; photo?: string | null }[], root = process.cwd()): void {
+export function checkTeamPhotos(members: { name: string; photo?: string | null }[], root = process.cwd(), checkFiles = checkFilesByDefault()): void {
+  if (!checkFiles) return;
   for (const m of members) {
     if (!m.photo) continue;
     const rel = path.posix.normalize(`public${m.photo}`);
