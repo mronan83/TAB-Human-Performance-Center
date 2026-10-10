@@ -76,7 +76,9 @@ _Last updated: 2026-10-07, the content editor (C31) live and connected to Keysta
 
 ## Recently done
 
-- **Resource subjects open their resource; saving on main turned off** (2026-10-08, PR open): topic cards list their subjects, and a subject opens its PDF, its email-first form or its link (also pages on this site). The editor refuses to save on `main` and says to start a branch; a safety-net Action moves anything that still lands there into a change request. The owner's first guide, "Your first massage" (an 11-page PDF, email first), is linked to its subject.
+- **Website stats error fixed** (2026-10-10, PR open): Website stats, the client page's resource picks and guide requests failed on the live site once the first PDF was uploaded, because a deployed page carries only the files traced into it. Uploads are now checked at build time only, every page that reads the library ships it, and a check inspects the build so it can't recur.
+
+- **Resource subjects open their resource; saving on main turned off** (live 2026-10-09): topic cards list their subjects, and a subject opens its PDF, its email-first form or its link (also pages on this site). The editor refuses to save on `main` and says to start a branch; a safety-net Action moves anything that still lands there into a change request. The owner's first guide, "Your first massage" (an 11-page PDF, email first), is linked to its subject.
 
 - **Content editor, part 2** (live 2026-10-07, C35): Home, the TAB Method, About, Our Story, Our Team (photo uploads, confirmed credentials) and the resource library (links, PDFs, email-first downloads, open counts).
 

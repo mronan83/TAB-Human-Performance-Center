@@ -89,6 +89,12 @@ test("the resource library's own checks catch a broken entry, naming the file", 
   const good = fs.readFileSync(entry, "utf8");
   fs.writeFileSync(path.join(tmp, "content/resource-files/sleep-basics/file.pdf"), "not a pdf");
   expect(() => loadLibrary(tmp)).toThrow(/sleep-basics\.json: .*isn't a PDF/);
+  // Where uploads aren't shipped (a deployed staff page), a missing file isn't an error and the size is left out; the
+  // build and these checks still refuse it (production error 4077400647, 2026-10-09).
+  fs.rmSync(path.join(tmp, "content/resource-files/sleep-basics/file.pdf"));
+  expect(() => loadLibrary(tmp, { checkFiles: true })).toThrow(/sleep-basics\.json: the uploaded file .* is missing/);
+  const shipped = loadLibrary(tmp, { checkFiles: false });
+  expect(shipped.resources.find((r) => r.slug === "sleep-basics")?.document).toEqual({ path: "content/resource-files/sleep-basics/file.pdf", requireEmail: false });
   fs.writeFileSync(entry, good.replace('"topic": "recovery"', '"topic": "nowhere"'));
   expect(() => loadLibrary(tmp)).toThrow(/topic "nowhere" doesn't exist/);
   fs.writeFileSync(entry, good.replace('"/resource-files/sleep-basics/file.pdf"', '"/somewhere/else.pdf"'));
@@ -108,6 +114,32 @@ test("the resource library's own checks catch a broken entry, naming the file", 
   fs.writeFileSync(path.join(tmp, "content/resource-topics/planned.json"), JSON.stringify({ title: "Planned topic", order: 2, subjects: [{ title: "Borrowed", resource: "outside-guide" }] }));
   expect(() => loadLibrary(tmp)).toThrow(/"An outside guide" is filed under another topic/);
   fs.rmSync(tmp, { recursive: true, force: true });
+});
+
+test("every page and route that reads the resource library ships with it in the build (next.config.ts)", () => {
+  // Production error 4077400647 (2026-10-09): a function reads only the files traced into it. Checks the build these
+  // tests run against: each route that imports the library carries every entry and topic, and the Resources page and
+  // its routes carry every uploaded PDF.
+  const server = path.join(root, ".next/server");
+  test.skip(!fs.existsSync(server), "needs a local production build");
+  const list = (d: string, ext: string) => (fs.existsSync(path.join(root, d)) ? fs.readdirSync(path.join(root, d), { recursive: true }).map(String).filter((f) => f.endsWith(ext)).map((f) => `${d}/${f}`) : []);
+  const entries = [...list("content/resources", ".json"), ...list("content/resource-topics", ".json")];
+  const pdfs = list("content/resource-files", ".pdf");
+  expect(entries.length).toBeGreaterThan(0);
+  const readers = ["lib/resources", "lib/placeholders", "lib/resource-emails"];
+  const routes = list("app", ".tsx").concat(list("app", ".ts"))
+    .filter((f) => /\/(page|route)\.tsx?$/.test(f))
+    .filter((f) => readers.some((m) => fs.readFileSync(path.join(root, f), "utf8").includes(`"@/${m}"`)));
+  expect(routes.length).toBeGreaterThanOrEqual(7);
+  const prerendered = JSON.parse(fs.readFileSync(path.join(root, ".next/prerender-manifest.json"), "utf8")).routes as Record<string, { initialRevalidateSeconds: number | false }>;
+  for (const route of routes) {
+    const url = route.replace(/^app/, "").replace(/\/\([^)]+\)/g, "").replace(/\/(page|route)\.tsx?$/, "") || "/";
+    if (prerendered[url]?.initialRevalidateSeconds === false) continue; // built once, never rendered again
+    const nft = path.join(server, route.replace(/\.tsx?$/, ".js.nft.json"));
+    const traced = new Set((JSON.parse(fs.readFileSync(nft, "utf8")).files as string[]).map((f) => path.relative(root, path.resolve(path.dirname(nft), f))));
+    for (const f of entries) expect(traced.has(f), `${route} ships ${f}`).toBe(true);
+    if (url.startsWith("/resources")) for (const f of pdfs) expect(traced.has(f), `${route} ships ${f}`).toBe(true);
+  }
 });
 
 test("the editor refuses to save on main, in Keystatic's own request format, and lets everything else through", async () => {
