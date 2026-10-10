@@ -3,7 +3,8 @@ title: TAB Human Performance Center Architecture
 eyebrow: TAB Human Performance Center · Technical architecture
 heading: Technical architecture
 owner: Matthew Ronan
-updated: 2026-10-07
+updated: 2026-10-10
+version: 2.0
 lede: TAB Human Performance Center is one Next.js application with three faces: the public website, My TAB for clients and TAB Practice for practitioners. The website is prebuilt and served from Vercel's edge; My TAB and TAB Practice render per request on the server and reach Postgres on Supabase with the signed-in person's own session, so row-level security decides what each person sees. Timely keeps scheduling and Stripe keeps payments; the site links to them instead of rebuilding them. Today the portal runs on demo data, behind Vercel login, until the go-live gate (A15).
 ---
 
@@ -122,7 +123,7 @@ There is no separate application server. Server code runs as Next.js server comp
 - **Pull requests.** `.github/workflows/ci.yml` runs on every pull request and on `main`: typecheck, the row-level security tests, the contrast check, the brand-consistency check, the documentation check, a production build, the Playwright end-to-end suite and a dependency audit. There are no retries; a failure is a finding.
 - **Tests.** `supabase/tests/rls.test.mjs` applies every migration to PGlite (in-process Postgres) with stub auth and checks each policy and guard as owner, practitioner and client. `e2e/` holds smoke, redirect-map, link-crawl, SEO, header-fit, CSP and WCAG 2.2 AA scans against the production build. `scripts/check-contrast.mjs` checks every token pairing. `scripts/check-brand.mjs` fails on retired names (TAB Wellness Collective, Human Performance Practice), the old philosophy and stage names, old service names any pillar count that differs from `content/services.ts`, the retired "Practice workspace" label and any hex colour written into a class instead of a token from `app/globals.css`.
 - **Guards on the process.** `.claude/hooks/guard-main.mjs` blocks pushes and writes to `main` and any merge that isn't a squash. Vercel login protects every deployment URL.
-- **Living documents.** The backlog page (`scripts/render-backlog.mjs`) is republished after each promotion. This page, the data model page, the traceability page and the website content guide are built by `scripts/docs/` from `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json`, `docs/TRACEABILITY.md` and `docs/CONTENT-GUIDE.md`; `npm run docs:check` fails CI when they fall behind the code (for the guide: when a public page is missing from its page inventory).
+- **Living documents.** Six connected pages built by `scripts/docs/`: this one, the data model, requirements and traceability, user stories, the backlog and the website content guide, from `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md` with `docs/schema.json`, `docs/TRACEABILITY.md`, `docs/USER-STORIES.md`, `docs/BACKLOG.md` and `docs/CONTENT-GUIDE.md`. `scripts/docs/model.mjs` reads every source once and gives each ID (requirement, feature, story, backlog item, decision, risk, table) one home page; every page links each ID there and embeds an index for its hover cards (`scripts/docs/client.js`). `npm run docs:check` fails CI when a page falls behind the code (for the guide: a public page missing from its inventory) or the sources stop agreeing: a dependency, requirement, persona, epic or delivering item that doesn't exist, or a dependency loop. The backlog page is republished after each promotion, the others after each merge.
 - **Content edits.** Every save in the content editor lands on a `content/…` branch. `ci.yml` runs the full checks on pushes to those branches, and `.github/workflows/content-pr.yml` opens one pull request per branch (it never merges). The same review and release gates apply (G2, G3); the owner's content-only changes get the fast lane with C32.
 - **Website change requests.** Filed and tracked in TAB Practice → Website changes (`/practice/website`, proposed D-071; the GitHub issue forms of C30 are retired). Claude picks a request up when asked in a session ("pick up website request #12"), reads it with the service role, replies in its notes and moves its status. The content and design lanes, and what each may change, are in `docs/CONTENT-GUIDE.md` (proposed D-069 to D-071).
 - **Audit log off the platform.** `.github/workflows/audit-export.yml` runs nightly: it reads the last two days of `audit_events` as `audit_reader`, encrypts them with gpg and commits the file to the `audit-archive` branch, so a compromised database can't erase its own trail (SEC-019). Until the secrets exist (A26) it reports that it is waiting and succeeds.
@@ -138,18 +139,21 @@ There is no separate application server. Server code runs as Next.js server comp
 | Performance | Public pages prebuilt and cached at the edge; portal pages render only what one person needs | Core Web Vitals not measured (NFR-002) |
 | Integrity | Constraints, guard triggers, one-function database operations for version moves, plan saves and Stripe events; an append-only audit log | Plan saves still write the plan and its private details in separate calls |
 | Recoverability | Git holds code and schema; Vercel keeps every build for instant rollback | No database backups until Supabase Pro (A14) |
-| Maintainability | One repository interface, config and content kept out of components, living documents checked in CI | Only the service pages and the techniques guide are in the content editor so far; the other pages still need a code change (or a Content help request) until they move to it |
+| Maintainability | One repository interface, config and content kept out of components, living documents checked in CI | The FAQ, Start's text and the client policies are still in code, so changing them needs a pull request (or a Content help request) until they move to the content editor (C35b) |
 
 ## Risks and technical debt
 
 | Risk | Consequence | Backlog |
 | --- | --- | --- |
-| Demo portal on the production URL | Anyone with Vercel access shares one demo store; unsafe once a custom domain is attached | C1 (turn it off first) |
-| Portal security gate not complete | Real client data can't go in until the auth URLs and emails are configured (C5), tests run on a real Supabase stack and the audit export runs | C5, C6, A26, A15 |
+| Portal security gate not complete | Real client data can't go in until tests run on a real Supabase stack (C6), backups are on with a tested restore (A14) and the audit export runs (A26) | C6, A14, A26, A15 |
 | No backups | A database failure after go-live would lose client records | A14, A15 |
 | Rate limits are per server instance | A determined spammer spread across instances gets more attempts than the limits suggest | A18 (Vercel Firewall, declined for now) |
-| Content lives in code | Every copy change is a pull request | C8 |
+| Some copy still lives in code | The FAQ, Start's text and the client policies change only through a pull request | C35b |
 | Major upgrades pending | Next 16, zod 4 and TypeScript 7 drift further the longer they wait | C9 |
+
+## Decision log | Every decision on record: the master decision record's D-001 to D-055, the register's proposed D-056 onward, and the decisions already made in the source documents (DEC). Each lists what on the other pages cites it.
+
+<!-- generated:decisions -->
 
 ## Inventory | Read from the repository when this page was built. Nothing here is written by hand.
 

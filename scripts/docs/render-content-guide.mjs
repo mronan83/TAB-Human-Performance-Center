@@ -10,7 +10,8 @@
  * content lives" table, or when a content file the table names doesn't exist, so the inventory can't drift from the site.
  */
 import fs from "node:fs";
-import { parse, render, page, tables, esc, read, root, sha, args, write, svg, box, zone, arrow, figure, REPO } from "./page.mjs";
+import { parse, render, page, tables, esc, read, root, args, write, svg, box, zone, arrow, figure, inline, useRegistry } from "./page.mjs";
+import { model, assertModel } from "./model.mjs";
 
 const FILE = "docs/CONTENT-GUIDE.md";
 const a = args();
@@ -155,31 +156,28 @@ const css = `
 .wf-surface { fill: var(--surface); stroke: var(--line); }
 .wf-band { fill: var(--bg); }
 .wf-linen { fill: var(--surface-2); }
-.wf-dark, .wf-graphite { fill: var(--brand); }
-.wf-graphite { fill: var(--ink); }
-.wf-mark { fill: var(--brand); }
-.wf-ink { fill: var(--ink); opacity: 0.85; }
+.wf-dark, .wf-graphite { fill: var(--primary); }
+.wf-graphite { fill: var(--text); }
+.wf-mark { fill: var(--primary); }
+.wf-ink { fill: var(--text); opacity: 0.85; }
 .wf-line { fill: var(--line-strong); }
-.wf-btn { fill: var(--brand); }
-.wf-btn-light { fill: var(--on-brand); }
-.wf-outline { fill: none; stroke: var(--brand); stroke-width: 1.5; }
-.wf-photo { fill: var(--quiet-bg); stroke: var(--line); }
+.wf-btn { fill: var(--primary); }
+.wf-btn-light { fill: var(--on-primary); }
+.wf-outline { fill: none; stroke: var(--primary); stroke-width: 1.5; }
+.wf-photo { fill: var(--linen); stroke: var(--line); }
 `;
 
-const ctx = { file: FILE, vars: {}, anchors: new Set(), codeLinks: true, directives };
+const m = assertModel(model());
+useRegistry(m.reg, "contentGuide");
+const ctx = { file: FILE, vars: {}, codeLinks: true, directives };
 const { html, sections } = render(doc, ctx);
-const commit = a.sha ?? sha();
 const out = page({
-  key: "contentGuide",
-  title: doc.front.title,
-  eyebrow: "TAB Human Performance Center · website",
-  heading: doc.front.title,
-  meta: `Version ${esc(doc.front.version)} · as of ${esc(doc.front.updated)} · ${esc(doc.front.owner)} · from <code>${FILE}</code> at <a href="${REPO}/commit/${esc(commit)}" target="_blank" rel="noopener"><code>${esc(commit)}</code></a>`,
+  key: "contentGuide", title: doc.front.title, eyebrow: "TAB Human Performance Center · Website content guide", heading: doc.front.title, file: FILE, version: doc.front.version, commit: a.sha, date: doc.front.updated,
   lede: "How the website's content is changed: the two lanes, who does what, step by step, what can and can't be edited, and the names of every part of a page.",
-  stats: [[2, "lanes"], [routes.length, "public pages"], [terms, "glossary terms"]],
+  stats: [{ n: 2, label: "lanes" }, { n: routes.length, label: "public pages" }, { n: terms, label: "glossary terms" }],
   sections,
-  body: html,
+  body: html.replace(/<td>/g, "<td data-label>"),
   css,
-  foot: `<p>Generated from <code>${FILE}</code> at <code>${esc(commit)}</code> by <code>scripts/docs/render-content-guide.mjs</code>. CI fails if a public page is missing from the page inventory.</p>`,
+  foot: `<p>Generated from <code>${FILE}</code> by <code>scripts/docs/render-content-guide.mjs</code>. CI fails if a public page is missing from the page inventory.</p>`,
 });
 write(a.out, out, `Content guide: ${routes.length} pages, ${terms} terms`);
