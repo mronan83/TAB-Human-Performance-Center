@@ -3,7 +3,8 @@ title: TAB Human Performance Center Data Model
 eyebrow: TAB Human Performance Center · Data model
 heading: Data model
 owner: Matthew Ronan
-updated: 2026-10-07
+updated: 2026-10-10
+version: 2.0
 lede: My TAB and TAB Practice keep their data in Postgres on Supabase. Everything about a client hangs off one clients row, and row-level security decides who sees it: the client, the practitioners on their care team, and the owner. Each table below is read from docs/schema.json, which CI keeps identical to what the migrations build. No migration has been applied to a real database yet; the portal runs on demo data until the go-live gate (A15).
 ---
 
@@ -17,95 +18,95 @@ lede: My TAB and TAB Practice keep their data in Postgres on Supabase. Everythin
 
 Every client-data table carries `client_id`, which is what row-level security checks. Programs are a library of versions, weeks and activities; a client's assignment points at one version, and what is personal to the client lives on the assignment. Website submissions, products and the audit log stand apart from any one client until they are linked.
 
-## Domains | Each table belongs to one domain. The table cards further down are grouped the same way.
+## Domains | Each table belongs to one domain, and names the requirements it serves. The tables further down are grouped the same way.
 
 ### People and access
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `profiles` | One row per sign-in account (Supabase Auth user): role (`owner`, `practitioner`, `admin` or `client`), name, email, whether MFA is required | The person themselves; the owner. Created by `handle_new_user`; only the owner changes a role |
-| `practitioners` | A staff member's public details, services, credentials (`capabilities`) and the publishing permission (`can_publish`) | Everyone signed in reads; the owner writes |
-| `clients` | The client record: contact details, status, TAB Method stage, primary practitioner, Timely and Stripe references, invitation and first sign-in | The client (own contact details only); the care team; the owner |
-| `practitioner_assignments` | Which practitioner works with which client, per service. This is the care team | The owner writes; the care team and the client read |
-| `consents` | Consent history by type and version: granted, revoked, source. Insert-only | The client and the care team add; nobody edits or deletes |
-| `client_wellness_profiles` | Goals, priorities, motivations, routines, preferences, and the sensitive health summary and contraindications | The client reads and updates their own; the care team |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `profiles` | One row per sign-in account (Supabase Auth user): role (`owner`, `practitioner`, `admin` or `client`), name, email, whether MFA is required | The person themselves; the owner. Created by `handle_new_user`; only the owner changes a role | SEC-001, SEC-003, SEC-015, STAFF-011 |
+| `practitioners` | A staff member's public details, services, credentials (`capabilities`) and the publishing permission (`can_publish`) | Everyone signed in reads; the owner writes | SEC-001, STAFF-009 |
+| `clients` | The client record: contact details, status, TAB Method stage, primary practitioner, Timely and Stripe references, invitation and first sign-in | The client (own contact details only); the care team; the owner | STAFF-001, STAFF-002, INT-002, SEC-002 |
+| `practitioner_assignments` | Which practitioner works with which client, per service. This is the care team | The owner writes; the care team and the client read | SEC-002, SEC-018 |
+| `consents` | Consent history by type and version: granted, revoked, source. Insert-only | The client and the care team add; nobody edits or deletes | SEC-010, SEC-016 |
+| `client_wellness_profiles` | Goals, priorities, motivations, routines, preferences, and the sensitive health summary and contraindications | The client reads and updates their own; the care team | STAFF-002, PORTAL-010 |
 
 ### Care record
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `wellness_plans` | Plans: the client's TAB Performance Plan (`plan_type` `wellness`) and service plans under it (`plan_type`, `parent_plan_id`), with status and review date | The care team; the client sees plans marked visible |
-| `plan_goals` | A plan's goals: why it matters, measure, target, status | As its plan |
-| `plan_entries` | The plan log: dated entries, shared or internal | The care team; the client sees shared entries |
-| `session_notes` | Session notes shared with the client. Internal notes live in `private.internal_notes` | The care team writes; the client reads their own |
-| `progress_reviews` | Progress Reviews: outcome, reflections, summary and next steps for the client, stage | The care team; the client sees shared reviews |
-| `stage_changes` | Every change of TAB Method stage, who made it and from which review. Written by `record_stage_change` only | The care team and the client read |
-| `referrals` | Referrals to another TAB service or outside, with reason and status | The care team; the client reads theirs and accepts or declines |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `wellness_plans` | Plans: the client's TAB Performance Plan (`plan_type` `wellness`) and service plans under it (`plan_type`, `parent_plan_id`), with status and review date | The care team; the client sees plans marked visible | PORTAL-003, STAFF-005 |
+| `plan_goals` | A plan's goals: why it matters, measure, target, status | As its plan | PORTAL-003, STAFF-005 |
+| `plan_entries` | The plan log: dated entries, shared or internal | The care team; the client sees shared entries | STAFF-005, PORTAL-011 |
+| `session_notes` | Session notes shared with the client. Internal notes live in `private.internal_notes` | The care team writes; the client reads their own | STAFF-004, PORTAL-011 |
+| `progress_reviews` | Progress Reviews: outcome, reflections, summary and next steps for the client, stage | The care team; the client sees shared reviews | STAFF-006, STAFF-008, PORTAL-005 |
+| `stage_changes` | Every change of TAB Method stage, who made it and from which review. Written by `record_stage_change` only | The care team and the client read | STAFF-006 |
+| `referrals` | Referrals to another TAB service or outside, with reason and status | The care team; the client reads theirs and accepts or declines | STAFF-007 |
 
 ### Programs
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `program_templates` | The program library, one row per version (`family_id`, `version`): draft, published or retired | Staff write, and publishing needs `can_publish_programs()`; signed-in people read published versions |
-| `program_modules` | A version's weeks, in order | Staff write while the version is a draft; clients read only programs they are entitled to (`can_read_program`) |
-| `program_activities` | A week's activities, with prescription and `source_activity_id` back to the previous version | As its week |
-| `client_programs` | A program assigned to a client: version, linked plan, personalization (skips, prescriptions, notes), status | The care team; the client reads their own |
-| `client_program_activities` | Activities added for one client only, outside the library program | The care team; the client reads their own |
-| `activity_logs` | The client's check-offs and values per activity | The client logs their own; the care team reads |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `program_templates` | The program library, one row per version (`family_id`, `version`): draft, published or retired | Staff write, and publishing needs `can_publish_programs()`; signed-in people read published versions | STAFF-009, SEC-017 |
+| `program_modules` | A version's weeks, in order | Staff write while the version is a draft; clients read only programs they are entitled to (`can_read_program`) | STAFF-009, SEC-017 |
+| `program_activities` | A week's activities, with prescription and `source_activity_id` back to the previous version | As its week | STAFF-009, PORTAL-004 |
+| `client_programs` | A program assigned to a client: version, linked plan, personalization (skips, prescriptions, notes), status | The care team; the client reads their own | STAFF-009, PORTAL-004 |
+| `client_program_activities` | Activities added for one client only, outside the library program | The care team; the client reads their own | STAFF-009 |
+| `activity_logs` | The client's check-offs and values per activity | The client logs their own; the care team reads | PORTAL-004 |
 
 ### Progress and check-ins
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `metric_definitions` | The measures progress can be recorded in, with unit, scale and whether a measure is sensitive | Everyone signed in reads; staff write |
-| `progress_entries` | Recorded values for a metric | The client and the care team add; the care team reads all |
-| `check_ins` | Weekly check-ins: energy, sleep, stress, wins, challenges, support needed | The client writes their own; the care team reads |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `metric_definitions` | The measures progress can be recorded in, with unit, scale and whether a measure is sensitive | Everyone signed in reads; staff write | PORTAL-005 |
+| `progress_entries` | Recorded values for a metric | The client and the care team add; the care team reads all | PORTAL-005 |
+| `check_ins` | Weekly check-ins: energy, sleep, stress, wins, challenges, support needed | The client writes their own; the care team reads | PORTAL-005, PORTAL-008 |
 
 ### Forms and resources
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `form_templates` | Form definitions (JSON schema), with sensitivity, service and status | Staff write; signed-in people read published forms |
-| `form_assignments` | A form assigned to a client, with a due date. Only published forms; a started form can't be withdrawn | The care team assigns; the client reads their own |
-| `form_submissions` | A client's answers, draft or submitted, and staff review stamps | The client answers assigned forms; the care team reviews |
-| `resource_assignments` | A resource shared with a client: link, title, note, when they opened it | The care team shares and removes; the client marks viewed |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `form_templates` | Form definitions (JSON schema), with sensitivity, service and status | Staff write; signed-in people read published forms | PORTAL-008 |
+| `form_assignments` | A form assigned to a client, with a due date. Only published forms; a started form can't be withdrawn | The care team assigns; the client reads their own | PORTAL-008, STAFF-010 |
+| `form_submissions` | A client's answers, draft or submitted, and staff review stamps | The client answers assigned forms; the care team reviews | PORTAL-008 |
+| `resource_assignments` | A resource shared with a client: link, title, note, when they opened it | The care team shares and removes; the client marks viewed | PORTAL-007, STAFF-010, CMS-003 |
 
 ### Commerce and cohorts
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `products` | What can be bought online: programs, cohorts, memberships, with Stripe price | Everyone reads active products; staff write |
-| `entitlements` | What a client has bought or been granted, from Stripe or by staff; partial refunds flag a purchase for the owner (`needs_review`) | The client reads their own; written by the Stripe webhook (service role) and staff |
-| `cohorts` | A group run of a program with dates and capacity | Everyone signed in reads; staff write |
-| `cohort_members` | Who is in a cohort | The care team; the client reads their own membership |
-| `cohort_meetings` | A cohort's meeting link, kept apart so only members see it | Staff; members only |
-| `stripe_events` | Stripe event IDs already handled, so a repeated webhook does nothing. Written in the same transaction as the event's changes | Service role only (no policies) |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `products` | What can be bought online: programs, cohorts, memberships, with Stripe price | Everyone reads active products; staff write | PORTAL-009, INT-003 |
+| `entitlements` | What a client has bought or been granted, from Stripe or by staff; partial refunds flag a purchase for the owner (`needs_review`) | The client reads their own; written by the Stripe webhook (service role) and staff | INT-004, SEC-017 |
+| `cohorts` | A group run of a program with dates and capacity | Everyone signed in reads; staff write | — |
+| `cohort_members` | Who is in a cohort | The care team; the client reads their own membership | — |
+| `cohort_meetings` | A cohort's meeting link, kept apart so only members see it | Staff; members only | — |
+| `stripe_events` | Stripe event IDs already handled, so a repeated webhook does nothing. Written in the same transaction as the event's changes | Service role only (no policies) | INT-004, SEC-020 |
 
 ### Website and integrations
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `inquiries` | Start Where You Are and contact submissions: the whole form, flags, the linked client and the routing outcome. Never deleted | Written by the website with the service role. The owner reads all and records routing; a practitioner reads only those linked to their clients |
-| `appointment_refs` | References to Timely appointments, for display in My TAB | The client reads their own; staff write |
-| `site_stats` | Website counts (owner ruling A4): one row per day, kind (`pageview`, `event`, `referrer`) and key (a public page, a fixed event name, `Resource: <address>` for a resource opened (counted by the server from the library, C35), or a referring site's hostname), with a count. No cookies, IP addresses or visitor identifiers exist anywhere | The two-step-verified owner and admins read (proposed D-071); only `record_site_stat()` (service role) writes |
-| `website_requests` | Website change requests (proposed D-071): a number (#12), lane (`content` or `design`), pages, kind, title, the change, why, priority, deadline, status (`new`, `questions`, `waiting_owner`, `in_progress`, `in_review`, `live`, `declined`), preview and change links, who asked and when. About the website only: no column refers to a client | Owner, practitioners and admins read and add (two-step-verified). Only the owner changes one, and Claude through the service role; who asked, the number and the dates are stamped; nobody deletes; audited |
-| `website_request_notes` | The conversation on a request: Claude's questions, options and updates, and staff answers, each with its author | Owner, practitioners and admins read and add; notes are kept as written (no edits or deletes); audited |
-| `app_settings` | Owner settings (C23, proposed D-067): whether the client portal is open (`off` or `live`), the transition banner, whether the Start form is open, and (C23b) a Timely link per service (`booking_<service>`, https only, or null for the main booking page) and the optional pages (`feature_resources`, `feature_team`, `feature_events`). One row per setting, no personal data | Anyone reads (the site reads them on every page). Only the owner, two-step-verified, inserts or changes; nobody deletes; every change is stamped and audited |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `inquiries` | Start Where You Are and contact submissions: the whole form, flags, the linked client and the routing outcome. Never deleted | Written by the website with the service role. The owner reads all and records routing; a practitioner reads only those linked to their clients | GS-004, GS-005, INT-006 |
+| `appointment_refs` | References to Timely appointments, for display in My TAB | The client reads their own; staff write | PORTAL-006, INT-001 |
+| `site_stats` | Website counts (owner ruling A4): one row per day, kind (`pageview`, `event`, `referrer`) and key (a public page, a fixed event name, `Resource: <address>` for a resource opened (counted by the server from the library, C35), or a referring site's hostname), with a count. No cookies, IP addresses or visitor identifiers exist anywhere | The two-step-verified owner and admins read (proposed D-071); only `record_site_stat()` (service role) writes | NFR-005, NFR-006 |
+| `website_requests` | Website change requests (proposed D-071): a number (#12), lane (`content` or `design`), pages, kind, title, the change, why, priority, deadline, status (`new`, `questions`, `waiting_owner`, `in_progress`, `in_review`, `live`, `declined`), preview and change links, who asked and when. About the website only: no column refers to a client | Owner, practitioners and admins read and add (two-step-verified). Only the owner changes one, and Claude through the service role; who asked, the number and the dates are stamped; nobody deletes; audited | CMS-007 |
+| `website_request_notes` | The conversation on a request: Claude's questions, options and updates, and staff answers, each with its author | Owner, practitioners and admins read and add; notes are kept as written (no edits or deletes); audited | CMS-007 |
+| `app_settings` | Owner settings (C23, proposed D-067): whether the client portal is open (`off` or `live`), the transition banner, whether the Start form is open, and (C23b) a Timely link per service (`booking_<service>`, https only, or null for the main booking page) and the optional pages (`feature_resources`, `feature_team`, `feature_events`). One row per setting, no personal data | Anyone reads (the site reads them on every page). Only the owner, two-step-verified, inserts or changes; nobody deletes; every change is stamped and audited | WEB-011, WEB-020 |
 
 ### Private
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `private.internal_notes` | Internal session notes, never shown to the client (SEC-019) | The care team, only through `internal_notes()` and `add_internal_note()`; every read is audited |
-| `private.plan_private_details` | Practitioner-only plan details kept apart from the plan the client can see | The care team, only through `plan_private_details()` and `save_plan_private_details()`; every read is audited |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `private.internal_notes` | Internal session notes, never shown to the client (SEC-019) | The care team, only through `internal_notes()` and `add_internal_note()`; every read is audited | SEC-019, STAFF-004 |
+| `private.plan_private_details` | Practitioner-only plan details kept apart from the plan the client can see | The care team, only through `plan_private_details()` and `save_plan_private_details()`; every read is audited | SEC-019, STAFF-005 |
 
 ### Audit
 
-| Table | What it holds | Who reads and writes |
-| --- | --- | --- |
-| `audit_events` | Who changed which row of a client-data table, when, and which columns, plus every read of private notes. Written by the `audit_row` trigger and the private-notes functions. Append-only | The owner and the `audit_reader` export role read; nobody can change or delete it |
+| Table | What it holds | Who reads and writes | Requirements |
+| --- | --- | --- | --- |
+| `audit_events` | Who changed which row of a client-data table, when, and which columns, plus every read of private notes. Written by the `audit_row` trigger and the private-notes functions. Append-only | The owner and the `audit_reader` export role read; nobody can change or delete it | SEC-005, SEC-019 |
 
-## Tables | Read from docs/schema.json. Open a card's details for its policies, triggers and keys.
+## Tables | Read from docs/schema.json. Open a table for its columns, the requirements it serves, what it points to, and its policies, triggers and keys.
 
 <!-- generated:tables -->
 
@@ -190,6 +191,10 @@ Every client-data table carries `client_id`, which is what row-level security ch
 <!-- generated:security -->
 
 Row-level security is on for every table. A table with no policy for a role refuses that role entirely; `stripe_events` has no policies, so only the server's service role can use it. The `private` schema goes further: signed-in roles have no access to the schema at all, so its tables are reachable only through the functions listed above. Supabase's default grants give `anon` and `authenticated` table access, which is why every rule above lives in a policy or trigger, not in grants. The policies are tested as owner, practitioner, admin, client and signed-out in `supabase/tests/rls.test.mjs`; testing against a real Supabase stack is C6.
+
+## Catalog health | Worked out from the schema each time the page is built.
+
+<!-- generated:health -->
 
 ## Local verification
 

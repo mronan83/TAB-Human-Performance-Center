@@ -3,7 +3,8 @@ title: TAB Human Performance Center Traceability
 eyebrow: TAB Human Performance Center · Requirements
 heading: Requirements & Feature Traceability
 owner: Matthew Ronan
-updated: 2026-10-07
+updated: 2026-10-10
+version: 1.36
 ---
 
 <!-- Edit this file, not the page. scripts/docs/render-traceability.mjs builds the page from it (npm run docs:html), and
@@ -75,6 +76,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 **Reading the columns.** *Verified by* names the check that fails if the requirement breaks: `smoke`, `a11y`, `seo`, `links`, `redirects`, `security`, `header`, `layout` are `e2e/<name>.spec.ts`; `rls` is `supabase/tests/rls.test.mjs`; `contrast` is `scripts/check-contrast.mjs`. In *Status*, an A or C ID is a backlog item and TG-n is a gap found while tracing.
 
+<!-- filters:requirements -->
+
 ### Public website (WEB)
 
 | ID | Requirement | Phase | Priority | Status | Features | Verified by |
@@ -115,7 +118,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Requirement | Phase | Priority | Status | Features | Verified by |
 | --- | --- | --- | --- | --- | --- | --- |
-| PORTAL-001 | Secure sign-in, MFA available to clients | P2 | Must | Partial: email-link sign-in, sign-up off; client MFA and invitation links wait on C5 | F-19, F-45 | smoke |
+| PORTAL-001 | Secure sign-in, MFA available to clients | P2 | Must | Partial: email-link sign-in that works in any browser, sign-up off; clients can't turn on two-step verification yet (TG-10, C37) | F-19, F-45 | smoke |
 | PORTAL-002 | Home dashboard: focus, next appointment, stage, plan, program, resources | P2 | Must | Verified | F-22 | smoke, a11y |
 | PORTAL-003 | My Plan shows the TAB Performance Plan "we created together" | P2 | Must | Verified | F-23 | smoke, rls |
 | PORTAL-004 | My Programs: activities with client responses and practitioner feedback | P2 | Must | Partial: personalized activities and check-off verified; responses and feedback not built (TG-4) | F-24 | smoke, rls |
@@ -171,13 +174,15 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 {{nfr.total}} non-functional requirements in three areas: {{nfr.verified}} verified, {{nfr.built}} built without a check, {{nfr.partial}} partial, {{nfr.planned}} planned. The database security gate is the best-proved part of the system: every SEC-016 to SEC-018 rule has a test that fails if it breaks. Since C3b, internal notes sit in a private schema behind audited functions and Stripe events apply in one transaction. What's left is mostly the go-live plumbing in C5 and C6, the audit export's secrets (A26) and backups (A14).
 
+<!-- filters:requirements -->
+
 ### Security and privacy (SEC)
 
 | ID | Requirement | How it is enforced | Phase | Priority | Status | Verified by |
 | --- | --- | --- | --- | --- | --- | --- |
 | SEC-001 | Role-based access for client, practitioner, operations and owner | Roles `owner`, `practitioner`, `client` (D-045); front desk and supervisor not modelled | P2 | Must | Partial | rls |
 | SEC-002 | Clients see only their own data; practitioners only their assigned clients | Row-level security on every client table; `can_access_client()` | P1+ | Must | Verified | rls |
-| SEC-003 | MFA mandatory for all staff | Staff role counts only in an `aal2` session; enrolment screen waits on C5 | P1+ | Must | Partial | rls |
+| SEC-003 | MFA mandatory for all staff | Staff role counts only in an `aal2` session; the enrolment screen went live with owner Settings (C23, 2026-10-06) | P1+ | Must | Verified | rls |
 | SEC-004 | Encryption in transit and at rest; secrets server-side only | Vercel and Supabase defaults; service role used only in server code | P1 | Must | Built | — |
 | SEC-005 | Audit log of sensitive changes and admin actions | `audit_row()` trigger on every client table; log read-only to signed-in users | P2 | Must | Verified | rls |
 | SEC-006 | Nothing sensitive in logs, analytics, URLs, email subjects or SMS | Property-less analytics events; fixed email subjects, checked with sample data (TG-3 closed) | P1 | Must | Verified | guardrails |
@@ -188,7 +193,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | SEC-011 | Dependency patching, vulnerability scanning, incident playbook | Weekly Dependabot PRs; `npm audit` in CI; no incident playbook yet (TG-9) | P1 | Must | Partial | CI |
 | SEC-012 | Owner access to sensitive data is limited and audited, not automatically universal | Owner sees every client by design (D-045); access is audited | P2 | Should | Partial (Q-3) | rls |
 | SEC-013 | Bot protection and rate limits on forms; nonce-based CSP with `frame-ancestors 'none'` | `lib/spam.ts` layers; Turnstile once keys exist (A3); `lib/csp.ts` | P1 | Must | Verified | security, smoke |
-| SEC-014 | No public sign-up; accounts by invitation | Sign-up off; Invite to My TAB built (C4); invitation confirm route waits on C5 | P2 | Must | Partial | rls, smoke |
+| SEC-014 | No public sign-up; accounts by invitation | Sign-up off; Invite to My TAB built (C4); invitation links arrive intact (C5, `token_hash`); the first real invitation is part of the go-live gate (A15) | P2 | Must | Partial | rls, smoke, guardrails |
 | SEC-015 | Staff MFA enforced; nobody clears their own requirement | `current_app_role()` and `requireStaff`; enrolment and verification screens built (F-53) | P2 | Must | Partial | rls |
 | SEC-016 | Client writes limited to allowed columns; consents insert-only | `guard_client_columns`, `guard_client_update`, form submission guards | P2 | Must | Verified | rls |
 | SEC-017 | Program content readable only when published and entitled | `can_read_program()` on modules and activities | P2 | Must | Verified | rls |
@@ -228,6 +233,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 {{f.total}} features: {{f.builtAny}} built (the portal ones in demo mode) and {{f.planned}} planned. A feature is a unit someone can see or use, built in one place in the code. Each names the requirements it serves, so the trace runs both ways: requirement down to feature, feature up to the reason it exists. The *Requirements* column is the exact inverse of the *Features* column in the requirement tables above, plus the non-functional requirements each feature carries. *Checks* lists checks that test the feature's behaviour; the CSP scan (`security`) loads every portal page but is not counted here.
 
+<!-- filters:features -->
+
 ### Public website
 
 | ID | Feature | Status | Requirements | Decisions | Code | Checks |
@@ -245,7 +252,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-11 | Submissions in TAB Practice | Built (demo) | GS-004, GS-005, INT-006 | D-058 | `app/(portal)/practice/inquiries/` | rls |
 | F-12 | Legacy redirects | Verified | NFR-004, NFR-008 | RSK-009 | `config/redirects.ts`, `middleware.ts` | redirects |
 | F-13 | SEO metadata, sitemap, robots, structured data | Verified | WEB-016, NFR-002, NFR-003, NFR-009 | D-038 | `lib/seo.ts`, `lib/jsonld.ts`, `app/sitemap.ts`, `app/robots.ts` | seo |
-| F-14 | Our own website counts and the owner's Website stats page | Built; production needs its migration (G3); counting starts when the site is public | NFR-005, NFR-006 | D-046, D-057 (amended, A4) | `components/Analytics.tsx`, `lib/analytics.ts`, `lib/site-stats.ts`, `app/api/stats/route.ts`, `practice/stats/`, migration `20261011000000` | guardrails, rls, a11y |
+| F-14 | Our own website counts and the owner's Website stats page | Built: live 2026-10-06; counting starts when the site is public | NFR-005, NFR-006 | D-046, D-057 (amended, A4) | `components/Analytics.tsx`, `lib/analytics.ts`, `lib/site-stats.ts`, `app/api/stats/route.ts`, `practice/stats/`, migration `20261011000000` | guardrails, rls, a11y |
 | F-15 | Content-Security-Policy and headers | Verified | SEC-004, SEC-013 | — | `lib/csp.ts`, `middleware.ts`, `next.config.ts` | security |
 | F-16 | Design tokens, fonts and contrast check | Partial: hand-copied tokens (TG-6); the portal's status tints are tokens too, and `npm run test:brand` blocks hex colours in classes | DS-001 to DS-005, NFR-001 | D-062 (proposed; replaces D-053, D-056) | `app/globals.css`, `app/fonts/`, `scripts/check-contrast.mjs` | contrast, a11y |
 | F-17 | Logo, icons, manifest | Built | WEB-018, WEB-019, DS-006 | D-061 (proposed; replaces D-027) | `public/brand/`, `components/Logo.tsx`, `app/manifest.ts` | smoke |
@@ -255,7 +262,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Feature | Status | Requirements | Decisions | Code | Checks |
 | --- | --- | --- | --- | --- | --- | --- |
-| F-19 | My TAB sign-in and demo sign-in | Partial: real sign-in needs C5 | WEB-020, PORTAL-001, SEC-014, SEC-020 | D-042 | `app/(portal)/my-tab/login/`, `my-tab/auth/callback/route.ts` | smoke |
+| F-19 | My TAB sign-in and demo sign-in | Partial: clients can't turn on two-step verification yet (C37); real clients wait on the go-live gate (A15) | WEB-020, PORTAL-001, SEC-014, SEC-020 | D-042 | `app/(portal)/my-tab/login/`, `my-tab/auth/callback/route.ts` | smoke |
 | F-20 | Portal data layer and demo mode | Verified | INT-002, SEC-008 | D-042, D-045 | `lib/portal/types.ts`, `mock-repository.ts`, `supabase-repository.ts` | smoke |
 | F-21 | Database security gate (RLS, guards, audit) | Partial: C6, A26 | SEC-001 to SEC-003, SEC-005, SEC-010, SEC-012, SEC-015 to SEC-019 | D-042, D-060 | `supabase/migrations/` | rls |
 | F-22 | Dashboard | Verified (demo) | PORTAL-002 | — | `app/(portal)/my-tab/page.tsx` | smoke |
@@ -281,8 +288,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-37 | Version moves and client-only activities | Verified (demo) | STAFF-009 | — | `practice/clients/[id]/programs/`, `components/portal/interactive.tsx` | smoke, rls |
 | F-38 | Team page (publishing permission) | Verified (demo) | STAFF-009, SEC-001 | D-045 | `practice/team/` | smoke, a11y, rls |
 | F-39 | Invite to My TAB, assign forms, share resources | Partial: invite email needs C5 | STAFF-010, PORTAL-008, CMS-003, SEC-014 | D-054 | `practice/clients/[id]/page.tsx`, migration `20261005000000` | smoke, a11y, rls |
-| F-53 | Owner settings and staff sign-in with two-step verification | Live 2026-10-06, both parts (part 2: booking links and page switches, C23b) | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, `config/navigation.ts`, migrations `20261009000000` and `20261010000000` | settings, a11y, rls |
-| F-54 | Staff password, passkeys and session limits | Live 2026-10-06 (password, 30-day ceiling); passkeys built but off until Supabase supports WebAuthn MFA (C28) | SEC-015, SEC-020, SEC-013 | D-068 (proposed) | `practice/login/`, `practice/verify/`, `practice/security/`, `components/portal/StaffAuth.tsx`, `lib/staff-auth.ts`, `lib/passkey-browser.ts`, `middleware.ts` | guardrails, a11y |
+| F-53 | Owner settings and staff sign-in with two-step verification | Verified: live 2026-10-06, both parts (part 2: booking links and page switches, C23b) | SEC-001, SEC-015 | D-067 (proposed) | `practice/settings/`, `practice/login/`, `practice/verify/`, `practice/auth/callback/route.ts`, `lib/settings.ts`, `config/navigation.ts`, migrations `20261009000000` and `20261010000000` | settings, a11y, rls |
+| F-54 | Staff password, passkeys and session limits | Partial: live 2026-10-06 (password, 30-day ceiling); passkeys built but off until Supabase supports WebAuthn MFA (C28) | SEC-015, SEC-020, SEC-013 | D-068 (proposed) | `practice/login/`, `practice/verify/`, `practice/security/`, `components/portal/StaffAuth.tsx`, `lib/staff-auth.ts`, `lib/passkey-browser.ts`, `middleware.ts` | guardrails, a11y |
 
 ### Delivery and operations
 
@@ -291,13 +298,13 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-40 | CI checks on every PR | Verified | NFR-001, NFR-007, SEC-011 | R-028 | `.github/workflows/ci.yml`, `playwright.config.ts` | CI |
 | F-41 | Staged production and Vercel login | Built (Vercel settings) | NFR-009, SEC-008 | Owner rulings 2026-09-28 | Vercel project settings, `CLAUDE.md` | — |
 | F-42 | Main-branch guard | Built | — (owner ruling) | Owner ruling 2026-09-28 | `.claude/hooks/guard-main.mjs` | — |
-| F-43 | Backlog page | Built | — (owner ruling) | Owner ruling 2026-10-02 | `scripts/render-backlog.mjs`, `docs/BACKLOG.md` | — |
-| F-52 | Living traceability, architecture and data model pages | Verified | — (owner ruling) | Owner requests 2026-10-02 and 2026-10-03 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json` | CI (`npm run docs:check`) |
+| F-43 | Backlog page: every owner action and engineering item with its status, dependencies, requirements and what it unblocks; waiting on you, milestones, the longest chain, a dependency map and consistency checks | Verified | — (owner ruling) | Owner rulings 2026-10-02 and 2026-10-10 | `scripts/docs/render-backlog.mjs`, `docs/BACKLOG.md` | CI (`npm run docs:check`) |
+| F-52 | Living documents: six connected pages (architecture with the decision log, data model, requirements and traceability, user stories, backlog, content guide); every ID links to its home with a hover card | Verified | — (owner ruling) | Owner requests 2026-10-02, 2026-10-03 and 2026-10-10 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json`, `docs/USER-STORIES.md` | CI (`npm run docs:check`) |
 | F-55 | Website change requests (TAB Practice → Website changes) and the content guide | Verified | CMS-006, CMS-007 | D-069, D-070, D-071 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `lib/website-requests.ts`, `lib/website-requests-store.ts`, `app/(portal)/practice/website/`, migration `20261013000000` | CI (`npm run docs:check`), rls, `e2e/website-requests.spec.ts` |
 | F-56 | Website admin role | Verified | STAFF-011 | D-071 (proposed) | `lib/admins.ts`, `app/(portal)/practice/settings/page.tsx`, `components/portal/PortalShell.tsx`, migrations `20261012000000`, `20261013000000` | rls, `e2e/website-requests.spec.ts` |
-| F-58 | Content editor for Home, the TAB Method, About, Our Story, Our Team, and the resource library: topic cards whose subjects open their resource (a PDF downloads, an email-first one opens its form, a link opens its page, on this site or another), open counts | Live; subject links built | CMS-001, CMS-002, CMS-005, WEB-010 | D-069, D-072, D-073, D-074, D-075 (proposed) | `content/pages/*.json`, `content/pages.ts`, `content/resources/`, `content/resource-topics/`, `content/resource-files/`, `lib/resources.ts`, `lib/resource-emails.ts`, `lib/resource-stats.ts`, `lib/team-photos.ts`, `components/ResourceRequest.tsx`, `app/(site)/resources/` | build (content rules), `e2e/content.spec.ts`, `e2e/resources.spec.ts`, a11y, brand |
+| F-58 | Content editor for Home, the TAB Method, About, Our Story, Our Team, and the resource library: topic cards whose subjects open their resource (a PDF downloads, an email-first one opens its form, a link opens its page, on this site or another), open counts | Verified: live 2026-10-09; subjects open their resource | CMS-001, CMS-002, CMS-005, WEB-010 | D-069, D-072, D-073, D-074, D-075 (proposed) | `content/pages/*.json`, `content/pages.ts`, `content/resources/`, `content/resource-topics/`, `content/resource-files/`, `lib/resources.ts`, `lib/resource-emails.ts`, `lib/resource-stats.ts`, `lib/team-photos.ts`, `components/ResourceRequest.tsx`, `app/(site)/resources/` | build (content rules), `e2e/content.spec.ts`, `e2e/resources.spec.ts`, a11y, brand |
 | F-59 | Saving on `main` turned off in the content editor, with a safety net that moves editor commits on `main` into a change request | Built | CMS-004 | D-076 (proposed) | `lib/keystatic-guard.ts`, `components/KeystaticMainGuard.tsx`, `app/keystatic/keystatic.tsx`, `.github/workflows/content-main-guard.yml`, `scripts/content-main-guard.sh` | `e2e/content.spec.ts` (guard against Keystatic's request format); the script's dry run (PR) |
-| F-57 | Content editor (Keystatic) and the block library: service pages and the massage techniques guide | Live | CMS-001, CMS-004, CMS-005 | D-069, D-071, D-072 (proposed) | `keystatic.config.ts`, `content/schema.ts`, `content/services/*.json`, `content/massage-techniques.json`, `components/blocks/Blocks.tsx`, `app/keystatic`, `.github/workflows/content-pr.yml` | build (content rules), `e2e/content.spec.ts`, brand |
+| F-57 | Content editor (Keystatic) and the block library: service pages and the massage techniques guide | Verified: live 2026-10-07 | CMS-001, CMS-004, CMS-005 | D-069, D-071, D-072 (proposed) | `keystatic.config.ts`, `content/schema.ts`, `content/services/*.json`, `content/massage-techniques.json`, `components/blocks/Blocks.tsx`, `app/keystatic`, `.github/workflows/content-pr.yml` | build (content rules), `e2e/content.spec.ts`, brand |
 
 ### Planned
 
@@ -305,7 +312,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | --- | --- | --- | --- | --- |
 | F-44 | Content editor for the last pages (FAQ, Start's text, client policies) | Planned | CMS-001 to CMS-005 | C35b (proposed D-069) |
 | F-60 | Content fast lane: the owner's own editor changes, touching only content files, are merged and promoted automatically after CI; anything else keeps the approvals | Built; switched on by A32 | CMS-004, CMS-006 | D-070 (proposed) | `.github/workflows/content-fast-lane.yml`, `scripts/fast-lane.ts` | `e2e/fast-lane.spec.ts` (paths, owner-only commits, release rule, workflow trigger) |
-| F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
+| F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Built: live 2026-10-06; the live invitation test is part of A15 | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5, A15 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
 | F-48 | Service intakes for the five pillars | Planned | STAFF-003 | not yet on the backlog |
@@ -317,11 +324,11 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 <!-- chart:status-by-area -->
 
-The weak spot is not security, it is everything nobody wrote a check for. Start and routing, quality and TAB Practice lead, because their checks were written with the code. Security is at 33%, and most of its partial rows wait on C5, C6 and A26. The public website is the opposite: 9 of its 20 requirements are built and look right, but nothing fails if a later change breaks them. Content (CMS) has no verified requirement because Payload waits until after Phase 1 (A-02).
+The weak spot is not security, it is everything nobody wrote a check for. Start and routing, quality and TAB Practice lead, because their checks were written with the code. Security is at {{pct.SEC}}, and most of its partial rows wait on C6, A14 and A26, the go-live gate's own items. The public website is the opposite: {{built.WEB}} of its {{total.WEB}} requirements are built and look right, but nothing fails if a later change breaks them. Content (CMS) is at {{pct.CMS}}: the content editor covers most pages, and the rest (FAQ, Start's text, client policies) is C35b.
 
 ### Gaps found while tracing
 
-{{gaps}} gaps found while tracing. Each now has a backlog item (C15 to C19) or waits on an owner ruling (A25); a gap closes here and on the backlog in the same pull request.
+{{gaps}} gaps found while tracing. Each now has a backlog item (C15 to C19, C37) or waits on an owner ruling (A25); a gap closes here and on the backlog in the same pull request.
 
 | ID | Gap | Requirements | Proposed resolution | Size | Backlog |
 | --- | --- | --- | --- | --- | --- |
@@ -334,6 +341,7 @@ The weak spot is not security, it is everything nobody wrote a check for. Start 
 | TG-7 | Only the Start funnel events are counted | **Closed 2026-10-06 (C18).** NFR-006 | Add `service_view` and `book_click` (property-less) once Plausible exists (A4) | S | C18 |
 | TG-8 | No end-to-end test that a submission gets exactly one next step and shows in TAB Practice | **Closed 2026-10-06 (C15):** an e2e test through the Start form and TAB Practice in the demo. GS-004, GS-005 | An e2e test through `/api/inquiry` in demo mode | S | C15 |
 | TG-9 | No incident-response playbook | SEC-011 | A one-page runbook: who to call, how to revoke keys, how to tell clients. Pair it with counsel's breach duties (A7) | S | C19 |
+| TG-10 | Clients can't turn on two-step verification in My TAB, though PORTAL-001 asks for MFA to be available to them | PORTAL-001 | Offer an authenticator app as an option in My TAB's profile, reusing the staff enrolment screen; never required for clients | M | C37 |
 
 ### Requirements no feature delivers
 
@@ -353,30 +361,13 @@ F-18 (launch checklist), F-42 (main-branch guard), F-43 (backlog page) and F-52 
 
 ### What each open backlog item holds back
 
-| Backlog | Unblocks |
-| --- | --- |
-| A1 domain (done 2026-10-06) | Now unblocks A2, A3, A4, C1, C2 and C5 |
-| A2 Resend (done 2026-10-06) | GS-004 (emails send), PORTAL-012 |
-| A3 Turnstile | SEC-013 in full |
-| A4 analytics (our own counter, ruled 2026-10-06) | NFR-006 |
-| A5 Timely Client Login | INT-001, PORTAL-006 |
-| A6 business facts (gift cards link left) | WEB-012 (gift cards) |
-| A7 legal review (approved 2026-10-06; retention ruled) | guardrail 4 privacy condition met, so A15 |
-| A8 content | WEB-009, WEB-010, WEB-013, WEB-017, DS-007 |
-| A14 Supabase Pro | SEC-009 |
-| A17 Stripe | PORTAL-009, INT-003 |
-| C2 launch day | NFR-007, NFR-010 |
-| A26 audit export secrets | SEC-019 |
-| C5 sign-in plumbing | PORTAL-001, SEC-003, SEC-014, SEC-015 |
-| C6 real-stack tests | SEC-021 |
-| C31 Keystatic and block library | CMS-001 to CMS-005, WEB-015 |
-| A15 go-live gate | GS-004 and GS-005 storage, and every portal requirement for real clients |
-| A25 owner rulings | Q-1, Q-2, Q-3, Q-5, Q-6; STAFF-008 (TG-1), WEB-002 (TG-2), SEC-012 |
-| C15 guardrail checks | NFR-005, SEC-006, PORTAL-012, GS-004, GS-005, WEB-004 to WEB-007 move from Built or Partial to Verified |
-| C16 profile fields | PORTAL-010 |
-| C17 generated tokens | DS-001 |
-| C18 public events | NFR-006 |
-| C19 incident runbook | SEC-011 |
+Worked out from the backlog: every open item and the requirements it delivers. When an item closes, its requirements move on here and on the backlog page in the same pull request.
+
+<!-- generated:holds-back -->
+
+## Risks | The master decision record's risk register (R-) by likelihood and impact, and the engineering risks Claude raised in the register (RSK).
+
+<!-- generated:risks -->
 
 ## Open questions
 
@@ -429,6 +420,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.28 | STAFF-011 and F-56: the website admin role; CMS-007: website requests move into TAB Practice (status, notes, owner alert), and the GitHub issue forms are retired; F-55 updated | Owner rulings 2026-10-07, proposed D-071 |
 | 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
 | 2026-10-10 | 1.35 | F-60 added: the content fast lane (C32); F-44 is now the last pages only (C35b); CMS-004 and CMS-006 updated | Fast lane built, owner request 2026-10-10 ("Start C32"); proposed D-070 |
+| 2026-10-10 | 1.36 | Rebuilt as the requirements hub of one connected set of pages: requirements and features as expandable rows with filters, each listing the backlog items, user stories and tables that trace to it; the holds-back table now comes from the backlog; risks added; a user stories page added. Stale sign-in rows fixed (C5 shipped): SEC-003 verified, PORTAL-001, SEC-014, F-19 and F-45 restated; TG-10 (client two-step verification) raised, now C37 | Owner request 2026-10-10 ("similar to these… all connected and intertwined") |
 | 2026-10-10 | 1.34 | F-58: the uploaded files are checked at build time only, every route that reads the library ships it, and a check inspects the build for it | Production error on Website stats (digest 4077400647), owner report 2026-10-10 |
 | 2026-10-08 | 1.33 | F-58: topics list subjects that open their resource; links can be site pages. F-59 added: saving on `main` turned off, with a safety net. CMS-004 updated | Owner requests 2026-10-08 (two editor saves had landed on `main`); proposed D-075, D-076 |
 | 2026-10-07 | 1.32 | F-58: Home, the TAB Method, About, Our Story, Our Team and the resource library in the content editor (C35); F-05, F-44, WEB-010, CMS-001 and CMS-002 updated | Owner request, 2026-10-07: "all three in one PR", email required for downloads, daily counts, documents in the repository; proposed D-073, D-074 |

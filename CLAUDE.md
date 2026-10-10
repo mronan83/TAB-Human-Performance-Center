@@ -74,19 +74,22 @@ Never print, log or commit token values.
   After a merge, restart the working branch from `main`.
 - **Backlog (owner request 2026-09-28):** `docs/BACKLOG.md` is the single list of remaining work, prioritized
   (P0 now, P1 public launch, P2 My TAB go-live, P3 later) and categorized, with owner actions (A) and Claude's work (C).
-  Every PR updates it, including each item's effort and blocker. Don't post the backlog after a merge. After every
+  Each item is a block with its status, size, dependencies, requirements and "Done when"; finished items stay as Done.
+  Every PR updates it, including each item's status and dependencies. Don't post the backlog after a merge. After every
   successful production promotion (owner ruling 2026-10-02), render it with `npm run backlog:html -- --out <file>
   --release "<what went live>" --deployment <dpl_id>` and republish it to the same backlog
   artifact (https://claude.ai/artifact/71B4CYEb4dHdHa71fVwAgg; pass it as `url` from a new session), then send the owner
   its link.
-- **Living documents (owner request 2026-10-03):** the traceability, technical architecture and data model pages, and
-  the website content guide (owner request 2026-10-07), are Claude's to keep accurate and complete. Every PR assesses
-  all four against its change and updates their sources (`docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`,
-  `docs/DATA-MODEL.md`, `docs/schema.json`, `docs/CONTENT-GUIDE.md`) in the same PR; its
-  description carries a "Living documents" line naming what changed in each, or why nothing needed to. `npm run
-  docs:check` (in CI) fails when the schema snapshot is stale, a requirement, table, function, environment variable,
-  dependency, API route or `lib/` module isn't described, a feature, gap or question reference doesn't resolve, or a
-  public page is missing from the content guide. The guide changes with anything that changes what is editable, the
+- **Living documents (owner requests 2026-10-03 and 2026-10-10):** six connected pages: technical architecture (with the
+  decision log), data model, requirements and traceability, user stories, the backlog, and the website content guide
+  (owner request 2026-10-07). They are Claude's to keep accurate and complete. Every PR assesses all of them against its
+  change and updates their sources (`docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`,
+  `docs/schema.json`, `docs/USER-STORIES.md`, `docs/BACKLOG.md`, `docs/CONTENT-GUIDE.md`) in the same PR; its
+  description carries a "Living documents" line naming what changed in each, or why nothing needed to. A new
+  behaviour someone experiences gets a story (draft until the owner agrees it). `npm run docs:check` (in CI) fails when
+  the schema snapshot is stale, a requirement, table, function, environment variable, dependency, API route or `lib/`
+  module isn't described, an ID a page names doesn't exist, a backlog dependency loops, or a public page is missing from
+  the content guide. The guide changes with anything that changes what is editable, the
   block library, the checks or the request workflow.
   After every merge, render them with `npm run docs:html -- --out-dir <folder>` and republish each to its artifact
   (addresses in `docs/living-docs.json`; pass them as `url` from a new session), then confirm to the owner which pages
