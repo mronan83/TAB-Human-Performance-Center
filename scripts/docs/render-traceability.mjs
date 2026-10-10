@@ -194,7 +194,7 @@ const directives = {
     const R = m.risks.filter((r) => r.id.startsWith("R-"));
     const lv = (s) => (/high/i.test(s) ? 3 : /med/i.test(s) ? 2 : 1);
     const LV = ["", "Low", "Medium", "High"];
-    let grid = `<div class="riskgrid" role="table" aria-label="Risks by likelihood and impact"><span class="ax"></span>${[1, 2, 3].map((i) => `<span class="ax top">Impact ${LV[i]}</span>`).join("")}`;
+    let grid = `<div class="riskgrid" role="group" aria-label="Risks by likelihood (rows, high at the top) and impact (columns)"><span class="ax"></span>${[1, 2, 3].map((i) => `<span class="ax top">Impact ${LV[i]}</span>`).join("")}`;
     for (const l of [3, 2, 1]) {
       grid += `<span class="ax">${LV[l]}</span>`;
       for (const i of [1, 2, 3]) {

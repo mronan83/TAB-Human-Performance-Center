@@ -290,7 +290,11 @@ export function facet(key, label, items, valueOf, order, labelOf = (v) => v, sta
  * An expandable row. id → anchor; title (HTML); facts: HTML pieces under the title; side: HTML (a pill); body: HTML;
  * data: { key: value } written as data-f-<key>; search: extra text to match.
  */
+const inert = (html) => html.replace(/<a ([^>]*?)>/g, (m, at) => `<span ${at.replace(/\s(?:href|target|rel)="[^"]*"/g, "")}>`).replace(/<\/a>/g, "</span>");
 export function row({ id, anchor, title, long = false, facts = [], side = "", body = "", data = {}, search = "", item = true }) {
+  // Inside a <summary> a link would be a control nested in a control (WCAG 4.1.2), so IDs there are plain text with a
+  // hover card; the open row lists them again as links.
+  if (body) { title = inert(title); facts = facts.map((f) => inert(f ?? "")); }
   const attrs = Object.entries(data).map(([k, v]) => ` data-f-${k}="${esc([v].flat().filter(Boolean).join(" "))}"`).join("");
   const sum = `<span class="id">${esc(id)}</span><span class="what"><span class="title${long ? " long" : ""}">${title}</span>${facts.length ? `<span class="facts">${facts.filter(Boolean).map((f) => `<span>${f}</span>`).join("")}</span>` : ""}</span><span class="side">${side}${body ? `<svg class="i chev" aria-hidden="true"><use href="#i-chev"/></svg>` : ""}</span>`;
   const common = `${anchor ? ` id="${anchor}"` : ""}${item ? " data-item" : ""}${attrs}${search ? ` data-search="${esc(search)}"` : ""}`;
@@ -354,7 +358,8 @@ export function render(doc, ctx) {
 }
 
 // ---- Drawing helpers (diagrams are plain SVG styled by the page's tokens) -------------------------------------------
-export const svg = (w, h, label, body) => `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}" style="min-width:${Math.min(w, 680)}px">
+// A diagram whose boxes are links is a group of links, not a single image (role="img" would hide them).
+export const svg = (w, h, label, body) => `<svg viewBox="0 0 ${w} ${h}" role="${/<a /.test(body) ? "group" : "img"}" aria-label="${esc(label)}" style="min-width:${Math.min(w, 680)}px">
 <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arrowhead"/></marker></defs>
 ${body}</svg>`;
 /** A box with a bold name and up to a few quiet lines under it. */
@@ -370,7 +375,7 @@ export function arrow(pts, label, opts = {}) {
   const [lx, ly] = opts.at ?? [(pts[0][0] + pts.at(-1)[0]) / 2, (pts[0][1] + pts.at(-1)[1]) / 2 - 6];
   return `<path d="${d}" class="edge${opts.dashed ? " dashed" : ""}" marker-end="${opts.none ? "" : "url(#ah)"}"${opts.both ? ' marker-start="url(#ah)"' : ""}/>${label ? `<text x="${lx}" y="${ly}" text-anchor="${opts.anchor ?? "middle"}" class="t-edge">${esc(label)}</text>` : ""}`;
 }
-export const figure = (svgHtml, caption) => `<figure class="chart"><div class="scroll">${svgHtml}</div>${caption ? `<figcaption>${caption}</figcaption>` : ""}</figure>`;
+export const figure = (svgHtml, caption) => `<figure class="chart"><div class="scroll" tabindex="0" role="region" aria-label="Diagram; scroll sideways on small screens">${svgHtml}</div>${caption ? `<figcaption>${caption}</figcaption>` : ""}</figure>`;
 
 // ---- Page ------------------------------------------------------------------------------------------------------------
 const LOGO = `data:image/svg+xml;base64,${fs.readFileSync(root + "public/brand/logo-horizontal-compact-white.svg").toString("base64")}`;

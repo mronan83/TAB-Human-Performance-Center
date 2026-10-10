@@ -236,13 +236,13 @@
   const canHover = matchMedia('(hover: hover)');
   document.addEventListener('mouseover', (e) => {
     if (!canHover.matches) return;
-    const a = e.target.closest('a[data-id]');
+    const a = e.target.closest('[data-id]');
     if (!a) return;
     clearTimeout(timer);
     timer = setTimeout(() => show(a), 160);
   });
   document.addEventListener('mouseout', (e) => {
-    const a = e.target.closest('a[data-id]');
+    const a = e.target.closest('[data-id]');
     if (a && !a.contains(e.relatedTarget)) hide(a);
   });
   document.addEventListener('focusin', (e) => {
