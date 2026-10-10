@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 2.1
+version: 2.2
 updated: 2026-10-10
 owner: Matthew Ronan
 ---
@@ -105,7 +105,7 @@ The change request's page shows its description ("What happens next"), Vercel's 
 | Vercel's comment, with **Visit Preview** | A private copy of the website with your change | Look at your page on a phone and a computer (sign in to Vercel if asked) |
 | A red ✗: "Some checks were not successful" | Your change breaks a rule; nothing was merged or published | Open **Details** next to the failed check, or ask Claude what failed. Fix it in the editor on the same branch and **Save** again |
 | Fast lane: **Live.** Merged and promoted… | Your change is on the live website | Reload the page to see it. To undo it, see "Undo a change" |
-| Fast lane: Merged. **Not live yet:** other changes on main are waiting for release… | Your change is merged, but a release from Claude is waiting for your "promote", and yours joins it | Ask Claude for the release, check it, and say "promote" |
+| Fast lane: Merged. **Not live yet:** other changes on main are waiting for release… | Your change is merged, but a release from Claude that changes the website is waiting for your "promote", and yours joins it. (Documentation changes don't hold it back.) | Ask Claude for the release, check it, and say "promote" |
 | Fast lane: Merged. **Not live yet:** main moved while this was merging… | Something else reached `main` at the same moment | The same: it goes live with the next release you promote |
 | Fast lane: This change needs the owner's approval as usual, with the reasons | It isn't the owner's own content change: an admin made it, it touches a file outside the content, or a merge commit is in it | The owner checks the preview and tells Claude "approve" with the number; Claude merges it and sends the release |
 | **Merged**, with no fast-lane comment | Someone merged it by hand | Nothing is live yet: ask Claude to send the release, then say "promote" |
@@ -200,7 +200,7 @@ _Also under Resource topics: **Add** a subject (3 to 90 characters, up to 12 per
 | No change request yet | It opens with the first save on a branch | Save, wait a minute, and reload the editor to see **Pull request #…** |
 | A check failed | The change breaks a rule (see "Rules every change must pass"); the error names the file and the field | Fix it in the editor, on the same branch, and save again |
 | The fast lane says it needs approval | It isn't the owner's own content change | The owner checks the preview and tells Claude "approve" with the number |
-| "Not live yet" | Other changes are waiting for release | Ask Claude for the release and say "promote" |
+| "Not live yet" | Other changes to the website are waiting for release | Ask Claude for the release and say "promote" |
 | You merged a change request yourself | A merge adds it to `main` but publishes nothing, and the fast lane no longer sees it | Ask Claude to send the release, then say "promote" |
 | The change is live, but the page looks the same | The browser kept its copy | **Ctrl+Shift+R** (**Cmd+Shift+R** on a Mac) |
 | A guide listed twice under its topic, as "Coming soon" and as the PDF | Before 10 October 2026, a subject had to be linked by hand | Fixed: a subject opens the topic's resource with the same title. If the wording differs, link them (see "Make a 'Coming soon' subject open a resource") |
@@ -466,6 +466,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 2.2 | 2026-10-10 | "Not live yet" happens only when a change to the website is waiting for release; documentation waiting no longer holds your edit | Owner approval 2026-10-10 ("yes build it"), C41 |
 | 2.1 | 2026-10-10 | Branches are deleted automatically once their change is merged: the rules, coming back to a branch, and "Branch not found" in troubleshooting | Owner turned on GitHub's automatic branch deletion, 2026-10-10 |
 | 2.0 | 2026-10-10 | Rebuilt around doing: "Edit the website" step by step with exact button names, a map of the editor and a timeline from save to live; worked examples (a sentence, a PDF guide, a subject, a team member, a section); troubleshooting; the fast lane is on; a subject opens the resource of its topic with the same title | Owner request 2026-10-10: "a user guide and workflow instructions on how to make edits to the website… where to start, what to do, and how to do it", after a merged change didn't go live and the topics wouldn't open |
 | 1.8 | 2026-10-10 | The editor opens from TAB Practice → Edit the website, for the owner and website admins; going straight to `/keystatic` signs you in first | Owner ruling 2026-10-10, proposed D-077 (C38) |

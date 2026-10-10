@@ -114,7 +114,7 @@ const timeline = () => {
   at(xs[8], false, "Build and promote", ["comment on the change", "request: Live."], { accent: true });
   p.push(box(290 - 85, y - 40 - h - 22, 170, h, "Don't merge here", ["a merge by hand stops", "the fast lane"], { muted: true }));
   return figure(svg(990, 330, "Timeline from your last save to the live site: the change request opens within a minute, the checks run for about five minutes and the preview appears, the fast lane merges at about six minutes, the build is promoted at about eight, and you check the page at about ten", p.join("\n")),
-    "Typical times for the owner's own change. Everything below the line happens by itself; the change request shows each step. If a release from Claude is already waiting for your \"promote\", your change is merged but waits for that release (\"Not live yet\").");
+    "Typical times for the owner's own change. Everything below the line happens by itself; the change request shows each step. If a release from Claude that changes the website is already waiting for your \"promote\", your change is merged but waits for that release (\"Not live yet\"); documentation waiting doesn't count.");
 };
 
 /** A map of the content editor's screen: where the branch box, the ⋯ menu, Save and the badges are. */

@@ -6,8 +6,10 @@
  *   2. every commit was made by the content editor (keystatic-cloud[bot]) on the owner's behalf: its only co-author is
  *      the owner's GitHub account (FAST_LANE_OWNER). An admin's or anyone else's change keeps the normal approvals;
  *   3. CI passed on the change request's latest commit (the run that started this);
- *   4. the live site is exactly main before the merge, and the merge lands directly on that commit, so nothing else
- *      rides along. Otherwise it merges and leaves the release to the owner with the rest (CLAUDE.md, G3).
+ *   4. the live site is exactly main before the merge, or differs from it only in documentation (docs/ and top-level
+ *      Markdown, which never reach the website), and the merge lands directly on that commit, so nothing else that
+ *      changes the site rides along. Otherwise it merges and leaves the release to the owner with the rest (CLAUDE.md,
+ *      G3). Documentation-only merges used to hold the owner's next edit until someone promoted (C41, 2026-10-10).
  * It needs VERCEL_TOKEN (a GitHub secret, backlog A32); without it the lane stays off and changes wait for approval.
  * If main has moved on since the content branch was made, the merged result is built by Vercel before anything is
  * promoted: a build that fails (the content rules run in it) stops the lane and the live site stays as it was.
@@ -62,8 +64,25 @@ export function eligibility({ files, commits, owner }: { files: PullFile[]; comm
   return { ok: reasons.length === 0, reasons };
 }
 
-/** Whether the merged build can go live on its own: the live site must be exactly main as it was before the merge. */
-export const releasable = ({ liveSha, mainSha }: { liveSha?: string; mainSha: string }): boolean => Boolean(liveSha) && liveSha === mainSha;
+/** Files that never reach the website: the documentation (nothing under app/, lib/ or the build reads docs/). */
+export const isDocsFile = (path: string): boolean => !path.includes("..") && (/^docs\//.test(path) || /^[^/]+\.md$/.test(path));
+
+/** GitHub's comparison of the live commit with main (GET /repos/{repo}/compare/{live}...{main}), as far as it's used. */
+export type Waiting = { status?: string; files?: PullFile[] };
+/** GitHub lists at most this many files in a comparison; a longer one can't be checked, so it never counts as docs only. */
+const COMPARE_FILE_LIMIT = 300;
+
+/**
+ * Whether the merged build can go live on its own: the live site must be main as it was before the merge, or main ahead
+ * of it by documentation only (`waiting`, the comparison of the two), which changes nothing on the website.
+ */
+export function releasable({ liveSha, mainSha, waiting }: { liveSha?: string; mainSha: string; waiting?: Waiting }): boolean {
+  if (!liveSha) return false;
+  if (liveSha === mainSha) return true;
+  const files = waiting?.files ?? [];
+  return waiting?.status === "ahead" && files.length > 0 && files.length < COMPARE_FILE_LIMIT &&
+    files.every((f) => isDocsFile(f.filename) && (!f.previous_filename || isDocsFile(f.previous_filename)));
+}
 
 // ---------------------------------------------------------------------------------------------------------------------
 // The workflow step. Everything below talks to GitHub and Vercel; nothing above does.
@@ -111,7 +130,10 @@ async function main() {
 
   const live = await vercel(`/v13/deployments/${VERCEL.liveHost}`);
   const mainSha = (await gh(`/repos/${repo}/branches/main`)).commit.sha;
-  const goLive = releasable({ liveSha: live.meta?.githubCommitSha, mainSha });
+  const liveSha: string | undefined = live.meta?.githubCommitSha;
+  const waiting: Waiting | undefined = liveSha && liveSha !== mainSha ? await gh(`/repos/${repo}/compare/${liveSha}...${mainSha}`) : undefined;
+  const goLive = releasable({ liveSha, mainSha, waiting });
+  const docsAlong = waiting && goLive ? ` It also carries ${waiting.files?.length} documentation file(s) merged since the last release, which don't change the website.` : "";
   // DRY_RUN=1: say what would happen, change nothing (for trying the lane on a real change request).
   if (env("DRY_RUN")) return console.log(`Dry run: #${pr.number} qualifies; it would be merged${goLive ? " and promoted" : ", but not promoted (other changes are waiting for release)"}.`);
   const merged = await gh(`/repos/${repo}/pulls/${pr.number}/merge`, { method: "PUT", body: JSON.stringify({ merge_method: "squash", sha, commit_title: `${pr.title} (#${pr.number})` }) });
@@ -144,7 +166,7 @@ async function main() {
     await sleep(10_000);
   }
   if (now?.id !== build.uid) throw new Error(`Promoted ${build.uid}, but the live site still shows ${now?.id}.`);
-  await say(pr.number, `**Live.** Merged and promoted ${build.uid} (\`${merged.sha.slice(0, 7)}\`). To undo it, promote the previous build, ${live.id}, or ask Claude to roll back.`);
+  await say(pr.number, `**Live.** Merged and promoted ${build.uid} (\`${merged.sha.slice(0, 7)}\`). To undo it, promote the previous build, ${live.id}, or ask Claude to roll back.${docsAlong}`);
   console.log(`Live: ${build.uid} (previous ${live.id}).`);
 }
 
