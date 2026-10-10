@@ -1,0 +1,391 @@
+<!doctype html>
+<!--
+  "Your First Massage": a TAB-written guide for the resource library (topic: Massage and recovery; its first "coming soon"
+  subject). Styles in guide.css; printed to PDF with `npm run resource:pdf -- your-first-massage`, then uploaded in the
+  content editor (Resources) and linked to its subject.
+
+  Copy rules (CLAUDE.md guardrails 1, 2, 3, 8, 10): the full name; the logo as artwork from public/brand; palette tokens only
+  (white text only on Deep Olive; Clay, Sage and Ochre decorative); no diagnosis or treatment claims; no invented
+  credentials, prices or outcomes. TAB facts come from config/site.ts, content/pages.ts (client policies, A30),
+  content/services/massage-bodywork.json and content/massage-techniques.json; research claims are numbered to the sources
+  on the last inside page. Stock photography is decorative and never presented as TAB's people or rooms.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your First Massage | TAB Human Performance Center</title>
+<meta name="author" content="TAB Human Performance Center">
+<meta name="description" content="What to expect at your first massage, how to prepare, and how to make the session your own. A guide from TAB Human Performance Center.">
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+
+<!-- 1 · Cover -->
+<section class="page cover">
+  <div class="cover-top">
+    <div class="cover-head">
+      <img src="../../public/brand/logo-horizontal.svg" alt="TAB Human Performance Center">
+      <div class="cover-tag">A TAB guide<br>Massage &amp; Bodywork</div>
+    </div>
+    <h1 class="cover-title">Your First Massage</h1>
+    <p class="cover-sub">What to expect, how to prepare, and how to make the session your own.</p>
+    <p class="cover-by"><span>Written by <b>TAB Human Performance Center</b> · October 2026</span></p>
+  </div>
+  <div class="cover-photo"><img src="../../public/images/library/06-shoulder-massage.webp" alt=""></div>
+  <div class="cover-strip"><span class="name">TAB Human Performance Center</span><span class="phil">Build the capacity to live fully.</span></div>
+</section>
+
+<!-- 2 · Welcome -->
+<section class="page">
+  <p class="eyebrow">Welcome</p>
+  <h1 style="max-width:560px">You don’t need to know anything to get started.</h1>
+  <p class="lead">A first massage brings fair questions. What do I wear? Will it hurt? What if I don’t like something? This guide answers them plainly, so you can walk in knowing what to expect.</p>
+
+  <div class="grid-2" style="margin-top:26px; gap:30px; grid-template-columns: 1.08fr .92fr;">
+    <div>
+      <p>People come to a first massage for all kinds of reasons: a stiff neck that won’t settle, recovery from training or physical work, the changes of pregnancy, or simply wanting to feel more at home in their body. Some arrive knowing exactly what they want. Most don’t, and that’s fine. At TAB, we start where you are.</p>
+      <p>TAB Human Performance Center grew out of TAB Massage &amp; Fitness, which has served clients in Livingston County, Michigan, since 2008. Massage &amp; Bodywork is one of five services at TAB, and a natural place to begin.</p>
+      <p style="margin-bottom:0">This guide covers what massage can and can’t do, how to prepare, what happens at your first visit, and what to notice afterwards. It ends with a one-page checklist you can print or save.</p>
+
+      <p class="label" style="margin-top:26px">In this guide</p>
+      <ul class="plain toc">
+        <li><span class="t">What massage can and can’t do</span><span class="n">3</span></li>
+        <li><span class="t">Before you book</span><span class="n">4</span></li>
+        <li><span class="t">Your first visit, step by step</span><span class="n">5</span></li>
+        <li><span class="t">On the table</span><span class="n">6</span></li>
+        <li><span class="t">Speak up: you’re in control</span><span class="n">7</span></li>
+        <li><span class="t">Common myths, and what’s true</span><span class="n">8</span></li>
+        <li><span class="t">After your session</span><span class="n">9</span></li>
+        <li><span class="t">Your first-massage checklist</span><span class="n">10</span></li>
+      </ul>
+    </div>
+    <aside class="panel-linen" aria-labelledby="short">
+      <h2 id="short">The short version</h2>
+      <p class="small muted" style="margin-bottom:14px">If you read nothing else, read this.</p>
+      <ol class="plain short">
+        <li><span class="i">1</span><span><b>You’re in control.</b> Pressure, focus, positioning, conversation: change any of it, at any time.</span></li>
+        <li><span class="i">2</span><span><b>Your comfort, your call.</b> You undress in private, only as far as you’re comfortable, and stay covered except where we’re working.</span></li>
+        <li><span class="i">3</span><span><b>Firmer isn’t better.</b> The right pressure is the one your body can accept without bracing.</span></li>
+        <li><span class="i">4</span><span><b>Health first.</b> We talk through your health privately at your visit. A few conditions call for a word with your healthcare provider first (page 4).</span></li>
+        <li><span class="i">5</span><span><b>Come 15 minutes early.</b> New clients complete a short intake, so none of your hands-on time is lost.</span></li>
+      </ol>
+    </aside>
+  </div>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">2</span></span></div>
+</section>
+
+<!-- 3 · Can and can't -->
+<section class="page">
+  <p class="eyebrow">The honest picture</p>
+  <h1>What massage can and can’t do</h1>
+  <p class="lead">We’d rather you arrive with accurate expectations than big promises. Here’s what the research supports, in plain language.</p>
+
+  <div class="grid-2" style="margin-top:28px; gap:18px;">
+    <div class="card">
+      <h2 class="label" style="color:var(--olive)">What the research suggests</h2>
+      <h3>Serious problems are rare</h3>
+      <p>The U.S. National Center for Complementary and Integrative Health (NCCIH) describes the risk of harm from massage as low. The rare serious problems reported have mostly involved vigorous work or people at higher risk of injury.<sup class="ref">1</sup> That’s why we ask about your health first and adapt the pressure to you.</p>
+      <h3 style="margin-top:14px">Evidence on pain is still developing</h3>
+      <p>Research suggests massage may help neck and shoulder pain, though the benefit may be short-lived, and some fibromyalgia symptoms when it’s continued long enough. For low-back pain, headaches and other conditions, the evidence is weaker or mixed.<sup class="ref">1</sup></p>
+      <h3 style="margin-top:14px">You don’t need a problem to fix</h3>
+      <p style="margin-bottom:0">Many people book massage to feel more comfortable in their body, to unwind, or to support recovery from training and physical work. Those are good reasons on their own.</p>
+    </div>
+    <div class="card">
+      <h2 class="label" style="color:var(--clay-dark)">What massage isn’t</h2>
+      <h3>A substitute for medical care</h3>
+      <p>Massage doesn’t diagnose or treat medical conditions. If something feels wrong, see your healthcare provider rather than waiting for a massage to sort it out.<sup class="ref">1</sup></p>
+      <h3 style="margin-top:14px">A detox</h3>
+      <p>You may hear that massage “flushes toxins.” There’s no good evidence for it; your liver and kidneys already do that job. More on page 8.</p>
+      <h3 style="margin-top:14px">A test of toughness</h3>
+      <p style="margin-bottom:0">More pressure doesn’t mean more benefit, and you never have to grit your teeth through a session. More on pages 6 and 7.</p>
+    </div>
+  </div>
+
+  <div class="panel-linen" style="margin-top:22px; display:grid; grid-template-columns: 1fr 1.25fr; gap:26px; align-items:center;">
+    <div>
+      <p class="label">How we think about massage</p>
+      <p class="quote" style="margin:0">Restore capacity so the body has more room to move, recover and respond.</p>
+    </div>
+    <p class="small muted" style="margin:0">Massage &amp; Bodywork at TAB supports comfort, movement, recovery, body awareness and physical adaptability. When medical circumstances are involved, we work within professional scope and may ask for medical clearance, or coordinate with your healthcare team, before we begin.</p>
+  </div>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">3</span></span></div>
+</section>
+
+<!-- 4 · Before you book -->
+<section class="page">
+  <p class="eyebrow">Before you book</p>
+  <h1>A little preparation goes a long way</h1>
+
+  <div class="grid-2" style="margin-top:22px; gap:26px; grid-template-columns: 1fr 1fr;">
+    <div>
+      <h2>Choosing a practitioner</h2>
+      <p>In Michigan, massage therapists must be licensed by the state, and you can look up a license on the Department of Licensing and Regulatory Affairs (LARA) website.<sup class="ref">2</sup> It’s also fair to ask about a practitioner’s training and experience, and the kinds of work they do most.<sup class="ref">1</sup></p>
+    </div>
+    <div>
+      <h2>Pregnant?</h2>
+      <p>Prenatal massage is adapted to each stage of pregnancy, with side-lying positions and supportive cushions so you can rest comfortably. Let us know how far along you are when you book.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:12px">What to tell us</h2>
+  <div class="grid-3" style="margin-top:10px;">
+    <div class="card"><h3>What brings you in</h3><p class="small" style="margin:0">A tight neck, training recovery, stress, or plain curiosity. Any reason is a good reason.</p></div>
+    <div class="card"><h3>Your health</h3><p class="small" style="margin:0">Conditions, recent injuries or surgery, medications, and pregnancy. We go over this privately at your visit.</p></div>
+    <div class="card"><h3>What to avoid</h3><p class="small" style="margin:0">Areas you’d rather we didn’t work on, ticklish spots, or anything that felt wrong in a past massage.</p></div>
+    <div class="card"><h3>Sensitivities</h3><p class="small" style="margin:0">Allergies or sensitivities to oils, lotions or scents. Tell us about any rash, cut or skin infection, too.</p></div>
+    <div class="card"><h3>Your preferences</h3><p class="small" style="margin:0">Pressure, temperature, music, and whether you’d like to talk or stay quiet.</p></div>
+    <div class="card"><h3>Your goals</h3><p class="small" style="margin:0">What you’d like to feel or do afterwards. “Feel less stiff at my desk” is a perfectly good goal.</p></div>
+  </div>
+  <p class="small muted" style="margin:12px 0 0">Please don’t email us health details. We’ll ask about them privately, in person, when you arrive.</p>
+
+  <div class="panel-warm" style="margin-top:22px; display:grid; grid-template-columns: 1.15fr .85fr; gap:24px;">
+    <div>
+      <h2>Check with your healthcare provider first if you:</h2>
+      <ul class="dots" style="margin-top:10px;">
+        <li>have had surgery recently</li>
+        <li>are being treated for cancer</li>
+        <li>have, or have had, a blood clot, or take blood-thinning medication</li>
+        <li>have osteoporosis, a recent fracture or a recent significant injury</li>
+        <li style="margin-bottom:0">are managing a serious or changing health condition</li>
+      </ul>
+    </div>
+    <div>
+      <p class="small" style="margin-top:2px">We may ask for medical clearance before your first session. It isn’t a hurdle; it’s how we make sure the work is right for you.</p>
+      <p class="small" style="margin:0"><b>Feeling unwell on the day?</b> If you have a fever or something contagious, call us. Your massage can wait until you’re better.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">4</span></span></div>
+</section>
+
+<!-- 5 · Step by step -->
+<section class="page">
+  <p class="eyebrow">Your first visit</p>
+  <h1>What happens, step by step</h1>
+  <p class="lead">No surprises. Here’s how a first appointment flows, from booking to heading home.</p>
+
+  <ol class="plain journey" aria-label="Your first visit in five steps">
+    <li class="stop"><div class="dot">1</div><div class="what">Book</div><div class="when">Online or by phone</div></li>
+    <li class="stop"><div class="dot">2</div><div class="what">Arrive</div><div class="when">15 minutes early</div></li>
+    <li class="stop"><div class="dot">3</div><div class="what">Talk</div><div class="when">What brings you in</div></li>
+    <li class="stop accent"><div class="dot">4</div><div class="what">Your session</div><div class="when">Adapted as we go</div></li>
+    <li class="stop"><div class="dot">5</div><div class="what">Close</div><div class="when">What changed, what’s next</div></li>
+  </ol>
+
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><h2 class="h3">Book</h2><p>Book online at tabhumanperformance.com or call (810) 844-1283. Not sure what to book? Use <b>Start Where You Are</b> on our website and we’ll help you find the right starting point. If you have a preference for a particular technique, mention it when you book.</p></div></div>
+    <div class="step"><span class="n">2</span><div><h2 class="h3">Arrive 15 minutes early</h2><p>New clients complete a short intake form before the session, so none of your hands-on time is lost. Comfortable clothes are ideal. Our client policies, including 24 hours’ notice to cancel or reschedule, are at tabhumanperformance.com/policies.</p></div></div>
+    <div class="step"><span class="n">3</span><div><h2 class="h3">A short conversation</h2><p>We go over what brings you in, relevant health information, and your preferences for pressure and focus. Ask anything; there are no silly questions. This is where we agree on a plan for the session together.</p></div></div>
+    <div class="step"><span class="n">4</span><div><h2 class="h3">Your session</h2><p>We step out while you undress to your comfort level and settle on the table under a sheet. The session is adapted to how you feel today, and you can adjust pressure, positioning or focus at any time.</p></div></div>
+    <div class="step" style="border-bottom:1px solid var(--border)"><span class="n">5</span><div><h2 class="h3">Close and next steps</h2><p>We close with what changed, what to notice over the next day or two, and what might support you next. Take your time sitting up before you get dressed.</p></div></div>
+  </div>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">5</span></span></div>
+</section>
+
+<!-- 6 · On the table -->
+<section class="page">
+  <p class="eyebrow">On the table</p>
+  <h1>Comfort, privacy and pressure</h1>
+  <p class="lead">The details people wonder about but don’t always ask.</p>
+
+  <div class="grid-2" style="margin-top:24px; gap:14px;">
+    <div class="card"><h2 class="h3">What to wear</h2><p class="small" style="margin:0">Undress only as far as you’re comfortable. Many people keep their underwear on, and that’s completely fine. Some techniques work well over comfortable clothing; we’ll tell you if that’s the case.</p></div>
+    <div class="card"><h2 class="h3">Staying covered</h2><p class="small" style="margin:0">A sheet covers you throughout. Only the area being worked on is uncovered, then covered again. Ask any time if you’d like it adjusted.</p></div>
+    <div class="card"><h2 class="h3">Positioning</h2><p class="small" style="margin:0">You may start face down, with your face in a padded cradle, or face up. Side-lying with cushions is an option too, and the usual position in pregnancy. Too warm, too cool, need another pillow? Just say.</p></div>
+    <div class="card"><h2 class="h3">Talking</h2><p class="small" style="margin:0">Chat or stay quiet: both are fine. Many people talk at first and drift into quiet, and some drift toward sleep. We’ll still check in about pressure.</p></div>
+  </div>
+
+  <hr class="rule" style="margin:26px 0 22px">
+  <h2>Finding the right pressure</h2>
+  <p class="muted" style="max-width:620px">Firmer isn’t better. The right pressure is the one your body can accept without bracing. TAB’s techniques span four levels; here’s where each usually sits.</p>
+  <div class="scale" role="list" aria-label="Pressure scale, lightest to firmest">
+    <div role="listitem"><div class="dots4" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div><div class="lvl">Very light</div><div class="eg">Craniosacral therapy<br>Manual lymphatic drainage</div></div>
+    <div role="listitem"><div class="dots4" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i></div><div class="lvl">Gentle</div><div class="eg">Prenatal massage<br>Myomassology<br>Organ-specific fascial mobilization</div></div>
+    <div role="listitem"><div class="dots4" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><div class="lvl">Moderate</div><div class="eg">Neuromuscular therapy<br>Sports massage<br>Myofascial release<br>Active Release Techniques</div></div>
+    <div role="listitem"><div class="dots4" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><div class="lvl">Firm</div><div class="eg">Deep tissue massage<br>Trigger point therapy</div></div>
+  </div>
+  <div class="panel-note" style="margin-top:22px; display:grid; grid-template-columns: auto 1fr; gap:16px; align-items:center;">
+    <img src="../../public/brand/icons/massage-bodywork.svg" alt="" style="width:44px;height:44px;">
+    <p style="margin:0"><b>You don’t need to choose a technique.</b> Most sessions blend several. Tell us how you feel and what you’d like to be different, and we’ll choose and adjust as we go. Every technique is described on the Massage &amp; Bodywork pages of our website.</p>
+  </div>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">6</span></span></div>
+</section>
+
+<!-- 7 · Speak up -->
+<section class="page">
+  <p class="eyebrow">Speak up</p>
+  <h1>You’re in control, the whole time</h1>
+  <p class="lead">A good session is a conversation, even when it’s a quiet one. Your feedback is how we get it right.</p>
+
+  <h2 style="margin-top:26px">How should it feel?</h2>
+  <div class="signal">
+    <div class="sig s1"><div class="top"></div><h3>Comfortable</h3><p>Feels good. You can breathe easily and stay relaxed. Keep going.</p></div>
+    <div class="sig s2"><div class="top"></div><h3>Intense, but OK</h3><p>A strong sensation that eases as we work. You can still breathe slowly and let go. Tell us if it changes.</p></div>
+    <div class="sig s3"><div class="top"></div><h3>Too much</h3><p>You hold your breath, tense up or pull away. That’s your signal to say so, and we’ll ease off straight away.</p></div>
+  </div>
+
+  <h2 style="margin-top:30px">Things you can say</h2>
+  <p class="muted" style="margin:0">None of these will surprise us. We’d much rather hear them than have you put up with something.</p>
+  <div class="say">
+    <div class="bubble">“Could you use a little less pressure there?”</div>
+    <div class="bubble">“That’s a good spot. Can you stay there a bit longer?”</div>
+    <div class="bubble">“I’m a little cold.”</div>
+    <div class="bubble">“I’d rather you didn’t work on my feet.”<small>Or face, stomach, or anywhere else.</small></div>
+    <div class="bubble">“I’d like to keep quiet today.”</div>
+    <div class="bubble">“What are you noticing in that area?”</div>
+  </div>
+
+  <div class="band-olive" style="margin-top:28px; display:grid; grid-template-columns: 1fr 1.3fr; gap:24px; align-items:center;">
+    <p style="margin:0; font-weight:800; font-size:19px; line-height:1.3;">Pause, change or stop, any time.</p>
+    <p style="margin:0; font-size:13.5px;">You can pause, change or stop the session at any time, for any reason, and you never need to explain. The same goes for any area you’d rather we left alone.</p>
+  </div>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">7</span></span></div>
+</section>
+
+<!-- 8 · Myths -->
+<section class="page">
+  <p class="eyebrow">Myths and facts</p>
+  <h1>Common myths, and what’s true</h1>
+  <p class="lead">A few ideas about massage that are worth retiring.</p>
+
+  <table class="myths">
+    <thead><tr><th scope="col">You may have heard</th><th scope="col">What’s true</th></tr></thead>
+    <tbody>
+      <tr><td class="m">“It has to hurt to work.”</td><td class="f"><b>More pressure isn’t more benefit.</b>Your body responds best to pressure it can accept without bracing. The rare serious problems linked to massage have mostly involved vigorous work.<sup class="ref">1</sup></td></tr>
+      <tr><td class="m">“Massage flushes toxins out of your muscles.”</td><td class="f"><b>There’s no good evidence for this.</b>Your liver and kidneys clear waste, and one study found massage actually slowed the clearing of lactate from exercised muscle.<sup class="ref">3</sup> Water afterwards is still sensible: you’ve been lying still for a while.</td></tr>
+      <tr><td class="m">“I need to know which technique to ask for.”</td><td class="f"><b>You don’t.</b>Most sessions blend several techniques. Tell us how you feel and what you’d like to be different, and we’ll choose and adjust as we go.</td></tr>
+      <tr><td class="m">“I’ll have to undress completely.”</td><td class="f"><b>Only as far as you’re comfortable.</b>You stay covered except for the area being worked on, and some techniques are done fully clothed.</td></tr>
+      <tr><td class="m">“Falling asleep, or a rumbling stomach, would be embarrassing.”</td><td class="f"><b>Both happen often, and nobody minds.</b>Neither do unshaved legs. There’s nothing you need to do to get your body “ready.” Come as you are.</td></tr>
+      <tr><td class="m">“Massage is a luxury, or only for athletes.”</td><td class="f"><b>People book for all kinds of reasons.</b>Everyday tension, training recovery, pregnancy, changing health and simple comfort, at every stage of adult life and every fitness level.</td></tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">8</span></span></div>
+</section>
+
+<!-- 9 · After -->
+<section class="page">
+  <p class="eyebrow">After your session</p>
+  <h1>What to notice, and what helps</h1>
+  <p class="lead">The hour on the table is only part of it. What you notice over the next day or two helps shape what comes next.</p>
+
+  <div class="grid-3" style="margin-top:24px;">
+    <div class="card">
+      <h2 class="h3">What’s normal</h2>
+      <ul class="dots sage small" style="margin-top:10px;">
+        <li>Feeling relaxed or sleepy, or a little light-headed when you first sit up. Sit up slowly and take a moment.</li>
+        <li>Some tenderness for a day or two, especially after firmer work, much like after a new workout.</li>
+        <li style="margin-bottom:0">Noticing areas you hadn’t paid attention to before. That’s body awareness, and it’s useful.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2 class="h3">What helps</h2>
+      <ul class="dots olive small" style="margin-top:10px;">
+        <li>Drink water and eat as you normally would.</li>
+        <li>Move gently: a walk or some easy stretching.</li>
+        <li>Notice how you move, sit and feel, and tell us next time.</li>
+        <li style="margin-bottom:0">Training hard soon? Tell us when you book, so we can time the work around it.</li>
+      </ul>
+    </div>
+    <div class="card" style="background:var(--warning-soft); border-color:var(--warning-soft);">
+      <h2 class="h3">Call your healthcare provider if you notice</h2>
+      <ul class="dots small" style="margin-top:10px;">
+        <li>pain that gets worse rather than easing after a couple of days</li>
+        <li>new swelling, warmth or redness in an arm or leg</li>
+        <li>numbness or tingling that doesn’t settle</li>
+        <li style="margin-bottom:0">anything that worries you</li>
+      </ul>
+      <p class="small" style="margin:10px 0 0">Then let us know too, so we can adapt your next session.</p>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:26px; gap:26px; grid-template-columns: 1fr 1fr; align-items:start;">
+    <div>
+      <h2>How often should I come?</h2>
+      <p>It depends on what you’re working on. We’ll suggest a rhythm that fits your goals and your schedule, never more than you need.</p>
+      <p style="margin:0">The aim is more capacity on your own terms: more room to move, recover and respond in daily life, not dependence on the table.</p>
+    </div>
+    <div class="panel-linen">
+      <p class="label">Build ownership, not dependence</p>
+      <p class="small" style="margin:0">Massage connects with Functional Strength, Women’s Wellness, Integrated Nutrition and Holistic Life Coaching when that genuinely supports your goals, and only then. Plenty of people simply book a massage, for as long as it helps.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:26px">Where massage fits: Transform. Adapt. Balance.</h2>
+  <div class="method" style="margin-top:10px;">
+    <div class="t"><div class="k">Transform</div><p>Address tension, restrictions and recovery needs.</p></div>
+    <div class="a"><div class="k">Adapt</div><p>Improve the body’s ability to respond and recover.</p></div>
+    <div class="bl"><div class="k">Balance</div><p>Recalibrate effort, restoration and physical demand.</p></div>
+  </div>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">9</span></span></div>
+</section>
+
+<!-- 10 · Checklist and sources -->
+<section class="page">
+  <p class="eyebrow">Checklist</p>
+  <h1>Your first-massage checklist</h1>
+  <p class="lead">Print it, save it, or skim it the night before.</p>
+
+  <div class="grid-2 check" style="margin-top:24px; gap:20px 30px;">
+    <div class="card">
+      <h2>Before you book</h2>
+      <ul class="plain small">
+        <li>Check page 4: do you need a word with your healthcare provider first?</li>
+        <li>Think about what you’d like help with, and anything to avoid.</li>
+        <li style="margin-bottom:0">Book online at tabhumanperformance.com or call (810) 844-1283.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>On the day</h2>
+      <ul class="plain small">
+        <li>Eat lightly beforehand; lying face down on a full stomach isn’t much fun.</li>
+        <li>Wear comfortable clothes.</li>
+        <li>Bring a list of any medications you take.</li>
+        <li style="margin-bottom:0">Arrive 15 minutes early for your intake.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>During</h2>
+      <ul class="plain small">
+        <li>Share your preferences: pressure, temperature, talking.</li>
+        <li style="margin-bottom:0">Speak up any time. You’re in control.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>After</h2>
+      <ul class="plain small">
+        <li>Sit up slowly.</li>
+        <li>Drink water and move gently.</li>
+        <li style="margin-bottom:0">Notice what changed, and tell us next time.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="rule" style="margin:28px 0 18px">
+  <p class="label">Sources and notes</p>
+  <ol class="plain sources">
+    <li><b>1</b><span>National Center for Complementary and Integrative Health (NCCIH). <i>Massage Therapy: What You Need To Know.</i> Last updated May 2019. nccih.nih.gov/health/massage-therapy-what-you-need-to-know</span></li>
+    <li><b>2</b><span>Michigan Department of Licensing and Regulatory Affairs (LARA), Board of Massage Therapy. License lookup at michigan.gov/lara.</span></li>
+    <li><b>3</b><span>Wiltshire EV, et al. Massage impairs postexercise muscle blood flow and “lactic acid” removal. <i>Medicine &amp; Science in Sports &amp; Exercise.</i> 2010;42(6):1062–71.</span></li>
+  </ol>
+  <p class="small muted" style="margin-top:12px">This guide is general information, not medical advice, and it doesn’t replace advice from your healthcare provider. TAB Human Performance Center provides massage and bodywork within professional scope and works alongside your healthcare team. Photographs are licensed stock images; the people shown are models, not TAB clients or staff.</p>
+  <p class="small muted" style="margin:0">© 2026 TAB Human Performance Center. Published October 2026.</p>
+  <div class="footer"><span>Your First Massage</span><span>TAB Human Performance Center · <span class="num">10</span></span></div>
+</section>
+
+<!-- 11 · Back cover -->
+<section class="page back">
+  <div class="back-inner">
+    <img src="../../public/brand/logo-stacked-white.svg" alt="TAB Human Performance Center">
+    <h1>Start Where You Are.</h1>
+    <p class="lead">Not sure where to begin? Tell us what you’re working on, and we’ll point you to the right starting point.</p>
+    <div class="contact">
+      <div><div class="k">Online</div><div>tabhumanperformance.com</div></div>
+      <div><div class="k">Call</div><div>(810) 844-1283</div></div>
+      <div><div class="k">Email</div><div>info@tabhumanperformance.com</div></div>
+      <div><div class="k">Visit</div><div>7487 Grand River Ave<br>Brighton, MI 48114</div></div>
+    </div>
+  </div>
+  <p class="area">Serving Livingston County</p>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!doctype html>
+<!--
+  "Lymphatic Drainage Basics": a TAB-written guide for the resource library (topic: Massage and recovery; subject
+  "Lymphatic drainage basics"). Styles in guide.css; printed to PDF with `npm run resource:pdf -- lymphatic-drainage-basics`,
+  then uploaded in the content editor (Resources) and linked to its subject.
+
+  Copy rules (CLAUDE.md guardrails 1, 2, 3, 8, 10): the full name; the logo as artwork from public/brand; palette tokens only;
+  no diagnosis or treatment claims; no invented credentials, prices or outcomes. TAB does not claim to treat lymphedema:
+  that care is led by a certified lymphedema therapist and the client's healthcare team, and TAB asks for clearance and
+  coordinates (content/massage-techniques.json, "Manual lymphatic drainage"). TAB facts come from config/site.ts,
+  content/pages.ts (client policies, A30), content/services/massage-bodywork.json and content/massage-techniques.json;
+  research claims are numbered to the sources on the last inside page. The cover is a drawing, not a photo: the library has
+  no image of very light, oil-free work, and the photos it has show firm massage.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lymphatic Drainage Basics | TAB Human Performance Center</title>
+<meta name="author" content="TAB Human Performance Center">
+<meta name="description" content="What your lymphatic system does, what manual lymphatic drainage is, what the evidence says, and when it's a good fit. A guide from TAB Human Performance Center.">
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+
+<!-- 1 · Cover -->
+<section class="page cover">
+  <div class="cover-top">
+    <div class="cover-head">
+      <img src="../../public/brand/logo-horizontal.svg" alt="TAB Human Performance Center">
+      <div class="cover-tag">A TAB guide<br>Massage &amp; Bodywork</div>
+    </div>
+    <h1 class="cover-title" style="max-width:560px">Lymphatic Drainage Basics</h1>
+    <p class="cover-sub">What your lymphatic system does, what manual lymphatic drainage is, and when it’s a good fit.</p>
+    <p class="cover-by"><span>Written by <b>TAB Human Performance Center</b> · October 2026</span></p>
+  </div>
+  <div class="cover-art"><svg viewBox="0 0 816 452" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="round"><path d="M-20,-30.0 C170,-66.0 380,118.5 600,226" stroke="#A7B39F" stroke-opacity="0.9" stroke-width="2.6"/><path d="M-20,21.2 C170,57.2 380,140.0 600,226" stroke="#FBF6F1" stroke-opacity="0.35" stroke-width="1.6"/><path d="M-20,72.4 C170,36.4 380,161.5 600,226" stroke="#D4A574" stroke-opacity="0.85" stroke-width="2.2"/><path d="M-20,123.6 C170,159.6 380,183.0 600,226" stroke="#A7B39F" stroke-opacity="0.6" stroke-width="1.8"/><path d="M-20,174.8 C170,138.8 380,204.5 600,226" stroke="#C46A4A" stroke-opacity="0.8" stroke-width="2.4"/><path d="M-20,226.0 C170,262.0 380,226.0 600,226" stroke="#FBF6F1" stroke-opacity="0.25" stroke-width="1.4"/><path d="M-20,277.2 C170,241.2 380,247.5 600,226" stroke="#A7B39F" stroke-opacity="0.9" stroke-width="3.0"/><path d="M-20,328.4 C170,364.4 380,269.0 600,226" stroke="#D4A574" stroke-opacity="0.6" stroke-width="1.8"/><path d="M-20,379.6 C170,343.6 380,290.5 600,226" stroke="#A7B39F" stroke-opacity="0.5" stroke-width="2.0"/><path d="M-20,430.8 C170,466.8 380,312.0 600,226" stroke="#FBF6F1" stroke-opacity="0.4" stroke-width="1.4"/><path d="M-20,482.0 C170,446.0 380,333.5 600,226" stroke="#C46A4A" stroke-opacity="0.6" stroke-width="1.8"/><path d="M600,226 C680,226 720,202 836,196" stroke="#FBF6F1" stroke-opacity="0.85" stroke-width="5"/></g><circle cx="229.2" cy="88.1" r="5" fill="#FBF6F1" fill-opacity="0.55"/><circle cx="229.2" cy="172.4" r="5" fill="#C46A4A" fill-opacity="1"/><circle cx="229.2" cy="249.0" r="5" fill="#A7B39F" fill-opacity="1"/><circle cx="229.2" cy="394.4" r="5" fill="#FBF6F1" fill-opacity="0.6000000000000001"/><circle cx="600" cy="226" r="30" fill="#4A5A44" stroke="#D4A574" stroke-width="3"/><circle cx="600" cy="226" r="14" fill="#D4A574"/></svg></div>
+  <div class="cover-strip"><span class="name">TAB Human Performance Center</span><span class="phil">Build the capacity to live fully.</span></div>
+</section>
+
+<!-- 2 · Welcome -->
+<section class="page">
+  <p class="eyebrow">Welcome</p>
+  <h1 style="max-width:600px">A gentle technique for a quiet, hardworking system</h1>
+  <p class="lead">Lymphatic drainage is having a moment online, and the claims have grown faster than the evidence. This guide explains what your lymphatic system does, what manual lymphatic drainage is, and when it’s a good fit.</p>
+
+  <div class="grid-2" style="margin-top:26px; gap:30px; grid-template-columns: 1.08fr .92fr;">
+    <div>
+      <p>Most of us never think about our lymphatic system until something swells. It works in the background every day, moving fluid and supporting the immune system. Manual lymphatic drainage (MLD) is a very light, slow, rhythmic hands-on technique designed to work with it.</p>
+      <p>At TAB, MLD is part of Massage &amp; Bodywork. It’s often chosen for swelling after surgery once a surgeon has given the go-ahead, for a heavy, fluid-retentive feeling such as in late pregnancy, and for gentle recovery when your body needs less, not more.</p>
+      <p style="margin-bottom:0">This guide also covers when MLD isn’t the right choice, and when swelling needs a doctor rather than a massage.</p>
+
+      <p class="label" style="margin-top:26px">In this guide</p>
+      <ul class="plain toc">
+        <li><span class="t">Your lymphatic system, in plain language</span><span class="n">3</span></li>
+        <li><span class="t">What manual lymphatic drainage is</span><span class="n">4</span></li>
+        <li><span class="t">What MLD can and can’t do</span><span class="n">5</span></li>
+        <li><span class="t">Is MLD right for you?</span><span class="n">6</span></li>
+        <li><span class="t">What a session is like</span><span class="n">7</span></li>
+        <li><span class="t">Common myths, and what’s true</span><span class="n">8</span></li>
+        <li><span class="t">Everyday support</span><span class="n">9</span></li>
+        <li><span class="t">Checklist and sources</span><span class="n">10</span></li>
+      </ul>
+    </div>
+    <aside class="panel-linen" aria-labelledby="short">
+      <h2 id="short">The short version</h2>
+      <p class="small muted" style="margin-bottom:14px">If you read nothing else, read this.</p>
+      <ol class="plain short">
+        <li><span class="i">1</span><span><b>It’s very light.</b> MLD works on the skin and just below it, not the muscles. It’s lighter than most people expect.</span></li>
+        <li><span class="i">2</span><span><b>It supports; it doesn’t detox.</b> Your liver and kidneys clear waste. There’s no good evidence that MLD detoxes, burns fat or boosts immunity.</span></li>
+        <li><span class="i">3</span><span><b>Its best evidence is in lymphedema care,</b> as one part of a plan led by a certified lymphedema therapist.</span></li>
+        <li><span class="i">4</span><span><b>It isn’t for everyone.</b> An infection, a blood clot and some heart and kidney conditions rule it out (page 6).</span></li>
+        <li><span class="i">5</span><span><b>Some swelling needs a doctor first.</b> One arm or leg that suddenly swells, with pain, warmth or redness, needs checking before any massage.</span></li>
+      </ol>
+    </aside>
+  </div>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">2</span></span></div>
+</section>
+
+<!-- 3 · How it works -->
+<section class="page">
+  <p class="eyebrow">How it works</p>
+  <h1>Your lymphatic system, in plain language</h1>
+  <p class="lead">Every day, fluid seeps out of your smallest blood vessels to bathe your cells. Your lymphatic system collects what’s left over and returns it to your blood.<sup class="ref">1,2</sup></p>
+
+  <h2 style="margin-top:26px">The journey of lymph</h2>
+  <ol class="plain path" aria-label="The journey of lymph, in five stages">
+    <li><span class="n">1</span><div class="t">Fluid seeps out</div><p>Your smallest blood vessels let fluid out to bathe and feed your cells.</p></li>
+    <li><span class="n">2</span><div class="t">Lymph is collected</div><p>Tiny lymph vessels, many just under the skin, gather the extra fluid. Now it’s called lymph.</p></li>
+    <li><span class="n">3</span><div class="t">Carried onward</div><p>Larger vessels with one-way valves carry it toward the center of the body.</p></li>
+    <li><span class="n">4</span><div class="t">Filtered</div><p>About 600 lymph nodes filter it along the way. They’re also where immune cells gather.<sup class="ref">1</sup></p></li>
+    <li><span class="n">5</span><div class="t">Returned</div><p>Lymph rejoins your bloodstream through large veins near your collarbones.</p></li>
+  </ol>
+  <div class="path-rail" aria-hidden="true"></div>
+
+  <h2 style="margin-top:30px">What keeps it moving</h2>
+  <p class="muted" style="max-width:640px">Blood has the heart to pump it. Lymph has no single pump of its own, so it relies on several smaller forces working together.</p>
+  <div class="grid-2" style="margin-top:12px; gap:12px; grid-template-columns: repeat(4, 1fr);">
+    <div class="card"><h3>Vessel walls</h3><p class="small" style="margin:0">The larger lymph vessels squeeze rhythmically on their own.<sup class="ref">2</sup></p></div>
+    <div class="card"><h3>Working muscles</h3><p class="small" style="margin:0">Each time your muscles contract, they squeeze nearby lymph vessels.<sup class="ref">1</sup></p></div>
+    <div class="card"><h3>Nearby arteries</h3><p class="small" style="margin:0">The pulse of nearby arteries adds a gentle push.<sup class="ref">1</sup></p></div>
+    <div class="card"><h3>One-way valves</h3><p class="small" style="margin:0">Valves keep lymph moving in one direction only.<sup class="ref">1</sup></p></div>
+  </div>
+
+  <div class="panel-note" style="margin-top:22px; display:grid; grid-template-columns: 1.2fr 1fr; gap:24px; align-items:center;">
+    <p class="quote" style="margin:0; font-size:18px;">“Exercise is a natural pump for the lymph system.”<span class="small muted" style="display:block; font-family:var(--sans); font-style:normal; margin-top:6px;">National Cancer Institute<sup class="ref">3</sup></span></p>
+    <p class="small" style="margin:0">That’s why everyday movement matters so much (page 9). Your lymphatic system is also part of your immune system, and it carries fats absorbed from your gut into your blood.<sup class="ref">1</sup></p>
+  </div>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">3</span></span></div>
+</section>
+
+<!-- 4 · The technique -->
+<section class="page">
+  <p class="eyebrow">The technique</p>
+  <h1>What manual lymphatic drainage is</h1>
+  <p class="lead">MLD is very light, slow, rhythmic hands-on work that follows the direction lymph naturally flows: toward the heart.</p>
+
+  <div class="grid-2" style="margin-top:24px; gap:28px; grid-template-columns: minmax(0,1fr) minmax(0,1fr);">
+    <div>
+      <h2>Where it comes from</h2>
+      <p style="margin-bottom:0">MLD was developed in the 1930s by Emil and Estrid Vodder, a Danish husband-and-wife team working in France. Today it’s taught in several schools of technique, and in medicine it’s used as one part of lymphedema care.<sup class="ref">3</sup></p>
+    </div>
+    <div>
+      <h2>What it feels like</h2>
+      <p style="margin-bottom:0">Light and soothing, and much lighter than people expect. Slow, repeated strokes gently stretch the skin in the direction of flow. Many people find it deeply calming, and some drift toward sleep.</p>
+    </div>
+  </div>
+
+  <div class="panel-note" style="margin-top:20px; display:grid; grid-template-columns: minmax(0,1fr) auto; gap:26px; align-items:center;">
+    <div>
+      <h2 style="margin-bottom:4px">Why it’s so light</h2>
+      <p style="margin:0">The smallest lymph vessels lie just beneath the skin. MLD works there, on the skin and just below it, rather than pressing into the muscles.</p>
+    </div>
+    <div class="pscale" role="img" aria-label="On TAB’s four-step pressure scale, MLD is Very light, the lightest step.">
+      <p class="label" style="margin-bottom:8px;">On TAB’s pressure scale</p>
+      <div class="pscale-row">
+        <div class="on-step"><div class="dots4"><i class="on"></i><i></i><i></i><i></i></div><span>Very light</span></div>
+        <div><div class="dots4"><i class="on"></i><i class="on"></i><i></i><i></i></div><span>Gentle</span></div>
+        <div><div class="dots4"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><span>Moderate</span></div>
+        <div><div class="dots4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span>Firm</span></div>
+      </div>
+    </div>
+  </div>
+
+  <h2 style="margin-top:26px">MLD and the massage most people picture</h2>
+  <table class="compare" style="margin-top:10px;">
+    <thead><tr><th scope="col"><span class="sr">Compared</span></th><th scope="col">Manual lymphatic drainage</th><th scope="col">Deep tissue massage</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Pressure</th><td class="hi">Very light</td><td>Firm</td></tr>
+      <tr><th scope="row">Works on</th><td class="hi">The skin and just below it</td><td>The deeper layers of muscle and connective tissue</td></tr>
+      <tr><th scope="row">Pace</th><td class="hi">Slow, repeated, rhythmic strokes toward the heart</td><td>Slower, focused pressure on areas of tension</td></tr>
+      <tr><th scope="row">Often chosen for</th><td class="hi">Swelling after surgery, once cleared; feeling heavy; gentle recovery</td><td>Persistent tightness; recovery from heavy training or physical work</td></tr>
+      <tr><th scope="row">Feels like</th><td class="hi">Quiet and soothing; lighter than you expect</td><td>Firm and focused, but never a contest</td></tr>
+    </tbody>
+  </table>
+  <p class="small muted" style="margin:10px 0 0">Like TAB’s other techniques, MLD can be a whole session or part of one. Tell us how you feel and what you’d like to be different, and we’ll choose and adjust as we go.</p>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">4</span></span></div>
+</section>
+
+<!-- 5 · Evidence -->
+<section class="page">
+  <p class="eyebrow">The honest picture</p>
+  <h1>What MLD can and can’t do</h1>
+  <p class="lead">MLD has a real place in care. It also attracts claims the evidence doesn’t support. Here’s the difference.</p>
+
+  <div class="grid-2" style="margin-top:26px; gap:18px;">
+    <div class="card">
+      <h2 class="label" style="color:var(--olive)">Where the evidence is</h2>
+      <h3>Lymphedema care</h3>
+      <p>Lymphedema is swelling from lymph that builds up, often after lymph nodes are removed or treated with radiation. MLD is one part of complete decongestive therapy, alongside compression bandaging, exercise and skin care, managed by a certified lymphedema therapist.<sup class="ref">3</sup></p>
+      <h3 style="margin-top:14px">Safe, with a possible added benefit</h3>
+      <p>A Cochrane review of trials in breast cancer–related lymphedema found MLD safe, and that it may add to the benefit of compression bandaging for reducing swelling. The trials were small, and the finding needs confirming.<sup class="ref">4</sup></p>
+      <h3 style="margin-top:14px">Feeling better</h3>
+      <p style="margin-bottom:0">In those trials, 60 to 80 percent of people reported less pain and heaviness, whichever treatment they received.<sup class="ref">4</sup> Side effects are uncommon; a few people report tiredness, headache or nausea.<sup class="ref">5</sup></p>
+    </div>
+    <div class="card">
+      <h2 class="label" style="color:var(--clay-dark)">Claims that outrun the evidence</h2>
+      <h3>“It detoxes your body”</h3>
+      <p>Your liver and kidneys clear waste. We know of no good evidence that MLD detoxes the body.</p>
+      <h3 style="margin-top:14px">“It burns fat or removes cellulite”</h3>
+      <p>There’s no good evidence for either.</p>
+      <h3 style="margin-top:14px">“It boosts your immunity”</h3>
+      <p>Your lymphatic system is part of your immune system, but there’s no good evidence that MLD strengthens immunity in healthy people.</p>
+      <h3 style="margin-top:14px">“It cures lymphedema”</h3>
+      <p style="margin-bottom:0">It doesn’t. MLD is one part of ongoing lymphedema care, not the whole of it.<sup class="ref">3</sup></p>
+    </div>
+  </div>
+
+  <div class="panel-linen" style="margin-top:22px; display:grid; grid-template-columns: 1fr 1.25fr; gap:26px; align-items:center;">
+    <div>
+      <p class="label">Where MLD fits at TAB</p>
+      <p class="quote" style="margin:0; font-size:18px;">Lighter, quieter work for when your body needs less, not more.</p>
+    </div>
+    <p class="small muted" style="margin:0">TAB offers MLD as gentle, supportive bodywork. If you have lymphedema, your lymphedema therapist and healthcare team lead your care: we’ll ask for clearance and coordinate with them. After surgery, we start once your surgeon has given the go-ahead.</p>
+  </div>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">5</span></span></div>
+</section>
+
+<!-- 6 · Is it right for you -->
+<section class="page">
+  <p class="eyebrow">Before you book</p>
+  <h1>Is MLD right for you?</h1>
+  <p class="lead">MLD is gentle, but it isn’t for everyone. Use this as a guide, and ask us if you’re not sure.</p>
+
+  <div class="signal" style="margin-top:26px;">
+    <div class="sig s1"><div class="top"></div><h2 class="h3">Often a good fit</h2>
+      <ul>
+        <li>Swelling or puffiness after surgery, once your surgeon has cleared you</li>
+        <li>Feeling heavy or fluid-retentive, such as in late pregnancy, with your provider’s OK</li>
+        <li>Gentle recovery when your body needs less, not more</li>
+        <li>Wanting very light, calming bodywork</li>
+      </ul>
+    </div>
+    <div class="sig s2"><div class="top"></div><h2 class="h3">Check with your provider first</h2>
+      <ul>
+        <li>You’ve had surgery recently</li>
+        <li>You have lymphedema, or have had lymph nodes removed or radiation</li>
+        <li>You’re being treated for cancer. We never work directly over cancerous tissue or skin damaged by radiation.<sup class="ref">5</sup></li>
+        <li>You’re pregnant</li>
+        <li>You’ve had a blood clot or a stroke, or have a heart, kidney or liver condition</li>
+      </ul>
+    </div>
+    <div class="sig s3"><div class="top"></div><h2 class="h3">Not suitable right now</h2>
+      <ul>
+        <li>An active infection, including cellulitis, or a fever</li>
+        <li>A blood clot (deep vein thrombosis), or a suspected one</li>
+        <li>Heart failure or kidney failure</li>
+      </ul>
+      <p class="small muted" style="margin:12px 0 0">From TAB’s own guidance and Cleveland Clinic’s.<sup class="ref">5</sup></p>
+    </div>
+  </div>
+
+  <div class="band-olive" style="margin-top:26px;">
+    <h2 style="margin:0 0 8px; font-size:19px; font-weight:800;">Swelling that needs a doctor, not a massage</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:24px; font-size:13px;">
+      <p style="margin:0"><b>Call your doctor promptly</b> if one arm or leg swells, especially with pain or tenderness you can’t explain, warmth, or red or discolored skin. These can be signs of a blood clot.<sup class="ref" style="color:var(--white)">6</sup> Red, hot, spreading skin with a fever can signal an infection.</p>
+      <p style="margin:0"><b>Get emergency help</b> for sudden difficulty breathing, chest pain that worsens with a deep breath or cough, a fast or irregular heartbeat, coughing up blood, or fainting.<sup class="ref" style="color:var(--white)">6</sup></p>
+    </div>
+  </div>
+  <p class="small muted" style="margin:14px 0 0">Please don’t email us health details. We’ll go over them privately, in person, when you arrive.</p>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">6</span></span></div>
+</section>
+
+<!-- 7 · Session -->
+<section class="page">
+  <p class="eyebrow">Your session</p>
+  <h1>What an MLD session is like</h1>
+  <p class="lead">Quiet, slow and very light. Here’s how a first MLD appointment flows.</p>
+
+  <ol class="plain journey" aria-label="An MLD session in five steps" style="margin-top:40px;">
+    <li class="stop"><div class="dot">1</div><div class="what">Book</div><div class="when">Mention MLD</div></li>
+    <li class="stop"><div class="dot">2</div><div class="what">Arrive</div><div class="when">15 minutes early</div></li>
+    <li class="stop"><div class="dot">3</div><div class="what">Talk</div><div class="when">Health and clearance</div></li>
+    <li class="stop accent"><div class="dot">4</div><div class="what">Session</div><div class="when">Very light, unhurried</div></li>
+    <li class="stop"><div class="dot">5</div><div class="what">After</div><div class="when">Move gently</div></li>
+  </ol>
+
+  <div class="steps">
+    <div class="step"><span class="n">1</span><div><h2 class="h3">Book</h2><p>Book online at tabhumanperformance.com or call (810) 844-1283, and mention MLD. If you’ve had recent surgery or have lymphedema, tell us when you book so we can talk about clearance before your visit.</p></div></div>
+    <div class="step"><span class="n">2</span><div><h2 class="h3">Arrive 15 minutes early</h2><p>New clients complete a short intake form before the session, so none of your hands-on time is lost. Bring any notes from your surgeon or healthcare provider. Our client policies, including 24 hours’ notice to cancel or reschedule, are at tabhumanperformance.com/policies.</p></div></div>
+    <div class="step"><span class="n">3</span><div><h2 class="h3">A short conversation</h2><p>We’ll ask about the swelling or heaviness you’ve noticed, any surgery or treatment, and what your healthcare team has advised. Ask anything; this is where we agree on a plan together.</p></div></div>
+    <div class="step"><span class="n">4</span><div><h2 class="h3">The session</h2><p>You’ll lie comfortably supported, usually on your back. MLD often begins near the neck and collarbones, where lymph rejoins the blood, then works outward in slow, repeated strokes. It’s so light that some people wonder whether anything is happening. That’s normal.</p></div></div>
+    <div class="step" style="border-bottom:1px solid var(--border)"><span class="n">5</span><div><h2 class="h3">Afterwards</h2><p>Get up slowly, drink water as you normally would, and take an easy walk if you can: movement helps lymph flow.<sup class="ref">3</sup> You might not notice a change straight away.<sup class="ref">5</sup> If you feel tired, or have a headache or nausea, tell us.</p></div></div>
+  </div>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">7</span></span></div>
+</section>
+
+<!-- 8 · Myths -->
+<section class="page">
+  <p class="eyebrow">Myths and facts</p>
+  <h1>Common myths, and what’s true</h1>
+  <p class="lead">Lymphatic drainage attracts more myths than most techniques. Here are the ones we hear most.</p>
+
+  <table class="myths">
+    <thead><tr><th scope="col">You may have heard</th><th scope="col">What’s true</th></tr></thead>
+    <tbody>
+      <tr><td class="m">“Firmer pressure moves more fluid.”</td><td class="f"><b>MLD is very light by design.</b>The smallest lymph vessels lie just beneath the skin, so the strokes gently stretch the skin rather than press into muscle.</td></tr>
+      <tr><td class="m">“Lymphatic drainage detoxes your body.”</td><td class="f"><b>Your liver and kidneys clear waste.</b>MLD supports the movement of fluid. We know of no good evidence that it detoxes the body.</td></tr>
+      <tr><td class="m">“It melts fat and cellulite.”</td><td class="f"><b>There’s no good evidence for this.</b>MLD isn’t a weight-loss or body-contouring treatment.</td></tr>
+      <tr><td class="m">“It boosts your immune system.”</td><td class="f"><b>Not that we can show.</b>Your lymphatic system is part of your immune system, but there’s no good evidence that MLD strengthens immunity in healthy people.</td></tr>
+      <tr><td class="m">“MLD treats lymphedema on its own.”</td><td class="f"><b>It’s one part of a plan.</b>Lymphedema care combines MLD with compression, exercise and skin care, managed by a certified lymphedema therapist.<sup class="ref">3</sup></td></tr>
+      <tr><td class="m">“Everyone needs regular lymphatic drainage.”</td><td class="f"><b>Your lymphatic system works on its own, every day.</b>MLD is an option when it’s a good fit, not a requirement for good health. Everyday movement does a lot of the work (page 9).</td></tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">8</span></span></div>
+</section>
+
+<!-- 9 · Everyday support -->
+<section class="page">
+  <p class="eyebrow">Everyday support</p>
+  <h1>Helping lymph flow, every day</h1>
+  <p class="lead">You don’t need a session to help your lymphatic system. Everyday movement does a lot of the work.</p>
+
+  <div class="grid-2" style="margin-top:24px; gap:14px;">
+    <div class="card"><h2 class="h3">Move often</h2><p class="small" style="margin:0">Walking and everyday activity squeeze lymph vessels and keep lymph moving. The National Cancer Institute calls exercise “a natural pump for the lymph system.”<sup class="ref">3</sup> If you’ve had surgery or have lymphedema, ask your care team which movement is right for you.</p></div>
+    <div class="card"><h2 class="h3">Break up long sits</h2><p class="small" style="margin:0">On long drives, flights or desk days, stand up and stretch your legs. The CDC advises moving your legs often on long trips, and flexing your ankles by pulling your toes toward you.<sup class="ref">6</sup></p></div>
+    <div class="card"><h2 class="h3">Look after your skin if you’re at risk</h2><p class="small" style="margin:0">If you’ve had lymph nodes removed or radiation, skin care is part of lymphedema care.<sup class="ref">3</sup> Ask your care team what they recommend for you.</p></div>
+    <div class="card"><h2 class="h3">Notice changes</h2><p class="small" style="margin:0">Swelling that’s new, on one side only, or not going down is worth a call to your healthcare provider. See page 6 for the signs that need prompt attention.</p></div>
+  </div>
+
+  <div class="grid-2" style="margin-top:26px; gap:26px; grid-template-columns: 1fr 1fr; align-items:start;">
+    <div>
+      <h2>How often?</h2>
+      <p>It depends on why you’re coming. After surgery, your surgeon’s advice sets the timing; for lymphedema, your lymphedema therapist’s plan does. Otherwise, we’ll suggest a rhythm that fits your goals and schedule, never more than you need.</p>
+    </div>
+    <div class="panel-linen">
+      <p class="label">Build ownership, not dependence</p>
+      <p class="small" style="margin:0">Movement is the lymphatic system’s everyday ally. When it genuinely supports your goals, MLD connects with Functional Strength and the rest of TAB’s services, and only then. Plenty of people simply book MLD, for as long as it helps.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:24px">Where MLD fits: Transform. Adapt. Balance.</h2>
+  <div class="method" style="margin-top:10px;">
+    <div class="t"><div class="k">Transform</div><p>Address tension, restrictions and recovery needs.</p></div>
+    <div class="a"><div class="k">Adapt</div><p>Improve the body’s ability to respond and recover.</p></div>
+    <div class="bl"><div class="k">Balance</div><p>Recalibrate effort, restoration and physical demand.</p></div>
+  </div>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">9</span></span></div>
+</section>
+
+<!-- 10 · Checklist and sources -->
+<section class="page">
+  <p class="eyebrow">Checklist</p>
+  <h1>Your MLD checklist</h1>
+  <p class="lead">Print it, save it, or skim it before your visit.</p>
+
+  <div class="grid-2 check" style="margin-top:22px; gap:16px 26px;">
+    <div class="card">
+      <h2>Before you book</h2>
+      <ul class="plain small">
+        <li>Check page 6: is MLD a good fit right now?</li>
+        <li>After surgery? Ask your surgeon when it’s OK to start.</li>
+        <li>Have lymphedema? Talk to your lymphedema therapist first.</li>
+        <li style="margin-bottom:0">Book online at tabhumanperformance.com or call (810) 844-1283.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>On the day</h2>
+      <ul class="plain small">
+        <li>Wear comfortable clothes.</li>
+        <li>Bring a list of your medications and any notes from your provider.</li>
+        <li style="margin-bottom:0">Arrive 15 minutes early for your intake.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>During</h2>
+      <ul class="plain small">
+        <li>Expect very light pressure. That’s the technique.</li>
+        <li style="margin-bottom:0">Speak up about comfort, temperature or positioning.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>After</h2>
+      <ul class="plain small">
+        <li>Get up slowly, then take an easy walk.</li>
+        <li>Notice any change over the next day or two, and tell us.</li>
+        <li style="margin-bottom:0">Swelling that’s new, one-sided, painful, warm or red? Call your provider.</li>
+      </ul>
+    </div>
+  </div>
+
+  <hr class="rule" style="margin:24px 0 16px">
+  <p class="label">Sources and notes</p>
+  <ol class="plain sources">
+    <li><b>1</b><span>Cleveland Clinic. <i>Lymphatic System.</i> Last updated July 31, 2023. my.clevelandclinic.org/health/body/21199-lymphatic-system</span></li>
+    <li><b>2</b><span>Moore JE, Bertram CD. Lymphatic System Flows. <i>Annual Review of Fluid Mechanics.</i> 2018;50:459–82.</span></li>
+    <li><b>3</b><span>National Cancer Institute. <i>Lymphedema (PDQ®), Patient Version.</i> Updated March 6, 2024. cancer.gov</span></li>
+    <li><b>4</b><span>Ezzo J, et al. Manual lymphatic drainage for lymphedema following breast cancer treatment. <i>Cochrane Database of Systematic Reviews.</i> 2015;(5):CD003475.</span></li>
+    <li><b>5</b><span>Cleveland Clinic. <i>Lymphatic Drainage Massage.</i> Last updated September 19, 2024. my.clevelandclinic.org/health/treatments/21768-lymphatic-drainage-massage</span></li>
+    <li><b>6</b><span>Centers for Disease Control and Prevention (CDC). <i>Understanding Your Risk for Blood Clots with Travel</i>, May 2024, and <i>About Venous Thromboembolism (Blood Clots)</i>. cdc.gov/blood-clots</span></li>
+  </ol>
+  <p class="small muted" style="margin-top:10px">This guide is general information, not medical advice, and it doesn’t replace advice from your healthcare provider. TAB Human Performance Center provides massage and bodywork within professional scope and works alongside your healthcare team; it does not diagnose or treat lymphedema or any other medical condition.</p>
+  <p class="small muted" style="margin:0">© 2026 TAB Human Performance Center. Published October 2026.</p>
+  <div class="footer"><span>Lymphatic Drainage Basics</span><span>TAB Human Performance Center · <span class="num">10</span></span></div>
+</section>
+
+<!-- 11 · Back cover -->
+<section class="page back">
+  <div class="back-inner">
+    <img src="../../public/brand/logo-stacked-white.svg" alt="TAB Human Performance Center">
+    <h1>Start Where You Are.</h1>
+    <p class="lead">Not sure where to begin? Tell us what you’re working on, and we’ll point you to the right starting point.</p>
+    <div class="contact">
+      <div><div class="k">Online</div><div>tabhumanperformance.com</div></div>
+      <div><div class="k">Call</div><div>(810) 844-1283</div></div>
+      <div><div class="k">Email</div><div>info@tabhumanperformance.com</div></div>
+      <div><div class="k">Visit</div><div>7487 Grand River Ave<br>Brighton, MI 48114</div></div>
+    </div>
+  </div>
+  <p class="area">Serving Livingston County</p>
+</section>
+
+</body>
+</html>

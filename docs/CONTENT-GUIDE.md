@@ -1,7 +1,7 @@
 ---
 title: Website content guide
-version: 1.7
-updated: 2026-10-07
+version: 1.8
+updated: 2026-10-10
 owner: Matthew Ronan
 ---
 
@@ -143,6 +143,8 @@ _Before you upload a document:_
 - _**TAB wrote it.** For anyone else's material, add a link instead of uploading a copy._
 - _**Make it accessible.** In Word, Pages or Canva, export it as a PDF with "Tagged PDF", "Accessible PDF" or "Best for accessibility" turned on, give it a title, and use real headings. The checks can't read inside a PDF, so this one is on you._
 - _**Keep it small.** Up to 10 MB each. A deleted PDF still stays in the website's history, so the library suits dozens of guides, not hundreds or videos._
+
+_Guides Claude writes:_ ask in a session ("a guide on training recovery") and Claude writes and designs it in TAB's fonts, colours and logo, with its sources listed, and sends you the PDF, already tagged and bookmarked. Upload it here like any other document and link it to its subject. Its source stays in `design/resources/`, so to change a guide's words or layout, ask Claude for a new version rather than editing the PDF.
 
 _What gets counted:_ each link followed or document downloaded adds one to that resource's daily total, shown under **Resources opened** in TAB Practice → Website stats. As with the rest of the counts, there are no cookies and nothing identifies the visitor. _Who asked for an emailed guide_ arrives as an email to info@; it isn't stored on the website until My TAB goes live with stored submissions.
 
@@ -317,6 +319,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.8 | 2026-10-10 | Guides Claude writes: how to ask for one, upload it and get it changed | The first two guides ("Your first massage", "Lymphatic drainage basics") |
 | 1.7 | 2026-10-10 | The fast lane: what qualifies, what you see on the change request, what happens when other changes are waiting, rolling back; status line brought up to date | Fast lane built (C32, proposed D-070) |
 | 1.6 | 2026-10-08 | Topics list their subjects and a subject opens its resource (a document downloads, an email-first one opens its form, a link opens its page); links can be pages on this site; saving on `main` is turned off, with a safety net that moves anything there into a change request | Owner requests 2026-10-08: "if the artifact is an uploaded document, download it; if it's a hyperlink… it takes them to that link"; "we need a better process to prevent this from being saved to main" |
 | 1.5 | 2026-10-07 | Home, The TAB Method, About, Our Story and Our Team in the editor; the resource library (links, PDF documents, email-first downloads, counts); team photos and confirmed credentials; new rules, pages and terms | Owner request, 2026-10-07 (C35): all three in one change, email required for downloads, daily counts, documents stored with the site |

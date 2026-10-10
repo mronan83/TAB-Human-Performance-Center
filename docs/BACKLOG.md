@@ -110,7 +110,7 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - **Where:** Content editor → Resources → Add, on a new branch
 - **Requirements:** WEB-010
 - **Done when:** each planned subject on `/resources` opens a guide or link, or is removed.
-- Add your guides and links, then link each to its subject (Resource topics → Opens this resource). "Your first massage" is done (2026-10-08).
+- Add your guides and links, then link each to its subject (Resource topics → Opens this resource). "Your first massage" is done (2026-10-08). "Lymphatic drainage basics" is written (2026-10-10): upload the PDF Claude sent and link it to its subject.
 
 ### A32 · Switch on the fast lane
 - **Status:** Waiting on you · **Owner:** Owner · **Category:** Accounts · **Size:** S

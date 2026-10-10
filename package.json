@@ -12,6 +12,7 @@
     "check": "npm run typecheck && npm run test:rls && npm run test:contrast && npm run test:brand && npm run docs:check && npm run build",
     "test:e2e": "playwright test",
     "backlog:html": "node scripts/docs/render-backlog.mjs",
+    "resource:pdf": "node scripts/render-resource-pdf.mjs",
     "docs:schema": "node scripts/docs/schema-snapshot.mjs",
     "docs:check": "node scripts/docs/schema-snapshot.mjs --check && node scripts/docs/render-traceability.mjs --check && node scripts/docs/render-architecture.mjs --check && node scripts/docs/render-data-model.mjs --check && node scripts/docs/render-content-guide.mjs --check && node scripts/docs/render-stories.mjs --check && node scripts/docs/render-backlog.mjs --check",
     "docs:html": "node scripts/docs/build-all.mjs",

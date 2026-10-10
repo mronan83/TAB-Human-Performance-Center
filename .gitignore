@@ -29,3 +29,6 @@ Thumbs.db
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# Guides printed by scripts/render-resource-pdf.mjs; the library copy is uploaded in the content editor
+/design/resources/out/
