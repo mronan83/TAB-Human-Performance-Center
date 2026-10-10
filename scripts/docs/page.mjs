@@ -38,7 +38,9 @@ export const PAGES = [
   ["contentGuide", "Content guide", "docs/CONTENT-GUIDE.md"],
 ];
 export const pageName = (key) => PAGES.find(([k]) => k === key)?.[1] ?? key;
-export const links = () => { try { return JSON.parse(read("docs/living-docs.json")); } catch { return {}; } };
+// DOCS_LINKS points at another map, e.g. relative file names for a preview that bundles every page in one artifact.
+let LINKS = null;
+export const links = () => (LINKS ??= (() => { try { return JSON.parse(process.env.DOCS_LINKS ? fs.readFileSync(process.env.DOCS_LINKS, "utf8") : read("docs/living-docs.json")); } catch { return {}; } })());
 
 // ---- Statuses: one vocabulary for every page (icon, word and tint together) -------------------------------------------
 export const STATUS = {
