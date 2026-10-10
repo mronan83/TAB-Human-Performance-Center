@@ -3,7 +3,7 @@ import { requireStaff } from "@/lib/portal";
 import { fmtDate, fmtMoney, serviceName, STAGES, weekStartISO } from "@/lib/portal/format";
 import { PageTitle, Badge } from "@/components/portal/ui";
 import { RowActionButton } from "@/components/portal/interactive";
-import { resolvePurchaseReviewAction } from "../actions";
+import { resolvePurchaseReviewAction } from "../../actions";
 
 export default async function PracticeHome({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const { viewer, repo } = await requireStaff();

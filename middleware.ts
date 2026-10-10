@@ -52,7 +52,6 @@ export async function middleware(req: NextRequest) {
   const next = () => {
     const headers = new Headers(req.headers);
     headers.set("Content-Security-Policy", csp);
-    headers.set("x-tab-path", path); // lets the My TAB layout keep the sign-in page outside the portal shell
     const res = NextResponse.next({ request: { headers } });
     res.headers.set("Content-Security-Policy", csp);
     return res;
