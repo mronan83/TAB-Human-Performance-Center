@@ -4,6 +4,7 @@ import { SignInFrame } from "@/components/portal/SignInFrame";
 import { MfaForm } from "@/components/portal/MfaForm";
 import { SecondStep } from "@/components/portal/StaffAuth";
 import { PASSKEYS_AVAILABLE } from "@/lib/staff-auth";
+import { afterSignIn, nextParam, nextQuery } from "@/lib/editor-access";
 
 export const metadata = { title: "Two-step verification", robots: { index: false, follow: false } };
 
@@ -12,12 +13,13 @@ export const metadata = { title: "Two-step verification", robots: { index: false
  * that: a passkey if one is set up (proposed D-068), or the app's 6-digit code. The database enforces the same rule in
  * current_app_role().
  */
-export default async function VerifyPage() {
+export default async function VerifyPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
   if (isDemoSignIn()) redirect("/my-tab/login");
+  const next = nextParam((await searchParams).next);
   const viewer = await getViewer();
-  if (!viewer) redirect("/practice/login");
+  if (!viewer) redirect(`/practice/login${nextQuery(next)}`);
   if (viewer.role === "client") redirect("/practice/login?e=staff");
-  if (viewer.staffVerified) redirect("/practice");
+  if (viewer.staffVerified) redirect(afterSignIn(next));
   const { createSupabaseServerClient } = await import("@/lib/supabase/server");
   const { data } = await (await createSupabaseServerClient()).auth.mfa.listFactors();
   const factor = data?.totp?.find((f) => f.status === "verified");
@@ -33,7 +35,7 @@ export default async function VerifyPage() {
           ? "Enter the 6-digit code from your authenticator app."
           : "TAB Practice protects client information with a second step. Set up an authenticator app once, such as Google Authenticator, Microsoft Authenticator or 1Password."}
       </p>
-      <SecondStep passkeys={passkeys} codeForm={<MfaForm factorId={factor?.id} />} />
+      <SecondStep passkeys={passkeys} next={next} codeForm={<MfaForm factorId={factor?.id} next={next} />} />
     </SignInFrame>
   );
 }

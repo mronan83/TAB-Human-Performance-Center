@@ -22,6 +22,7 @@ import { addNote, createRequest, setStatus } from "@/lib/website-requests-store"
 import { inviteAdmin, isEmail, removeAdmin } from "@/lib/admins";
 import { sendWebsiteRequestAlert } from "@/lib/email";
 import { PASSKEYS_AVAILABLE, isBreachedPassword, passkeyOptionsToJSON, passkeyRelyingParty, passwordProblem } from "@/lib/staff-auth";
+import { afterSignIn, nextQuery } from "@/lib/editor-access";
 
 export async function toggleActivityAction(programId: string, activityId: string, done: boolean) {
   const { clientId, repo } = await requireClient();
@@ -475,7 +476,7 @@ export async function verifyTotpAction(_prev: unknown, fd: FormData): Promise<{ 
   const sb = await signedInStaff();
   const { error } = await sb.auth.mfa.challengeAndVerify({ factorId, code });
   if (error) return { error: "That code didn’t match. Check the time on your phone and try the newest code." };
-  redirect("/practice");
+  redirect(afterSignIn(fd.get("next"))); // TAB Practice, or the content editor when sign-in started there (C38)
 }
 
 // ---------------------------------------------------------------------------
@@ -512,7 +513,7 @@ export async function signInWithPasswordAction(_prev: unknown, fd: FormData): Pr
     await sb.auth.signOut();
     return { error: "That account isn’t a TAB staff account. Clients sign in to My TAB." };
   }
-  redirect("/practice/verify");
+  redirect(`/practice/verify${nextQuery(fd.get("next"))}`);
 }
 
 /** A signed-in staff member on one of our own addresses, for passkey work. */
@@ -566,13 +567,13 @@ export async function startPasskeySignInAction(factorId: string): Promise<Passke
 }
 
 /** Checks the passkey's answer. Success makes the session two-step verified (aal2), as the 6-digit code does. */
-export async function finishPasskeySignInAction(factorId: string, challengeId: string, credential: Record<string, unknown>): Promise<{ error: string } | undefined> {
+export async function finishPasskeySignInAction(factorId: string, challengeId: string, credential: Record<string, unknown>, next?: string): Promise<{ error: string } | undefined> {
   const { sb, rp } = await passkeyContext(false);
   if (!rp) return { error: "Passkeys work on the TAB website address only." };
   const credential_response = { toJSON: () => credential } as never;
   const { error } = await sb.auth.mfa.verify({ factorId, challengeId, webauthn: { ...rp, type: "request", credential_response } });
   if (error) return { error: "That passkey didn’t work. Try again, or use the 6-digit code." };
-  redirect("/practice");
+  redirect(afterSignIn(next));
 }
 
 /** Removes a passkey (a lost or replaced device). The authenticator app can't be removed here: it's the backup. */

@@ -1172,6 +1172,22 @@ What each person needs from TAB Human Performance Center's public website, My TA
 2. **Given** Events & Workshops and Testimonials **when** the owner views Settings **then** their switches are shown but locked until there is real content.
 3. **Given** anyone other than the owner **when** they open Settings **then** they can't change anything, **and** every change is recorded with who made it and when.
 
+### US-914 · Open the content editor from TAB Practice
+- **As a** website admin **I want** to open the content editor from TAB Practice once I'm signed in **so that** I use one front door for the website and nobody without a website role can reach the editor
+- **Persona:** P-ADM
+- **Epic:** E9
+- **Priority:** Must
+- **Phase:** P1
+- **Requirements:** STAFF-011, SEC-001, SEC-015
+- **Delivered by:** F-61, C38
+- **Draft:** yes
+
+1. **Given** the owner or a website admin signed in to TAB Practice with two-step verification **when** they choose Edit the website **then** the content editor opens, **and** Keystatic asks for its own sign-in only when its session on that device has lapsed.
+2. **Given** someone who isn't signed in **when** they open `/keystatic` **then** they are sent to TAB Practice sign-in, **and** after the password and two-step steps they return to the editor.
+3. **Given** a practitioner **when** they open `/keystatic` **then** they are sent to Website changes with a note that the editor is for the owner and website admins.
+4. **Given** a client signed in to My TAB **when** they open `/keystatic` **then** they are sent to staff sign-in and never see the editor.
+5. **Given** a sign-in address whose return place isn't on TAB's fixed list **when** sign-in completes **then** it goes to TAB Practice, never to another address.
+
 ### US-1001 · Review every change on a private preview
 - **As a** business owner **I want** to check each change on a private preview with its checks passed before I approve it **so that** nothing reaches the live site unreviewed
 - **Persona:** P-OWN

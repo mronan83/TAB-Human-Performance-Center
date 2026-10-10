@@ -4,6 +4,7 @@ import { isClosed, statusOf, LANES, type WebsiteRequest } from "@/lib/website-re
 import { listRequests } from "@/lib/website-requests-store";
 import { siteConfig } from "@/config/site";
 import { Badge, EmptyState, PageTitle, Panel } from "@/components/portal/ui";
+import { EDITOR_PATH, canEditWebsite } from "@/lib/editor-access";
 
 export const metadata = { title: "Website changes" };
 
@@ -28,15 +29,17 @@ function RequestRow({ r }: { r: WebsiteRequest }) {
  * Website changes (owner rulings 2026-10-07, proposed D-071): file a content or design request and follow it to the
  * live site. Every staff role sees every request; only the owner changes a status (Claude does too, by the service role).
  */
-export default async function WebsiteChangesPage() {
+export default async function WebsiteChangesPage({ searchParams }: { searchParams: Promise<{ e?: string }> }) {
   const viewer = await requireStaffViewer();
+  const { e } = await searchParams;
   const all = await listRequests();
   const open = all.filter((r) => !isClosed(r.status)), closed = all.filter((r) => isClosed(r.status));
   const yours = viewer.role === "owner" ? open.filter((r) => r.status === "waiting_owner" || r.status === "in_review") : [];
   return (
     <>
       <PageTitle eyebrow="TAB Practice" title="Website changes" lead="Ask for a change to the public website and follow it through to the live site. Content help covers what a page says; a design change covers how the site looks or works."
-        action={<div className="flex flex-wrap gap-3"><Link href="/practice/website/new" className="btn btn-primary">New request</Link><a href={siteConfig.websiteChanges.guide} target="_blank" rel="noopener noreferrer" className="btn btn-outline">Content guide<span className="sr-only"> (opens in a new tab)</span></a></div>} />
+        action={<div className="flex flex-wrap gap-3"><Link href="/practice/website/new" className="btn btn-primary">New request</Link>{canEditWebsite(viewer) && <a href={EDITOR_PATH} className="btn btn-outline">Edit the website</a>}<a href={siteConfig.websiteChanges.guide} target="_blank" rel="noopener noreferrer" className="btn btn-outline">Content guide<span className="sr-only"> (opens in a new tab)</span></a></div>} />
+      {e === "editor" && !canEditWebsite(viewer) && <p role="status" className="mb-6 rounded-xl bg-note-soft p-4 text-sm">The content editor is for the owner and website admins. To change something on the website, send a request here and it will be picked up.</p>}
       {isDemoSignIn() && <p className="mb-6 rounded-xl bg-note-soft p-4 text-sm">Demo: requests here are samples and reset when the preview restarts.</p>}
       {yours.length > 0 && (
         <p className="mb-6 rounded-xl bg-accent-soft p-4 text-sm"><strong>{yours.length === 1 ? "One request needs" : `${yours.length} requests need`} you: </strong>{yours.map((r) => `#${r.number}`).join(", ")}.</p>

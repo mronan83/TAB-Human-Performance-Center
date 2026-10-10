@@ -1,7 +1,7 @@
 ---
 title: Website content guide
-version: 1.7
-updated: 2026-10-07
+version: 1.8
+updated: 2026-10-10
 owner: Matthew Ronan
 ---
 
@@ -100,7 +100,7 @@ _The content editor is free for up to three editors (you and two admins). A four
 
 <!-- content-flow -->
 
-1. **Open the content editor** at `/keystatic` and sign in with your Keystatic account (no GitHub account needed). The owner invites editors; up to three are free.
+1. **Open the content editor:** in TAB Practice, choose **Edit the website** (for the owner and website admins; practitioners ask for changes instead). If you go straight to `/keystatic`, it asks you to sign in to TAB Practice first and then brings you back. The first time on a device, and whenever its own session lapses, Keystatic also asks you to sign in with your Keystatic account (no GitHub account needed). The owner invites editors; up to three are free.
 2. **Start a branch.** In the editor's branch menu choose **New branch** and give it a short name, such as `parking-faq`. The editor adds `content/` in front. Each branch is one change request, so keep one topic per branch. _The editor opens on `main` (the live website's branch), where saving is turned off: start your branch first (see the note below)._
 3. **Choose what to edit**: under **Service pages**, one of the five; under **Guides**, the massage techniques guide; under **Pages**, Home, The TAB Method, About, Our Story or Our Team; under **Resources**, the resource library and its topics.
 4. **Make your change.** Fields show their limits as you type (a search description must be 40 to 160 characters, for example). Under **Sections** you can add a section, drag sections into a new order, or remove one; each section's own fields are inside it.
@@ -271,7 +271,7 @@ _Sections next to each other on the same background read as one band. Draft answ
 | **Rollback** | Switching the live site back to the previous version. |
 | **Fast lane** | The owner's own content-only changes, made in the content editor, go live automatically once every check passes, without a separate approval round (D-070). Anyone else's change, or any change to code or rules, keeps the approvals. |
 | **Branch** | Your own working copy for one change. The content editor saves to a branch named `content/…`; each branch becomes one change request. |
-| **Content editor (Keystatic)** | The editing screens at `/keystatic`, signed in with a Keystatic Cloud account (no GitHub account). Edits are saved as reviewable changes to the website's own files, so every edit has a history and can be undone. |
+| **Content editor (Keystatic)** | The editing screens at `/keystatic`, opened from TAB Practice → Edit the website by the owner and website admins, and signed in with a Keystatic Cloud account (no GitHub account). Edits are saved as reviewable changes to the website's own files, so every edit has a history and can be undone. |
 | **Change request (PR)** | A proposed change, with its preview and check results, waiting to be published. |
 | **Website changes** | The page in TAB Practice where every request is filed and followed (`/practice/website`). |
 | **Website request** | A numbered ask for a change (for example **#12**): either **Content help** (what a page says) or a **Design change** (how the site looks or works). |
@@ -317,6 +317,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.8 | 2026-10-10 | The editor opens from TAB Practice → Edit the website, for the owner and website admins; going straight to `/keystatic` signs you in first | Owner ruling 2026-10-10, proposed D-077 (C38) |
 | 1.7 | 2026-10-10 | The fast lane: what qualifies, what you see on the change request, what happens when other changes are waiting, rolling back; status line brought up to date | Fast lane built (C32, proposed D-070) |
 | 1.6 | 2026-10-08 | Topics list their subjects and a subject opens its resource (a document downloads, an email-first one opens its form, a link opens its page); links can be pages on this site; saving on `main` is turned off, with a safety net that moves anything there into a change request | Owner requests 2026-10-08: "if the artifact is an uploaded document, download it; if it's a hyperlink… it takes them to that link"; "we need a better process to prevent this from being saved to main" |
 | 1.5 | 2026-10-07 | Home, The TAB Method, About, Our Story and Our Team in the editor; the resource library (links, PDF documents, email-first downloads, counts); team photos and confirmed credentials; new rules, pages and terms | Owner request, 2026-10-07 (C35): all three in one change, email required for downloads, daily counts, documents stored with the site |

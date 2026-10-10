@@ -17,7 +17,7 @@ const readDevicePasskey = () => { try { return localStorage.getItem(DEVICE_KEY);
 const rememberDevicePasskey = (id: string | null) => { try { if (id) localStorage.setItem(DEVICE_KEY, id); else localStorage.removeItem(DEVICE_KEY); } catch { /* private mode */ } };
 
 /** TAB Practice sign-in, step 1 (proposed D-068): email and password, with the public-form defenses (SEC-013). */
-export function PasswordSignInForm() {
+export function PasswordSignInForm({ next }: { next?: string } = {}) {
   const [state, action, pending] = useActionState(signInWithPasswordAction, undefined);
   const turnstile = useTurnstile("login");
   const [waitMessage, setWaitMessage] = useState("");
@@ -44,6 +44,7 @@ export function PasswordSignInForm() {
         <input id="pwWebsite" type="text" name="website" tabIndex={-1} autoComplete="off" />
       </div>
       <input type="hidden" name="turnstileToken" value={turnstile.token} />
+      {next && <input type="hidden" name="next" value={next} />}
       {turnstile.widget}
       {error && <p role="alert" className="text-sm font-semibold text-danger">{error}</p>}
       <button className="btn btn-primary w-full" disabled={pending}>{pending ? "Signing in…" : "Sign in"}</button>
@@ -54,7 +55,7 @@ export function PasswordSignInForm() {
 type Passkey = { id: string; name: string };
 
 /** Step 2 with a passkey. The one this browser made comes first; others (a phone, say) are listed by name. */
-export function PasskeyVerify({ passkeys, onUseCode }: { passkeys: Passkey[]; onUseCode?: () => void }) {
+export function PasskeyVerify({ passkeys, onUseCode, next }: { passkeys: Passkey[]; onUseCode?: () => void; next?: string }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [supported, setSupported] = useState(true);
@@ -70,7 +71,7 @@ export function PasskeyVerify({ passkeys, onUseCode }: { passkeys: Passkey[]; on
     if ("error" in start) { setBusy(false); return setError(start.error); }
     const r = await runPasskey("request", start.options);
     if ("error" in r) { setBusy(false); return setError(r.error === "cancelled" ? "" : r.error); }
-    const done = await finishPasskeySignInAction(start.factorId, start.challengeId, r.credential); // redirects on success
+    const done = await finishPasskeySignInAction(start.factorId, start.challengeId, r.credential, next); // redirects on success
     setBusy(false);
     if (done?.error) setError(done.error);
   }
@@ -182,10 +183,10 @@ export function SetPasswordForm({ hasPassword, email }: { hasPassword: boolean; 
 }
 
 /** Step 2: the passkey when there is one (the 6-digit code one click away), otherwise the code. */
-export function SecondStep({ passkeys, codeForm }: { passkeys: Passkey[]; codeForm: React.ReactNode }) {
+export function SecondStep({ passkeys, codeForm, next }: { passkeys: Passkey[]; codeForm: React.ReactNode; next?: string }) {
   const [useCode, setUseCode] = useState(passkeys.length === 0);
   const [supported, setSupported] = useState(true);
   useEffect(() => setSupported(passkeysSupported()), []);
   if (useCode || !supported) return <>{codeForm}</>;
-  return <PasskeyVerify passkeys={passkeys} onUseCode={() => setUseCode(true)} />;
+  return <PasskeyVerify passkeys={passkeys} next={next} onUseCode={() => setUseCode(true)} />;
 }

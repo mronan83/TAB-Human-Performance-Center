@@ -20,7 +20,7 @@ test("an admin sees the website only: requests and stats, never clients or setti
   await page.goto("/practice");
   await expect(page).toHaveURL(/\/practice\/website$/);
   const nav = page.getByRole("navigation", { name: "Portal" }).first();
-  await expect(nav.getByRole("link")).toHaveText(["Website changes", "Website stats", "Sign-in & security"]);
+  await expect(nav.getByRole("link")).toHaveText(["Website changes", "Edit the website", "Website stats", "Sign-in & security"]);
   await page.goto("/practice/clients/demo-client-dana");
   await expect(page).toHaveURL(/\/practice\/website$/);
   await page.goto("/practice/inquiries");
