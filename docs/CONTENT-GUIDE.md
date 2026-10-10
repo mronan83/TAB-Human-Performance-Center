@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 1.6
+version: 1.7
 updated: 2026-10-07
 owner: Matthew Ronan
 ---
@@ -23,7 +23,7 @@ Every change to the website travels one of two lanes. Both end at the same autom
 
 <!-- lanes -->
 
-_Status, 7 October 2026: website requests live in **TAB Practice → Website changes**, with website admin accounts. The content editor (`/keystatic`) is live for the **five service pages** and the **massage techniques guide**, signed in through Keystatic Cloud. Until the public launch, the whole site sits behind Vercel's login, so only people with access to the Vercel project can reach the editor and TAB Practice. Other pages move into the editor next; until then, and for anything else, file a **Content help** request. The automatic "fast lane" publish comes next (C32)._
+_Status, 10 October 2026: website requests live in **TAB Practice → Website changes**, with website admin accounts. The content editor (`/keystatic`) is live for the **five service pages**, the **massage techniques guide**, **Home**, **The TAB Method**, **About**, **Our Story**, **Our Team** and the **resource library**, signed in through Keystatic Cloud. Until the public launch, the whole site sits behind Vercel's login, so only people with access to the Vercel project can reach the editor and TAB Practice. The FAQ, Start and the policies move into the editor later; for those, and for anything else, file a **Content help** request. The **fast lane** publishes the owner's own content changes automatically once its Vercel key is added (backlog A32)._
 
 ## Roles
 
@@ -106,9 +106,10 @@ _The content editor is free for up to three editors (you and two admins). A four
 4. **Make your change.** Fields show their limits as you type (a search description must be 40 to 160 characters, for example). Under **Sections** you can add a section, drag sections into a new order, or remove one; each section's own fields are inside it.
 5. **Save.** Each save is kept on your branch. It doesn't touch the live site, and you can come back to it later.
 6. **The change request opens by itself.** The first save on a branch opens a change request, and every save runs the automated checks (about 10 minutes) and builds a private preview.
-   - **All checks pass:** an admin's change waits for the owner's approval; the owner's own content changes will publish automatically once the fast lane is on (C32).
+   - **All checks pass, and it's the owner's own change** (the **fast lane**): it's merged and published automatically, usually within 5 minutes of the checks finishing, and the change request says "Live" with the build to roll back to. It qualifies only if every save on the branch was made by the owner in the content editor and it changes nothing but content files. If other changes are already waiting for release, it's merged but goes live with them when the owner promotes the next release; the change request says so.
+   - **All checks pass, anyone else's change** (an admin's, or one the fast lane turns down): it waits for the owner's approval. The fast lane comments on the change request saying why it didn't qualify.
    - **A check fails:** the change request says which rule and where (for example, "content/services/massage-bodywork.json: sections.5.value.items.2.a: String must contain at most 900 character(s)" or "Use 'TAB Human Performance Center' in full"). Fix it in the editor on the same branch and save again.
-7. **Live.** The owner approves, Claude merges it and sends the production build, and the owner promotes it. If something looks wrong, rolling back is one step.
+7. **Live.** Fast lane: automatic, as above. Otherwise the owner approves, Claude merges it and sends the production build, and the owner promotes it. Either way, if something looks wrong, rolling back is one step: promote the previous build (named in the change request), or ask Claude to roll back.
 
 _Saving on `main` is turned off (owner request 2026-10-08). The editor opens on `main`, the branch the live site is built from, and shows a green notice at the bottom while you're there: choose **New branch** first. If you try to save on `main` anyway, the editor refuses with the same instructions, and nothing is saved._
 
@@ -268,7 +269,7 @@ _Sections next to each other on the same background read as one band. Draft answ
 | **Checks** | The automated tests every change must pass (see "Rules every change must pass"). |
 | **Publish / promote** | Making a checked change live. Promote is the final step that switches the live site to the new version. |
 | **Rollback** | Switching the live site back to the previous version. |
-| **Fast lane** | Owner-made content-only changes that pass every check go live without a separate approval round (D-070). |
+| **Fast lane** | The owner's own content-only changes, made in the content editor, go live automatically once every check passes, without a separate approval round (D-070). Anyone else's change, or any change to code or rules, keeps the approvals. |
 | **Branch** | Your own working copy for one change. The content editor saves to a branch named `content/…`; each branch becomes one change request. |
 | **Content editor (Keystatic)** | The editing screens at `/keystatic`, signed in with a Keystatic Cloud account (no GitHub account). Edits are saved as reviewable changes to the website's own files, so every edit has a history and can be undone. |
 | **Change request (PR)** | A proposed change, with its preview and check results, waiting to be published. |
@@ -316,6 +317,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 1.7 | 2026-10-10 | The fast lane: what qualifies, what you see on the change request, what happens when other changes are waiting, rolling back; status line brought up to date | Fast lane built (C32, proposed D-070) |
 | 1.6 | 2026-10-08 | Topics list their subjects and a subject opens its resource (a document downloads, an email-first one opens its form, a link opens its page); links can be pages on this site; saving on `main` is turned off, with a safety net that moves anything there into a change request | Owner requests 2026-10-08: "if the artifact is an uploaded document, download it; if it's a hyperlink… it takes them to that link"; "we need a better process to prevent this from being saved to main" |
 | 1.5 | 2026-10-07 | Home, The TAB Method, About, Our Story and Our Team in the editor; the resource library (links, PDF documents, email-first downloads, counts); team photos and confirmed credentials; new rules, pages and terms | Owner request, 2026-10-07 (C35): all three in one change, email required for downloads, daily counts, documents stored with the site |
 | 1.4 | 2026-10-07 | What happens when a save lands on `main` instead of a branch, and how it's caught before release; empty optional fields | The first editor save (on `main`) broke the build; owner declined GitHub Pro (A34) |
