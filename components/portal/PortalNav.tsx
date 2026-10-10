@@ -4,8 +4,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
-/** `short` is the label in the phone tab bar, where six items share the width. */
-export type PortalNavItem = { href: string; label: string; short?: string; icon: keyof typeof ICONS };
+/**
+ * `short` is the label in the phone tab bar, where six items share the width. `reload` opens the address as a full page
+ * load: the content editor (C38) has its own content-security policy, which in-app navigation would not apply.
+ */
+export type PortalNavItem = { href: string; label: string; short?: string; icon: keyof typeof ICONS; reload?: boolean };
+
+/** A nav link: in-app navigation, or a plain link for an item that needs a full page load. */
+export function NavLink({ item, ...props }: { item: PortalNavItem } & Omit<React.ComponentProps<"a">, "href">) {
+  return item.reload ? <a href={item.href} {...props} /> : <Link href={item.href} {...props} />;
+}
 
 const ICONS = {
   home: "M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z",
@@ -25,6 +33,7 @@ const ICONS = {
   lock: "M6 11h12v10H6zM8 11V7a4 4 0 0 1 8 0v4M12 15v2",
   more: "M5 12h.01M12 12h.01M19 12h.01",
   website: "M3 5h18v14H3zM3 9h18M7 7h.01M10 7h.01M8 13l-2 2 2 2M16 13l2 2-2 2M13 12l-2 6",
+  edit: "M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4",
 } as const;
 
 export function Icon({ name, className }: { name: keyof typeof ICONS; className?: string }) {
@@ -44,10 +53,10 @@ export function PortalNav({ items, variant }: { items: PortalNavItem[]; variant:
         <ul className="space-y-1">
           {items.map((i) => (
             <li key={i.href}>
-              <Link href={i.href} aria-current={active(i.href) ? "page" : undefined}
+              <NavLink item={i} aria-current={active(i.href) ? "page" : undefined}
                 className={clsx("flex items-center gap-3 rounded-xl px-3 py-2.5 text-[0.9375rem] font-medium transition-colors", active(i.href) ? "bg-linen text-primary" : "text-text-secondary hover:bg-bone hover:text-text-primary")}>
                 <Icon name={i.icon} className="h-5 w-5" />{i.label}
-              </Link>
+              </NavLink>
             </li>
           ))}
         </ul>
@@ -59,9 +68,9 @@ export function PortalNav({ items, variant }: { items: PortalNavItem[]; variant:
       <ul className="flex justify-around">
         {items.map((i) => (
           <li key={i.href} className="min-w-0 flex-1">
-            <Link href={i.href} aria-current={active(i.href) ? "page" : undefined} className={clsx("flex flex-col items-center gap-1 px-0.5 py-2.5 text-center text-[0.6875rem] font-semibold leading-tight", active(i.href) ? "text-primary" : "text-text-secondary")}>
+            <NavLink item={i} aria-current={active(i.href) ? "page" : undefined} className={clsx("flex flex-col items-center gap-1 px-0.5 py-2.5 text-center text-[0.6875rem] font-semibold leading-tight", active(i.href) ? "text-primary" : "text-text-secondary")}>
               <Icon name={i.icon} className="h-6 w-6" /><span className="max-w-full truncate">{i.short ?? i.label}</span>
-            </Link>
+            </NavLink>
           </li>
         ))}
       </ul>

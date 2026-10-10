@@ -168,7 +168,8 @@ Never print, log or commit token values.
 - **Content editor (Keystatic, proposed D-069, D-071 to D-076):** the service pages, the techniques guide, Home, the TAB
   Method, About, Our Story, Our Team (`content/pages/*.json`) and the resource library (`content/resources/`,
   `content/resource-topics/`, PDFs in `content/resource-files/`, read through `lib/resources.ts`) are JSON files edited at
-  `/keystatic` (Keystatic Cloud sign-in) on `content/…` branches; `content-pr.yml` opens a PR per branch and CI runs on every save. `content/schema.ts` is the
+  `/keystatic` (Keystatic Cloud sign-in, behind TAB Practice's own sign-in for the owner and admins only: `lib/editor-access.ts`,
+  proposed D-077) on `content/…` branches; `content-pr.yml` opens a PR per branch and CI runs on every save. `content/schema.ts` is the
   one set of rules: `keystatic.config.ts` takes its limits from it and the build parses every file with it. A field or
   block change touches all three (schema, editor config, renderer in `components/blocks/`) plus `e2e/content.spec.ts`
   and the guide. FAQ, Start and the policies are still in `content/*.ts`. Resource documents are public PDFs TAB wrote; one that asks for an

@@ -4,6 +4,7 @@ import { LoginForm } from "@/components/portal/interactive";
 import { PasswordSignInForm } from "@/components/portal/StaffAuth";
 import { SignInFrame } from "@/components/portal/SignInFrame";
 import { PASSKEYS_AVAILABLE } from "@/lib/staff-auth";
+import { afterSignIn, nextParam, nextQuery } from "@/lib/editor-access";
 
 export const metadata = { title: "TAB Practice sign-in", robots: { index: false, follow: false } };
 
@@ -17,17 +18,19 @@ const ERRORS: Record<string, string> = {
  * Staff sign-in (proposed D-068, replacing C23's link-first sign-in): email and password, then a passkey or the
  * authenticator code on /practice/verify. The emailed link stays for a forgotten password or a first sign-in.
  */
-export default async function PracticeLoginPage({ searchParams }: { searchParams: Promise<{ e?: string }> }) {
+export default async function PracticeLoginPage({ searchParams }: { searchParams: Promise<{ e?: string; next?: string }> }) {
   if (isDemoSignIn()) redirect("/my-tab/login"); // previews and tests: the demo chooser
+  const { e, next } = await searchParams;
   const viewer = await getViewer();
-  if (viewer && viewer.role !== "client") redirect(viewer.staffVerified === false ? "/practice/verify" : "/practice");
-  const { e } = await searchParams;
+  // `next` (C38): after signing in, go back to the content editor. Only known places are allowed (lib/editor-access.ts).
+  if (viewer && viewer.role !== "client") redirect(viewer.staffVerified === false ? `/practice/verify${nextQuery(next)}` : afterSignIn(next));
   return (
     <SignInFrame>
       <h1 className="text-h2 mt-8 text-center lg:mt-0 lg:text-left">TAB Practice sign-in</h1>
       <p className="mb-8 mt-2 text-center text-text-secondary lg:text-left">Sign in with your email and password. Then confirm it’s you with {PASSKEYS_AVAILABLE ? "your passkey or authenticator app" : "the code from your authenticator app"}.</p>
       {e && ERRORS[e] && <p role="alert" className="mb-4 rounded-xl bg-accent-soft p-3 text-sm">{ERRORS[e]}</p>}
-      <PasswordSignInForm />
+      {nextParam(next) === "editor" && <p className="mb-4 rounded-xl bg-note-soft p-3 text-sm">Sign in to open the content editor. It opens as soon as you’re in.</p>}
+      <PasswordSignInForm next={nextParam(next)} />
       <details className="mt-8 rounded-[20px] border border-border bg-white p-5">
         <summary className="cursor-pointer font-semibold">Forgot your password, or haven’t set one yet?</summary>
         <p className="mb-4 mt-3 text-sm text-text-secondary">We’ll email you a one-time sign-in link instead. After signing in, set a new password under Sign-in &amp; security.</p>

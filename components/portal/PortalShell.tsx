@@ -3,6 +3,7 @@ import { Logo } from "@/components/Logo";
 import { PortalNav, type PortalNavItem } from "./PortalNav";
 import { DemoBanner } from "./DemoBanner";
 import { clientScreensAvailable, isDemoSignIn } from "@/lib/portal";
+import { EDITOR_PATH } from "@/lib/editor-access";
 import type { Viewer } from "@/lib/portal/types";
 import { signOutAction } from "@/app/(portal)/actions";
 
@@ -26,16 +27,17 @@ export const practiceNav: PortalNavItem[] = [
 
 /** TAB Practice's menu for one viewer. */
 export function staffNavFor(viewer: Viewer): PortalNavItem[] {
-  // Team and Settings are the owner's (C7b, C23); Website stats the owner's and admins' (A4, proposed D-071). Every staff
-  // member can ask for website changes. Admins are website-only: no client screens. Without real client data
-  // (production before go-live) nobody sees the client screens.
+  // Team and Settings are the owner's (C7b, C23); Website stats and the content editor the owner's and admins' (A4, C38,
+  // proposed D-071 and D-077). Every staff member can ask for website changes. Admins are website-only: no client
+  // screens. Without real client data (production before go-live) nobody sees the client screens.
   const website: PortalNavItem = { href: "/practice/website", label: "Website changes", short: "Website", icon: "website" };
+  const editor: PortalNavItem = { href: EDITOR_PATH, label: "Edit the website", short: "Edit site", icon: "edit", reload: true };
   const stats: PortalNavItem = { href: "/practice/stats", label: "Website stats", short: "Stats", icon: "stats" };
   const team: PortalNavItem = { href: "/practice/team", label: "Team", icon: "team" };
   const settings: PortalNavItem = { href: "/practice/settings", label: "Settings", icon: "settings" };
   const clientWork = clientScreensAvailable() && viewer.role !== "admin" ? practiceNav : [];
-  const roleNav = viewer.role === "owner" ? [...clientWork, website, stats, ...(clientWork.length ? [team] : []), settings]
-    : viewer.role === "admin" ? [website, stats] : [...clientWork, website];
+  const roleNav = viewer.role === "owner" ? [...clientWork, website, editor, stats, ...(clientWork.length ? [team] : []), settings]
+    : viewer.role === "admin" ? [website, editor, stats] : [...clientWork, website];
   // Every staff member's own password and passkeys (proposed D-068).
   const staffNav: PortalNavItem[] = [...roleNav, { href: "/practice/security", label: "Sign-in & security", short: "Security", icon: "lock" }];
   return staffNav;

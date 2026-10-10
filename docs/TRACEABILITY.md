@@ -4,7 +4,7 @@ eyebrow: TAB Human Performance Center · Requirements
 heading: Requirements & Feature Traceability
 owner: Matthew Ronan
 updated: 2026-10-10
-version: 1.36
+version: 1.37
 ---
 
 <!-- Edit this file, not the page. scripts/docs/render-traceability.mjs builds the page from it (npm run docs:html), and
@@ -145,7 +145,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | STAFF-008 | Record the continuation outcome (Continue, Maintain, Independent, Shift, Pause, Return) | P2 | Should | Partial: review outcomes use a different set (TG-1) | F-33 | — |
 | STAFF-009 | Author program templates; assign and personalize per client | P2 | Must | Verified | F-35, F-36, F-37, F-38, F-47 | smoke, rls |
 | STAFF-010 | Assign resources to clients or programs | P2 | Must | Verified for clients; programs reach resources through activities | F-39 | smoke, rls |
-| STAFF-011 | Website admin role: website only, owner-invited, two-step sign-in, no client data | P1 | Must | Verified | F-56 | rls, e2e |
+| STAFF-011 | Website admin role: website only, owner-invited, two-step sign-in, no client data | P1 | Must | Verified | F-56, F-61 | rls, e2e |
 
 ### Content and CMS (CMS)
 
@@ -302,6 +302,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | F-52 | Living documents: six connected pages (architecture with the decision log, data model, requirements and traceability, user stories, backlog, content guide); every ID links to its home with a hover card | Verified | — (owner ruling) | Owner requests 2026-10-02, 2026-10-03 and 2026-10-10 | `scripts/docs/`, `docs/TRACEABILITY.md`, `docs/ARCHITECTURE.md`, `docs/DATA-MODEL.md`, `docs/schema.json`, `docs/USER-STORIES.md` | CI (`npm run docs:check`) |
 | F-55 | Website change requests (TAB Practice → Website changes) and the content guide | Verified | CMS-006, CMS-007 | D-069, D-070, D-071 (proposed) | `docs/CONTENT-GUIDE.md`, `scripts/docs/render-content-guide.mjs`, `lib/website-requests.ts`, `lib/website-requests-store.ts`, `app/(portal)/practice/website/`, migration `20261013000000` | CI (`npm run docs:check`), rls, `e2e/website-requests.spec.ts` |
 | F-56 | Website admin role | Verified | STAFF-011 | D-071 (proposed) | `lib/admins.ts`, `app/(portal)/practice/settings/page.tsx`, `components/portal/PortalShell.tsx`, migrations `20261012000000`, `20261013000000` | rls, `e2e/website-requests.spec.ts` |
+| F-61 | The content editor's front door: `/keystatic` opens only for the owner and website admins signed in to TAB Practice with two-step verification; Edit the website in TAB Practice's menu; signing in from the editor returns to it | Verified | STAFF-011, SEC-001, SEC-015 | D-071, D-077 (proposed) | `lib/editor-access.ts`, `app/keystatic/layout.tsx`, `components/portal/PortalShell.tsx`, `components/portal/PortalNav.tsx` | `e2e/editor-access.spec.ts` |
 | F-58 | Content editor for Home, the TAB Method, About, Our Story, Our Team, and the resource library: topic cards whose subjects open their resource (a PDF downloads, an email-first one opens its form, a link opens its page, on this site or another), open counts | Verified: live 2026-10-09; subjects open their resource | CMS-001, CMS-002, CMS-005, WEB-010 | D-069, D-072, D-073, D-074, D-075 (proposed) | `content/pages/*.json`, `content/pages.ts`, `content/resources/`, `content/resource-topics/`, `content/resource-files/`, `lib/resources.ts`, `lib/resource-emails.ts`, `lib/resource-stats.ts`, `lib/team-photos.ts`, `components/ResourceRequest.tsx`, `app/(site)/resources/` | build (content rules), `e2e/content.spec.ts`, `e2e/resources.spec.ts`, a11y, brand |
 | F-59 | Saving on `main` turned off in the content editor, with a safety net that moves editor commits on `main` into a change request | Built | CMS-004 | D-076 (proposed) | `lib/keystatic-guard.ts`, `components/KeystaticMainGuard.tsx`, `app/keystatic/keystatic.tsx`, `.github/workflows/content-main-guard.yml`, `scripts/content-main-guard.sh` | `e2e/content.spec.ts` (guard against Keystatic's request format); the script's dry run (PR) |
 | F-57 | Content editor (Keystatic) and the block library: service pages and the massage techniques guide | Verified: live 2026-10-07 | CMS-001, CMS-004, CMS-005 | D-069, D-071, D-072 (proposed) | `keystatic.config.ts`, `content/schema.ts`, `content/services/*.json`, `content/massage-techniques.json`, `components/blocks/Blocks.tsx`, `app/keystatic`, `.github/workflows/content-pr.yml` | build (content rules), `e2e/content.spec.ts`, brand |
@@ -421,6 +422,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
 | 2026-10-10 | 1.35 | F-60 added: the content fast lane (C32); F-44 is now the last pages only (C35b); CMS-004 and CMS-006 updated | Fast lane built, owner request 2026-10-10 ("Start C32"); proposed D-070 |
 | 2026-10-10 | 1.36 | Rebuilt as the requirements hub of one connected set of pages: requirements and features as expandable rows with filters, each listing the backlog items, user stories and tables that trace to it; the holds-back table now comes from the backlog; risks added; a user stories page added. Stale sign-in rows fixed (C5 shipped): SEC-003 verified, PORTAL-001, SEC-014, F-19 and F-45 restated; TG-10 (client two-step verification) raised, now C37 | Owner request 2026-10-10 ("similar to these… all connected and intertwined") |
+| 2026-10-10 | 1.37 | F-61: the content editor's front door (C38); STAFF-011 names it | Owner ruling 2026-10-10: "yes, build the front door, owner and admins only"; proposed D-077 |
 | 2026-10-10 | 1.34 | F-58: the uploaded files are checked at build time only, every route that reads the library ships it, and a check inspects the build for it | Production error on Website stats (digest 4077400647), owner report 2026-10-10 |
 | 2026-10-08 | 1.33 | F-58: topics list subjects that open their resource; links can be site pages. F-59 added: saving on `main` turned off, with a safety net. CMS-004 updated | Owner requests 2026-10-08 (two editor saves had landed on `main`); proposed D-075, D-076 |
 | 2026-10-07 | 1.32 | F-58: Home, the TAB Method, About, Our Story, Our Team and the resource library in the content editor (C35); F-05, F-44, WEB-010, CMS-001 and CMS-002 updated | Owner request, 2026-10-07: "all three in one PR", email required for downloads, daily counts, documents in the repository; proposed D-073, D-074 |

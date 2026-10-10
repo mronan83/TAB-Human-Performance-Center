@@ -96,8 +96,15 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - **Status:** Waiting on you · **Owner:** Owner · **Category:** Accounts · **Size:** S
 - **Where:** Keystatic Cloud, project `tab-hpc/website`
 - **Requirements:** CMS-006
-- **Done when:** each editor you want can sign in at `/keystatic`.
-- Up to two editors. They can reach `/keystatic` only once the site is past Vercel login (C1), or as Vercel team members.
+- **Done when:** each editor you want can open the editor from TAB Practice and sign in to Keystatic.
+- Up to two editors. Each needs a website admin account in TAB Practice (Settings → Website admins), because the editor opens only from there (C38), and a Keystatic Cloud invitation. Until the site is past Vercel login (C1), they also need to be Vercel team members.
+
+### C38 · The content editor's front door
+- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Requirements:** STAFF-011, SEC-001, SEC-015
+- **Done when:** `/keystatic` opens only for the owner and website admins signed in to TAB Practice with two-step verification, signing in from the editor returns to it, and TAB Practice links to it.
+- Owner ruling 2026-10-10 (proposed D-077). Single sign-on into Keystatic Cloud isn't available, so this makes TAB Practice the one door: Keystatic asks for its own sign-in only when its session on that device lapses.
+- Also closes a launch gap: once Vercel login comes off (C1), the editor's sign-in page would otherwise be open to anyone.
 
 ### C35b · Content editor, last pages
 - **Status:** Ready · **Owner:** Claude · **Category:** Platform · **Size:** M
@@ -514,6 +521,8 @@ Improvements and options with no launch or go-live date riding on them.
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Release notes
+
+- **The content editor's front door** (2026-10-10, C38, PR open): the editor opens from TAB Practice → Edit the website, for the owner and website admins only, after the usual password and two-step sign-in; starting at `/keystatic` signs you in and brings you back. Owner ruling: "yes, build the front door, owner and admins only".
 
 - **Living documents redesigned** (2026-10-10, PR open): the architecture, data model, requirements, backlog and content guide pages rebuilt as one connected set with a new user stories page; every ID links to its home and shows a hover card; the backlog lists every item with its status, dependencies and what it unblocks.
 

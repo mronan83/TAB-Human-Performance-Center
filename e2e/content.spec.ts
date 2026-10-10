@@ -213,7 +213,8 @@ test("editable words make no diagnosis or treatment claims (guardrail 8)", () =>
   expect(techniques.length).toBeGreaterThan(0);
 });
 
-test("the content editor page: closed until connected, never writes files on a deployment, editor hosts allowed only there", async ({ page, request }) => {
+test("the content editor page: closed until connected, never writes files on a deployment, editor hosts allowed only there", async ({ page, request, context, baseURL }) => {
+  await context.addCookies([{ name: "tab_demo_role", value: "owner", url: baseURL! }]); // the front door (C38): owner or admin only
   const res = await page.goto("/keystatic");
   expect(res?.status()).toBe(200);
   await expect(page.getByRole("heading", { name: "The content editor isn’t connected yet" })).toBeVisible();

@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import { startTotpEnrollmentAction, verifyTotpAction } from "@/app/(portal)/actions";
 
 /** Sets up an authenticator app (QR code + code) or, once set up, asks for its current code. */
-export function MfaForm({ factorId }: { factorId?: string }) {
+export function MfaForm({ factorId, next }: { factorId?: string; next?: string }) {
   const [setup, setSetup] = useState<{ factorId: string; qr: string; secret: string } | null>(null);
   const [setupError, setSetupError] = useState("");
   const [starting, setStarting] = useState(false);
@@ -45,6 +45,7 @@ export function MfaForm({ factorId }: { factorId?: string }) {
         </div>
       )}
       <input type="hidden" name="factorId" value={id} />
+      {next && <input type="hidden" name="next" value={next} />}
       <div>
         <label htmlFor="code" className="field-label">6-digit code</label>
         <input id="code" name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9 ]{6,7}" maxLength={7} className="field-input text-lg tracking-[0.3em]" required />
