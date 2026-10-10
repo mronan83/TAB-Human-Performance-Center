@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 2.0
+version: 2.1
 updated: 2026-10-10
 owner: Matthew Ronan
 ---
@@ -35,7 +35,7 @@ This is the whole journey for a change you make yourself in the content editor. 
 2. **New branch first.** The editor opens on `main`, the live website, where saving is turned off. One change, one branch.
 3. **Save, then hands off.** Don't merge, approve, close or update the change request in GitHub. Once the checks pass, the fast lane merges your change and puts it live. If you merge it by hand, the fast lane stands down, and nothing goes live until the next release is promoted.
 4. **Watch for "Live".** The editor's **⋯** menu → **Pull request #…** opens your change request: the checks, a preview and, at the end, a comment saying **Live**.
-5. **New change, new branch.** Once a change is live, start a fresh branch for the next one.
+5. **New change, new branch.** Once a change is live, its branch is deleted automatically: start a fresh one for the next change.
 
 <!-- content-flow -->
 
@@ -64,7 +64,7 @@ _Went straight to `/keystatic` instead? It sends you to TAB Practice's sign-in f
 3. If you start it from another branch rather than `main`, the dialog also asks what it's **Based on**. Choose **main** ("The default branch in your repository"), so your change starts from the live website.
 4. Press **Create**. The branch box now shows your branch, for example `content/lymphatic-guide`, and the notice about `main` goes away.
 
-_To come back to a branch you started earlier, open the branch box and choose it. Its change request is still open as long as it isn't live yet._
+_To come back to a branch you started earlier, open the branch box and choose it. It's there until its change goes live; then GitHub deletes it automatically, so the box lists only work in progress._
 
 ### 3. Find what you want to change
 
@@ -194,6 +194,7 @@ _Also under Resource topics: **Add** a subject (3 to 90 characters, up to 12 per
 |---|---|---|
 | "Not saved: you're on main" at the bottom of the editor | Saving on `main`, the live website, is turned off | **⋯ → New branch…**, then **Save** again. Copy anything long you've typed first, in case the page reloads |
 | A page or list in the editor won't open, or shows an error | Until 10 October 2026 the editor couldn't read a file it hadn't opened before on that device (the resource topics) | Fixed. If it happens again, reload the editor; if it persists, send Claude a screenshot |
+| "Branch not found" in the editor | The change on that branch went live, and its branch was deleted automatically | Open the branch box, choose **main**, then **⋯ → New branch…** for your next change. Anything you hadn't saved there needs typing again |
 | No **Edit the website** in TAB Practice | Only the owner and website admins have the editor | Practitioners ask in **Website changes** |
 | The editor asks you to sign in again | TAB Practice signs staff out after 30 days, or on a new device; Keystatic's own session runs out on its own schedule | Sign in; you come back to the editor |
 | No change request yet | It opens with the first save on a branch | Save, wait a minute, and reload the editor to see **Pull request #…** |
@@ -465,6 +466,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 2.1 | 2026-10-10 | Branches are deleted automatically once their change is merged: the rules, coming back to a branch, and "Branch not found" in troubleshooting | Owner turned on GitHub's automatic branch deletion, 2026-10-10 |
 | 2.0 | 2026-10-10 | Rebuilt around doing: "Edit the website" step by step with exact button names, a map of the editor and a timeline from save to live; worked examples (a sentence, a PDF guide, a subject, a team member, a section); troubleshooting; the fast lane is on; a subject opens the resource of its topic with the same title | Owner request 2026-10-10: "a user guide and workflow instructions on how to make edits to the website… where to start, what to do, and how to do it", after a merged change didn't go live and the topics wouldn't open |
 | 1.8 | 2026-10-10 | The editor opens from TAB Practice → Edit the website, for the owner and website admins; going straight to `/keystatic` signs you in first | Owner ruling 2026-10-10, proposed D-077 (C38) |
 | 1.7 | 2026-10-10 | The fast lane: what qualifies, what you see on the change request, what happens when other changes are waiting, rolling back; status line brought up to date | Fast lane built (C32, proposed D-070) |

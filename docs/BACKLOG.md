@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.3
+version: 3.4
 updated: 2026-10-10
 ---
 
@@ -28,10 +28,11 @@ The single list of remaining work for TAB Human Performance Center, with what ea
 
 ## P0 · Now
 
-Risk, or work that blocks most of the rest.
+Risk, or work that blocks most of the rest. Nothing is open here now.
 
 ### C40 · TAB Practice opens without its menu after signing in
-- **Status:** In review · **Owner:** Claude · **Category:** Portal · **Size:** S
+- **Status:** Done · **Owner:** Claude · **Category:** Portal · **Size:** S
+- **Done:** 2026-10-10 · #66
 - **Requirements:** PORTAL-001, SEC-015
 - **Done when:** after the second sign-in step, TAB Practice (and My TAB, once open) shows its menu and full layout straight away, without a reload; the browser check reproduces the old fault and passes on the fix.
 - Owner report 2026-10-10, with a screenshot: after signing in from the website, the portal loaded unscaled and without the sidebar until the page was refreshed. Each area had one layout that chose between the sign-in frame and the portal frame from the address, and Next.js keeps a shared layout as it is when moving between its pages in the app. Sign-in and the portal now have separate layouts (route groups); addresses are unchanged.
@@ -114,10 +115,11 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - Also closes a launch gap: once Vercel login comes off (C1), the editor's sign-in page would otherwise be open to anyone.
 
 ### C39 · Editor fixes and the editing guide
-- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Status:** In progress · **Owner:** Claude · **Category:** Platform · **Size:** S
 - **Depends on:** C38, A32
 - **Requirements:** CMS-001, CMS-005, CMS-006, SEC-013
 - **Done when:** every entry opens in the hosted editor, the resource topics included; creating a branch no longer fails a run; an unlinked subject opens its topic's resource with the same title; the content guide walks through a change from opening the editor to seeing it live; and the owner's first content change after this release goes live through the fast lane with a **Live** comment.
+- Released 2026-10-10 (#65). Waiting only on the last check: the owner's first content change through the fast lane.
 - Owner report 2026-10-10: the resource topics wouldn't open in the editor, and "Lymphatic drainage basics", merged by hand, wasn't on the site, then showed as both "Coming soon" and the PDF. The topics failed because this public repository makes Keystatic read files from raw.githubusercontent.com, which the editor's security policy didn't allow; the merge published nothing because only a promotion does, and merging by hand stops the fast lane.
 - Owner request 2026-10-10: "a user guide and workflow instructions on how to make edits to the website… where to start, what to do, and how to do it". The Website content guide now leads with it.
 
@@ -538,9 +540,11 @@ Improvements and options with no launch or go-live date riding on them.
 
 ## Release notes
 
-- **TAB Practice opens with its menu after signing in** (2026-10-10, C40, PR open): signing in no longer lands on an unscaled page without the sidebar that needed a refresh; the same fix covers My TAB for when it opens.
+- **Merged branches deleted automatically** (2026-10-10, owner setting in GitHub): a content branch disappears once its change is merged, so the editor's branch list shows only work in progress; the guide says what "Branch not found" means.
 
-- **Editor fixes and the editing guide** (2026-10-10, C39, PR open): every entry opens in the editor again (the resource topics didn't); a change request waits for a branch's first save, and its description says not to merge it by hand; a subject left unlinked opens its topic's resource with the same title, so "Lymphatic drainage basics" is listed once; the Website content guide leads with a step-by-step walkthrough, a map of the editor, a timeline from save to live, screenshots, worked examples and troubleshooting. The fast lane is on (A32, the owner's Vercel key).
+- **TAB Practice opens with its menu after signing in** (live 2026-10-10, C40, #66): signing in no longer lands on an unscaled page without the sidebar that needed a refresh; the same fix covers My TAB for when it opens.
+
+- **Editor fixes and the editing guide** (live 2026-10-10, C39, #65): every entry opens in the editor again (the resource topics didn't); a change request waits for a branch's first save, and its description says not to merge it by hand; a subject left unlinked opens its topic's resource with the same title, so "Lymphatic drainage basics" is listed once; the Website content guide leads with a step-by-step walkthrough, a map of the editor, a timeline from save to live, screenshots, worked examples and troubleshooting. The fast lane is on (A32, the owner's Vercel key).
 
 - **The content editor's front door** (live 2026-10-10, C38, #64): the editor opens from TAB Practice → Edit the website, for the owner and website admins only, after the usual password and two-step sign-in; starting at `/keystatic` signs you in and brings you back. Owner ruling: "yes, build the front door, owner and admins only".
 
