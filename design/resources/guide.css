@@ -193,3 +193,37 @@ ul.dots.sage li::before { background: var(--sage); }
 .pscale .dots4 { display: flex; gap: 4px; }
 .pscale .dots4 i { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--border-strong); }
 .pscale .dots4 i.on { background: var(--olive); border-color: var(--olive); }
+
+/* Diagrams drawn as inline SVG: text set in the brand font */
+.diagram { display: block; width: 100%; height: auto; font-family: var(--sans); }
+.spark { display: block; width: 100%; height: auto; }
+
+/* Priority pyramid: tiers widen toward the foundation, each with its note alongside */
+.pyramid { margin-top: 22px; display: grid; gap: 8px; }
+.pyramid li { display: grid; grid-template-columns: 300px minmax(0,1fr); gap: 22px; align-items: center; }
+.pyramid .tier { height: 46px; margin: 0 auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13.5px; }
+.pyramid p { margin: 0; font-size: 12.5px; line-height: 1.45; }
+.pyramid .t4 { width: 40%; background: var(--accent-soft); }
+.pyramid .t3 { width: 60%; background: var(--warning-soft); }
+.pyramid .t2 { width: 80%; background: var(--linen); }
+.pyramid .t1 { width: 100%; background: var(--olive); color: var(--white); }
+
+/* Three-column comparison (tool, evidence, our take) */
+.compare.tools tbody th { width: 19%; color: var(--graphite); }
+.compare.tools td { width: 42%; }
+.compare.tools td.hi { width: 39%; }
+
+/* Check-in grid: score boxes */
+.compare.checkin th, .compare.checkin td { padding: 9px 10px; }
+.compare.checkin thead th { font-size: 9.5px; letter-spacing: .06em; }
+.compare.checkin tbody th { width: 46%; color: var(--graphite); }
+.compare.checkin td { text-align: center; color: var(--text-secondary); font-weight: 600; }
+
+/* Sources in two columns when there are many */
+.sources.cols { columns: 2; column-gap: 26px; }
+.sources.cols li { break-inside: avoid; font-size: 10.25px; margin-bottom: 5px; }
+.compare.sleep tbody th { width: 46%; }
+.compare.protein tbody th { width: 28%; color: var(--graphite); }
+.compare.checkin td { width: 10.5%; }
+.compare.checkin td i { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border-strong); align-items: center; justify-content: center; font-style: normal; font-size: 11px; color: var(--graphite); }
+.compare.protein th, .compare.protein td { padding: 8px 14px; }

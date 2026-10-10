@@ -1,0 +1,382 @@
+<!doctype html>
+<!--
+  "Training Recovery": a TAB-written guide for the resource library (topic: Massage and recovery; subject "Training
+  recovery"). Styles in guide.css; printed to PDF with `npm run resource:pdf -- training-recovery`, then uploaded in the
+  content editor (Resources) and linked to its subject.
+
+  Copy rules (CLAUDE.md guardrails 1, 2, 3, 8, 10): the full name; the logo as artwork from public/brand; palette tokens only;
+  no diagnosis or treatment claims; no invented credentials, prices or outcomes. Human performance is not athletic
+  performance (Brand Foundation v2 §12): this is for anyone who trains or works physically, not only athletes. Nutrition
+  figures are published ranges, not a meal plan: Integrated Nutrition is coaching, not medical nutrition therapy
+  (content/services/integrated-nutrition.json, scopeNote). TAB facts come from config/site.ts, content/pages.ts (A30),
+  content/services/*.json and content/massage-techniques.json. Research claims are numbered, in order of first use, to
+  the sources on the last inside page.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Training Recovery | TAB Human Performance Center</title>
+<meta name="author" content="TAB Human Performance Center">
+<meta name="description" content="How recovery turns training into capacity: sleep, fuel, planning, warning signs, what the evidence says about recovery tools, and how massage fits. A guide from TAB Human Performance Center.">
+<link rel="stylesheet" href="guide.css">
+</head>
+<body>
+
+<!-- 1 · Cover -->
+<section class="page cover">
+  <div class="cover-top">
+    <div class="cover-head">
+      <img src="../../public/brand/logo-horizontal.svg" alt="TAB Human Performance Center">
+      <div class="cover-tag">A TAB guide<br>Massage &amp; Bodywork · Functional Strength</div>
+    </div>
+    <h1 class="cover-title" style="max-width:520px">Training Recovery</h1>
+    <p class="cover-sub">How rest, sleep and fuel turn training into lasting capacity, and how to tell when you need more of them.</p>
+    <p class="cover-by"><span>Written by <b>TAB Human Performance Center</b> · October 2026</span></p>
+  </div>
+  <div class="cover-art"><svg viewBox="0 0 816 452" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><line x1="0" x2="816" y1="330" y2="330" stroke="#FBF6F1" stroke-opacity="0.12" stroke-width="1"/><line x1="0" x2="816" y1="296" y2="296" stroke="#FBF6F1" stroke-opacity="0.12" stroke-width="1"/><line x1="0" x2="816" y1="262" y2="262" stroke="#FBF6F1" stroke-opacity="0.12" stroke-width="1"/><line x1="0" x2="816" y1="228" y2="228" stroke="#FBF6F1" stroke-opacity="0.12" stroke-width="1"/><line x1="0" x2="816" y1="194" y2="194" stroke="#FBF6F1" stroke-opacity="0.12" stroke-width="1"/><line x1="0" x2="816" y1="330" y2="330" stroke="#FBF6F1" stroke-opacity="0.45" stroke-width="1.5" stroke-dasharray="6 6"/><path d="M-10,330 C16,330 20,376 54,376 C93,376 101,296 144,296 L204,296 C230,296 234,342 268,342 C307,342 315,262 358,262 L418,262 C444,262 448,308 482,308 C521,308 529,228 572,228 L632,228 C658,228 662,274 696,274 C735,274 743,194 786,194 L846,194 L846,462 L-10,462 Z" fill="#A7B39F" fill-opacity="0.14"/><path d="M-10,330 C16,330 20,376 54,376 C93,376 101,296 144,296 L204,296 C230,296 234,342 268,342 C307,342 315,262 358,262 L418,262 C444,262 448,308 482,308 C521,308 529,228 572,228 L632,228 C658,228 662,274 696,274 C735,274 743,194 786,194 L846,194" fill="none" stroke="#D4A574" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="54" cy="376" r="6" fill="#C46A4A"/><circle cx="268" cy="342" r="6" fill="#C46A4A"/><circle cx="482" cy="308" r="6" fill="#C46A4A"/><circle cx="696" cy="274" r="6" fill="#C46A4A"/><circle cx="144" cy="296" r="7" fill="#A7B39F"/><circle cx="358" cy="262" r="7" fill="#A7B39F"/><circle cx="572" cy="228" r="7" fill="#A7B39F"/><circle cx="786" cy="194" r="7" fill="#A7B39F"/></svg></div>
+  <div class="cover-strip"><span class="name">TAB Human Performance Center</span><span class="phil">Build the capacity to live fully.</span></div>
+</section>
+
+<!-- 2 · Welcome -->
+<section class="page">
+  <p class="eyebrow">Welcome</p>
+  <h1 style="max-width:600px">Recovery is where training becomes capacity</h1>
+  <p class="lead">A workout is the signal to change. Much of the change itself happens in the hours and days that follow, as your body recovers. This guide explains how recovery works, what matters most, and how to tell when you need more of it.</p>
+
+  <div class="grid-2" style="margin-top:26px; gap:30px; grid-template-columns: 1.08fr .92fr;">
+    <div>
+      <p>It’s for anyone who trains: lifting, running, playing a sport, working with us in Functional Strength, or doing physically demanding work. You don’t need to be an athlete. Recovery matters just as much when the goal is carrying groceries, keeping up with your kids or hiking without paying for it all week.</p>
+      <p>Recovery isn’t only physical, either. Training, work, family and stress all draw on the same reserves.<sup class="ref">1</sup> A hard week at work is a hard week for your body too.</p>
+      <p style="margin-bottom:0">At TAB we call this Balance: matching challenge with recovery, so progress is something you can sustain.</p>
+
+      <p class="label" style="margin-top:24px">In this guide</p>
+      <ul class="plain toc">
+        <li><span class="t">How training turns into capacity</span><span class="n">3</span></li>
+        <li><span class="t">Start with the foundations, and sleep</span><span class="n">4</span></li>
+        <li><span class="t">Fuel for recovery</span><span class="n">5</span></li>
+        <li><span class="t">Plan for recovery, and know the warning signs</span><span class="n">6</span></li>
+        <li><span class="t">Recovery tools: what the evidence says</span><span class="n">7</span></li>
+        <li><span class="t">Massage for training recovery</span><span class="n">8</span></li>
+        <li><span class="t">Common myths, and what’s true</span><span class="n">9</span></li>
+        <li><span class="t">Your recovery check-in, and sources</span><span class="n">10</span></li>
+      </ul>
+    </div>
+    <aside class="panel-linen" aria-labelledby="short">
+      <h2 id="short">The short version</h2>
+      <p class="small muted" style="margin-bottom:14px">If you read nothing else, read this.</p>
+      <ol class="plain short">
+        <li><span class="i">1</span><span><b>Recovery is part of training,</b> not time off from it.</span></li>
+        <li><span class="i">2</span><span><b>Basics beat gadgets.</b> Sleep, enough food and a sensible plan do more than any recovery tool.</span></li>
+        <li><span class="i">3</span><span><b>Sleep 7 or more hours a night.</b> It’s the foundation everything else rests on.<sup class="ref">2</sup></span></li>
+        <li><span class="i">4</span><span><b>Soreness isn’t a scorecard.</b> It mostly shows what was new, not how well you trained.</span></li>
+        <li><span class="i">5</span><span><b>Know the warning signs:</b> fatigue that won’t lift, falling performance, low mood. Severe muscle pain with dark urine needs a doctor now.</span></li>
+      </ol>
+    </aside>
+  </div>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">2</span></span></div>
+</section>
+
+<!-- 3 · How it works -->
+<section class="page">
+  <p class="eyebrow">How it works</p>
+  <h1>How training turns into capacity</h1>
+  <p class="lead">Training asks your body for a little more than it’s used to. You come away temporarily tired, then recover, and adapt to be a little more capable than before.<sup class="ref">3</sup></p>
+
+  <div class="card" style="margin-top:22px; padding:14px 18px 6px;"><svg class="diagram" viewBox="0 0 672 220" role="img" aria-labelledby="cycle-t cycle-d">
+<title id="cycle-t">One training cycle</title>
+<desc id="cycle-d">After a training session, capacity dips below where you started (fatigue), then rises as you recover, and settles a little above where you started (adaptation).</desc>
+<line x1="16" x2="656" y1="122" y2="122" stroke="#ABA597" stroke-width="1.5" stroke-dasharray="5 5"/>
+<text x="16" y="114" font-size="11" fill="#5A5953">Where you started</text>
+<path d="M16,122 L150,122 C178,122 182,182 222,182 C262,182 290,122 330,92 C350,78 372,74 400,74 L656,74" fill="none" stroke="#4A5A44" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="150" cy="122" r="7" fill="#C46A4A"/>
+<text x="150" y="88" font-size="12.5" font-weight="700" fill="#2E2E2E" text-anchor="middle">1 · Train</text>
+<text x="150" y="103" font-size="11" fill="#5A5953" text-anchor="middle">the signal to change</text>
+<circle cx="222" cy="182" r="7" fill="#D4A574"/>
+<text x="222" y="206" font-size="12.5" font-weight="700" fill="#2E2E2E" text-anchor="middle">2 · Fatigue</text>
+<text x="318" y="152" font-size="12.5" font-weight="700" fill="#2E2E2E">3 · Recover</text>
+<text x="318" y="167" font-size="11" fill="#5A5953">sleep, food, easier days</text>
+<circle cx="400" cy="74" r="7" fill="#A7B39F"/>
+<text x="400" y="52" font-size="12.5" font-weight="700" fill="#2E2E2E" text-anchor="middle">4 · Adapt</text>
+<text x="400" y="36" font-size="11" fill="#5A5953" text-anchor="middle">a little more capable</text>
+<line x1="560" x2="560" y1="80" y2="116" stroke="#C46A4A" stroke-width="2"/>
+<path d="M554,86 L560,78 L566,86" fill="none" stroke="#C46A4A" stroke-width="2"/>
+<text x="572" y="102" font-size="11" fill="#5A5953">New capacity</text>
+</svg></div>
+
+  <h2 style="margin-top:24px">Timing is everything</h2>
+  <p class="muted" style="max-width:640px; margin-bottom:12px">The same training can build you up or wear you down, depending on how much recovery sits between sessions.</p>
+  <div class="grid-3">
+    <div class="card" style="padding:14px 16px;"><svg class="spark" viewBox="0 0 196 92" aria-hidden="true" focusable="false"><line x1="4" x2="192" y1="50" y2="50" stroke="#ABA597" stroke-width="1.2" stroke-dasharray="4 4"/><path d="M6,50 C14,50 15,66 22,66 C30,66 32,57 40,57 L52,57 C60,57 61,73 68,73 C76,73 78,64 86,64 L98,64 C106,64 107,80 114,80 C122,80 124,71 132,71 L144,71 C152,71 153,87 160,87 C168,87 170,78 178,78 L190,78" fill="none" stroke="#C46A4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 style="margin-top:6px;">Too little recovery</h3><p class="small" style="margin:0">Each session starts before you’ve bounced back, so fatigue piles up and progress stalls or slips.<sup class="ref">3</sup></p></div>
+    <div class="card" style="padding:14px 16px; border-color:var(--olive); box-shadow: inset 0 0 0 1px var(--olive);"><svg class="spark" viewBox="0 0 196 92" aria-hidden="true" focusable="false"><line x1="4" x2="192" y1="50" y2="50" stroke="#ABA597" stroke-width="1.2" stroke-dasharray="4 4"/><path d="M6,50 C14,50 15,64 22,64 C30,64 32,42 40,42 L52,42 C60,42 61,56 68,56 C76,56 78,34 86,34 L98,34 C106,34 107,48 114,48 C122,48 124,26 132,26 L144,26 C152,26 153,40 160,40 C168,40 170,18 178,18 L190,18" fill="none" stroke="#4A5A44" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 style="margin-top:6px;">About right</h3><p class="small" style="margin:0">Each session lands once you’ve recovered, so small gains add up over weeks and months.</p></div>
+    <div class="card" style="padding:14px 16px;"><svg class="spark" viewBox="0 0 196 92" aria-hidden="true" focusable="false"><line x1="4" x2="192" y1="50" y2="50" stroke="#ABA597" stroke-width="1.2" stroke-dasharray="4 4"/><path d="M6,50 C14,50 15,64 22,64 C30,64 32,41 40,41 C46,41 48,50 52,50 C60,50 61,64 68,64 C76,64 78,41 86,41 C92,41 94,50 98,50 C106,50 107,64 114,64 C122,64 124,41 132,41 C138,41 140,50 144,50 C152,50 153,64 160,64 C168,64 170,41 178,41 C184,41 186,50 190,50" fill="none" stroke="#D4A574" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg><h3 style="margin-top:6px;">Too long a gap</h3><p class="small" style="margin:0">Sessions are so far apart that the effect fades before the next one, and you stay roughly where you are.</p></div>
+  </div>
+  <p class="small muted" style="margin:12px 0 0">A simple model, not a formula: how fast you recover depends on the session, your sleep, food, age, stress and more, and it varies from person to person and week to week.<sup class="ref">1</sup></p>
+
+  <div class="panel-linen" style="margin-top:20px; display:grid; grid-template-columns: 1fr 1.2fr; gap:26px; align-items:center;">
+    <div>
+      <p class="label">Balance, at TAB</p>
+      <p class="quote" style="margin:0; font-size:18px;">Match challenge with recovery and sustainable progression.</p>
+    </div>
+    <p class="small muted" style="margin:0">Transform. Adapt. Balance. is how we work. In training, Balance means progress you can keep making, rather than a burst of effort followed by burnout or injury.</p>
+  </div>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">3</span></span></div>
+</section>
+
+<!-- 4 · Foundations and sleep -->
+<section class="page">
+  <p class="eyebrow">The foundations</p>
+  <h1>Start with the basics</h1>
+  <p class="lead">Recovery has a pecking order. Get the foundations right and the extras become optional; skip them and no extra will make up for it.</p>
+
+  <ol class="plain pyramid" aria-label="Recovery priorities, from the extras at the top to the foundation at the bottom">
+    <li><div class="tier t4"><span>Extras</span></div><p><b>Massage, compression, foam rolling, cold.</b> Helpful for some things, in the right place (page 7).</p></li>
+    <li><div class="tier t3"><span>A sensible plan</span></div><p><b>Rest days, easier days and gradual progress</b>, so recovery has room to happen (page 6).</p></li>
+    <li><div class="tier t2"><span>Food and fluids</span></div><p><b>Enough to eat, enough protein, and fluids</b> through the day and around training (page 5).</p></li>
+    <li><div class="tier t1"><span>Sleep</span></div><p><b>The foundation.</b> Regular, sufficient sleep supports everything above it.</p></li>
+  </ol>
+
+  <hr class="rule" style="margin:26px 0 20px">
+  <div class="grid-2" style="gap:26px; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr);">
+    <div>
+      <h2>How much sleep?</h2>
+      <p>The CDC recommends:<sup class="ref">2</sup></p>
+      <table class="compare sleep" style="margin-top:4px;">
+        <thead><tr><th scope="col">Age</th><th scope="col">Sleep a night</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">18 to 60</th><td class="hi">7 or more hours</td></tr>
+          <tr><th scope="row">61 to 64</th><td class="hi">7 to 9 hours</td></tr>
+          <tr><th scope="row">65 and older</th><td class="hi">7 to 8 hours</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h2>Habits that help</h2>
+      <ul class="dots olive small" style="margin-top:8px;">
+        <li>Go to bed and get up at the same time every day.</li>
+        <li>Keep your bedroom quiet, relaxing and cool.</li>
+        <li>Turn off screens at least 30 minutes before bed.</li>
+        <li>Avoid large meals and alcohol before bed, and caffeine in the afternoon or evening.</li>
+        <li>Keep exercising regularly.<sup class="ref">2</sup></li>
+      </ul>
+      <p class="small muted" style="margin:10px 0 0">Struggling to sleep for weeks, snoring loudly or waking unrefreshed? Talk to your healthcare provider.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">4</span></span></div>
+</section>
+
+<!-- 5 · Fuel -->
+<section class="page">
+  <p class="eyebrow">Fuel and fluids</p>
+  <h1>Fuel for recovery</h1>
+  <p class="lead">Recovery needs raw materials. You don’t need a perfect diet; you need enough, often enough.</p>
+
+  <div class="grid-2" style="margin-top:18px; gap:12px;">
+    <div class="card">
+      <h2 class="h3">Protein: enough, spread through the day</h2>
+      <p class="small">For most people who exercise, the International Society of Sports Nutrition suggests <b>1.4 to 2.0 g of protein per kg of body weight a day</b>, in servings of about <b>20 to 40 g</b>, spread every 3 to 4 hours.<sup class="ref">4</sup> For someone who weighs 70 kg (154 lb), that’s roughly 100 to 140 g a day.</p>
+      <p class="small" style="margin:0">Before or after training both work: the effect of a session lasts at least 24 hours.<sup class="ref">4</sup></p>
+    </div>
+    <div class="card">
+      <h2 class="h3">Over 65? Protein matters more, not less</h2>
+      <p class="small" style="margin:0">An expert group on older adults advises at least <b>1.0 to 1.2 g per kg a day</b>, and <b>1.2 g or more</b> for people who exercise or are otherwise active.<sup class="ref">5</sup> People with severe kidney disease may need to limit protein instead, so talk to your doctor first.<sup class="ref">5</sup></p>
+    </div>
+    <div class="card">
+      <h2 class="h3">Carbohydrate for long or hard sessions</h2>
+      <p class="small" style="margin:0">Carbohydrate refuels working muscles. It matters most for endurance training, long sessions, or training twice in a day.<sup class="ref">4</sup> Skimping on it is one of the things doctors check when fatigue won’t lift.<sup class="ref">3</sup></p>
+    </div>
+    <div class="card">
+      <h2 class="h3">Fluids, and eating enough overall</h2>
+      <p class="small" style="margin:0">Drink through the day and around training, and more when it’s hot or you’ve sweated a lot. Eating too little for the training you do undermines recovery; it’s another of the causes doctors look for when someone stays run down.<sup class="ref">3</sup></p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:16px">Protein at a glance</h2>
+  <table class="compare protein" style="margin-top:8px;">
+    <thead><tr><th scope="col">Body weight</th><th scope="col">Most active adults</th><th scope="col">Active adults over 65</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">121 lb (55 kg)</th><td>77 to 110 g a day</td><td class="hi">66 g a day or more</td></tr>
+      <tr><th scope="row">154 lb (70 kg)</th><td>98 to 140 g a day</td><td class="hi">84 g a day or more</td></tr>
+      <tr><th scope="row">187 lb (85 kg)</th><td>119 to 170 g a day</td><td class="hi">102 g a day or more</td></tr>
+    </tbody>
+  </table>
+  <p class="small muted" style="margin:6px 0 0">Worked from the ranges above (1.4 to 2.0 g per kg; 1.2 g per kg or more over 65) for healthy, active adults. Not a meal plan.<sup class="ref">4,5</sup> Your weight in kg is pounds divided by 2.2.</p>
+
+  <div class="panel-note" style="margin-top:12px; padding:14px 20px; display:grid; grid-template-columns: auto 1fr; gap:16px; align-items:center;">
+    <img src="../../public/brand/icons/integrated-nutrition.svg" alt="" style="width:44px;height:44px;">
+    <p class="small" style="margin:0"><b>Food first.</b> Whole foods can meet most people’s protein needs; supplements are a convenience, not a requirement.<sup class="ref">4</sup> Turning these ranges into meals that fit your week is what Integrated Nutrition at TAB is for. It’s coaching, not medical nutrition therapy: if you have a medical condition, your physician or a registered dietitian sets your diet.</p>
+  </div>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">5</span></span></div>
+</section>
+
+<!-- 6 · Plan and warning signs -->
+<section class="page">
+  <p class="eyebrow">Planning</p>
+  <h1>Plan for recovery, not just training</h1>
+  <p class="lead">The best plan builds recovery in, so it isn’t left to chance.</p>
+
+  <div class="grid-2" style="margin-top:22px; gap:14px;">
+    <div class="card"><h2 class="h3">Rest days are part of the plan</h2><p class="small" style="margin:0">U.S. guidelines advise muscle-strengthening activity on at least 2 days a week, plus 150 to 300 minutes of moderate activity such as brisk walking.<sup class="ref">6</sup> Well spread, that leaves plenty of room for easier days.</p></div>
+    <div class="card"><h2 class="h3">Build up gradually</h2><p class="small" style="margin:0">Introduce new or harder exercises over a week or two rather than all at once. Soreness is most common when you’re starting out, returning after a break, or trying something new.<sup class="ref">7</sup></p></div>
+    <div class="card"><h2 class="h3">After a very sore session</h2><p class="small" style="margin:0">Train lighter and shorter for a day or two, or work the parts of your body that aren’t sore.<sup class="ref">7</sup> Soreness usually peaks a day or two after a session and fades within about four days.<sup class="ref">8</sup></p></div>
+    <div class="card"><h2 class="h3">Count the rest of life</h2><p class="small" style="margin:0">Work, family and stress draw on the same reserves as training.<sup class="ref">1</sup> On a heavy week, an easier session is often the smarter one.</p></div>
+  </div>
+
+  <div class="panel-warm" style="margin-top:20px;">
+    <h2>Signs you need more recovery</h2>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:22px; margin-top:8px;">
+      <ul class="dots small" style="margin:0;">
+        <li>Fatigue that hangs on, even after easier days</li>
+        <li>Performance that drops and stays down</li>
+        <li>Mood changes: flat, irritable or unmotivated<sup class="ref">3</sup></li>
+        <li style="margin-bottom:0">Picking up more illnesses or niggling injuries<sup class="ref">1</sup></li>
+      </ul>
+      <p class="small" style="margin:0">Back off for a while and look at the foundations: sleep, food and the rest of your life. If it doesn’t lift, see your doctor. Persistent fatigue can have medical causes, such as low iron, that are worth ruling out.<sup class="ref">3</sup></p>
+    </div>
+  </div>
+
+  <div class="band-olive" style="margin-top:18px; display:grid; grid-template-columns: 1fr 1.6fr; gap:22px; align-items:center;">
+    <p style="margin:0; font-weight:800; font-size:17px; line-height:1.3;">Get medical help right away</p>
+    <p style="margin:0; font-size:13px;">if, after hard exercise, you have muscle pain far worse than you’d expect, weakness, or dark urine. These can be signs of rhabdomyolysis, a serious muscle injury.<sup class="ref" style="color:var(--white)">9</sup></p>
+  </div>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">6</span></span></div>
+</section>
+
+<!-- 7 · Tools -->
+<section class="page">
+  <p class="eyebrow">The honest picture</p>
+  <h1>Recovery tools: what the evidence says</h1>
+  <p class="lead">Recovery is a big market. Some tools help with some things; none replaces the foundations.</p>
+
+  <table class="compare tools" style="margin-top:20px;">
+    <thead><tr><th scope="col">Tool</th><th scope="col">What the research suggests</th><th scope="col">Our take</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Massage</th><td>In a 2018 review of recovery methods, massage was the most effective for next-day soreness and the feeling of fatigue.<sup class="ref">10</sup></td><td class="hi">Worth it when it fits your training and budget. Timing matters (page 8).</td></tr>
+      <tr><th scope="row">Compression garments</th><td>Can help with the feeling of fatigue.<sup class="ref">10</sup></td><td class="hi">Reasonable if you like them.</td></tr>
+      <tr><th scope="row">Cold-water immersion</th><td>Can ease the feeling of fatigue.<sup class="ref">10</sup> But after every strength session for 12 weeks, it led to smaller gains in strength and muscle than easy active recovery.<sup class="ref">11</sup></td><td class="hi">Not after every strength session. Better kept for when you need to bounce back fast between events.</td></tr>
+      <tr><th scope="row">Foam rolling</th><td>Effects on recovery are minor; it may ease muscle pain a little and suits a warm-up better than recovery.<sup class="ref">12</sup></td><td class="hi">Fine as part of a warm-up. Don’t expect much more.</td></tr>
+      <tr><th scope="row">Stretching</th><td>Doesn’t meaningfully reduce soreness, before or after exercise.<sup class="ref">13</sup></td><td class="hi">Stretch for mobility, not to prevent soreness.</td></tr>
+      <tr><th scope="row">Easy movement</th><td>Exercise is the most effective way to ease soreness, though the relief is temporary.<sup class="ref">7</sup></td><td class="hi">A walk or an easy spin on sore days.</td></tr>
+      <tr><th scope="row">Supplements</th><td>Whole foods can meet protein needs; supplements are a convenience.<sup class="ref">4</sup></td><td class="hi">Food first.</td></tr>
+    </tbody>
+  </table>
+  <p class="small muted" style="margin:10px 0 0">“Our take” is TAB’s reading of the evidence for everyday training, not a rule. If something helps you and does no harm, it may be worth keeping.</p>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">7</span></span></div>
+</section>
+
+<!-- 8 · Massage at TAB -->
+<section class="page">
+  <p class="eyebrow">At TAB</p>
+  <h1>Massage for training recovery</h1>
+  <p class="lead">Massage has some of the better evidence among recovery tools for easing soreness and fatigue.<sup class="ref">10</sup> Here’s how we use it.</p>
+
+  <h2 style="margin-top:22px">Timed around your training</h2>
+  <div class="signal" style="margin-top:12px;">
+    <div class="sig s1"><div class="top"></div><h3>Through a training block</h3><p>Steady maintenance work to keep hard-working muscles moving well between sessions.</p></div>
+    <div class="sig s2"><div class="top"></div><h3>A day or two before an event</h3><p>Light, brisk work only. We save anything deeper for later.</p></div>
+    <div class="sig s3"><div class="top"></div><h3>Recovery days</h3><p>Slower, deeper work once the event or hardest training is behind you.</p></div>
+  </div>
+  <p class="small muted" style="margin:10px 0 0">Tell us your training plan and event dates when you book, so we can time the work.</p>
+
+  <h2 style="margin-top:22px">Techniques often chosen for recovery</h2>
+  <div class="grid-2" style="margin-top:10px; gap:12px;">
+    <div class="card"><h3>Sports massage <span class="muted small" style="font-weight:600">· Moderate</span></h3><p class="small" style="margin:0">Planned around your training and events. Often chosen for recovery during heavy training or a race season.</p></div>
+    <div class="card"><h3>Deep tissue massage <span class="muted small" style="font-weight:600">· Firm</span></h3><p class="small" style="margin:0">Often chosen for recovery from heavy training or physically demanding work. Some soreness for a day or two afterwards is common.</p></div>
+    <div class="card"><h3>Active Release Techniques <span class="muted small" style="font-weight:600">· Moderate</span></h3><p class="small" style="margin:0">Precise pressure with movement. Often chosen for tightness from repetitive use in sport, trades or desk work.</p></div>
+    <div class="card"><h3>Manual lymphatic drainage <span class="muted small" style="font-weight:600">· Very light</span></h3><p class="small" style="margin:0">Very light work, often chosen for gentle recovery when your body needs less, not more.</p></div>
+  </div>
+
+  <div class="panel-linen" style="margin-top:20px;">
+    <p class="label">Connected support, when it helps</p>
+    <div class="grid-3" style="gap:16px;">
+      <p class="small" style="margin:0"><b>Functional Strength</b> plans the training itself: matching challenge with recovery and sustainable progression.</p>
+      <p class="small" style="margin:0"><b>Integrated Nutrition</b> turns fueling ranges into practical routines that fit your week.</p>
+      <p class="small" style="margin:0"><b>Holistic Life Coaching</b> looks at the rest of the load: priorities, boundaries and habits.</p>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">We connect services only when that genuinely supports your goals. Plenty of people simply book a massage.</p>
+  </div>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">8</span></span></div>
+</section>
+
+<!-- 9 · Myths -->
+<section class="page">
+  <p class="eyebrow">Myths and facts</p>
+  <h1>Common myths, and what’s true</h1>
+  <p class="lead">Recovery advice travels fast. Here are the ideas we hear most, and what the evidence says.</p>
+
+  <table class="myths">
+    <thead><tr><th scope="col">You may have heard</th><th scope="col">What’s true</th></tr></thead>
+    <tbody>
+      <tr><td class="m">“No pain, no gain.”</td><td class="f"><b>Soreness isn’t a scorecard.</b>It’s most common when an exercise is new or you’re returning after a break,<sup class="ref">7</sup> so it isn’t a reliable measure of a good session.</td></tr>
+      <tr><td class="m">“Rest days lose progress.”</td><td class="f"><b>Rest days are when progress happens.</b>Hard training without enough recovery leads to stalled or falling performance, not faster gains.<sup class="ref">3</sup></td></tr>
+      <tr><td class="m">“Stretching prevents soreness.”</td><td class="f"><b>It doesn’t, meaningfully.</b>Stretching before or after exercise doesn’t produce a worthwhile drop in soreness.<sup class="ref">13</sup> Stretch for mobility instead.</td></tr>
+      <tr><td class="m">“An ice bath after every workout speeds up gains.”</td><td class="f"><b>It may do the opposite.</b>Used after every strength session, cold-water immersion led to smaller gains in strength and muscle.<sup class="ref">11</sup></td></tr>
+      <tr><td class="m">“You need supplements to recover.”</td><td class="f"><b>Food comes first.</b>Whole foods can meet most people’s protein needs; supplements are a convenience.<sup class="ref">4</sup></td></tr>
+      <tr><td class="m">“Recovery is just about the body.”</td><td class="f"><b>Life counts too.</b>Work, family and stress draw on the same reserves as training.<sup class="ref">1</sup></td></tr>
+    </tbody>
+  </table>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">9</span></span></div>
+</section>
+
+<!-- 10 · Check-in and sources -->
+<section class="page">
+  <p class="eyebrow">Check-in</p>
+  <h1>Your weekly recovery check-in</h1>
+  <p class="lead" style="font-size:17px;">Keeping an eye on how you’re recovering helps you adjust before small problems become big ones.<sup class="ref">1</sup> Two minutes, once a week.</p>
+
+  <div class="grid-2" style="margin-top:18px; gap:16px; grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); align-items:start;">
+    <table class="compare checkin">
+      <thead><tr><th scope="col">This week, how was your…</th><th scope="col">Low</th><th scope="col"></th><th scope="col"></th><th scope="col"></th><th scope="col">Great</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Sleep</th><td><i>1</i></td><td><i>2</i></td><td><i>3</i></td><td><i>4</i></td><td><i>5</i></td></tr>
+        <tr><th scope="row">Energy</th><td><i>1</i></td><td><i>2</i></td><td><i>3</i></td><td><i>4</i></td><td><i>5</i></td></tr>
+        <tr><th scope="row">Soreness (5 = none)</th><td><i>1</i></td><td><i>2</i></td><td><i>3</i></td><td><i>4</i></td><td><i>5</i></td></tr>
+        <tr><th scope="row">Mood</th><td><i>1</i></td><td><i>2</i></td><td><i>3</i></td><td><i>4</i></td><td><i>5</i></td></tr>
+        <tr><th scope="row">Motivation to train</th><td><i>1</i></td><td><i>2</i></td><td><i>3</i></td><td><i>4</i></td><td><i>5</i></td></tr>
+      </tbody>
+    </table>
+    <div class="card check">
+      <h2>Reading it</h2>
+      <p class="small" style="margin:0 0 8px">A simple habit, not a test. If two or more scores are low and stay low, plan easier days and look at the foundations. If they don’t pick up, talk to us, or to your doctor (page 6).</p>
+      <p class="small muted" style="margin:0">Bring it to your next session: it’s a useful conversation starter.</p>
+    </div>
+  </div>
+
+  <hr class="rule" style="margin:20px 0 14px">
+  <p class="label">Sources and notes</p>
+  <ol class="plain sources cols">
+    <li><b>1</b><span>Kellmann M, et al. Recovery and Performance in Sport: Consensus Statement. <i>International Journal of Sports Physiology and Performance.</i> 2018;13(2):240–5.</span></li>
+    <li><b>2</b><span>Centers for Disease Control and Prevention (CDC). <i>About Sleep.</i> May 2024. cdc.gov/sleep</span></li>
+    <li><b>3</b><span>Meeusen R, et al. Prevention, diagnosis, and treatment of the overtraining syndrome: joint consensus statement of the ECSS and ACSM. <i>Medicine &amp; Science in Sports &amp; Exercise.</i> 2013;45(1):186–205.</span></li>
+    <li><b>4</b><span>Jäger R, et al. International Society of Sports Nutrition position stand: protein and exercise. <i>Journal of the International Society of Sports Nutrition.</i> 2017;14:20.</span></li>
+    <li><b>5</b><span>Bauer J, et al. Evidence-based recommendations for optimal dietary protein intake in older people (PROT-AGE). <i>Journal of the American Medical Directors Association.</i> 2013;14(8):542–59.</span></li>
+    <li><b>6</b><span>U.S. Department of Health and Human Services. <i>Physical Activity Guidelines for Americans,</i> 2nd edition. health.gov</span></li>
+    <li><b>7</b><span>Cheung K, Hume P, Maxwell L. Delayed onset muscle soreness: treatment strategies and performance factors. <i>Sports Medicine.</i> 2003;33(2):145–64.</span></li>
+    <li><b>8</b><span>Connolly DA, Sayers SP, McHugh MP. Treatment and prevention of delayed onset muscle soreness. <i>Journal of Strength and Conditioning Research.</i> 2003;17(1):197–208.</span></li>
+    <li><b>9</b><span>CDC, National Institute for Occupational Safety and Health (NIOSH). <i>Signs and Symptoms of Rhabdomyolysis.</i> cdc.gov/niosh/rhabdo</span></li>
+    <li><b>10</b><span>Dupuy O, et al. An evidence-based approach for choosing post-exercise recovery techniques: a systematic review with meta-analysis. <i>Frontiers in Physiology.</i> 2018;9:403.</span></li>
+    <li><b>11</b><span>Roberts LA, et al. Post-exercise cold water immersion attenuates acute anabolic signalling and long-term adaptations in muscle to strength training. <i>Journal of Physiology.</i> 2015;593(18):4285–301.</span></li>
+    <li><b>12</b><span>Wiewelhove T, et al. A meta-analysis of the effects of foam rolling on performance and recovery. <i>Frontiers in Physiology.</i> 2019;10:376.</span></li>
+    <li><b>13</b><span>Herbert RD, de Noronha M, Kamper SJ. Stretching to prevent or reduce muscle soreness after exercise. <i>Cochrane Database of Systematic Reviews.</i> 2011;(7):CD004577.</span></li>
+  </ol>
+  <p class="small muted" style="margin-top:8px; font-size:10.5px;">This guide is general information, not medical or dietary advice, and it doesn’t replace advice from your healthcare provider. TAB Human Performance Center provides massage and bodywork, strength training, nutrition coaching and life coaching within professional scope and works alongside your healthcare team. © 2026 TAB Human Performance Center. Published October 2026.</p>
+  <div class="footer"><span>Training Recovery</span><span>TAB Human Performance Center · <span class="num">10</span></span></div>
+</section>
+
+<!-- 11 · Back cover -->
+<section class="page back">
+  <div class="back-inner">
+    <img src="../../public/brand/logo-stacked-white.svg" alt="TAB Human Performance Center">
+    <h1>Start Where You Are.</h1>
+    <p class="lead">Not sure where to begin? Tell us what you’re working on, and we’ll point you to the right starting point.</p>
+    <div class="contact">
+      <div><div class="k">Online</div><div>tabhumanperformance.com</div></div>
+      <div><div class="k">Call</div><div>(810) 844-1283</div></div>
+      <div><div class="k">Email</div><div>info@tabhumanperformance.com</div></div>
+      <div><div class="k">Visit</div><div>7487 Grand River Ave<br>Brighton, MI 48114</div></div>
+    </div>
+  </div>
+  <p class="area">Serving Livingston County</p>
+</section>
+
+</body>
+</html>

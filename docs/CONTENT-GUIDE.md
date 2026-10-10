@@ -319,7 +319,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
-| 1.8 | 2026-10-10 | Guides Claude writes: how to ask for one, upload it and get it changed | The first two guides ("Your first massage", "Lymphatic drainage basics") |
+| 1.8 | 2026-10-10 | Guides Claude writes: how to ask for one, upload it and get it changed | The first guides ("Your first massage", "Lymphatic drainage basics", "Training recovery") |
 | 1.7 | 2026-10-10 | The fast lane: what qualifies, what you see on the change request, what happens when other changes are waiting, rolling back; status line brought up to date | Fast lane built (C32, proposed D-070) |
 | 1.6 | 2026-10-08 | Topics list their subjects and a subject opens its resource (a document downloads, an email-first one opens its form, a link opens its page); links can be pages on this site; saving on `main` is turned off, with a safety net that moves anything there into a change request | Owner requests 2026-10-08: "if the artifact is an uploaded document, download it; if it's a hyperlink… it takes them to that link"; "we need a better process to prevent this from being saved to main" |
 | 1.5 | 2026-10-07 | Home, The TAB Method, About, Our Story and Our Team in the editor; the resource library (links, PDF documents, email-first downloads, counts); team photos and confirmed credentials; new rules, pages and terms | Owner request, 2026-10-07 (C35): all three in one change, email required for downloads, daily counts, documents stored with the site |
