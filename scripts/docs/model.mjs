@@ -149,7 +149,7 @@ function loadDecisions() {
   const master = tables(parse(read(MASTER)));
   for (const r of master.find((t) => t.section === "Decision register")?.rows ?? []) {
     if (!/^D-\d{3}$/.test(r.ID)) continue;
-    const st = /superseded/i.test(r.Status) ? "superseded" : /accepted/i.test(r.Status) ? "accepted" : "proposed";
+    const st = /superseded/i.test(r.Status) ? "superseded" : /accepted|baselined/i.test(r.Status) ? "accepted" : "proposed";
     out.push({ id: r.ID, title: plain(r.Decision), status: st, statusWord: r.Status, area: r.Workstream, date: r.Decided, source: "Master decision record" });
   }
   const reg = tables(parse(read("docs/requirements-register.md")));
