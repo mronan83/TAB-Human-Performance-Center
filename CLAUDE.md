@@ -99,9 +99,11 @@ Never print, log or commit token values.
   reason. Design-lane requests: questions, then options with effort and risks; build nothing until the owner chooses
   one; then the normal G2 and G3 gates. A request that fits the content lane can be moved there. A daily routine
   ("Website request check", 07:52 Detroit time, C33) does the triage step only; it never builds or releases.
-  **Fast lane (in force once C32 ships the automation):** a PR authored by the owner that changes only content files
-  and is green is merged and promoted by the workflow without a separate approval. It never covers Claude's PRs, an
-  admin's PR, or any change outside the content files; those keep G2 and G3.
+  **Fast lane (C32, `content-fast-lane.yml`, in force once the `VERCEL_TOKEN` secret exists, A32):** a content change
+  request whose every commit the owner made in the editor (`keystatic-cloud[bot]`, the owner as only co-author), that
+  changes only content files and is green, is merged and promoted by the workflow without a separate approval; if other
+  changes wait for release it merges without promoting. It never covers Claude's PRs, an admin's PR, or any change
+  outside the content files; those keep G2 and G3. A fast-lane release counts as approved in the G3 pre-promotion list.
 - G3 Release — owner approves every production promotion and every production migration.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`
   builds a production deployment that is not live. Claude sends its URL; after the owner checks it and says "promote",

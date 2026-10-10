@@ -1,0 +1,42 @@
+# The content fast lane (C32, proposed D-070): after CI passes on a content editor branch, the owner's own content
+# change is merged and that exact production build promoted, without a separate approval. Everything else (an admin's
+# change, anything outside the content files, a release with other changes waiting) keeps G2 and G3. The rules and steps
+# are in scripts/fast-lane.ts, always taken from main (this trigger checks out the default branch, never the content
+# branch). Off until the VERCEL_TOKEN secret exists (backlog A32).
+name: Content fast lane
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: content-fast-lane
+  cancel-in-progress: false
+
+jobs:
+  ship:
+    name: Merge and publish the owner's content change
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'content/') &&
+      github.event.workflow_run.event != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Check the change, merge it, promote its build
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          FAST_LANE_OWNER: ${{ vars.FAST_LANE_OWNER || 'mronan83' }}
+        run: node --experimental-strip-types scripts/fast-lane.ts

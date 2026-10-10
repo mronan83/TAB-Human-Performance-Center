@@ -33,8 +33,7 @@ _Last updated: 2026-10-07, the content editor (C31) live and connected to Keysta
 | C35b | Content editor, last pages: FAQ, Start's text and client policies; adding photos to the library | Platform | Claude | M | — |
 | A35 | Resources: add your guides and links (Resources → Add) on a new branch, then link each to its subject (Resource topics → Opens this resource). "Your first massage" is done (2026-10-08) | Content | Owner | S | — |
 | C36 | Store resource requests (who asked for which guide) alongside Start and contact submissions once guardrail 4's conditions are met, so TAB Practice lists them; and a mailing-list export for those who ticked news | Portal | Claude | S | A15 |
-| C32 | Fast lane: a GitHub Action that squash-merges an owner-authored, content-only, green PR and promotes that exact production build through the Vercel API; anything else keeps G2 and G3 First confirm that a Keystatic Cloud edit can still be traced to the owner; if not, the fast lane covers only the owner's direct edits [proposed D-070] | Platform | Claude | M | C31, A32 |
-| A32 | Create a Vercel token scoped to the team and add it as the GitHub secret `VERCEL_TOKEN` (Claude sends the steps with C32) | Accounts | Owner | S | C32 |
+| A32 | Switch on the fast lane: in Vercel → Account Settings → Tokens, create a token named "GitHub fast lane", scope "mronan83's projects", expiry 1 year; then in GitHub → the repository → Settings → Secrets and variables → Actions → New repository secret, name `VERCEL_TOKEN`, paste the token. Until then your content changes wait for approval as now | Accounts | Owner | S | — |
 
 ## P2 · My TAB go-live (`CLAUDE.md` guardrail 4)
 
@@ -76,7 +75,9 @@ _Last updated: 2026-10-07, the content editor (C31) live and connected to Keysta
 
 ## Recently done
 
-- **Website stats error fixed** (2026-10-10, PR open): Website stats, the client page's resource picks and guide requests failed on the live site once the first PDF was uploaded, because a deployed page carries only the files traced into it. Uploads are now checked at build time only, every page that reads the library ships it, and a check inspects the build so it can't recur.
+- **Content fast lane** (built 2026-10-10, C32, PR open): the owner's own content changes from the editor are merged and promoted automatically after CI; anyone else's change, or one touching code, gets a comment and waits for approval. Off until A32 (the Vercel key).
+
+- **Website stats error fixed** (merged 2026-10-10, #60): Website stats, the client page's resource picks and guide requests failed on the live site once the first PDF was uploaded, because a deployed page carries only the files traced into it. Uploads are now checked at build time only, every page that reads the library ships it, and a check inspects the build so it can't recur.
 
 - **Resource subjects open their resource; saving on main turned off** (live 2026-10-09): topic cards list their subjects, and a subject opens its PDF, its email-first form or its link (also pages on this site). The editor refuses to save on `main` and says to start a branch; a safety-net Action moves anything that still lands there into a change request. The owner's first guide, "Your first massage" (an 11-page PDF, email first), is linked to its subject.
 

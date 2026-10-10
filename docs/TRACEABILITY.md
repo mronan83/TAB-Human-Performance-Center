@@ -151,9 +151,9 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | CMS-001 | Content types for services, practitioners, articles, programs and more | P1 | Should | Partial: services, the techniques guide, Home, the TAB Method, About, Our Story, team members and resources (links and documents) are content-editor types (C31, C35); articles and programs later | F-57, F-58, F-44 | e2e (`e2e/content.spec.ts`) |
 | CMS-002 | Taxonomy by pillar, stage, need, format and audience | P1 | Could | Partial: resources by topic and pillar, and by format (link or document) (C35) | F-58, F-44 | e2e (`e2e/resources.spec.ts`) |
 | CMS-003 | One canonical resource, assigned by reference, never copied | P2 | Should | Partial: assignments hold a link, not a CMS reference | F-39, F-44 | — |
-| CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Partial: every edit is a change request with checks and the owner's approval, and saving on `main` is refused in the editor with a safety net that moves anything there into a change request; review dates later | F-57, F-59, F-44 | e2e (`e2e/content.spec.ts`) |
+| CMS-004 | Governance fields: owner, scope and accessibility review, review dates | P1 | Could | Partial: every edit is a change request with checks and the owner's approval (or, for the owner's own content changes, the fast lane), and saving on `main` is refused in the editor with a safety net that moves anything there into a change request; review dates later | F-57, F-59, F-60, F-44 | e2e (`e2e/content.spec.ts`) |
 | CMS-005 | Taglines, headlines and CTA labels are content, not code | P1 | Must | Partial: owner-editable on the service pages, techniques guide, Home, the TAB Method and the About pages (C31, C35); FAQ, Start and policies next | F-02, F-57, F-58, F-44 | e2e (`e2e/content.spec.ts`) |
-| CMS-006 | Documented content-management process: lanes, request forms, what is editable, checks, glossary | P1 | Must | Verified | F-55 | CI (`npm run docs:check`) |
+| CMS-006 | Documented content-management process: lanes, request forms, what is editable, checks, glossary | P1 | Must | Verified | F-55, F-60 | CI (`npm run docs:check`) |
 | CMS-007 | Website change requests filed and tracked in TAB Practice, with status and notes | P1 | Must | Verified | F-55 | rls, e2e |
 
 ### Integrations (INT)
@@ -303,7 +303,8 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
-| F-44 | Content editor for the last pages (FAQ, Start's text, client policies), then the fast lane | Planned | CMS-001 to CMS-005 | C35, C32 (proposed D-069, D-070) |
+| F-44 | Content editor for the last pages (FAQ, Start's text, client policies) | Planned | CMS-001 to CMS-005 | C35b (proposed D-069) |
+| F-60 | Content fast lane: the owner's own editor changes, touching only content files, are merged and promoted automatically after CI; anything else keeps the approvals | Built; switched on by A32 | CMS-004, CMS-006 | D-070 (proposed) | `.github/workflows/content-fast-lane.yml`, `scripts/fast-lane.ts` | `e2e/fast-lane.spec.ts` (paths, owner-only commits, release rule, workflow trigger) |
 | F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Planned | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
@@ -427,6 +428,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.27 | CMS-006 and F-55: website change requests (two GitHub issue forms, linked from TAB Practice → Settings) and the Website content guide; F-44 is now Keystatic and the block library (C31) then the fast lane (C32), replacing Payload (C8) | Owner request 2026-10-07, proposed D-069 and D-070 |
 | 2026-10-07 | 1.28 | STAFF-011 and F-56: the website admin role; CMS-007: website requests move into TAB Practice (status, notes, owner alert), and the GitHub issue forms are retired; F-55 updated | Owner rulings 2026-10-07, proposed D-071 |
 | 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
+| 2026-10-10 | 1.35 | F-60 added: the content fast lane (C32); F-44 is now the last pages only (C35b); CMS-004 and CMS-006 updated | Fast lane built, owner request 2026-10-10 ("Start C32"); proposed D-070 |
 | 2026-10-10 | 1.34 | F-58: the uploaded files are checked at build time only, every route that reads the library ships it, and a check inspects the build for it | Production error on Website stats (digest 4077400647), owner report 2026-10-10 |
 | 2026-10-08 | 1.33 | F-58: topics list subjects that open their resource; links can be site pages. F-59 added: saving on `main` turned off, with a safety net. CMS-004 updated | Owner requests 2026-10-08 (two editor saves had landed on `main`); proposed D-075, D-076 |
 | 2026-10-07 | 1.32 | F-58: Home, the TAB Method, About, Our Story, Our Team and the resource library in the content editor (C35); F-05, F-44, WEB-010, CMS-001 and CMS-002 updated | Owner request, 2026-10-07: "all three in one PR", email required for downloads, daily counts, documents in the repository; proposed D-073, D-074 |
