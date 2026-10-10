@@ -107,13 +107,17 @@ export function visibleResources(): Resource[] {
   return loadLibrary().resources.filter((r) => !r.draft || showDrafts()).sort((a, b) => b.added.localeCompare(a.added) || a.title.localeCompare(b.title));
 }
 export const findResource = (slug: string) => visibleResources().find((r) => r.slug === slug);
+const sameTitle = (a: string, b: string) => a.trim().replace(/\s+/g, " ").toLowerCase() === b.trim().replace(/\s+/g, " ").toLowerCase();
 /** One line in a topic's list: a resource people can open, or a subject still to come. */
 export type TopicRow = { kind: "resource"; title: string; resource: Resource } | { kind: "planned"; title: string };
 
 /**
  * Each topic's list for the Resources page: its subjects in order, a subject linked to a visible resource becoming that
  * resource (a draft one stays "coming soon" on the live site), then the topic's other visible resources, newest first.
- * Topics with nothing to list are left out.
+ * A subject left unlinked opens the topic's otherwise unlinked visible resource with the same title (ignoring case and
+ * spacing), so a resource added for a planned subject fills its line instead of being listed twice (owner report
+ * 2026-10-10: "Lymphatic drainage basics" showed as both "Coming soon" and the PDF). Topics with nothing to list are
+ * left out.
  */
 export function topicLists(): (ResourceTopic & { rows: TopicRow[] })[] {
   const { topics } = loadLibrary();
@@ -122,12 +126,18 @@ export function topicLists(): (ResourceTopic & { rows: TopicRow[] })[] {
   return topics
     .map((t) => {
       const linked = new Set(t.subjects.map((sj) => sj.resource).filter(Boolean));
+      const unlinked = visible.filter((r) => r.topic === t.slug && !linked.has(r.slug));
+      const matched = new Set<string>();
       const rows: TopicRow[] = [
         ...t.subjects.map((sj): TopicRow => {
-          const r = sj.resource ? bySlug.get(sj.resource) : undefined;
+          let r = sj.resource ? bySlug.get(sj.resource) : undefined;
+          if (!sj.resource) {
+            r = unlinked.find((x) => !matched.has(x.slug) && sameTitle(x.title, sj.title));
+            if (r) matched.add(r.slug);
+          }
           return r ? { kind: "resource", title: sj.title, resource: r } : { kind: "planned", title: sj.title };
         }),
-        ...visible.filter((r) => r.topic === t.slug && !linked.has(r.slug)).map((r): TopicRow => ({ kind: "resource", title: r.title, resource: r })),
+        ...unlinked.filter((r) => !matched.has(r.slug)).map((r): TopicRow => ({ kind: "resource", title: r.title, resource: r })),
       ];
       return { ...t, rows };
     })

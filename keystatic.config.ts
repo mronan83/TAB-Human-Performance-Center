@@ -155,9 +155,9 @@ const resourceTopics = collection({
     subjects: fields.array(
       fields.object({
         title: text("Subject", R.subject, { description: "As it appears in the topic's list, e.g. Your first massage." }),
-        resource: fields.relationship({ label: "Opens this resource", description: "Choose the resource this subject opens: a document downloads, a link opens its page. Leave it empty and the subject says Coming soon. The resource must be filed under this topic.", collection: "resources" }),
+        resource: fields.relationship({ label: "Opens this resource", description: "Choose the resource this subject opens: a document downloads, a link opens its page. The resource must be filed under this topic. Left empty, the subject opens this topic's published resource with the same title, or says Coming soon if there isn't one.", collection: "resources" }),
       }),
-      { label: "Subjects", description: "The topic's list, in order. Published resources you haven't linked here are added at the end.", itemLabel: (p) => `${p.fields.title.value}${p.fields.resource.value ? " → linked" : " (coming soon)"}`, validation: { length: { max: 12 } } },
+      { label: "Subjects", description: "The topic's list, in order. A published resource of this topic that no subject opens, and whose title matches none, is added at the end.", itemLabel: (p) => `${p.fields.title.value}${p.fields.resource.value ? " → linked" : " (not linked)"}`, validation: { length: { max: 12 } } },
     ),
   },
 });

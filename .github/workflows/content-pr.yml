@@ -29,12 +29,20 @@ jobs:
             echo "Change request #$existing is already open for $BRANCH; this save updates it."
             exit 0
           fi
+          # Creating a branch in the editor pushes it before anything is saved on it: nothing to propose yet.
+          ahead=$(gh api "repos/$GITHUB_REPOSITORY/compare/main...$BRANCH" --jq '.ahead_by')
+          if [ "$ahead" = "0" ]; then
+            echo "$BRANCH has no saves yet; its change request opens with the first save."
+            exit 0
+          fi
           body=$(printf '%s\n' \
-            "A content change saved in the content editor (branch \`$BRANCH\`)." \
+            "A content change saved in the content editor, on the branch \`$BRANCH\`." \
             "" \
-            "- **Checks:** the CI run on this branch's latest save (brand language, scope of practice, content rules, accessibility, phones, links)." \
+            "**What happens next**" \
+            "- **Checks** run on every save, in about 5 minutes: brand language, scope of practice, content rules, accessibility, phones and links. They show at the foot of this page." \
             "- **Preview:** Vercel's preview link appears below once it builds." \
-            "- **Publishing:** the owner approves, then Claude merges and the owner promotes (CLAUDE.md, G2 and G3). Owner-only content changes will use the fast lane once it ships (C32)." \
+            "- **The owner's own change** (every save on this branch made by the owner in the editor, content files only): once the checks pass, the content fast lane merges it, puts it live and comments **Live** here, usually within 10 minutes of the save. **Please don't merge it yourself:** a merge doesn't publish anything, and it stops the fast lane." \
+            "- **Anyone else's change:** the fast lane comments to say why it needs the owner's approval. Once the owner approves, Claude merges it and the owner promotes the release." \
             "" \
-            "See the Website content guide for the workflow.")
+            "Step by step: the Website content guide (docs/CONTENT-GUIDE.md), under \"Edit the website\".")
           gh pr create --repo "$GITHUB_REPOSITORY" --head "$BRANCH" --base main --title "Content: ${BRANCH#content/}" --body "$body"

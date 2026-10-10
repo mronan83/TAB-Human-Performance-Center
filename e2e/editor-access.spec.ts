@@ -1,4 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test, type BrowserContext } from "@playwright/test";
+import { contentSecurityPolicy } from "../lib/csp";
 import { afterSignIn, canEditWebsite, editorGate, nextParam, nextQuery } from "../lib/editor-access";
 import type { Viewer } from "../lib/portal/types";
 
@@ -60,4 +63,23 @@ test("the owner and website admins reach the editor from TAB Practice, with a fu
     expect(res?.headers()["content-security-policy"], role).toContain("https://api.keystatic.cloud");
     await expect(page.getByRole("heading", { name: "The content editor isn’t connected yet" }), role).toBeVisible();
   }
+});
+
+test("the editor's security policy lets in every host Keystatic's browser code fetches from", () => {
+  // The repository is public, so Keystatic reads files from raw.githubusercontent.com; when that host was missing, every
+  // entry not already cached in the editor's browser failed to open (the resource topics, 2026-10-10). Reading the hosts
+  // from Keystatic's own code keeps this true after an upgrade.
+  const dist = path.join(process.cwd(), "node_modules/@keystatic/core/dist");
+  const browserCode = fs.readdirSync(dist).filter((f) => f.endsWith(".js") && !/\.(node|worker|react-server)\./.test(f));
+  const hosts = new Set<string>();
+  for (const f of browserCode) {
+    const js = fs.readFileSync(path.join(dist, f), "utf8");
+    for (const m of js.matchAll(/fetch\(`(https:\/\/[^/`$]+)/g)) hosts.add(m[1]);
+    for (const m of js.matchAll(/KEYSTATIC_CLOUD_API_URL = '(https:\/\/[^']+)'/g)) hosts.add(m[1]);
+  }
+  expect([...hosts].sort()).toEqual(["https://api.github.com", "https://api.keystatic.cloud", "https://raw.githubusercontent.com"]);
+  const connect = contentSecurityPolicy(undefined, { editor: true }).split("; ").find((d) => d.startsWith("connect-src "))!.split(" ");
+  for (const host of hosts) expect(connect, host).toContain(host);
+  // Only the editor gets them.
+  expect(contentSecurityPolicy()).not.toContain("raw.githubusercontent.com");
 });

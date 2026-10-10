@@ -13,7 +13,10 @@ const deploymentEnv = process.env.NEXT_PUBLIC_VERCEL_ENV ?? process.env.VERCEL_E
  * - Everywhere: no framing (clickjacking), no plugins, no <base> rewriting, and data and form posts only to allowed hosts.
  *
  * - The content editor (/keystatic, `editor`): also Keystatic Cloud (sign-in and saving) and GitHub (where the content
- *   lives, and editors' profile pictures). Proposed D-069 and D-071.
+ *   lives, and editors' profile pictures). Proposed D-069 and D-071. The repository is public, so Keystatic reads each
+ *   file's contents from raw.githubusercontent.com instead of through Keystatic Cloud; without it, any entry not already
+ *   cached in the editor's browser fails to open (the resource topics did, 2026-10-10). e2e/editor-access.spec.ts checks
+ *   this list against the hosts Keystatic's own code fetches from.
  *
  * A new third-party service needs its hosts here, or the browser blocks it (e2e/security.spec.ts reports violations).
  */
@@ -42,7 +45,7 @@ export function contentSecurityPolicy(nonce?: string, opts: { editor?: boolean }
   };
 
   if (opts.editor) {
-    directives["connect-src"].push("https://api.keystatic.cloud", "https://keystatic.cloud", "https://api.github.com");
+    directives["connect-src"].push("https://api.keystatic.cloud", "https://keystatic.cloud", "https://api.github.com", "https://raw.githubusercontent.com");
     directives["img-src"].push("https://avatars.githubusercontent.com", "https://keystatic.cloud");
   }
   if (preview) {
