@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.0
+version: 3.1
 updated: 2026-10-10
 ---
 
@@ -100,7 +100,8 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - Up to two editors. Each needs a website admin account in TAB Practice (Settings → Website admins), because the editor opens only from there (C38), and a Keystatic Cloud invitation. Until the site is past Vercel login (C1), they also need to be Vercel team members.
 
 ### C38 · The content editor's front door
-- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Status:** Done · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Done:** 2026-10-10 · #64
 - **Requirements:** STAFF-011, SEC-001, SEC-015
 - **Done when:** `/keystatic` opens only for the owner and website admins signed in to TAB Practice with two-step verification, signing in from the editor returns to it, and TAB Practice links to it.
 - Owner ruling 2026-10-10 (proposed D-077). Single sign-on into Keystatic Cloud isn't available, so this makes TAB Practice the one door: Keystatic asks for its own sign-in only when its session on that device lapses.
@@ -522,11 +523,13 @@ Improvements and options with no launch or go-live date riding on them.
 
 ## Release notes
 
-- **The content editor's front door** (2026-10-10, C38, PR open): the editor opens from TAB Practice → Edit the website, for the owner and website admins only, after the usual password and two-step sign-in; starting at `/keystatic` signs you in and brings you back. Owner ruling: "yes, build the front door, owner and admins only".
+- **The content editor's front door** (live 2026-10-10, C38, #64): the editor opens from TAB Practice → Edit the website, for the owner and website admins only, after the usual password and two-step sign-in; starting at `/keystatic` signs you in and brings you back. Owner ruling: "yes, build the front door, owner and admins only".
 
-- **Living documents redesigned** (2026-10-10, PR open): the architecture, data model, requirements, backlog and content guide pages rebuilt as one connected set with a new user stories page; every ID links to its home and shows a hover card; the backlog lists every item with its status, dependencies and what it unblocks.
+- **Lymphatic drainage basics** (live 2026-10-10, #63): the owner's second guide, a PDF under Massage and recovery on `/resources`, added in the editor.
 
-- **Content fast lane** (merged 2026-10-10, C32, #61): the owner's own content changes from the editor are merged and promoted automatically after CI; anyone else's change, or one touching code, gets a comment and waits for approval. Off until A32 (the Vercel key).
+- **Living documents redesigned** (live 2026-10-10, #62): the architecture, data model, requirements, backlog and content guide pages rebuilt as one connected set with a new user stories page; every ID links to its home and shows a hover card; the backlog lists every item with its status, dependencies and what it unblocks.
+
+- **Content fast lane** (live 2026-10-10, C32, #61): the owner's own content changes from the editor are merged and promoted automatically after CI; anyone else's change, or one touching code, gets a comment and waits for approval. Off until A32 (the Vercel key).
 
 - **Website stats error fixed** (live 2026-10-10, #60): Website stats, the client page's resource picks and guide requests failed on the live site once the first PDF was uploaded, because a deployed page carries only the files traced into it. Uploads are now checked at build time only, every page that reads the library ships it, and a check inspects the build so it can't recur.
 
