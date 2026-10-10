@@ -1361,7 +1361,7 @@ What each person needs from TAB Human Performance Center's public website, My TA
 - **Priority:** Must
 - **Phase:** P2
 - **Requirements:** SEC-015, SEC-003, SEC-020
-- **Delivered by:** F-53, F-54
+- **Delivered by:** F-53, F-54, C40
 - **Draft:** yes
 
 1. **Given** /practice/login **when** a practitioner signs in with email and password **then** they must enter the 6-digit code from their authenticator app before seeing anything, setting the app up the first time.
@@ -1369,6 +1369,7 @@ What each person needs from TAB Human Performance Center's public website, My TA
 3. **Given** a forgotten or first password **when** the practitioner asks for it **then** an emailed link signs them in once, **and** a new password needs at least 12 characters, is checked against known breaches and needs a fresh authenticator code to change.
 4. **Given** a staff session **when** it has been idle for 7 days, or 30 days have passed since sign-in however active, **then** it ends.
 5. **Given** a staff member **when** they try to remove their own two-step requirement **then** it is refused.
+6. **Given** a staff member completes the second step **when** TAB Practice opens **then** it shows its menu and full layout straight away, without reloading the page.
 
 ### US-1108 · Use a passkey as my second step
 - **As a** practitioner **I want** to confirm my sign-in with Face ID, Touch ID or Windows Hello **so that** the second step is quicker without being weaker

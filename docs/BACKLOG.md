@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.2
+version: 3.3
 updated: 2026-10-10
 ---
 
@@ -28,7 +28,13 @@ The single list of remaining work for TAB Human Performance Center, with what ea
 
 ## P0 · Now
 
-Risk, or work that blocks most of the rest. Nothing is here now.
+Risk, or work that blocks most of the rest.
+
+### C40 · TAB Practice opens without its menu after signing in
+- **Status:** In review · **Owner:** Claude · **Category:** Portal · **Size:** S
+- **Requirements:** PORTAL-001, SEC-015
+- **Done when:** after the second sign-in step, TAB Practice (and My TAB, once open) shows its menu and full layout straight away, without a reload; the browser check reproduces the old fault and passes on the fix.
+- Owner report 2026-10-10, with a screenshot: after signing in from the website, the portal loaded unscaled and without the sidebar until the page was refreshed. Each area had one layout that chose between the sign-in frame and the portal frame from the address, and Next.js keeps a shared layout as it is when moving between its pages in the app. Sign-in and the portal now have separate layouts (route groups); addresses are unchanged.
 
 ## P1 · Public-site launch
 
@@ -531,6 +537,8 @@ Improvements and options with no launch or go-live date riding on them.
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Release notes
+
+- **TAB Practice opens with its menu after signing in** (2026-10-10, C40, PR open): signing in no longer lands on an unscaled page without the sidebar that needed a refresh; the same fix covers My TAB for when it opens.
 
 - **Editor fixes and the editing guide** (2026-10-10, C39, PR open): every entry opens in the editor again (the resource topics didn't); a change request waits for a branch's first save, and its description says not to merge it by hand; a subject left unlinked opens its topic's resource with the same title, so "Lymphatic drainage basics" is listed once; the Website content guide leads with a step-by-step walkthrough, a map of the editor, a timeline from save to live, screenshots, worked examples and troubleshooting. The fast lane is on (A32, the owner's Vercel key).
 
