@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.4
+version: 3.5
 updated: 2026-10-10
 ---
 
@@ -122,6 +122,13 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - Released 2026-10-10 (#65). Waiting only on the last check: the owner's first content change through the fast lane.
 - Owner report 2026-10-10: the resource topics wouldn't open in the editor, and "Lymphatic drainage basics", merged by hand, wasn't on the site, then showed as both "Coming soon" and the PDF. The topics failed because this public repository makes Keystatic read files from raw.githubusercontent.com, which the editor's security policy didn't allow; the merge published nothing because only a promotion does, and merging by hand stops the fast lane.
 - Owner request 2026-10-10: "a user guide and workflow instructions on how to make edits to the website… where to start, what to do, and how to do it". The Website content guide now leads with it.
+
+### C41 · Fast lane: documentation doesn't hold a release
+- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Depends on:** C32
+- **Requirements:** CMS-004, CMS-006
+- **Done when:** with only documentation merged since the last release, the owner's content change still goes live through the fast lane, and its Live comment says documentation rode along; anything that changes the site still waits for the owner's promotion.
+- Raised 2026-10-10 after #67 (documentation only) left main ahead of the live site, which would have held the owner's first fast-lane edit at "Not live yet". The lane now compares the live commit with main and treats `docs/` and top-level Markdown as never reaching the website. Owner: "yes build it".
 
 ### C35b · Content editor, last pages
 - **Status:** Ready · **Owner:** Claude · **Category:** Platform · **Size:** M
@@ -539,6 +546,8 @@ Improvements and options with no launch or go-live date riding on them.
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Release notes
+
+- **Documentation no longer holds the fast lane** (2026-10-10, C41, PR open): the owner's content change goes live by itself even when only documentation has been merged since the last release; the Live comment says so.
 
 - **Merged branches deleted automatically** (2026-10-10, owner setting in GitHub): a content branch disappears once its change is merged, so the editor's branch list shows only work in progress; the guide says what "Branch not found" means.
 
