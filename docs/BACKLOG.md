@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.5
+version: 3.6
 updated: 2026-10-10
 ---
 
@@ -124,11 +124,12 @@ The public website on `tabhumanperformance.com`, targeted for 1 November 2026 (A
 - Owner request 2026-10-10: "a user guide and workflow instructions on how to make edits to the website… where to start, what to do, and how to do it". The Website content guide now leads with it.
 
 ### C41 · Fast lane: documentation doesn't hold a release
-- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Status:** In progress · **Owner:** Claude · **Category:** Platform · **Size:** S
 - **Depends on:** C32
 - **Requirements:** CMS-004, CMS-006
 - **Done when:** with only documentation merged since the last release, the owner's content change still goes live through the fast lane, and its Live comment says documentation rode along; anything that changes the site still waits for the owner's promotion.
 - Raised 2026-10-10 after #67 (documentation only) left main ahead of the live site, which would have held the owner's first fast-lane edit at "Not live yet". The lane now compares the live commit with main and treats `docs/` and top-level Markdown as never reaching the website. Owner: "yes build it".
+- Released 2026-10-10 (#68), with the rule covered by tests. Waiting only on the first real case: an owner's change made while documentation waits for release.
 
 ### C35b · Content editor, last pages
 - **Status:** Ready · **Owner:** Claude · **Category:** Platform · **Size:** M
@@ -547,7 +548,7 @@ Improvements and options with no launch or go-live date riding on them.
 
 ## Release notes
 
-- **Documentation no longer holds the fast lane** (2026-10-10, C41, PR open): the owner's content change goes live by itself even when only documentation has been merged since the last release; the Live comment says so.
+- **Documentation no longer holds the fast lane** (live 2026-10-10, C41, #68): the owner's content change goes live by itself even when only documentation has been merged since the last release; the Live comment says so.
 
 - **Merged branches deleted automatically** (2026-10-10, owner setting in GitHub): a content branch disappears once its change is merged, so the editor's branch list shows only work in progress; the guide says what "Branch not found" means.
 
