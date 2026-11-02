@@ -4,7 +4,7 @@ eyebrow: TAB Human Performance Center · Requirements
 heading: Requirements & Feature Traceability
 owner: Matthew Ronan
 updated: 2026-10-10
-version: 1.41
+version: 1.42
 ---
 
 <!-- Edit this file, not the page. scripts/docs/render-traceability.mjs builds the page from it (npm run docs:html), and
@@ -312,7 +312,7 @@ The public site explains TAB and helps people find a starting point; My TAB carr
 | ID | Feature | Status | Requirements | Backlog |
 | --- | --- | --- | --- | --- |
 | F-44 | Content editor for the last pages (FAQ, Start's text, client policies) | Planned | CMS-001 to CMS-005 | C35b (proposed D-069) |
-| F-60 | Content fast lane: the owner's own editor changes, touching only content files, are merged and promoted automatically after CI, also when only documentation waits for release; anything else keeps the approvals | Verified: switched on 2026-10-10 (A32); first release through it pending | CMS-004, CMS-006 | D-070 (proposed) | `.github/workflows/content-fast-lane.yml`, `scripts/fast-lane.ts` | `e2e/fast-lane.spec.ts` (paths, owner-only commits, release rule, workflow trigger) |
+| F-60 | Content fast lane: the owner's own editor changes, touching only content files, are merged and promoted automatically after CI, also when only documentation waits for release, and also when the owner merges them by hand (published once CI passes on `main`); a failed check is explained on the change request; anything else keeps the approvals | Verified: switched on 2026-10-10 (A32); first release through it pending | CMS-004, CMS-006 | D-070 (proposed) | `.github/workflows/content-fast-lane.yml`, `scripts/fast-lane.ts` | `e2e/fast-lane.spec.ts` (paths, owner-only commits, release rule, workflow trigger) |
 | F-45 | Sign-in plumbing: any-browser sign-in and invitation links (C5, live 2026-10-06; live test pending); auth URLs, Resend email and branded templates done 2026-10-06; staff MFA in F-53 | Built: live 2026-10-06; the live invitation test is part of A15 | PORTAL-001, SEC-003, SEC-014, SEC-015 | C5, A15 |
 | F-46 | Stage-readiness prompts | Planned | STAFF-006 | C14 |
 | F-47 | AI program drafting (templates only) | Planned | STAFF-009 | C13, A24 |
@@ -422,6 +422,7 @@ Claude adds a row for every change to this doc: what changed and which merge, ru
 | 2026-10-07 | 1.29 | CMS-007: request alerts go to matthew@ and info@; a daily routine triages new requests (C33) | Owner, 2026-10-07: "both", "yes" |
 | 2026-10-10 | 1.35 | F-60 added: the content fast lane (C32); F-44 is now the last pages only (C35b); CMS-004 and CMS-006 updated | Fast lane built, owner request 2026-10-10 ("Start C32"); proposed D-070 |
 | 2026-10-10 | 1.36 | Rebuilt as the requirements hub of one connected set of pages: requirements and features as expandable rows with filters, each listing the backlog items, user stories and tables that trace to it; the holds-back table now comes from the backlog; risks added; a user stories page added. Stale sign-in rows fixed (C5 shipped): SEC-003 verified, PORTAL-001, SEC-014, F-19 and F-45 restated; TG-10 (client two-step verification) raised, now C37 | Owner request 2026-10-10 ("similar to these… all connected and intertwined") |
+| 2026-11-02 | 1.42 | F-60: merging by hand publishes too, and failed checks are explained on the change request; CI pinned to Ubuntu 24.04 with a weekly run (C42) | Owner report 2026-11-02: an Our Story edit merged by hand didn't go live; CI had failed at set-up on every run since 2026-10-14 |
 | 2026-10-10 | 1.41 | F-60: documentation waiting for release no longer holds the owner's fast-lane change (C41) | Owner approval 2026-10-10: "yes build it" |
 | 2026-10-10 | 1.40 | F-53, F-57 and F-58: the fixes of #65 and #66 are live | Release promoted by the owner 2026-10-10 |
 | 2026-10-10 | 1.39 | F-53: TAB Practice's and My TAB's sign-in pages and portal pages get separate layouts (route groups `(signin)`, `(staff)`, `(client)`); paths updated | Owner report 2026-10-10: after signing in, TAB Practice showed without its menu, unscaled, until a reload |

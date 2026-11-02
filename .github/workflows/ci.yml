@@ -8,6 +8,12 @@ on:
     branches: [main, "content/**"]
   # Started by content-main-guard.yml for the change request it opens (its pushes don't start workflows themselves).
   workflow_dispatch:
+  # A weekly run on main, so a change on GitHub's side that breaks the checks shows up within days, not when someone next
+  # tries to publish (Ubuntu 26.04 broke every run from 2026-10-14 to 2026-11-02 unnoticed, C42). A failed scheduled run
+  # emails whoever last changed this schedule.
+  schedule:
+    - cron: "17 13 * * 1"
+
 
 permissions:
   contents: read
@@ -19,7 +25,9 @@ concurrency:
 jobs:
   check:
     name: Typecheck, RLS, contrast, build, e2e
-    runs-on: ubuntu-latest
+    # Pinned: GitHub moved ubuntu-latest to Ubuntu 26.04 in October 2026, where the pinned Playwright (1.56) has no
+    # Chromium, so "Install Playwright browser" failed every run (C42). Move on deliberately, with Playwright, not by drift.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       NEXT_TELEMETRY_DISABLED: "1"

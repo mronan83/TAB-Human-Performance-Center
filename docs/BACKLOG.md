@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.6
+version: 3.7
 updated: 2026-10-10
 ---
 
@@ -28,7 +28,13 @@ The single list of remaining work for TAB Human Performance Center, with what ea
 
 ## P0 · Now
 
-Risk, or work that blocks most of the rest. Nothing is open here now.
+Risk, or work that blocks most of the rest.
+
+### C42 · Editing that works whichever way you finish
+- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Requirements:** CMS-004, CMS-006, NFR-007
+- **Done when:** CI passes again; a content change the owner merges by hand goes live once CI passes on `main`; a failed check says on the change request whether it was the content or the machine; and a weekly run on `main` catches a broken CI within days.
+- Owner report 2026-11-02: an Our Story edit (#71), merged by hand, didn't go live; "This process is not efficient, user friendly, or functional." Three causes: GitHub moved `ubuntu-latest` to Ubuntu 26.04 on about 2026-10-14, where Playwright 1.56 has no Chromium, so every CI run failed at set-up, unnoticed for three weeks; the fast lane only published changes it merged itself; and a failed check said nothing about why. The edit itself passed every check when run locally and was published on 2026-11-02 under the fast lane's rules.
 
 ### C40 · TAB Practice opens without its menu after signing in
 - **Status:** Done · **Owner:** Claude · **Category:** Portal · **Size:** S
@@ -547,6 +553,10 @@ Improvements and options with no launch or go-live date riding on them.
 **A15 is the real go-live gate for My TAB.** It needs C6, A14 and A26: no production client data until the security gate, backups with a tested restore, and a privacy policy that covers My TAB are all in place (`CLAUDE.md` guardrail 4).
 
 ## Release notes
+
+- **Our Story edit live** (2026-11-02, #71): the owner's two paragraphs, published after the full checks passed locally; CI on GitHub couldn't run them (C42).
+
+- **Editing that works whichever way you finish** (2026-11-02, C42, PR open): CI runs again (pinned to Ubuntu 24.04, plus a weekly run); pressing **Squash and merge** publishes your change once the checks pass, just as leaving it does; a failed check is explained on the change request.
 
 - **Documentation no longer holds the fast lane** (live 2026-10-10, C41, #68): the owner's content change goes live by itself even when only documentation has been merged since the last release; the Live comment says so.
 
