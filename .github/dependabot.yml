@@ -11,7 +11,7 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
-      # Major versions (Next 16, React, zod 4, TypeScript 7, ...) are planned upgrades with their own PR and
+      # Major versions (Next 16, React, TypeScript 7, ...) are planned upgrades with their own PR and
       # testing, not routine updates; they're tracked in docs/requirements-register.md (UPG items).
       - dependency-name: "*"
         update-types: [version-update:semver-major]

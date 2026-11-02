@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { extraPages, sitemapPaths } from "./helpers";
 
@@ -60,6 +62,19 @@ test("portal pages: fresh nonce per request, scripts carry it, no violations", a
     await clientStarted(page);
   }
   expect(seen, seen.join("\n")).toEqual([]);
+});
+
+test("zod never generates code at run time: every file takes it from lib/zod.ts, which turns that off", () => {
+  // zod 4 compiles object parsers with `new Function`, which the policy blocks (and reports) in the browser. The setting
+  // applies only to schemas built after it runs, so a file importing "zod" directly could build one before it.
+  const files = (dir: string): string[] => fs.readdirSync(dir, { withFileTypes: true }).flatMap((d) => {
+    const p = path.join(dir, d.name);
+    if (d.isDirectory()) return d.name.startsWith(".") || ["node_modules", "test-results", "playwright-report"].includes(d.name) ? [] : files(p);
+    return /\.(ts|tsx|mjs|js)$/.test(d.name) ? [path.relative(process.cwd(), p)] : [];
+  });
+  const direct = files(process.cwd()).filter((f) => /from\s+["']zod(\/[^"']*)?["']|require\(\s*["']zod/.test(fs.readFileSync(f, "utf8")));
+  expect(direct).toEqual(["lib/zod.ts"]);
+  expect(fs.readFileSync("lib/zod.ts", "utf8")).toMatch(/z\.config\(\{ jitless: true \}\)/);
 });
 
 test("pages can't be framed by other sites (clickjacking)", async ({ request }) => {

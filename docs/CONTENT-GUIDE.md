@@ -1,6 +1,6 @@
 ---
 title: Website content guide
-version: 2.2
+version: 2.3
 updated: 2026-10-10
 owner: Matthew Ronan
 ---
@@ -27,13 +27,13 @@ _Status, 10 October 2026: the content editor (`/keystatic`, opened from TAB Prac
 
 ## Edit the website | Step by step, from opening the editor to live
 
-This is the whole journey for a change you make yourself in the content editor. You never need to touch GitHub: you **save**, then you **watch**. The owner's own changes go live by themselves about ten minutes after the last save.
+This is the whole journey for a change you make yourself in the content editor. You **save**, then either wait or press **Squash and merge** on the change request: both publish your change once the checks pass, about ten minutes after the save.
 
 ### The five rules
 
 1. **Start in TAB Practice → Edit the website.** It's the one way in, and it checks who you are before the editor opens.
 2. **New branch first.** The editor opens on `main`, the live website, where saving is turned off. One change, one branch.
-3. **Save, then hands off.** Don't merge, approve, close or update the change request in GitHub. Once the checks pass, the fast lane merges your change and puts it live. If you merge it by hand, the fast lane stands down, and nothing goes live until the next release is promoted.
+3. **Save, then publish your way.** Leave it, and the fast lane merges and publishes it once the checks pass. Or, when you're done, open the change request and press **Squash and merge**: that publishes it too, once the checks pass on the merged result. Leaving it publishes each save as soon as its checks pass, so if a change takes several sittings, make the edits before you save, or keep saving and merge when you're done.
 4. **Watch for "Live".** The editor's **⋯** menu → **Pull request #…** opens your change request: the checks, a preview and, at the end, a comment saying **Live**.
 5. **New change, new branch.** Once a change is live, its branch is deleted automatically: start a fresh one for the next change.
 
@@ -103,12 +103,14 @@ The change request's page shows its description ("What happens next"), Vercel's 
 |---|---|---|
 | A yellow dot: "Some checks haven't completed yet" | The checks are running (about 5 minutes) | Wait. The preview link usually appears first |
 | Vercel's comment, with **Visit Preview** | A private copy of the website with your change | Look at your page on a phone and a computer (sign in to Vercel if asked) |
-| A red ✗: "Some checks were not successful" | Your change breaks a rule; nothing was merged or published | Open **Details** next to the failed check, or ask Claude what failed. Fix it in the editor on the same branch and **Save** again |
+| A red ✗: "Some checks were not successful" | A check failed; nothing was published. The fast lane's comment says which, and whether it was your content or the machine | Follow the comment (next rows) |
+| Fast lane: A check failed: "…" | Your change breaks a rule | Open **Details** next to the failed check for the rule and the field, fix it in the editor on the same branch and **Save** again, or ask Claude |
+| Fast lane: The checks couldn't run… | A fault in the checks on GitHub's side, not your content | Nothing for you to fix. Tell Claude; your change goes live once the checks run again |
 | Fast lane: **Live.** Merged and promoted… | Your change is on the live website | Reload the page to see it. To undo it, see "Undo a change" |
 | Fast lane: Merged. **Not live yet:** other changes on main are waiting for release… | Your change is merged, but a release from Claude that changes the website is waiting for your "promote", and yours joins it. (Documentation changes don't hold it back.) | Ask Claude for the release, check it, and say "promote" |
 | Fast lane: Merged. **Not live yet:** main moved while this was merging… | Something else reached `main` at the same moment | The same: it goes live with the next release you promote |
 | Fast lane: This change needs the owner's approval as usual, with the reasons | It isn't the owner's own content change: an admin made it, it touches a file outside the content, or a merge commit is in it | The owner checks the preview and tells Claude "approve" with the number; Claude merges it and sends the release |
-| **Merged**, with no fast-lane comment | Someone merged it by hand | Nothing is live yet: ask Claude to send the release, then say "promote" |
+| **Merged** by you, no comment yet | The checks are running again on the merged result (about 5 minutes) | Wait for the **Live** comment |
 
 ### 7. Check the live site
 
@@ -123,7 +125,7 @@ The change request's page shows its description ("What happens next"), Vercel's 
 
 ### What not to do
 
-- **Don't press Merge, Approve, Close or Update branch** on a change request. Merging doesn't publish anything, and it stops the fast lane. **Update branch** adds a merge commit, which the fast lane won't accept.
+- **Don't press Update branch or Close** on a change request. **Update branch** adds a merge commit, which the fast lane won't accept, and **Close** abandons the change. (**Squash and merge** is fine: it publishes.)
 - **Don't edit files on github.com.** Change content in the editor, where the limits and checks apply as you type.
 - **Don't use ⋯ → Delete branch** on a change you still want: it throws the change away.
 - **Never upload or type anything about a client.** Everything on the website is public.
@@ -201,7 +203,7 @@ _Also under Resource topics: **Add** a subject (3 to 90 characters, up to 12 per
 | A check failed | The change breaks a rule (see "Rules every change must pass"); the error names the file and the field | Fix it in the editor, on the same branch, and save again |
 | The fast lane says it needs approval | It isn't the owner's own content change | The owner checks the preview and tells Claude "approve" with the number |
 | "Not live yet" | Other changes to the website are waiting for release | Ask Claude for the release and say "promote" |
-| You merged a change request yourself | A merge adds it to `main` but publishes nothing, and the fast lane no longer sees it | Ask Claude to send the release, then say "promote" |
+| "The checks couldn't run" on your change request | A fault on GitHub's side, not your content (from 14 October to 2 November 2026, GitHub's new Ubuntu machines broke every run) | Tell Claude. Your change goes live once the checks run again |
 | The change is live, but the page looks the same | The browser kept its copy | **Ctrl+Shift+R** (**Cmd+Shift+R** on a Mac) |
 | A guide listed twice under its topic, as "Coming soon" and as the PDF | Before 10 October 2026, a subject had to be linked by hand | Fixed: a subject opens the topic's resource with the same title. If the wording differs, link them (see "Make a 'Coming soon' subject open a resource") |
 | A failed "Content change request" run on GitHub right after creating a branch | Before 10 October 2026, the change request tried to open before anything was saved | Fixed: it now waits for the first save |
@@ -466,6 +468,7 @@ This guide is a living document. Claude updates it in the same release as any ch
 
 | Version | Date | Change | Reason |
 |---|---|---|---|
+| 2.3 | 2026-11-02 | Merging publishes: press **Squash and merge** when you're done, or leave it to the fast lane; a failed check is explained on the change request (your content, or the machine); the checks run again | Owner report 2026-11-02: an Our Story edit, merged by hand, didn't go live ("This process is not efficient, user friendly, or functional") |
 | 2.2 | 2026-10-10 | "Not live yet" happens only when a change to the website is waiting for release; documentation waiting no longer holds your edit | Owner approval 2026-10-10 ("yes build it"), C41 |
 | 2.1 | 2026-10-10 | Branches are deleted automatically once their change is merged: the rules, coming back to a branch, and "Branch not found" in troubleshooting | Owner turned on GitHub's automatic branch deletion, 2026-10-10 |
 | 2.0 | 2026-10-10 | Rebuilt around doing: "Edit the website" step by step with exact button names, a map of the editor and a timeline from save to live; worked examples (a sentence, a PDF guide, a subject, a team member, a section); troubleshooting; the fast lane is on; a subject opens the resource of its topic with the same title | Owner request 2026-10-10: "a user guide and workflow instructions on how to make edits to the website… where to start, what to do, and how to do it", after a merged change didn't go live and the topics wouldn't open |

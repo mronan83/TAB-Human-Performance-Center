@@ -87,9 +87,9 @@ const contentFlow = () => snake("Editing the website, step by step", [
   ["Edit", ["fields and lists,", "limits as you type"]],
   ["Save", ["the change request", "opens by itself"]],
   ["Checks", ["about 5 minutes;", "preview link"]],
-  ["Fast lane", ["merges and promotes;", "don't merge by hand"]],
+  ["Publish", ["fast lane, or press", "Squash and merge"]],
   ["Live", ["comment says Live.;", "reload the page"]],
-], 4, "Steps 1 to 5 are yours, in the editor; 6 to 8 happen by themselves for the owner's own changes. If a check fails, the change request names the rule and the field: fix it in the editor on the same branch and save again. Anyone else's change waits for the owner's approval after step 6.", { accent: [4, 7] });
+], 4, "Steps 1 to 5 are yours, in the editor; 6 to 8 happen by themselves for the owner's own changes, or step 7 when you press Squash and merge. If a check fails, the change request names the rule and the field: fix it in the editor on the same branch and save again. Anyone else's change waits for the owner's approval after step 6.", { accent: [4, 7] });
 
 /** From the last save to the live site, in minutes (CI and production build times measured October 2026). */
 const timeline = () => {
@@ -112,9 +112,9 @@ const timeline = () => {
   at(xs[1], false, "Change request", ["opens by itself", "(first save only)"]);
   at(xs[6], false, "Fast lane merges", ["owner's own content", "change, checks green"]);
   at(xs[8], false, "Build and promote", ["comment on the change", "request: Live."], { accent: true });
-  p.push(box(290 - 85, y - 40 - h - 22, 170, h, "Don't merge here", ["a merge by hand stops", "the fast lane"], { muted: true }));
+  p.push(box(290 - 85, y - 40 - h - 22, 170, h, "Or merge it yourself", ["Squash and merge also", "publishes, once checked"], { muted: true }));
   return figure(svg(990, 330, "Timeline from your last save to the live site: the change request opens within a minute, the checks run for about five minutes and the preview appears, the fast lane merges at about six minutes, the build is promoted at about eight, and you check the page at about ten", p.join("\n")),
-    "Typical times for the owner's own change. Everything below the line happens by itself; the change request shows each step. If a release from Claude that changes the website is already waiting for your \"promote\", your change is merged but waits for that release (\"Not live yet\"); documentation waiting doesn't count.");
+    "Typical times for the owner's own change. Everything below the line happens by itself; the change request shows each step. Merging it yourself at any point publishes it the same way, once the checks pass on the merged result. If a release from Claude that changes the website is already waiting for your \"promote\", your change is merged but waits for that release (\"Not live yet\"); documentation waiting doesn't count.");
 };
 
 /** A map of the content editor's screen: where the branch box, the ⋯ menu, Save and the badges are. */

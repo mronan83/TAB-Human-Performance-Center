@@ -3,6 +3,9 @@
 # change, anything outside the content files, a release with other changes waiting) keeps G2 and G3. The rules and steps
 # are in scripts/fast-lane.ts, always taken from main (this trigger checks out the default branch, never the content
 # branch). Off until the VERCEL_TOKEN secret exists (backlog A32).
+# It also runs after CI on main (a change request the owner merged by hand is published once CI passes on the merged
+# result, C42) and after a failed CI run (it says on the change request which step failed and whether that was the
+# machine's set-up rather than the content).
 name: Content fast lane
 
 on:
@@ -13,6 +16,8 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  # To read which steps of a failed CI run failed, for the comment on the change request (C42).
+  actions: read
 
 concurrency:
   group: content-fast-lane
@@ -20,11 +25,11 @@ concurrency:
 
 jobs:
   ship:
-    name: Merge and publish the owner's content change
+    name: Publish the owner's content change
     if: >-
-      github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'content/') &&
-      github.event.workflow_run.event != 'pull_request'
+      (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure') &&
+      github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.event != 'schedule' &&
+      (startsWith(github.event.workflow_run.head_branch, 'content/') || github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -38,5 +43,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
           FAST_LANE_OWNER: ${{ vars.FAST_LANE_OWNER || 'mronan83' }}
         run: node --experimental-strip-types scripts/fast-lane.ts

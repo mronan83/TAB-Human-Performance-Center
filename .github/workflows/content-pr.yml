@@ -41,7 +41,7 @@ jobs:
             "**What happens next**" \
             "- **Checks** run on every save, in about 5 minutes: brand language, scope of practice, content rules, accessibility, phones and links. They show at the foot of this page." \
             "- **Preview:** Vercel's preview link appears below once it builds." \
-            "- **The owner's own change** (every save on this branch made by the owner in the editor, content files only): once the checks pass, the content fast lane merges it, puts it live and comments **Live** here, usually within 10 minutes of the save. **Please don't merge it yourself:** a merge doesn't publish anything, and it stops the fast lane." \
+            "- **The owner's own change** (every save on this branch made by the owner in the editor, content files only) goes live once the checks pass, usually within 10 minutes. Either leave it and the content fast lane merges and publishes it, or press **Squash and merge** yourself when you're done: that publishes it too, once the checks pass on the merged result. A **Live** comment appears here either way; if a check fails, a comment says which and whether it's your content." \
             "- **Anyone else's change:** the fast lane comments to say why it needs the owner's approval. Once the owner approves, Claude merges it and the owner promotes the release." \
             "" \
             "Step by step: the Website content guide (docs/CONTENT-GUIDE.md), under \"Edit the website\".")

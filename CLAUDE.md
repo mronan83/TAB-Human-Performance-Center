@@ -105,7 +105,8 @@ Never print, log or commit token values.
   **Fast lane (C32, `content-fast-lane.yml`, in force since 2026-10-10, when the owner added the `VERCEL_TOKEN` secret, A32):** a content change
   request whose every commit the owner made in the editor (`keystatic-cloud[bot]`, the owner as only co-author), that
   changes only content files and is green, is merged and promoted by the workflow without a separate approval; if changes to
-  the website wait for release it merges without promoting (documentation waiting doesn't count, C41). It never covers Claude's PRs, an admin's PR, or any change
+  the website wait for release it merges without promoting (documentation waiting doesn't count, C41). If the owner merges such a
+  change request by hand, the lane publishes it the same way once CI passes on `main` (C42). It never covers Claude's PRs, an admin's PR, or any change
   outside the content files; those keep G2 and G3. A fast-lane release counts as approved in the G3 pre-promotion list.
 - G3 Release — owner approves every production promotion and every production migration.
   Staged production (owner ruling 2026-09-28): Vercel does not auto-assign production domains, so a merge to `main`

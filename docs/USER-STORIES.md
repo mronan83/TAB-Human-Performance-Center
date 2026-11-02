@@ -1153,13 +1153,14 @@ What each person needs from TAB Human Performance Center's public website, My TA
 - **Priority:** Could
 - **Phase:** P1
 - **Requirements:** CMS-004
-- **Delivered by:** F-60, C32, A32, C39, C41
+- **Delivered by:** F-60, C32, A32, C39, C41, C42
 - **Draft:** yes
 
 1. **Given** a change request authored by the owner that touches only content files and passes every check **when** CI finishes **then** it is squash-merged **and** that exact production build is promoted without a separate approval.
 2. **Given** a change request by an admin or Claude, or one touching anything outside the content files, **when** it is green **then** it still waits for the owner's approval (G2) and promotion (G3).
 3. **Given** a Keystatic Cloud edit can't be traced to the owner **when** the fast lane is built **then** it covers only the owner's direct edits.
-4. **Given** the owner's change request **when** it opens **then** its description says what happens next and not to merge it by hand, **and** a change request merged by hand before the checks finish goes live only with the next promotion.
+4. **Given** the owner's change request **when** it opens **then** its description says what happens next, **and** if the owner presses **Squash and merge** themselves, before or after the checks finish, it goes live once the checks pass on the merged result.
+6. **Given** a check fails on the owner's change **when** CI finishes **then** the change request says which step failed and whether it was the content or the machine's set-up, **and** nothing goes live.
 5. **Given** only documentation has changed on main since the last release **when** the owner's change passes its checks **then** it still goes live by itself, **and** the change request says documentation rode along.
 
 ### US-913 · Switch the banner and optional pages from Settings

@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 import keystaticConfig from "../keystatic.config";
-import { EDITOR_BOT, coAuthors, eligibility, isContentFile, isDocsFile, releasable } from "../scripts/fast-lane";
+import { EDITOR_BOT, coAuthors, eligibility, failureNote, isContentFile, isDocsFile, releasable } from "../scripts/fast-lane";
 
 /**
  * The content fast lane's rules (C32, proposed D-070; scripts/fast-lane.mjs): only the owner's own content changes,
@@ -67,11 +67,35 @@ test("a fast-lane change goes live on its own only when nothing that changes the
   for (const f of ["app/docs/page.tsx", "public/docs/a.md", "content/pages/home.json", "docs/../app/page.tsx", "package.json"]) expect(isDocsFile(f), f).toBe(false);
 });
 
-test("the workflow runs main's copy of the lane, only after CI passes on a content branch", () => {
+test("the workflow runs main's copy of the lane after CI on a content branch or on main, passed or failed", () => {
   const wf = fs.readFileSync(path.join(root, ".github/workflows/content-fast-lane.yml"), "utf8");
   expect(wf).toContain("workflow_run:");
-  expect(wf).toContain("github.event.workflow_run.conclusion == 'success'");
+  expect(wf).toContain("github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure'");
   expect(wf).toContain("startsWith(github.event.workflow_run.head_branch, 'content/')");
+  // A change request the owner merged by hand is published from CI on main (C42).
+  expect(wf).toContain("github.event.workflow_run.head_branch == 'main'");
+  expect(wf).toContain("github.event.workflow_run.event != 'pull_request' && github.event.workflow_run.event != 'schedule'");
+  expect(wf).toContain("CONCLUSION: ${{ github.event.workflow_run.conclusion }}");
+  expect(wf).toContain("RUN_ID: ${{ github.event.workflow_run.id }}");
   expect(wf).not.toMatch(/ref:\s*\$\{\{\s*github\.event\.workflow_run\.head/); // never checks out the content branch's code
   expect(wf).toContain("secrets.VERCEL_TOKEN");
+});
+
+test("a failed check says whether the machine or the content failed (C42)", () => {
+  // GitHub's Ubuntu 26.04 broke "Install Playwright browser" on every run from 2026-10-14: that's not the owner's content.
+  expect(failureNote(["Install Playwright browser"])).toContain("not your content");
+  expect(failureNote(["Set up job", "Install the browser's system libraries"])).toContain("couldn't run");
+  expect(failureNote(["Brand consistency"])).toContain('A check failed: "Brand consistency"');
+  expect(failureNote(["Install Playwright browser", "End-to-end launch checks"])).toContain("A check failed");
+  expect(failureNote([])).toContain("A check failed");
+  for (const n of [failureNote(["Install Playwright browser"]), failureNote(["Production build"])]) expect(n).toContain("Nothing went live");
+});
+
+test("CI runs on an Ubuntu that the pinned Playwright supports, and weekly, so a change on GitHub's side shows up (C42)", () => {
+  const ci = fs.readFileSync(path.join(root, ".github/workflows/ci.yml"), "utf8");
+  expect(ci).toMatch(/runs-on: ubuntu-24\.04/);
+  expect(ci).not.toMatch(/runs-on: ubuntu-latest/);
+  expect(ci).toMatch(/schedule:\s*\n\s*- cron: "[^"]+"/);
+  const pw = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")).devDependencies["@playwright/test"];
+  expect(pw, "moving Playwright past 1.56? check its supported Ubuntu releases, then the pin above").toBe("1.56.1");
 });
