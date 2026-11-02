@@ -2,7 +2,7 @@
  * Program editor (C7, design §3.1): the shape and limits of a draft as the editor sends it. The editor posts the
  * whole draft as JSON in a `content` field; this is the only parser for it, so a crafted form can't exceed the limits.
  */
-import { z } from "zod";
+import { z } from "../zod";
 import { services } from "@/content/services";
 import { LIMITS, activityKinds, prescriptionKeys } from "./programs";
 import type { Activity, ClientActivityInput, ProgramDraftInput } from "./types";
@@ -16,7 +16,8 @@ const activity = z.object({
   kind: z.enum(activityKinds.map((k) => k.value) as [Activity["kind"], ...Activity["kind"][]]),
   title: text(LIMITS.title).min(1, "Every activity needs a name."),
   instructions: optional(LIMITS.instructions),
-  prescription: z.record(z.enum(prescriptionKeys), text(LIMITS.rxValue)).default({})
+  // partialRecord: any of the keys, not all of them (zod 4's record with enum keys requires every key).
+  prescription: z.partialRecord(z.enum(prescriptionKeys), text(LIMITS.rxValue)).default({})
     .transform((rx) => Object.fromEntries(Object.entries(rx).filter(([, v]) => v))),
 });
 
@@ -38,7 +39,7 @@ export function parseProgramDraft(fd: FormData): { ok: true; draft: Omit<Program
   const r = z.object({
     title: text(LIMITS.title).min(1, "Give the program a title."),
     summary: optional(LIMITS.summary),
-    service: z.enum(serviceSlugs, { errorMap: () => ({ message: "Choose a service." }) }),
+    service: z.enum(serviceSlugs, { error: "Choose a service." }),
     modules: content,
   }).safeParse({ title: fd.get("title") ?? "", summary: fd.get("summary") ?? "", service: fd.get("service"), modules: raw });
   if (!r.success) return { ok: false, error: r.error.issues[0]?.message ?? "Check the program and try again." };

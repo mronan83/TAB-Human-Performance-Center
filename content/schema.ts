@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "../lib/zod";
 import { images, type ImageKey } from "./images";
 
 /**
@@ -71,7 +71,7 @@ export const techniquesContentSchema = z.object({
 });
 
 /** Parses a content file, naming the file and the field in the error, so a failed check says what to fix. */
-export function parseContent<T>(schema: z.ZodType<T, z.ZodTypeDef, unknown>, data: unknown, file: string): T {
+export function parseContent<T>(schema: z.ZodType<T, unknown>, data: unknown, file: string): T {
   const r = schema.safeParse(data);
   if (r.success) return r.data;
   const issues = r.error.issues.map((i) => `  ${i.path.join(".") || "(file)"}: ${i.message}`).join("\n");

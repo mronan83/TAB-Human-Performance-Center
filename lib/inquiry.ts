@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "./zod";
 
 /**
  * Start Where You Are (GS-001) asks the Step 14 §14.4.1 Get Started questions; the contact form is a short,
@@ -167,7 +167,7 @@ export const inquirySchema = z
     // Contact
     topic: choice(topicOptions),
     message: z.string().trim().max(3000, "Please keep your message under 3,000 characters.").optional(),
-    consentContact: z.literal(true, { errorMap: () => ({ message: "Please confirm we can contact you about your inquiry." }) }),
+    consentContact: z.literal(true, { error: "Please confirm we can contact you about your inquiry." }),
     marketingOptIn: z.boolean().optional(),
     // Spam defenses (lib/spam.ts, SEC-013); never stored or emailed.
     website: z.string().max(200).optional(), // honeypot: hidden from people; bots that fill it are dropped quietly

@@ -32,8 +32,8 @@ Risk, or work that blocks most of the rest.
 
 ### C42 · Editing that works whichever way you finish
 - **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
-- **Requirements:** CMS-004, CMS-006, NFR-007
-- **Done when:** CI passes again; a content change the owner merges by hand goes live once CI passes on `main`; a failed check says on the change request whether it was the content or the machine; and a weekly run on `main` catches a broken CI within days.
+- **Requirements:** CMS-004, CMS-006, NFR-007, SEC-011
+- **Done when:** CI passes again, including the dependency audit (Next.js 15.5.28 and zod 4 for the advisories of 2026-11-02); a content change the owner merges by hand goes live once CI passes on `main`; a failed check says on the change request whether it was the content or the machine; and a weekly run on `main` catches a broken CI within days.
 - Owner report 2026-11-02: an Our Story edit (#71), merged by hand, didn't go live; "This process is not efficient, user friendly, or functional." Three causes: GitHub moved `ubuntu-latest` to Ubuntu 26.04 on about 2026-10-14, where Playwright 1.56 has no Chromium, so every CI run failed at set-up, unnoticed for three weeks; the fast lane only published changes it merged itself; and a failed check said nothing about why. The edit itself passed every check when run locally and was published on 2026-11-02 under the fast lane's rules.
 
 ### C40 · TAB Practice opens without its menu after signing in
@@ -455,7 +455,7 @@ Improvements and options with no launch or go-live date riding on them.
 
 ### C9 · Major upgrades
 - **Status:** Ready · **Owner:** Claude · **Category:** Platform · **Size:** L
-- **Done when:** the site runs on Next 16, zod 4 and TypeScript 7 with every check green.
+- **Done when:** the site runs on Next 16 and TypeScript 7 with every check green. (zod 4 arrived with C42 on 2026-11-02, forced by a security advisory.)
 - [UPG-01 to UPG-03]
 
 ### C10 · Handoff-document references
