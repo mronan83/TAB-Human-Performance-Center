@@ -3,7 +3,7 @@ title: TAB Human Performance Center Backlog
 eyebrow: TAB Human Performance Center · Backlog
 heading: Build backlog
 owner: Matthew Ronan
-version: 3.7
+version: 3.8
 updated: 2026-10-10
 ---
 
@@ -31,10 +31,11 @@ The single list of remaining work for TAB Human Performance Center, with what ea
 Risk, or work that blocks most of the rest.
 
 ### C42 · Editing that works whichever way you finish
-- **Status:** In review · **Owner:** Claude · **Category:** Platform · **Size:** S
+- **Status:** In progress · **Owner:** Claude · **Category:** Platform · **Size:** S
 - **Requirements:** CMS-004, CMS-006, NFR-007, SEC-011
 - **Done when:** CI passes again, including the dependency audit (Next.js 15.5.28 and zod 4 for the advisories of 2026-11-02); a content change the owner merges by hand goes live once CI passes on `main`; a failed check says on the change request whether it was the content or the machine; and a weekly run on `main` catches a broken CI within days.
 - Owner report 2026-11-02: an Our Story edit (#71), merged by hand, didn't go live; "This process is not efficient, user friendly, or functional." Three causes: GitHub moved `ubuntu-latest` to Ubuntu 26.04 on about 2026-10-14, where Playwright 1.56 has no Chromium, so every CI run failed at set-up, unnoticed for three weeks; the fast lane only published changes it merged itself; and a failed check said nothing about why. The edit itself passed every check when run locally and was published on 2026-11-02 under the fast lane's rules.
+- Released 2026-11-02 (#72, build `dpl_5DG6sgizPwYqZT7J8nHj1MfWFLFb`). CI is green again, the dependency audit included, and after the merge the lane ran on `main` and correctly stood aside ("isn't the merge of a content change request"). Waiting on the first real cases: an owner's content change merged by hand, published once CI passes on `main`; a failed check explained on its change request; and the first weekly run (Monday 2026-11-09).
 
 ### C40 · TAB Practice opens without its menu after signing in
 - **Status:** Done · **Owner:** Claude · **Category:** Portal · **Size:** S
@@ -554,6 +555,7 @@ Improvements and options with no launch or go-live date riding on them.
 
 ## Release notes
 
+- **Editing that works either way; security patch** (2026-11-02, #72, C42): CI runs again on a pinned Ubuntu 24.04, weekly as well; the owner's content change goes live whether it's left to the fast lane or merged by hand, and a failed check says whether it was the content or the machine. Next.js 15.5.28 and zod 4 close the advisories published while CI was down (a Server Actions denial of service among them). Nothing on the site looks different.
 - **Our Story edit live** (2026-11-02, #71): the owner's two paragraphs, published after the full checks passed locally; CI on GitHub couldn't run them (C42).
 
 - **Editing that works whichever way you finish** (2026-11-02, C42, PR open): CI runs again (pinned to Ubuntu 24.04, plus a weekly run); pressing **Squash and merge** publishes your change once the checks pass, just as leaving it does; a failed check is explained on the change request.
